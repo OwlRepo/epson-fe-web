@@ -1,7 +1,6 @@
 import { Outlet, createRootRoute, Link } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { Toaster } from "@/components/ui/sonner";
-import Spinner from "@/components/ui/spinner";
 
 declare module "@tanstack/react-router" {
   interface Register {

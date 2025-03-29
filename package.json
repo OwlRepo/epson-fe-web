@@ -6,6 +6,7 @@
     "setup-env": "node scripts/setup-env.js",
     "start": "npm run setup-env & vite --port 3000",
     "build": "vite build && tsc",
+    "docker-build": "docker compose up --build -d",
     "serve": "vite preview",
     "test": "vitest run"
   },

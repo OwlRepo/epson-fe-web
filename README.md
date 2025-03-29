@@ -203,6 +203,38 @@ bun run build
 bun run serve # Preview the build
 ```
 
+## Docker
+
+This application is containerized using Docker with Nginx as the web server.
+
+### Building the Docker Image
+
+```bash
+docker build -t epson-fe-web .
+```
+
+### Running the Docker Container
+
+```bash
+docker run -p 8765:80 epson-fe-web
+```
+
+### Using Docker Compose
+
+```bash
+# Start the application
+docker-compose up -d
+
+# Stop the application
+docker-compose down
+```
+
+The application will be available at http://localhost:8765 when running in Docker.
+
+### Environment Variables
+
+The Docker setup will use environment variables from your `.env` file during the build process. Make sure to set the `VITE_API_BASE_URL` and any other required variables.
+
 # Demo files
 
 Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.

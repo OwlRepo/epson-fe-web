@@ -19,14 +19,14 @@ export const createStore = <T extends Store>(
     devtools?: boolean;
   }
 ) => {
-  let store = create<T>()((set) => ({
+  let store = create<T>()(() => ({
     ...initialState,
   }));
 
   if (options?.persist) {
     store = create<T>()(
       persist(
-        (set) => ({
+        () => ({
           ...initialState,
         }),
         {
@@ -39,7 +39,7 @@ export const createStore = <T extends Store>(
   if (options?.devtools) {
     store = create<T>()(
       devtools(
-        (set) => ({
+        () => ({
           ...initialState,
         }),
         {
