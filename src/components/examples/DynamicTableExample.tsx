@@ -116,6 +116,17 @@ export function DynamicTableExample() {
     });
   };
 
+  const handleSearch = (searchTerm: string) => {
+    console.log("handleSearch", searchTerm);
+    navigate({
+      search: (prev) => ({
+        ...prev,
+        search: searchTerm,
+      }),
+      replace: true,
+    });
+  };
+
   // Filter data based on search params
   const filterData = (data: User[]) => {
     return data.filter((item) => {
@@ -123,8 +134,13 @@ export function DynamicTableExample() {
         !search.filter_role || item.role === search.filter_role;
       const matchesStatus =
         !search.filter_status || item.status === search.filter_status;
+      const matchesSearch =
+        !search.search ||
+        item.name.toLowerCase().includes(search.search.toLowerCase()) ||
+        item.role.toLowerCase().includes(search.search.toLowerCase()) ||
+        item.status.toLowerCase().includes(search.search.toLowerCase());
 
-      return matchesRole && matchesStatus;
+      return matchesRole && matchesStatus && matchesSearch;
     });
   };
 
@@ -169,6 +185,7 @@ export function DynamicTableExample() {
           onPageChange={handlePageChange}
           onPageSizeChange={handlePageSizeChange}
           onFilter={handleFilter}
+          onSearch={handleSearch}
           routeSearch={search}
           isLoading={isLoading}
         />
@@ -236,6 +253,7 @@ const paginatedData = filteredData.slice(
   }}
   onPageChange={handlePageChange}
   onPageSizeChange={handlePageSizeChange}
+  onSearch={handleSearch}
   onFilter={handleFilter}
   routeSearch={search}
   isLoading={isLoading}
