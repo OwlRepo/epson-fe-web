@@ -16,7 +16,7 @@ function DashboardPage() {
         name: "Ethan Blackwood",
         role: "HR Manager",
       }}
-      defaultCollapsed={true}
+      defaultCollapsed={false}
     >
       <Outlet />
     </AttendanceMonitoringLayout>

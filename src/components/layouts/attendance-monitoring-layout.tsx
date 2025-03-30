@@ -9,6 +9,7 @@ import {
   FileText,
   Settings,
   HelpCircle,
+  ArrowLeftToLine,
 } from "lucide-react";
 
 interface AttendanceMonitoringLayoutProps {
@@ -44,9 +45,8 @@ export function AttendanceMonitoringLayout({
   // Default nav items for the sidebar
   const navItems = [
     {
-      icon: <LayoutDashboard className="text-gray-500" />,
+      icon: <LayoutDashboard />,
       label: "Dashboard",
-      isActive: true,
       href: "/attendance_monitoring/dashboard",
       subItems: [
         {
@@ -64,13 +64,13 @@ export function AttendanceMonitoringLayout({
       ],
     },
     {
-      icon: <Users className="text-gray-500" />,
+      icon: <Users />,
       label: "Employees",
       href: "/attendance-monitoring/employees",
     },
     {
-      icon: <FileText className="text-gray-500" />,
-      label: "Attendance Monitoring",
+      icon: <FileText />,
+      label: "Reports",
       href: "/attendance-monitoring/reports",
       subItems: [
         {
@@ -88,7 +88,7 @@ export function AttendanceMonitoringLayout({
       ],
     },
     {
-      icon: <Settings className="text-gray-500" />,
+      icon: <Settings />,
       label: "Settings",
       href: "/attendance-monitoring/settings",
       subItems: [
@@ -107,7 +107,7 @@ export function AttendanceMonitoringLayout({
       ],
     },
     {
-      icon: <HelpCircle className="text-gray-500" />,
+      icon: <HelpCircle />,
       label: "Help & Support",
       href: "/attendance-monitoring/help",
     },

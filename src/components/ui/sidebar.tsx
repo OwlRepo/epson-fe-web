@@ -3,16 +3,16 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   ChevronLeft,
-  ChevronRight,
-  HomeIcon,
   Settings,
   Users,
   FileText,
   HelpCircle,
   LayoutDashboard,
   ChevronDown,
+  ArrowLeft,
+  ArrowRight,
 } from "lucide-react";
-import { Link } from "@tanstack/react-router";
+import { Link, useRouter, useMatch } from "@tanstack/react-router";
 
 interface SubItem {
   label: string;
@@ -57,12 +57,54 @@ const NavItem = ({
   collapsed,
   subItems,
 }: NavItemProps) => {
+  const router = useRouter();
+  const [currentPath, setCurrentPath] = React.useState(
+    router.state.location.pathname
+  );
+
+  // Add states for controlling submenu visibility and opacity
   const [showSubmenu, setShowSubmenu] = React.useState(false);
+  const [isSubmenuVisible, setIsSubmenuVisible] = React.useState(false);
+  const closeTimeoutRef = React.useRef<number | undefined>(undefined);
+
+  // Subscribe to router location changes and ensure active state updates
+  React.useEffect(() => {
+    const updatePath = () => {
+      setCurrentPath(router.state.location.pathname);
+      // Reset expanded state if no longer active
+      if (
+        !router.state.location.pathname.includes(href || "") &&
+        !subItems?.some((item) =>
+          router.state.location.pathname.includes(item.href)
+        )
+      ) {
+        setIsExpanded(false);
+      }
+    };
+
+    updatePath(); // Initial update
+    return router.subscribe("onResolved", updatePath);
+  }, [router, href, subItems]);
+
+  // Check if any submenu item is active
+  const hasActiveSubmenu = subItems?.some((item) =>
+    currentPath.includes(item.href)
+  );
+
   const [isExpanded, setIsExpanded] = React.useState(false);
   const itemRef = React.useRef<HTMLDivElement>(null);
   const submenuContainerRef = React.useRef<HTMLDivElement | null>(null);
 
   const hasSubItems = subItems && subItems.length > 0;
+  const isCurrentPath = href ? router.state.location.pathname === href : false;
+  const isActiveItem = isActive || isCurrentPath || hasActiveSubmenu;
+
+  // Update expanded state when route changes
+  React.useEffect(() => {
+    if (hasActiveSubmenu && !collapsed) {
+      setIsExpanded(true);
+    }
+  }, [currentPath, hasActiveSubmenu, collapsed]);
 
   const updateSubmenuPosition = React.useCallback(() => {
     if (
@@ -89,13 +131,21 @@ const NavItem = ({
 
   const handleMouseEnter = () => {
     if (collapsed && hasSubItems) {
+      clearTimeout(closeTimeoutRef.current);
       setShowSubmenu(true);
+      // Small delay to ensure CSS transition works
+      setTimeout(() => {
+        setIsSubmenuVisible(true);
+      }, 50);
     }
   };
 
   const handleMouseLeave = () => {
     if (collapsed) {
-      setShowSubmenu(false);
+      setIsSubmenuVisible(false);
+      closeTimeoutRef.current = setTimeout(() => {
+        setShowSubmenu(false);
+      }, 200); // Match this with CSS transition duration
     }
   };
 
@@ -105,6 +155,15 @@ const NavItem = ({
       setIsExpanded(!isExpanded);
     }
   };
+
+  // Cleanup timeout on unmount
+  React.useEffect(() => {
+    return () => {
+      if (closeTimeoutRef.current) {
+        clearTimeout(closeTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <div
@@ -116,11 +175,11 @@ const NavItem = ({
       <Button
         variant="ghost"
         className={cn(
-          "w-full justify-start px-3 py-2 h-10 font-normal text-gray-700",
+          "w-full justify-start px-4 py-2.5 h-12 font-normal text-[#94A3B8] hover:text-white",
           collapsed && "justify-center px-0",
-          isActive ? "bg-gray-100" : "hover:bg-gray-50",
+          isActiveItem && "text-white",
           hasSubItems && !collapsed && "justify-between",
-          hasSubItems && collapsed && "hover:bg-gray-100"
+          "hover:bg-transparent"
         )}
         asChild={!!href && !hasSubItems}
         onClick={hasSubItems ? toggleExpand : onClick}
@@ -129,29 +188,48 @@ const NavItem = ({
           <Link
             to={href}
             className={cn(
-              "flex items-center gap-2",
+              "flex items-center gap-3",
               collapsed && "justify-center"
             )}
           >
-            {icon}
-            {!collapsed && <span className="truncate">{label}</span>}
+            <div className={cn(isActiveItem && "text-white")}>{icon}</div>
+            {!collapsed && (
+              <span
+                className={cn(
+                  "truncate text-[15px] font-medium",
+                  isActiveItem && "text-white"
+                )}
+              >
+                {label}
+              </span>
+            )}
           </Link>
         ) : (
           <>
             <div
               className={cn(
-                "flex items-center gap-2",
+                "flex items-center gap-3",
                 collapsed && "justify-center w-full"
               )}
             >
-              {icon}
-              {!collapsed && <span className="truncate">{label}</span>}
+              <div className={cn(isActiveItem && "text-white")}>{icon}</div>
+              {!collapsed && (
+                <span
+                  className={cn(
+                    "truncate text-[15px] font-medium",
+                    isActiveItem && "text-white"
+                  )}
+                >
+                  {label}
+                </span>
+              )}
             </div>
             {hasSubItems && !collapsed && (
               <ChevronDown
                 size={16}
                 className={cn(
-                  "transition-transform duration-200 text-gray-400",
+                  "transition-transform duration-200",
+                  isActiveItem ? "text-white" : "text-[#94A3B8]",
                   isExpanded && "transform rotate-180"
                 )}
               />
@@ -162,18 +240,34 @@ const NavItem = ({
 
       {/* Submenu for non-collapsed state */}
       {hasSubItems && !collapsed && isExpanded && (
-        <div className="pl-8 mt-1 space-y-1 border-l border-gray-200 ml-3">
-          {subItems.map((item, idx) => (
-            <Button
-              key={idx}
-              variant="ghost"
-              size="sm"
-              className="w-full justify-start font-normal h-8 text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-              asChild
-            >
-              <Link to={item.href}>{item.label}</Link>
-            </Button>
-          ))}
+        <div className="pl-2 space-y-1 border-l border-white/20 ml-6">
+          {subItems.map((item, idx) => {
+            const isSubItemActive = currentPath.includes(item.href);
+            return (
+              <Button
+                key={idx}
+                variant="ghost"
+                size="sm"
+                className={cn(
+                  "w-full justify-start font-normal h-10 text-[#94A3B8] hover:text-white",
+                  isSubItemActive && "text-white",
+                  "hover:bg-transparent"
+                )}
+                asChild
+              >
+                <Link to={item.href}>
+                  <span
+                    className={cn(
+                      "text-[15px]",
+                      isSubItemActive && "text-white"
+                    )}
+                  >
+                    {item.label}
+                  </span>
+                </Link>
+              </Button>
+            );
+          })}
         </div>
       )}
 
@@ -181,28 +275,45 @@ const NavItem = ({
       {hasSubItems && collapsed && showSubmenu && (
         <div
           ref={submenuContainerRef}
-          className="fixed z-50 left-[60px] bg-white border border-gray-200 rounded-md shadow-md py-2 px-1 min-w-[220px] max-h-[calc(100vh-250px)] overflow-auto"
+          className={cn(
+            "fixed z-50 left-[60px] bg-[#1E3A8A] border border-white/20 rounded-md shadow-md py-2 px-1 min-w-[220px] max-h-[calc(100vh-250px)] overflow-auto transition-opacity duration-200",
+            isSubmenuVisible ? "opacity-100" : "opacity-0"
+          )}
           style={{ top: "var(--submenu-top-position, 0)" }}
         >
-          {/* Arrow pointing to the menu item */}
-          <div className="absolute w-2 h-2 bg-white border-l border-t border-gray-200 transform rotate-[-45deg] left-[-5px] top-[18px] z-10" />
+          <div className="absolute w-2 h-2 bg-[#1E3A8A] border-l border-t border-white/20 transform rotate-[-45deg] left-[-5px] top-[18px] z-10" />
 
-          <div className="font-medium px-3 py-2 text-sm border-b border-gray-200 mb-2 flex items-center text-gray-700">
-            {icon && <span className="mr-2">{icon}</span>}
+          <div className="font-medium px-3 py-2 text-md border-b border-white/20 mb-2 flex items-center text-white">
+            <div className={cn("mr-2", isActiveItem && "text-white")}>
+              {icon}
+            </div>
             {label}
           </div>
           <div className="space-y-1 overflow-y-auto px-1">
-            {subItems.map((item, idx) => (
-              <Button
-                key={idx}
-                variant="ghost"
-                size="sm"
-                className="w-full justify-start font-normal h-8 text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                asChild
-              >
-                <Link to={item.href}>{item.label}</Link>
-              </Button>
-            ))}
+            {subItems.map((item, idx) => {
+              const isSubItemActive = currentPath.includes(item.href);
+              return (
+                <Button
+                  key={idx}
+                  variant="ghost"
+                  size="sm"
+                  className={cn(
+                    "w-full justify-start font-normal h-10 text-[#94A3B8] hover:text-white",
+                    isSubItemActive && "text-white",
+                    "hover:bg-transparent"
+                  )}
+                  asChild
+                >
+                  <Link to={item.href}>
+                    <span
+                      className={cn("text-sm", isSubItemActive && "text-white")}
+                    >
+                      {item.label}
+                    </span>
+                  </Link>
+                </Button>
+              );
+            })}
           </div>
         </div>
       )}
@@ -210,92 +321,65 @@ const NavItem = ({
   );
 };
 
-// Default nav items
+// Default nav items with updated styling
 const defaultNavItems: NavItemConfig[] = [
   {
-    icon: <HomeIcon className="text-gray-500" />,
-    label: "Home",
-    isActive: true,
-    href: "#",
-  },
-  {
-    icon: <LayoutDashboard className="text-gray-500" />,
+    icon: <LayoutDashboard size={22} />,
     label: "Dashboard",
-    href: "#",
+    href: "/dashboard",
     subItems: [
-      { label: "Overview", href: "#overview" },
-      { label: "Departments", href: "#departments" },
-      { label: "Entry & Exit Points", href: "#entry-exit" },
+      { label: "Overview", href: "/overview" },
+      { label: "Departments", href: "/departments" },
+      { label: "Entry & Exit Points", href: "/entry-exit" },
     ],
   },
   {
-    icon: <Users className="text-gray-500" />,
+    icon: <Users size={22} />,
     label: "Employees",
-    href: "#",
+    href: "/employees",
   },
   {
-    icon: <FileText className="text-gray-500" />,
-    label: "Attendance Monitoring",
-    href: "#",
+    icon: <FileText size={22} />,
+    label: "Reports",
+    href: "/reports",
     subItems: [
-      { label: "Daily Reports", href: "#daily" },
-      { label: "Weekly Summary", href: "#weekly" },
-      { label: "Monthly Analytics", href: "#monthly" },
+      { label: "Daily Reports", href: "/reports/daily" },
+      { label: "Weekly Summary", href: "/reports/weekly" },
+      { label: "Monthly Analytics", href: "/reports/monthly" },
     ],
   },
   {
-    icon: <Settings className="text-gray-500" />,
+    icon: <Settings size={22} />,
     label: "Settings",
-    href: "#",
+    href: "/settings",
     subItems: [
-      { label: "User Settings", href: "#user-settings" },
-      { label: "System Settings", href: "#system-settings" },
-      { label: "Permissions", href: "#permissions" },
+      { label: "User Settings", href: "/settings/user" },
+      { label: "System Settings", href: "/settings/system" },
+      { label: "Permissions", href: "/settings/permissions" },
     ],
   },
   {
-    icon: <HelpCircle className="text-gray-500" />,
+    icon: <HelpCircle size={22} />,
     label: "Help & Support",
-    href: "#",
+    href: "/help",
   },
 ];
 
-// Default logo
+// Updated logo styling
 const defaultLogo = (
-  <div className="h-8 w-full bg-blue-800 rounded flex items-center justify-center">
-    <span className="font-bold text-white">EPSON</span>
+  <div className="w-full flex items-center px-4">
+    <span className="font-bold text-white text-2xl tracking-wide">EPSON</span>
   </div>
 );
 
-// Default footer items
+// Updated footer styling
 const defaultFooterItems = [
-  <div
-    key="footer1"
-    className="h-10 bg-blue-800/80 rounded flex items-center justify-center"
-  >
-    <span className="text-xs text-white">Footer Logo 1</span>
-  </div>,
-  <div
-    key="footer2"
-    className="h-10 bg-blue-800/80 rounded flex items-center justify-center"
-  >
-    <span className="text-xs text-white">Footer Logo 2</span>
-  </div>,
-];
-
-// Default collapsed footer items
-const defaultCollapsedFooterItems = [
-  <div
-    key="collapsed-footer1"
-    className="h-8 w-8 bg-blue-800/80 rounded flex items-center justify-center"
-  >
-    <span className="text-xs text-white">1</span>
-  </div>,
-  <div
-    key="collapsed-footer2"
-    className="h-8 w-8 bg-blue-800/80 rounded flex items-center justify-center"
-  >
-    <span className="text-xs text-white">2</span>
+  <div key="verifyi-logo" className="text-center px-4">
+    <div className="text-white text-xl font-semibold tracking-wide">
+      VERIFYI
+    </div>
+    <div className="text-white/60 text-xs mt-0.5">RFID Verification System</div>
+    <div className="text-white/60 text-xs mt-1">version 1.0.0</div>
   </div>,
 ];
 
@@ -306,50 +390,68 @@ export function Sidebar({
   logo = defaultLogo,
   footerItems = defaultFooterItems,
   collapsedLogo,
-  collapsedFooterItems = defaultCollapsedFooterItems,
+  collapsedFooterItems = [],
 }: SidebarProps) {
+  const router = useRouter();
   const [collapsed, setCollapsed] = React.useState(defaultCollapsed);
   const toggleSidebar = () => setCollapsed(!collapsed);
+  const currentPath = router.state.location.pathname;
 
   return (
     <aside
       className={cn(
-        "flex flex-col bg-white border-r border-gray-200 transition-all duration-300 ease-in-out h-screen",
+        "flex flex-col bg-[#1E3A8A] transition-all duration-300 ease-in-out h-screen",
         collapsed ? "w-[60px]" : "w-[240px]",
         className
       )}
       data-collapsed={collapsed}
     >
-      {/* Header with logo */}
-      <div
-        className={cn(
-          "flex items-center p-4 border-b border-gray-200",
-          collapsed ? "justify-center" : "justify-between"
-        )}
-      >
-        {!collapsed ? logo : collapsedLogo}
+      {/* Header with back button and logo */}
+      <div className="flex flex-col relative">
         <Button
-          variant="ghost"
-          size="icon"
-          className={cn(
-            "text-gray-500 hover:text-gray-700 hover:bg-gray-100",
-            collapsed ? (collapsedLogo ? "ml-auto" : "mx-auto") : "ml-auto"
-          )}
-          onClick={toggleSidebar}
-          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          variant="default"
+          className="flex items-center gap-2 text-white hover:bg-blue-800 px-4 py-4 rounded-none w-full bg-white/5 "
+          asChild
         >
-          {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+          <Link to="/">
+            <ChevronLeft size={20} className="text-white" />
+            {!collapsed && (
+              <span className="text-sm font-medium">Attendance Monitoring</span>
+            )}
+          </Link>
         </Button>
+        <div
+          className={cn(
+            "flex items-center h-16 relative",
+            collapsed ? "justify-center" : "justify-between"
+          )}
+        >
+          {!collapsed ? logo : collapsedLogo}
+
+          <Button
+            variant="ghost"
+            size="icon"
+            className="bg-white absolute -right-5"
+            onClick={toggleSidebar}
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {collapsed ? (
+              <ArrowRight size={18} className="text-blue-900" />
+            ) : (
+              <ArrowLeft size={18} className="text-blue-900" />
+            )}
+          </Button>
+        </div>
       </div>
 
       {/* Navigation links */}
-      <nav className="flex-1 overflow-y-auto p-2 space-y-1">
+      <nav className="flex-1 overflow-y-auto px-2 py-1 space-y-0.5">
         {navItems.map((item, index) => (
           <NavItem
             key={`nav-item-${index}`}
             icon={item.icon}
             label={item.label}
-            isActive={item.isActive}
+            isActive={currentPath.includes(item.href!)}
             href={item.href}
             onClick={item.onClick}
             collapsed={collapsed}
@@ -358,28 +460,18 @@ export function Sidebar({
         ))}
       </nav>
 
-      {/* Footer with additional brand elements */}
-      {(footerItems.length > 0 || collapsedFooterItems.length > 0) && (
-        <div className="p-4 border-t border-gray-200 mt-auto">
-          {!collapsed ? (
-            <div className="space-y-2">
-              {footerItems.map((item, index) => (
-                <React.Fragment key={`footer-item-${index}`}>
-                  {item}
-                </React.Fragment>
-              ))}
-            </div>
-          ) : (
-            <div className="flex flex-col items-center gap-2">
-              {collapsedFooterItems.map((item, index) => (
-                <React.Fragment key={`collapsed-footer-item-${index}`}>
-                  {item}
-                </React.Fragment>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
+      {/* Footer */}
+      <div className="py-6 mt-auto">
+        {!collapsed ? (
+          <div>
+            {footerItems.map((item, index) => (
+              <React.Fragment key={`footer-item-${index}`}>
+                {item}
+              </React.Fragment>
+            ))}
+          </div>
+        ) : null}
+      </div>
     </aside>
   );
 }
