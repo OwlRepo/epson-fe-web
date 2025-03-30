@@ -31,30 +31,6 @@ export const Route = createRootRoute({
   },
   component: () => (
     <>
-      <nav className="bg-white shadow-sm">
-        <div className="container mx-auto px-4">
-          <div className="flex h-16 items-center justify-between">
-            <div className="flex items-center space-x-8">
-              <Link
-                to="/"
-                search={{}}
-                className="text-gray-800 hover:text-gray-600"
-                activeOptions={{ exact: true }}
-              >
-                Home
-              </Link>
-              <Link
-                to="/components"
-                search={{}}
-                className="text-gray-800 hover:text-gray-600"
-                activeOptions={{ exact: true }}
-              >
-                Components
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
       <main>
         <Outlet />
       </main>

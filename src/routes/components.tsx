@@ -4,6 +4,7 @@ import { SpinnerExample } from "@/components/examples/SpinnerExample";
 import { BasicTableExample } from "@/components/examples/BasicTableExample";
 import { DynamicTableExample } from "@/components/examples/DynamicTableExample";
 import { AxiosExample } from "@/components/examples/AxiosExample";
+import { SidebarExample } from "@/components/examples/SidebarExample";
 
 interface SearchParams {
   q?: string;
@@ -61,6 +62,11 @@ function ComponentsShowcase() {
       {/* Axios Example */}
       <section className="mb-12">
         <AxiosExample />
+      </section>
+
+      {/* Sidebar Example */}
+      <section className="mb-12">
+        <SidebarExample />
       </section>
     </div>
   );

@@ -14,6 +14,7 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as ComponentsImport } from './routes/components'
 import { Route as IndexImport } from './routes/index'
 import { Route as DashboardIndexImport } from './routes/dashboard/index'
+import { Route as AuthenticatedAttendancemonitoringDashboardIndexImport } from './routes/_authenticated/attendance_monitoring/dashboard/index'
 
 // Create/Update Routes
 
@@ -34,6 +35,13 @@ const DashboardIndexRoute = DashboardIndexImport.update({
   path: '/dashboard/',
   getParentRoute: () => rootRoute,
 } as any)
+
+const AuthenticatedAttendancemonitoringDashboardIndexRoute =
+  AuthenticatedAttendancemonitoringDashboardIndexImport.update({
+    id: '/_authenticated/attendance_monitoring/dashboard/',
+    path: '/attendance_monitoring/dashboard/',
+    getParentRoute: () => rootRoute,
+  } as any)
 
 // Populate the FileRoutesByPath interface
 
@@ -60,6 +68,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardIndexImport
       parentRoute: typeof rootRoute
     }
+    '/_authenticated/attendance_monitoring/dashboard/': {
+      id: '/_authenticated/attendance_monitoring/dashboard/'
+      path: '/attendance_monitoring/dashboard'
+      fullPath: '/attendance_monitoring/dashboard'
+      preLoaderRoute: typeof AuthenticatedAttendancemonitoringDashboardIndexImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -69,12 +84,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/components': typeof ComponentsRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/attendance_monitoring/dashboard': typeof AuthenticatedAttendancemonitoringDashboardIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/components': typeof ComponentsRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/attendance_monitoring/dashboard': typeof AuthenticatedAttendancemonitoringDashboardIndexRoute
 }
 
 export interface FileRoutesById {
@@ -82,14 +99,24 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/components': typeof ComponentsRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/_authenticated/attendance_monitoring/dashboard/': typeof AuthenticatedAttendancemonitoringDashboardIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/components' | '/dashboard'
+  fullPaths:
+    | '/'
+    | '/components'
+    | '/dashboard'
+    | '/attendance_monitoring/dashboard'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/components' | '/dashboard'
-  id: '__root__' | '/' | '/components' | '/dashboard/'
+  to: '/' | '/components' | '/dashboard' | '/attendance_monitoring/dashboard'
+  id:
+    | '__root__'
+    | '/'
+    | '/components'
+    | '/dashboard/'
+    | '/_authenticated/attendance_monitoring/dashboard/'
   fileRoutesById: FileRoutesById
 }
 
@@ -97,12 +124,15 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ComponentsRoute: typeof ComponentsRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
+  AuthenticatedAttendancemonitoringDashboardIndexRoute: typeof AuthenticatedAttendancemonitoringDashboardIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ComponentsRoute: ComponentsRoute,
   DashboardIndexRoute: DashboardIndexRoute,
+  AuthenticatedAttendancemonitoringDashboardIndexRoute:
+    AuthenticatedAttendancemonitoringDashboardIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -117,7 +147,8 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/components",
-        "/dashboard/"
+        "/dashboard/",
+        "/_authenticated/attendance_monitoring/dashboard/"
       ]
     },
     "/": {
@@ -128,6 +159,9 @@ export const routeTree = rootRoute
     },
     "/dashboard/": {
       "filePath": "dashboard/index.tsx"
+    },
+    "/_authenticated/attendance_monitoring/dashboard/": {
+      "filePath": "_authenticated/attendance_monitoring/dashboard/index.tsx"
     }
   }
 }
