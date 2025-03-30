@@ -22,7 +22,7 @@ export function Header({ title, userProfile, className }: HeaderProps) {
   return (
     <header className={cn("bg-white px-6 py-4", className)}>
       <div className="flex flex-col gap-2">
-        <div className="flex flex-col md:flex-row md:items-start md:justify-between">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between">
           {/* Page title and breadcrumbs */}
           <div className="space-y-1">
             <h1 className="text-[2rem] font-bold text-[#1a2b4b]">{title}</h1>
