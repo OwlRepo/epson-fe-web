@@ -1,9 +1,8 @@
 import { cn } from "@/lib/utils";
 import { ChevronRight } from "lucide-react";
 import React from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { useLocation, useNavigate } from "@tanstack/react-router";
 interface HeaderProps {
-  title: string;
   userProfile?: {
     name: string;
     role: string;
@@ -12,8 +11,9 @@ interface HeaderProps {
   className?: string;
 }
 
-export function Header({ title, userProfile, className }: HeaderProps) {
-  const pathSegments = window.location.pathname
+export function Header({ userProfile, className }: HeaderProps) {
+  const location = useLocation();
+  const pathSegments = location.pathname
     .split("/")
     .filter(Boolean)
     .map((path) => path.split("_").join(" ").replace(/-/g, " "));
@@ -25,7 +25,15 @@ export function Header({ title, userProfile, className }: HeaderProps) {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between">
           {/* Page title and breadcrumbs */}
           <div className="space-y-1">
-            <h1 className="text-[2rem] font-bold text-[#1a2b4b]">{title}</h1>
+            <h1 className="text-[2rem] font-bold text-[#1a2b4b] capitalize">
+              {
+                pathSegments[
+                  pathSegments.length > 2
+                    ? pathSegments.length - 2
+                    : pathSegments.length - 1
+                ]
+              }
+            </h1>
             <div className="flex items-center gap-2 text-gray-500">
               {pathSegments.map((segment, index) => (
                 <React.Fragment key={index}>

@@ -44,77 +44,72 @@ export function AttendanceMonitoringLayout({
   // Default nav items for the sidebar
   const navItems = [
     {
-      icon: <HomeIcon className="text-gray-500" />,
-      label: "Home",
-      href: "/",
-    },
-    {
       icon: <LayoutDashboard className="text-gray-500" />,
       label: "Dashboard",
       isActive: true,
-      href: "/_authenticated/attendance_monitoring/dashboard",
+      href: "/attendance_monitoring/dashboard",
       subItems: [
         {
           label: "Overview",
-          href: "/_authenticated/attendance_monitoring/dashboard",
+          href: "/attendance-monitoring/dashboard/overview",
         },
         {
           label: "Departments",
-          href: "/_authenticated/attendance_monitoring/departments",
+          href: "/attendance-monitoring/dashboard/departments",
         },
         {
           label: "Entry & Exit Points",
-          href: "/_authenticated/attendance_monitoring/entry-exit",
+          href: "/attendance-monitoring/dashboard/entry-exit",
         },
       ],
     },
     {
       icon: <Users className="text-gray-500" />,
       label: "Employees",
-      href: "/_authenticated/attendance_monitoring/employees",
+      href: "/attendance-monitoring/employees",
     },
     {
       icon: <FileText className="text-gray-500" />,
       label: "Attendance Monitoring",
-      href: "/_authenticated/attendance_monitoring/reports",
+      href: "/attendance-monitoring/reports",
       subItems: [
         {
           label: "Daily Reports",
-          href: "/_authenticated/attendance_monitoring/reports/daily",
+          href: "/attendance-monitoring/reports/daily",
         },
         {
           label: "Weekly Summary",
-          href: "/_authenticated/attendance_monitoring/reports/weekly",
+          href: "/attendance-monitoring/reports/weekly",
         },
         {
           label: "Monthly Analytics",
-          href: "/_authenticated/attendance_monitoring/reports/monthly",
+          href: "/attendance-monitoring/reports/monthly",
         },
       ],
     },
     {
       icon: <Settings className="text-gray-500" />,
       label: "Settings",
-      href: "/_authenticated/attendance_monitoring/settings",
+      href: "/attendance-monitoring/settings",
       subItems: [
         {
           label: "User Settings",
-          href: "/_authenticated/attendance_monitoring/settings/user",
+          href: "/attendance-monitoring/settings/user",
         },
         {
           label: "System Settings",
-          href: "/_authenticated/attendance_monitoring/settings/system",
+          href: "/attendance-monitoring/settings/system",
         },
         {
           label: "Permissions",
-          href: "/_authenticated/attendance_monitoring/settings/permissions",
+          href: "/attendance-monitoring/settings/permissions",
         },
       ],
     },
     {
       icon: <HelpCircle className="text-gray-500" />,
       label: "Help & Support",
-      href: "/_authenticated/attendance_monitoring/help",
+      href: "/attendance-monitoring/help",
     },
   ];
 
@@ -149,12 +144,7 @@ export function AttendanceMonitoringLayout({
         )}
       >
         {/* Header */}
-        <Header
-          title={title}
-          // backLink={backLink}
-          // backText={backText}
-          userProfile={userProfile}
-        />
+        <Header userProfile={userProfile} />
 
         {/* Content area */}
         <main className={cn("flex-1 overflow-auto p-6", className)}>

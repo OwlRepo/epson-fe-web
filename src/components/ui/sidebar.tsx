@@ -12,6 +12,7 @@ import {
   LayoutDashboard,
   ChevronDown,
 } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 
 interface SubItem {
   label: string;
@@ -125,8 +126,8 @@ const NavItem = ({
         onClick={hasSubItems ? toggleExpand : onClick}
       >
         {href && !hasSubItems ? (
-          <a
-            href={href}
+          <Link
+            to={href}
             className={cn(
               "flex items-center gap-2",
               collapsed && "justify-center"
@@ -134,7 +135,7 @@ const NavItem = ({
           >
             {icon}
             {!collapsed && <span className="truncate">{label}</span>}
-          </a>
+          </Link>
         ) : (
           <>
             <div
@@ -170,7 +171,7 @@ const NavItem = ({
               className="w-full justify-start font-normal h-8 text-gray-600 hover:text-gray-900 hover:bg-gray-50"
               asChild
             >
-              <a href={item.href}>{item.label}</a>
+              <Link to={item.href}>{item.label}</Link>
             </Button>
           ))}
         </div>
@@ -199,7 +200,7 @@ const NavItem = ({
                 className="w-full justify-start font-normal h-8 text-gray-600 hover:text-gray-900 hover:bg-gray-50"
                 asChild
               >
-                <a href={item.href}>{item.label}</a>
+                <Link to={item.href}>{item.label}</Link>
               </Button>
             ))}
           </div>
