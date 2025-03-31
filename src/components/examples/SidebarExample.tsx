@@ -152,7 +152,7 @@ export function SidebarExample() {
                 <div className="text-center max-w-md">
                   <p className="text-lg font-medium mb-2">Main content area</p>
                   {collapsed ? (
-                    <div className="bg-blue-50 border border-blue-200 rounded-md p-3 text-blue-800">
+                    <div className="bg-blue-50 border border-blue-200 rounded p-3 text-blue-800">
                       <p className="font-medium mb-1">
                         Try hovering over these icons:
                       </p>

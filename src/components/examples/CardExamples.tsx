@@ -26,7 +26,7 @@ export function CardExamples() {
         </div>
 
         <div className="mt-6">
-          <pre className="bg-gray-100 p-4 rounded-md overflow-x-auto">
+          <pre className="bg-gray-100 p-4 rounded overflow-x-auto">
             <code>{`<SummaryCard
   title="Employee Statistics"
   items={[
@@ -48,7 +48,7 @@ export function CardExamples() {
         </div>
 
         <div className="mt-6">
-          <pre className="bg-gray-100 p-4 rounded-md overflow-x-auto">
+          <pre className="bg-gray-100 p-4 rounded overflow-x-auto">
             <code>{`<DepartmentCard
   title="IT Department"
   timeIn={85}

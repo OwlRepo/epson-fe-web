@@ -9,11 +9,21 @@ COPY bun.lockb ./
 # Install dependencies
 RUN bun install
 
-# Copy source files
+# Copy source files and env file
 COPY . .
 
-# Build the application
-RUN bun run build
+# Create a script to handle environment variables
+RUN echo '#!/bin/sh\n\
+for var in $(grep "^VITE_" .env | cut -d= -f1); do\n\
+    echo "ARG $var"\n\
+    echo "ENV $var=\$$var"\n\
+done' > /tmp/generate_envs.sh && \
+    chmod +x /tmp/generate_envs.sh
+
+# Generate and source environment variables
+RUN /tmp/generate_envs.sh > /tmp/env_vars.sh && \
+    . /tmp/env_vars.sh && \
+    bun run build
 
 # Production stage
 FROM nginx:alpine

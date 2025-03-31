@@ -66,7 +66,7 @@ export function Header({ userProfile, className }: HeaderProps) {
                   {userProfile.role}
                 </span>
               </div>
-              <div className="h-8 w-8 rounded-md bg-gray-200 overflow-hidden flex-shrink-0">
+              <div className="h-8 w-8 rounded bg-gray-200 overflow-hidden flex-shrink-0">
                 {userProfile.image ? (
                   <img
                     src={userProfile.image}

@@ -50,7 +50,7 @@ function RouteComponent() {
 
         <div className="flex items-center space-x-2">
           <span className="text-sm font-medium">Department</span>
-          <button className="inline-flex items-center gap-1 border rounded-md px-3 py-1.5 text-sm hover:bg-gray-50">
+          <button className="inline-flex items-center gap-1 border rounded px-3 py-1.5 text-sm hover:bg-gray-50">
             All Departments <ChevronDown className="h-4 w-4 ml-1" />
           </button>
         </div>

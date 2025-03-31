@@ -1,4 +1,3 @@
-import * as React from "react";
 import { cn } from "@/lib/utils";
 
 interface DepartmentCardProps {
@@ -15,7 +14,7 @@ export function DepartmentCard({
   className,
 }: DepartmentCardProps) {
   return (
-    <div className={cn("bg-blue-50 rounded-md p-4 flex flex-col", className)}>
+    <div className={cn("bg-blue-50 rounded p-4 flex flex-col", className)}>
       <h3 className="font-bold text-lg mb-1">{title}</h3>
       <p className="text-xs text-gray-500 mb-4">Department</p>
 

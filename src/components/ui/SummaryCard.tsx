@@ -1,4 +1,3 @@
-import * as React from "react";
 import { cn } from "@/lib/utils";
 
 interface SummaryCardProps {
@@ -13,7 +12,7 @@ interface SummaryCardProps {
 
 export function SummaryCard({ title, items, className }: SummaryCardProps) {
   return (
-    <div className={cn("border border-gray-100 rounded-md p-4", className)}>
+    <div className={cn("border border-gray-100 rounded p-4", className)}>
       <h3 className="font-semibold text-lg mb-4">{title}</h3>
 
       <div className="flex flex-col gap-3">

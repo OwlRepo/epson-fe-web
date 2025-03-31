@@ -36,9 +36,9 @@ code {
     --card-foreground: 0 0% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 3.9%;
-    --primary: 212 100% 43%;
+    --primary: 215 100% 30%;
     --primary-foreground: 0 0% 98%;
-    --secondary: 37 100% 60%;
+    --secondary: 35 100% 60%;
     --secondary-foreground: 0 0% 9%;
     --muted: 0 0% 96.1%;
     --muted-foreground: 0 0% 45.1%;
@@ -49,10 +49,10 @@ code {
     --border: 0 0% 89.8%;
     --input: 0 0% 89.8%;
     --ring: 212 100% 43%;
-    --title: 217 72% 18%;
-    --subtitle: 210 14% 53%;
-    --negative: 0 75% 65%;
-    --positive: 135 60% 57%;
+    --title: 217 100% 10%;
+    --subtitle: 213 13% 35%;
+    --negative: 359 82% 65%;
+    --positive: 120 47% 65%;
     --chart-1: 212 100% 43%;
     --chart-2: 37 100% 60%;
     --chart-3: 217 72% 18%;

@@ -12,7 +12,7 @@ import {
   ArrowLeft,
   ArrowRight,
 } from "lucide-react";
-import { Link, useRouter, useMatch } from "@tanstack/react-router";
+import { Link, useRouter } from "@tanstack/react-router";
 
 interface SubItem {
   label: string;
@@ -276,7 +276,7 @@ const NavItem = ({
         <div
           ref={submenuContainerRef}
           className={cn(
-            "fixed z-50 left-[60px] bg-[#1E3A8A] border border-white/20 rounded-md shadow-md py-2 px-1 min-w-[220px] max-h-[calc(100vh-250px)] overflow-auto transition-opacity duration-200",
+            "fixed z-50 left-[60px] bg-[#1E3A8A] border border-white/20 rounded shadow-md py-2 px-1 min-w-[220px] max-h-[calc(100vh-250px)] overflow-auto transition-opacity duration-200",
             isSubmenuVisible ? "opacity-100" : "opacity-0"
           )}
           style={{ top: "var(--submenu-top-position, 0)" }}
@@ -390,7 +390,6 @@ export function Sidebar({
   logo = defaultLogo,
   footerItems = defaultFooterItems,
   collapsedLogo,
-  collapsedFooterItems = [],
 }: SidebarProps) {
   const router = useRouter();
   const [collapsed, setCollapsed] = React.useState(defaultCollapsed);

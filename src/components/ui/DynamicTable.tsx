@@ -386,7 +386,7 @@ export function DynamicTable({
       </div>
 
       {/* Table */}
-      <div className="rounded-md border">
+      <div className="rounded border">
         {isLoading ? (
           <div className="flex items-center justify-center h-48">
             <Spinner size={40} />
@@ -423,7 +423,7 @@ export function DynamicTable({
             <div className="flex items-center gap-2">
               <span className="text-sm text-gray-600">Rows per page:</span>
               <select
-                className="p-1 border rounded-md bg-white text-sm cursor-pointer"
+                className="p-1 border rounded bg-white text-sm cursor-pointer"
                 value={pagination.pageSize}
                 onChange={handlePageSizeChange}
                 aria-label="Select rows per page"
@@ -468,7 +468,7 @@ export function DynamicTable({
           </div>
           <div className="flex items-center gap-2">
             <button
-              className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+              className="inline-flex items-center justify-center whitespace-nowrap rounded text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
               onClick={() => handlePageChange(pagination.currentPage - 1)}
               disabled={pagination.currentPage === 1}
               aria-label="Go to previous page"
@@ -518,7 +518,7 @@ export function DynamicTable({
                     <button
                       onClick={() => handlePageChange(pageNum)}
                       className={cn(
-                        "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input h-10 w-10",
+                        "inline-flex items-center justify-center whitespace-nowrap rounded text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input h-10 w-10",
                         pagination.currentPage === pageNum
                           ? "bg-accent text-accent-foreground"
                           : "bg-background hover:bg-accent hover:text-accent-foreground"
@@ -537,7 +537,7 @@ export function DynamicTable({
             })()}
 
             <button
-              className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+              className="inline-flex items-center justify-center whitespace-nowrap rounded text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
               onClick={() => handlePageChange(pagination.currentPage + 1)}
               disabled={pagination.currentPage === pagination.totalPages}
               aria-label="Go to next page"
