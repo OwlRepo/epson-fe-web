@@ -10,6 +10,8 @@ import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import Spinner from "./ui/spinner";
 import { VerifyiColoredLogo } from "@/assets/svgs";
+import { useRouter } from "@tanstack/react-router";
+
 const loginSchema = z.object({
   employeeId: z.string().min(1, "Employee ID is required"),
   password: z.string().min(6, "Password must be at least 6 characters"),
@@ -35,6 +37,8 @@ export function LoginForm() {
     resolver: zodResolver(loginSchema),
   });
 
+  const router = useRouter();
+
   const { mutate: login, isPending } = useMutation({
     mutationFn: loginUser,
     onSuccess: (data) => {
@@ -49,6 +53,7 @@ export function LoginForm() {
       });
       // TODO: Handle successful login (e.g., store token, redirect)
       console.log("Login successful:", data);
+      router.navigate({ to: "/modules" });
     },
     onError: (error: any) => {
       toast.error("Login failed", {

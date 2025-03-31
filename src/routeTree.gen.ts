@@ -14,6 +14,7 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as ComponentsImport } from './routes/components'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated/route'
 import { Route as IndexImport } from './routes/index'
+import { Route as AuthenticatedModulesRouteImport } from './routes/_authenticated/modules/route'
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home/route'
 import { Route as AuthenticatedAttendanceMonitoringRouteImport } from './routes/_authenticated/attendance-monitoring/route'
 import { Route as AuthenticatedAttendanceMonitoringDashboardOverviewImport } from './routes/_authenticated/attendance-monitoring/dashboard/overview'
@@ -37,6 +38,12 @@ const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRoute,
+} as any)
+
+const AuthenticatedModulesRouteRoute = AuthenticatedModulesRouteImport.update({
+  id: '/modules',
+  path: '/modules',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 
 const AuthenticatedHomeRouteRoute = AuthenticatedHomeRouteImport.update({
@@ -112,6 +119,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedHomeRouteImport
       parentRoute: typeof AuthenticatedRouteImport
     }
+    '/_authenticated/modules': {
+      id: '/_authenticated/modules'
+      path: '/modules'
+      fullPath: '/modules'
+      preLoaderRoute: typeof AuthenticatedModulesRouteImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
     '/_authenticated/attendance-monitoring/dashboard/departments': {
       id: '/_authenticated/attendance-monitoring/dashboard/departments'
       path: '/dashboard/departments'
@@ -162,12 +176,14 @@ const AuthenticatedAttendanceMonitoringRouteRouteWithChildren =
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAttendanceMonitoringRouteRoute: typeof AuthenticatedAttendanceMonitoringRouteRouteWithChildren
   AuthenticatedHomeRouteRoute: typeof AuthenticatedHomeRouteRoute
+  AuthenticatedModulesRouteRoute: typeof AuthenticatedModulesRouteRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAttendanceMonitoringRouteRoute:
     AuthenticatedAttendanceMonitoringRouteRouteWithChildren,
   AuthenticatedHomeRouteRoute: AuthenticatedHomeRouteRoute,
+  AuthenticatedModulesRouteRoute: AuthenticatedModulesRouteRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -179,6 +195,7 @@ export interface FileRoutesByFullPath {
   '/components': typeof ComponentsRoute
   '/attendance-monitoring': typeof AuthenticatedAttendanceMonitoringRouteRouteWithChildren
   '/home': typeof AuthenticatedHomeRouteRoute
+  '/modules': typeof AuthenticatedModulesRouteRoute
   '/attendance-monitoring/dashboard/departments': typeof AuthenticatedAttendanceMonitoringDashboardDepartmentsRoute
   '/attendance-monitoring/dashboard/entry-exit': typeof AuthenticatedAttendanceMonitoringDashboardEntryExitRoute
   '/attendance-monitoring/dashboard/overview': typeof AuthenticatedAttendanceMonitoringDashboardOverviewRoute
@@ -190,6 +207,7 @@ export interface FileRoutesByTo {
   '/components': typeof ComponentsRoute
   '/attendance-monitoring': typeof AuthenticatedAttendanceMonitoringRouteRouteWithChildren
   '/home': typeof AuthenticatedHomeRouteRoute
+  '/modules': typeof AuthenticatedModulesRouteRoute
   '/attendance-monitoring/dashboard/departments': typeof AuthenticatedAttendanceMonitoringDashboardDepartmentsRoute
   '/attendance-monitoring/dashboard/entry-exit': typeof AuthenticatedAttendanceMonitoringDashboardEntryExitRoute
   '/attendance-monitoring/dashboard/overview': typeof AuthenticatedAttendanceMonitoringDashboardOverviewRoute
@@ -202,6 +220,7 @@ export interface FileRoutesById {
   '/components': typeof ComponentsRoute
   '/_authenticated/attendance-monitoring': typeof AuthenticatedAttendanceMonitoringRouteRouteWithChildren
   '/_authenticated/home': typeof AuthenticatedHomeRouteRoute
+  '/_authenticated/modules': typeof AuthenticatedModulesRouteRoute
   '/_authenticated/attendance-monitoring/dashboard/departments': typeof AuthenticatedAttendanceMonitoringDashboardDepartmentsRoute
   '/_authenticated/attendance-monitoring/dashboard/entry-exit': typeof AuthenticatedAttendanceMonitoringDashboardEntryExitRoute
   '/_authenticated/attendance-monitoring/dashboard/overview': typeof AuthenticatedAttendanceMonitoringDashboardOverviewRoute
@@ -215,6 +234,7 @@ export interface FileRouteTypes {
     | '/components'
     | '/attendance-monitoring'
     | '/home'
+    | '/modules'
     | '/attendance-monitoring/dashboard/departments'
     | '/attendance-monitoring/dashboard/entry-exit'
     | '/attendance-monitoring/dashboard/overview'
@@ -225,6 +245,7 @@ export interface FileRouteTypes {
     | '/components'
     | '/attendance-monitoring'
     | '/home'
+    | '/modules'
     | '/attendance-monitoring/dashboard/departments'
     | '/attendance-monitoring/dashboard/entry-exit'
     | '/attendance-monitoring/dashboard/overview'
@@ -235,6 +256,7 @@ export interface FileRouteTypes {
     | '/components'
     | '/_authenticated/attendance-monitoring'
     | '/_authenticated/home'
+    | '/_authenticated/modules'
     | '/_authenticated/attendance-monitoring/dashboard/departments'
     | '/_authenticated/attendance-monitoring/dashboard/entry-exit'
     | '/_authenticated/attendance-monitoring/dashboard/overview'
@@ -275,7 +297,8 @@ export const routeTree = rootRoute
       "filePath": "_authenticated/route.tsx",
       "children": [
         "/_authenticated/attendance-monitoring",
-        "/_authenticated/home"
+        "/_authenticated/home",
+        "/_authenticated/modules"
       ]
     },
     "/components": {
@@ -292,6 +315,10 @@ export const routeTree = rootRoute
     },
     "/_authenticated/home": {
       "filePath": "_authenticated/home/route.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/modules": {
+      "filePath": "_authenticated/modules/route.tsx",
       "parent": "/_authenticated"
     },
     "/_authenticated/attendance-monitoring/dashboard/departments": {
