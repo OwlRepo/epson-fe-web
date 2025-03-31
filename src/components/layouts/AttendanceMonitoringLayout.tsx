@@ -3,21 +3,15 @@ import { cn } from "@/lib/utils";
 import { Sidebar } from "@/components/ui/sidebar";
 import { Header } from "@/components/ui/header";
 import {
-  HomeIcon,
   LayoutDashboard,
   Users,
   FileText,
   Settings,
   HelpCircle,
-  ArrowLeftToLine,
 } from "lucide-react";
 
 interface AttendanceMonitoringLayoutProps {
   children: React.ReactNode;
-  title: string;
-  subtitle?: string;
-  backLink?: string;
-  backText?: string;
   userProfile?: {
     name: string;
     role: string;
@@ -29,10 +23,7 @@ interface AttendanceMonitoringLayoutProps {
 
 export function AttendanceMonitoringLayout({
   children,
-  title,
-  subtitle,
-  backLink,
-  backText,
+
   userProfile = {
     name: "Ethan Blackwood",
     role: "HR Manager",
@@ -40,7 +31,7 @@ export function AttendanceMonitoringLayout({
   defaultCollapsed = false,
   className,
 }: AttendanceMonitoringLayoutProps) {
-  const [collapsed, setCollapsed] = React.useState(defaultCollapsed);
+  const [collapsed] = React.useState(defaultCollapsed);
 
   // Default nav items for the sidebar
   const navItems = [

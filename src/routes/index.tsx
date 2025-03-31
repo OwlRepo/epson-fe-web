@@ -1,19 +1,7 @@
 import { createFileRoute, useLoaderData } from "@tanstack/react-router";
 import logo from "../logo.svg";
-import api from "@/config/axiosInstance";
-import Spinner from "@/components/ui/spinner";
 export const Route = createFileRoute("/")({
   component: App,
-  pendingComponent: () => (
-    <div className="flex justify-center items-center h-screen">
-      <Spinner color="#000" />
-    </div>
-  ),
-  loader: async () => {
-    const res = await api.get("/posts/1");
-    await new Promise((resolve) => setTimeout(resolve, 3000));
-    return res.data;
-  },
 });
 
 function App() {

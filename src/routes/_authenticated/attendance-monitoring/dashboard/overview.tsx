@@ -1,5 +1,5 @@
-import { DepartmentCard } from "@/components/ui/department-card";
-import { SummaryCard } from "@/components/ui/summary-card";
+import { DepartmentCard } from "@/components/ui/DepartmentCard";
+import { SummaryCard } from "@/components/ui/SummaryCard";
 import { createFileRoute } from "@tanstack/react-router";
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";

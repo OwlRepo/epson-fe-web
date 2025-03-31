@@ -1,5 +1,5 @@
-import { SummaryCard } from "@/components/ui/summary-card";
-import { DepartmentCard } from "@/components/ui/department-card";
+import { SummaryCard } from "@/components/ui/SummaryCard";
+import { DepartmentCard } from "@/components/ui/DepartmentCard";
 
 export function CardExamples() {
   return (

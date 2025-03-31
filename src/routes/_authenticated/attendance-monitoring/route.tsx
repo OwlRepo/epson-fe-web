@@ -1,21 +1,25 @@
-import { AttendanceMonitoringLayout } from "@/components/layouts/attendance-monitoring-layout";
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { AttendanceMonitoringLayout } from "@/components/layouts/AttendanceMonitoringLayout";
+import { createFileRoute, Outlet, useLoaderData } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_authenticated/attendance-monitoring")({
   component: DashboardPage,
-});
-
-function DashboardPage() {
-  return (
-    <AttendanceMonitoringLayout
-      title="Dashboard"
-      subtitle="Dashboard • Department"
-      backLink="/_authenticated/attendance_monitoring"
-      backText="Attendance Monitoring"
-      userProfile={{
+  loader: async () => {
+    // TODO: Get user profile from API
+    return {
+      userProfile: {
         name: "Ethan Blackwood",
         role: "HR Manager",
-      }}
+      },
+    };
+  },
+});
+function DashboardPage() {
+  const { userProfile } = useLoaderData({
+    from: "/_authenticated/attendance-monitoring",
+  });
+  return (
+    <AttendanceMonitoringLayout
+      userProfile={userProfile}
       defaultCollapsed={false}
     >
       <Outlet />
