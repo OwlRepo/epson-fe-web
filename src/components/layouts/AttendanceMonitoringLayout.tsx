@@ -82,20 +82,6 @@ export function AttendanceMonitoringLayout({
       icon: <Settings />,
       label: "Settings",
       href: "/attendance-monitoring/settings",
-      subItems: [
-        {
-          label: "User Settings",
-          href: "/attendance-monitoring/settings/user",
-        },
-        {
-          label: "System Settings",
-          href: "/attendance-monitoring/settings/system",
-        },
-        {
-          label: "Permissions",
-          href: "/attendance-monitoring/settings/permissions",
-        },
-      ],
     },
     {
       icon: <HelpCircle />,
