@@ -28,7 +28,7 @@ declare module "@tanstack/react-router" {
 const qc = new QueryClient();
 
 // Render the app
-const rootElement = document.getElementById("app");
+const rootElement = document.getElementById("root");
 if (rootElement && !rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement);
   root.render(

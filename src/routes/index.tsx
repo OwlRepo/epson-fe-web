@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { LoginForm } from "../components/LoginForm";
 import { LoginBackground } from "../assets/svgs";
+import envVariables from "@/config/envVariables";
 export const Route = createFileRoute("/")({
   component: App,
 });
@@ -8,7 +9,7 @@ export const Route = createFileRoute("/")({
 function App() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#F7FAFF]">
-      <p>{import.meta.env.VITE_API_BASE_URL}</p>
+      <p>{envVariables.API_BASE_URL}</p>
       <LoginBackground className="absolute bottom-20 right-10 w-[1369px] h-[645px]" />
       <LoginForm />
     </div>

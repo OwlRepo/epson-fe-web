@@ -4,12 +4,22 @@
   "type": "module",
   "scripts": {
     "setup-env": "node scripts/setup-env.js",
-    "start": "npm run setup-env & vite --port 3000",
+    "dev": "vite --port 3000",
+    "start": "npm run setup-env && npm run dev",
     "build": "vite build && tsc",
-    "generate-docker-compose": "node scripts/generate-docker-compose.js",
-    "docker-build": "npm run generate-docker-compose && docker compose up --build -d",
-    "serve": "vite preview",
-    "test": "vitest run"
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "format": "prettier --write \"src/**/*.{ts,tsx}\"",
+    "docker:build": "docker compose build",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f",
+    "docker:clean": "docker compose down -v --rmi all",
+    "deploy:prod": "npm run build && npm run docker:build && npm run docker:up",
+    "deploy:dev": "npm run docker:build && npm run docker:up"
   },
   "dependencies": {
     "@faker-js/faker": "^9.6.0",
