@@ -40,7 +40,7 @@ export function LoginForm() {
     onSuccess: (data) => {
       toast.success("Login successful!", {
         description: "Welcome back! You've successfully signed in.",
-        className: "bg-green-50 border-green-200 text-green-800",
+        className: "bg-green-50 border-green-200 text-black",
         style: {
           background: "#f0fdf4",
           border: "1px solid #bbf7d0",
@@ -55,7 +55,7 @@ export function LoginForm() {
         description:
           error.response?.data?.error ||
           "Invalid credentials. Please try again.",
-        className: "bg-red-50 border-red-200 text-red-800",
+        className: "bg-red-50 border-red-200 text-black",
         style: {
           background: "#fef2f2",
           border: "1px solid #fecaca",
