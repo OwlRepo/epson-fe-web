@@ -68,7 +68,7 @@ interface DynamicTableProps {
   pagination?: PaginationConfig;
   onPageChange?: (page: number) => void;
   onPageSizeChange?: (pageSize: number) => void;
-  routeSearch: Record<string, string | undefined>;
+  routeSearch?: Record<string, string | undefined>;
   searchKey?: string; // Optional key to namespace search params for the specific table
   isLoading?: boolean; // Optional loading state
   onSearch?: (searchTerm: string) => void; // Optional search handler
@@ -102,7 +102,7 @@ export function DynamicTable({
 
   // Get initial search term from URL if it exists
   React.useEffect(() => {
-    const urlSearchTerm = routeSearch[getSearchKey("search")];
+    const urlSearchTerm = routeSearch?.[getSearchKey("search")];
     if (urlSearchTerm) {
       setSearchTerm(urlSearchTerm);
     }
@@ -140,7 +140,7 @@ export function DynamicTable({
 
   // Get active filters from URL
   const getActiveFilters = (filterKey: string) => {
-    const value = routeSearch[getSearchKey(`filter_${filterKey}`)];
+    const value = routeSearch?.[getSearchKey(`filter_${filterKey}`)];
     return value ? value.split(",") : [];
   };
 
@@ -276,16 +276,18 @@ export function DynamicTable({
     <div className="w-full">
       <div className="flex flex-col gap-4 mb-4">
         <div className="flex flex-col sm:flex-row gap-2 sm:gap-0 justify-between">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
-            <Input
-              type="text"
-              placeholder="Search..."
-              value={searchTerm}
-              onChange={handleSearchInput}
-              className="pl-9"
-            />
-          </div>
+          {routeSearch && (
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
+              <Input
+                type="text"
+                placeholder="Search..."
+                value={searchTerm}
+                onChange={handleSearchInput}
+                className="pl-9"
+              />
+            </div>
+          )}
           <div className="flex gap-2 overflow-x-auto pb-1">
             {filters.map((filter) => (
               <Popover
