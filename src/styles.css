@@ -116,3 +116,11 @@ code {
     @apply bg-background text-foreground;
   }
 }
+
+.module-card {
+  @apply border border-gray-200;
+}
+
+.module-card:hover {
+  @apply border-[#1E3A8A];
+}

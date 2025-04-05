@@ -412,10 +412,12 @@ export function Sidebar({
           className="flex items-center gap-2 text-white hover:bg-blue-800 px-4 py-4 rounded-none w-full bg-white/5 "
           asChild
         >
-          <Link to="/">
+          <Link to="/modules">
             <ChevronLeft size={20} className="text-white" />
             {!collapsed && (
-              <span className="text-sm font-medium">Attendance Monitoring</span>
+              <span className="text-sm font-medium capitalize">
+                {currentPath.split("/")[1].split("-").join(" ")}
+              </span>
             )}
           </Link>
         </Button>
