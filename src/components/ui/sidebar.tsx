@@ -403,9 +403,15 @@ export function Sidebar({
               </span>
             ) : (
               <span className="text-sm font-medium uppercase">
-                {currentPath.split("/")[1].split("-")[0][0] +
-                  currentPath.split("/")[1].split("-")[1][0] +
-                  "S"}
+                {currentPath.split("/")[1]
+                  ? currentPath
+                      .split("/")[1]
+                      .split("-")
+                      .reduce(
+                        (acc, part) => acc + (part ? part[0] || "" : ""),
+                        ""
+                      ) + "S"
+                  : "S"}
               </span>
             )}
           </Link>
