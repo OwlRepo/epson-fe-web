@@ -254,19 +254,11 @@ const NavItem = ({
         <div
           ref={submenuContainerRef}
           className={cn(
-            "fixed z-50 left-[60px] bg-[#1E3A8A] border border-white/20 rounded shadow-md py-2 px-1 min-w-[220px] max-h-[calc(100vh-250px)] overflow-auto transition-opacity duration-200",
+            "fixed z-50 left-[65px] bg-[#1E3A8A] border border-white/20 rounded shadow-md py-2 px-1 min-w-[220px] max-h-[calc(100vh-250px)] overflow-auto transition-opacity duration-200",
             isSubmenuVisible ? "opacity-100" : "opacity-0"
           )}
           style={{ top: "var(--submenu-top-position, 0)" }}
         >
-          <div className="absolute w-2 h-2 bg-[#1E3A8A] border-l border-t border-white/20 transform rotate-[-45deg] left-[-5px] top-[18px] z-10" />
-
-          <div className="font-medium px-3 py-2 text-md border-b border-white/20 mb-2 flex items-center text-white">
-            <div className={cn("mr-2", isActiveItem && "text-white")}>
-              {icon}
-            </div>
-            {label}
-          </div>
           <div className="space-y-1 overflow-y-auto px-1">
             {subItems.map((item, idx) => {
               const isSubItemActive = currentPath.includes(item.href);
