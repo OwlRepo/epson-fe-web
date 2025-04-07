@@ -1,13 +1,13 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { LoginBackground } from "@/assets/svgs";
 import {
-  ATTENDANCE_MONITORING,
-  DEVICE_MANAGEMENT,
-  EPSON_LOGO_NORMAL,
-  EVACUATION_MONITORING,
-  USER_MANAGEMENT,
-  VISITOR_MANAGEMENT,
-} from "@/assets/images";
+  LoginBackground,
+  AttendanceMonitoring,
+  DeviceManagement,
+  EvacuationMonitoring,
+  UserManagement,
+  VisitorManagement,
+} from "@/assets/svgs";
+import { EPSON_LOGO_NORMAL } from "@/assets/images";
 import { ModuleCard } from "@/components/ui/module-card";
 import {
   DropdownMenu,
@@ -37,31 +37,31 @@ function RouteComponent() {
     {
       path: "/attendance-monitoring/dashboard/overview",
       title: "Attendance",
-      icon: ATTENDANCE_MONITORING,
+      icon: AttendanceMonitoring,
       subtitle: "Monitoring",
     },
     {
       path: "/visitor-management",
       title: "Visitor",
-      icon: VISITOR_MANAGEMENT,
+      icon: VisitorManagement,
       subtitle: "Management",
     },
     {
       path: "/evacuation-monitoring",
       title: "Evacuation",
-      icon: EVACUATION_MONITORING,
+      icon: EvacuationMonitoring,
       subtitle: "Monitoring",
     },
     {
       path: "/user-management",
       title: "User",
-      icon: USER_MANAGEMENT,
+      icon: UserManagement,
       subtitle: "Management",
     },
     {
       path: "/device-management",
       title: "Device",
-      icon: DEVICE_MANAGEMENT,
+      icon: DeviceManagement,
       subtitle: "Management",
     },
   ];
@@ -94,15 +94,15 @@ function RouteComponent() {
             align="end"
             className="mt-1 w-[180px] rounded-xl bg-white p-2 shadow-[0_2px_8px_rgba(0,0,0,0.08)]"
           >
-            <DropdownMenuItem className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-[#FF4D4D] focus:bg-gray-50 focus:text-[#FF4D4D]">
-              <LogOut
-                className="h-5 w-5"
-                onClick={() => {
-                  navigate({
-                    to: "/",
-                  });
-                }}
-              />
+            <DropdownMenuItem
+              onClick={() => {
+                navigate({
+                  to: "/",
+                });
+              }}
+              className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-[#FF4D4D] focus:bg-gray-50 focus:text-[#FF4D4D]"
+            >
+              <LogOut className="h-5 w-5" />
               Logout
             </DropdownMenuItem>
           </DropdownMenuContent>

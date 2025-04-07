@@ -4,7 +4,7 @@ import {
   DynamicTable,
   type Column,
   type Filter,
-} from "@/components/ui/DynamicTable";
+} from "@/components/ui/dynamic-table";
 
 interface User {
   id: number;

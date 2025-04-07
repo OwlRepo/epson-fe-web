@@ -3,3 +3,8 @@ export { default as LoginBackground } from "./login_page_bg.svg?react";
 export { default as EpsonLogoWhite } from "./epson-logo-white.svg?react";
 export { default as VerifyiLogoLight } from "./verifyi_logo_light.svg?react";
 export { default as VerifyiVLogo } from "./verifyi_v_logo.svg?react";
+export { default as AttendanceMonitoring } from "./attendance_monitoring.svg?react";
+export { default as DeviceManagement } from "./device_management.svg?react";
+export { default as EvacuationMonitoring } from "./evacuation_monitoring.svg?react";
+export { default as UserManagement } from "./user_management.svg?react";
+export { default as VisitorManagement } from "./visitor_management.svg?react";

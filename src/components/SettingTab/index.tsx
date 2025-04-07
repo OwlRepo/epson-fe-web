@@ -3,7 +3,7 @@ import {
   DynamicTable,
   type Column,
   type Filter,
-} from "@/components/ui/DynamicTable";
+} from "@/components/ui/dynamic-table";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { Moon, RefreshCw, SunMedium } from "lucide-react";
 import { useEffect, useState } from "react";
