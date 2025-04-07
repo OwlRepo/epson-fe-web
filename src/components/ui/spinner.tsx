@@ -9,7 +9,7 @@ interface SpinnerProps {
 }
 
 export default function Spinner({
-  color = "#000",
+  color = "#1e3a8a",
   size = 100,
   message,
   containerClassName,
