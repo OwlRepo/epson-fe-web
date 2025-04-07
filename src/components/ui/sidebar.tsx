@@ -14,6 +14,8 @@ import {
 } from "lucide-react";
 import { Link, useRouter } from "@tanstack/react-router";
 import { useCurrentPath } from "@/hooks/useCurrentPath";
+import { EPSON_LOGO_WHITE } from "@/assets/images";
+import { VerifyiLogoLight, VerifyiVLogo } from "@/assets/svgs";
 
 interface SubItem {
   label: string;
@@ -254,7 +256,7 @@ const NavItem = ({
         <div
           ref={submenuContainerRef}
           className={cn(
-            "fixed z-50 left-[65px] bg-[#1E3A8A] border border-white/20 rounded shadow-md py-2 px-1 min-w-[220px] max-h-[calc(100vh-250px)] overflow-auto transition-opacity duration-200",
+            "fixed z-50 left-[105px] bg-[#1E3A8A] border border-white/20 rounded shadow-md py-2 px-1 max-w-[300px] max-h-[calc(100vh-250px)] overflow-auto transition-opacity duration-200",
             isSubmenuVisible ? "opacity-100" : "opacity-0"
           )}
           style={{ top: "var(--submenu-top-position, 0)" }}
@@ -337,28 +339,16 @@ const defaultNavItems: NavItemConfig[] = [
 
 // Updated logo styling
 const defaultLogo = (
-  <div className="w-full flex items-center px-4">
-    <span className="font-bold text-white text-2xl tracking-wide">EPSON</span>
+  <div>
+    <img src={EPSON_LOGO_WHITE} alt="Epson Logo" width={156} height={36} />
   </div>
 );
-
-// Updated footer styling
-const defaultFooterItems = [
-  <div key="verifyi-logo" className="text-center px-4">
-    <div className="text-white text-xl font-semibold tracking-wide">
-      VERIFYI
-    </div>
-    <div className="text-white/60 text-xs mt-0.5">RFID Verification System</div>
-    <div className="text-white/60 text-xs mt-1">version 1.0.0</div>
-  </div>,
-];
 
 export function Sidebar({
   className,
   defaultCollapsed = false,
   navItems = defaultNavItems,
   logo = defaultLogo,
-  footerItems = defaultFooterItems,
   collapsedLogo,
 }: SidebarProps) {
   const router = useRouter();
@@ -370,31 +360,17 @@ export function Sidebar({
     <aside
       className={cn(
         "flex flex-col bg-[#1E3A8A] transition-all duration-300 ease-in-out h-screen",
-        collapsed ? "w-[60px]" : "w-[240px]",
+        collapsed ? "w-[100px]" : "w-[240px]",
         className
       )}
       data-collapsed={collapsed}
     >
       {/* Header with back button and logo */}
-      <div className="flex flex-col relative">
-        <Button
-          variant="default"
-          className="flex items-center gap-2 text-white hover:bg-blue-800 px-4 py-4 rounded-none w-full bg-white/5 "
-          asChild
-        >
-          <Link to="/modules">
-            <ChevronLeft size={20} className="text-white" />
-            {!collapsed && (
-              <span className="text-sm font-medium capitalize">
-                {currentPath.split("/")[1].split("-").join(" ")}
-              </span>
-            )}
-          </Link>
-        </Button>
+      <div className="flex flex-col relative px-2">
         <div
           className={cn(
-            "flex items-center h-16 relative",
-            collapsed ? "justify-center" : "justify-between"
+            "flex items-center relative",
+            collapsed ? "justify-center h-32" : "justify-between h-32"
           )}
         >
           {!collapsed ? logo : collapsedLogo}
@@ -413,6 +389,27 @@ export function Sidebar({
             )}
           </Button>
         </div>
+
+        <Button
+          variant="default"
+          className="flex items-center gap-2 px-4 py-6 mb-3 w-full bg-white rounded-lg text-primary hover:bg-white/80"
+          asChild
+        >
+          <Link to="/modules">
+            <ChevronLeft size={20} className="text-primary" />
+            {!collapsed ? (
+              <span className="text-sm font-medium capitalize">
+                {currentPath.split("/")[1].split("-").join(" ")}
+              </span>
+            ) : (
+              <span className="text-sm font-medium uppercase">
+                {currentPath.split("/")[1].split("-")[0][0] +
+                  currentPath.split("/")[1].split("-")[1][0] +
+                  "S"}
+              </span>
+            )}
+          </Link>
+        </Button>
       </div>
 
       {/* Navigation links */}
@@ -431,16 +428,17 @@ export function Sidebar({
       </nav>
 
       {/* Footer */}
-      <div className="py-6 mt-auto">
+      <div className="py-6">
         {!collapsed ? (
-          <div>
-            {footerItems.map((item, index) => (
-              <React.Fragment key={`footer-item-${index}`}>
-                {item}
-              </React.Fragment>
-            ))}
+          <div className="flex flex-col items-center justify-center gap-3">
+            <VerifyiLogoLight className="w-full px-16 opacity-70 h-fit" />
+            <div className="text-white text-xs text-center">version 1.0.0</div>
           </div>
-        ) : null}
+        ) : (
+          <div className="flex flex-col items-center justify-center">
+            <VerifyiVLogo className="w-full px-7 opacity-70 h-fit" />
+          </div>
+        )}
       </div>
     </aside>
   );

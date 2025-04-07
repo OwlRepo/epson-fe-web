@@ -10,6 +10,7 @@ import {
   HelpCircle,
   Star,
 } from "lucide-react";
+import { EpsonLogoWhite } from "@/assets/svgs";
 
 interface VisitorManagementLayoutProps {
   children: React.ReactNode;
@@ -60,20 +61,20 @@ export function VisitorManagementLayout({
 
   // Logo
   const logo = (
-    <div className="h-8 w-full bg-blue-800 rounded flex items-center justify-center">
-      <span className="font-bold text-white">EPSON</span>
+    <div className="w-full flex items-center justify-center">
+      <EpsonLogoWhite className="w-[180px]" />
     </div>
   );
 
   // Collapsed logo
   const collapsedLogo = (
-    <div className="h-8 w-8 bg-blue-800 rounded flex items-center justify-center">
-      <span className="font-bold text-white text-sm">E</span>
+    <div className="w-full flex items-center justify-center">
+      <EpsonLogoWhite className="w-[110px] rotate-90" />
     </div>
   );
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
+    <div className="flex h-screen bg-white overflow-hidden">
       {/* Sidebar */}
       <Sidebar
         defaultCollapsed={collapsed}
