@@ -13,6 +13,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { Link, useRouter } from "@tanstack/react-router";
+import { useCurrentPath } from "@/hooks/useCurrentPath";
 
 interface SubItem {
   label: string;
@@ -51,60 +52,37 @@ interface NavItemProps {
 const NavItem = ({
   icon,
   label,
-  isActive,
   href,
   onClick,
   collapsed,
   subItems,
 }: NavItemProps) => {
-  const router = useRouter();
-  const [currentPath, setCurrentPath] = React.useState(
-    router.state.location.pathname
-  );
+  const currentPath = useCurrentPath();
 
   // Add states for controlling submenu visibility and opacity
   const [showSubmenu, setShowSubmenu] = React.useState(false);
   const [isSubmenuVisible, setIsSubmenuVisible] = React.useState(false);
   const closeTimeoutRef = React.useRef<number | undefined>(undefined);
 
-  // Subscribe to router location changes and ensure active state updates
-  React.useEffect(() => {
-    const updatePath = () => {
-      setCurrentPath(router.state.location.pathname);
-      // Reset expanded state if no longer active
-      if (
-        !router.state.location.pathname.includes(href || "") &&
-        !subItems?.some((item) =>
-          router.state.location.pathname.includes(item.href)
-        )
-      ) {
-        setIsExpanded(false);
-      }
-    };
+  // Check if current path matches this nav item or any of its subitems
+  const isExactMatch = href === currentPath;
+  const isParentOfActive = subItems?.some((item) => item.href === currentPath);
+  const isActiveItem = isExactMatch || isParentOfActive;
 
-    updatePath(); // Initial update
-    return router.subscribe("onResolved", updatePath);
-  }, [router, href, subItems]);
-
-  // Check if any submenu item is active
-  const hasActiveSubmenu = subItems?.some((item) =>
-    currentPath.includes(item.href)
-  );
-
-  const [isExpanded, setIsExpanded] = React.useState(false);
+  const [isExpanded, setIsExpanded] = React.useState(isParentOfActive);
   const itemRef = React.useRef<HTMLDivElement>(null);
   const submenuContainerRef = React.useRef<HTMLDivElement | null>(null);
 
   const hasSubItems = subItems && subItems.length > 0;
-  const isCurrentPath = href ? router.state.location.pathname === href : false;
-  const isActiveItem = isActive || isCurrentPath || hasActiveSubmenu;
 
   // Update expanded state when route changes
   React.useEffect(() => {
-    if (hasActiveSubmenu && !collapsed) {
+    if (isParentOfActive && !collapsed) {
       setIsExpanded(true);
+    } else if (!isParentOfActive && !isExactMatch) {
+      setIsExpanded(false);
     }
-  }, [currentPath, hasActiveSubmenu, collapsed]);
+  }, [currentPath, isParentOfActive, isExactMatch, collapsed]);
 
   const updateSubmenuPosition = React.useCallback(() => {
     if (
@@ -452,7 +430,6 @@ export function Sidebar({
             key={`nav-item-${index}`}
             icon={item.icon}
             label={item.label}
-            isActive={currentPath.includes(item.href!)}
             href={item.href}
             onClick={item.onClick}
             collapsed={collapsed}
