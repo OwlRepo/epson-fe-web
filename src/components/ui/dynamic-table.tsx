@@ -10,15 +10,27 @@ import {
 } from "./table";
 import { useNavigate } from "@tanstack/react-router";
 import Spinner from "./spinner";
-import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 import { Button } from "./button";
 import { Checkbox } from "./checkbox";
-import { ChevronDown, Search } from "lucide-react";
+import { ChevronDown, ChevronUp, Search, X, Filter } from "lucide-react";
 import { Input } from "./input";
-/**
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "./sheet";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "./collapsible";
+
 /**
  * DynamicTable Component Guide:
- * 
+ *
  * - columns: An array of objects defining the table columns. Each object should have a 'key' and 'label'.
  * - data: An array of data objects to be displayed in the table. Each object should match the column keys.
  * - filters: Optional. An array of filter objects to filter table data. Each filter has a 'key', 'label', and 'options'.
@@ -278,112 +290,160 @@ export function DynamicTable({
         <div className="flex flex-col sm:flex-row gap-2 sm:gap-0 justify-between">
           {routeSearch && (
             <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 type="text"
                 placeholder="Search..."
                 value={searchTerm}
                 onChange={handleSearchInput}
-                className="pl-9"
+                className="w-full pl-9 bg-background shadow-[0_0_0_1px_rgba(0,0,0,0.08)] hover:shadow-[0_0_0_1px_rgba(0,0,0,0.12)] focus-visible:shadow-[0_0_0_1px_rgba(0,0,0,0.12)] border-0 rounded-md"
               />
             </div>
           )}
-          <div className="flex gap-2 overflow-x-auto pb-1">
-            {filters.map((filter) => (
-              <Popover
-                key={filter.key}
-                onOpenChange={(open) => open && handlePopoverOpen(filter.key)}
-              >
-                <PopoverTrigger asChild>
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="outline" className="flex items-center gap-2">
+                <Filter className="h-4 w-4" />
+                Filters
+                {Object.keys(filters).reduce(
+                  (count, key) =>
+                    count + (getActiveFilters(key).length > 0 ? 1 : 0),
+                  0
+                ) > 0 && (
+                  <span className="ml-1 rounded-full bg-primary text-primary-foreground px-1.5 text-xs">
+                    {Object.keys(filters).reduce(
+                      (count, key) =>
+                        count + (getActiveFilters(key).length > 0 ? 1 : 0),
+                      0
+                    )}
+                  </span>
+                )}
+              </Button>
+            </SheetTrigger>
+            <SheetContent className="w-full sm:max-w-md">
+              <SheetHeader>
+                <SheetTitle>Filters</SheetTitle>
+                <SheetDescription>
+                  Refine results using the filters below.
+                </SheetDescription>
+              </SheetHeader>
+              <div className="mt-8 space-y-4">
+                {filters.map((filter) => (
+                  <Collapsible
+                    key={filter.key}
+                    className="overflow-hidden rounded-lg border border-[#e5e7eb] data-[state=open]:border-0"
+                  >
+                    <CollapsibleTrigger className="flex items-center justify-between w-full p-4 hover:bg-accent data-[state=open]:bg-[#1e40af] data-[state=open]:text-white transition-colors duration-200 group">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">{filter.label}</span>
+                        {getActiveFilters(filter.key).length > 0 && (
+                          <span
+                            className={cn(
+                              "rounded-full bg-primary text-primary-foreground px-1.5 text-xs data-[state=open]:bg-[#1e40af] data-[state=open]:text-white"
+                            )}
+                          >
+                            {getActiveFilters(filter.key).length}
+                          </span>
+                        )}
+                      </div>
+                      <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="overflow-hidden transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
+                      <div className="p-4 pt-5 bg-white border-x border-b rounded-b-lg">
+                        <div className="space-y-4">
+                          <div className="relative w-full">
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input
+                              type="text"
+                              placeholder="Search..."
+                              value={filterSearches[filter.key] || ""}
+                              onChange={(e) =>
+                                setFilterSearches((prev) => ({
+                                  ...prev,
+                                  [filter.key]: e.target.value,
+                                }))
+                              }
+                              className="w-full pl-9 bg-background shadow-[0_0_0_1px_rgba(0,0,0,0.08)] hover:shadow-[0_0_0_1px_rgba(0,0,0,0.12)] focus-visible:shadow-[0_0_0_1px_rgba(0,0,0,0.12)] border-0 rounded-md"
+                            />
+                          </div>
+                          <div className="space-y-3 max-h-[200px] overflow-y-auto">
+                            {getFilteredOptions(
+                              filter,
+                              filterSearches[filter.key] || ""
+                            ).length > 0 ? (
+                              getFilteredOptions(
+                                filter,
+                                filterSearches[filter.key] || ""
+                              ).map((option) => (
+                                <div
+                                  key={option.value}
+                                  className="flex items-center space-x-3"
+                                >
+                                  <Checkbox
+                                    id={`${filter.key}-${option.value}`}
+                                    checked={
+                                      tempFilters[filter.key]?.includes(
+                                        option.value
+                                      ) || false
+                                    }
+                                    onCheckedChange={(checked) =>
+                                      handleTempFilter(
+                                        filter.key,
+                                        option.value,
+                                        !!checked
+                                      )
+                                    }
+                                  />
+                                  <label
+                                    htmlFor={`${filter.key}-${option.value}`}
+                                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                  >
+                                    {option.label}
+                                  </label>
+                                </div>
+                              ))
+                            ) : (
+                              <div className="flex flex-col items-center justify-center py-6 text-center">
+                                <p className="text-sm text-muted-foreground">
+                                  No options found
+                                </p>
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  Try adjusting your search terms
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </CollapsibleContent>
+                  </Collapsible>
+                ))}
+
+                <div className="flex items-center justify-between pt-4 border-t mt-6">
                   <Button
                     variant="outline"
-                    className={cn(
-                      "flex items-center gap-1",
-                      getActiveFilters(filter.key).length > 0 &&
-                        "bg-primary text-primary-foreground hover:bg-primary/90"
-                    )}
+                    onClick={() => {
+                      filters.forEach((filter) =>
+                        handleResetFilter(filter.key)
+                      );
+                    }}
+                    className="text-muted-foreground hover:text-foreground"
                   >
-                    {filter.label}
-                    {getActiveFilters(filter.key).length > 0 && (
-                      <span className="ml-1 rounded-full bg-white text-primary px-1.5 text-xs">
-                        {getActiveFilters(filter.key).length}
-                      </span>
-                    )}
-                    <ChevronDown className="h-4 w-4" />
+                    Reset
                   </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-72 p-0" align="start">
-                  <div className="p-2 space-y-2">
-                    <div className="flex items-center space-x-2 px-2 pb-2 border-b">
-                      <Search className="w-4 h-4 text-gray-500" />
-                      <Input
-                        type="text"
-                        placeholder="Search options..."
-                        value={filterSearches[filter.key] || ""}
-                        onChange={(e) =>
-                          setFilterSearches((prev) => ({
-                            ...prev,
-                            [filter.key]: e.target.value,
-                          }))
-                        }
-                        className="h-8 w-full border-none focus-visible:ring-0 focus-visible:ring-offset-0"
-                      />
-                    </div>
-
-                    <div className="space-y-2 max-h-[300px] overflow-y-auto px-2">
-                      {getFilteredOptions(
-                        filter,
-                        filterSearches[filter.key] || ""
-                      ).map((option) => (
-                        <div
-                          key={option.value}
-                          className="flex items-center space-x-2"
-                        >
-                          <Checkbox
-                            id={`${filter.key}-${option.value}`}
-                            checked={
-                              tempFilters[filter.key]?.includes(option.value) ||
-                              false
-                            }
-                            onCheckedChange={(checked) =>
-                              handleTempFilter(
-                                filter.key,
-                                option.value,
-                                !!checked
-                              )
-                            }
-                          />
-                          <label
-                            htmlFor={`${filter.key}-${option.value}`}
-                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                          >
-                            {option.label}
-                          </label>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="flex items-center justify-between pt-2 px-2 border-t">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleResetFilter(filter.key)}
-                        className="text-muted-foreground hover:text-foreground"
-                      >
-                        Reset
-                      </Button>
-                      <Button
-                        size="sm"
-                        onClick={() => handleApplyFilter(filter.key)}
-                      >
-                        Apply
-                      </Button>
-                    </div>
-                  </div>
-                </PopoverContent>
-              </Popover>
-            ))}
-          </div>
+                  <Button
+                    onClick={() => {
+                      filters.forEach((filter) =>
+                        handleApplyFilter(filter.key)
+                      );
+                    }}
+                  >
+                    Apply
+                  </Button>
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
 
