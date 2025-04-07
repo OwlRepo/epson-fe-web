@@ -17,6 +17,7 @@ import { Input } from "./input";
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -322,6 +323,9 @@ export function DynamicTable({
             <SheetContent className="w-full sm:max-w-md">
               <SheetHeader>
                 <SheetTitle>Filters</SheetTitle>
+                <SheetDescription>
+                  Refine results using the filters below.
+                </SheetDescription>
               </SheetHeader>
               <div className="mt-8 space-y-4">
                 {filters.map((filter) => (
