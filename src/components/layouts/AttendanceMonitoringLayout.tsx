@@ -124,7 +124,7 @@ export function AttendanceMonitoringLayout({
         <Header userProfile={userProfile} />
 
         {/* Content area */}
-        <main className={cn("flex-1 overflow-auto p-6", className)}>
+        <main className={cn("flex-1 overflow-auto p-6 bg-white", className)}>
           {children}
         </main>
       </div>
