@@ -1,3 +1,4 @@
+import { Card } from "@/components/ui/card";
 import { DepartmentCard } from "@/components/ui/department-card";
 import { SummaryCard } from "@/components/ui/summary-card";
 import { createFileRoute } from "@tanstack/react-router";
@@ -43,10 +44,10 @@ function RouteComponent() {
     <div className="space-y-8">
       {/* Overview section with date and department filter */}
       <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
-        <div>
+        <Card className="flex-1">
           <h2 className="text-xl font-bold">Overview</h2>
           <p className="text-sm text-gray-500 mt-1">As of {currentDate}</p>
-        </div>
+        </Card>
 
         <div className="flex items-center space-x-2">
           <span className="text-sm font-medium">Department</span>
