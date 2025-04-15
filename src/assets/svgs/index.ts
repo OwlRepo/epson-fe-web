@@ -8,3 +8,6 @@ export { default as DeviceManagement } from "./device_management.svg?react";
 export { default as EvacuationMonitoring } from "./evacuation_monitoring.svg?react";
 export { default as UserManagement } from "./user_management.svg?react";
 export { default as VisitorManagement } from "./visitor_management.svg?react";
+export { default as ClockedInIcon } from "./clocked-in-icon.svg?react";
+export { default as ClockedOutIcon } from "./clocked-out-icon.svg?react";
+export { default as InPremisesIcon } from "./in-premises-icon.svg?react";
