@@ -3,7 +3,7 @@ import CardSection from "@/components/layouts/CardSection";
 import AttendanceCountCard from "@/components/ui/attendance-count-card";
 import CardHeaderLeft from "@/components/ui/card-header-left";
 import { DynamicTable } from "@/components/ui/dynamic-table";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
 
 export const Route = createFileRoute(
   "/_authenticated/attendance-monitoring/dashboard/overview"
@@ -12,6 +12,34 @@ export const Route = createFileRoute(
 });
 
 function RouteComponent() {
+  const navigate = useNavigate({
+    from: '/attendance-monitoring/dashboard/overview'
+  });
+  const search = useSearch({
+    from: "/_authenticated/attendance-monitoring/dashboard/overview",
+  });
+
+  // Handle filter changes
+  const handleFilter = (key: string, value: string) => {
+    navigate({
+      search: (prev) => ({
+        ...prev,
+        [`filter_${key}`]: value || undefined,
+      }),
+      replace: true,
+    });
+  };
+
+  // Handle search
+  const handleSearch = (searchTerm: string) => {
+    navigate({
+      search: (prev) => ({
+        ...prev,
+        search: searchTerm,
+      }),
+      replace: true,
+    });
+  };
 
   return (
     <div className="space-y-8">
@@ -84,16 +112,56 @@ function RouteComponent() {
               ],
             },
             {
-              key: 'clocked_in',
-              label: 'Clocked In/Out',
-              options: [
-                { label: 'All', value: '' },
-                { label: 'In', value: 'In' },
-                { label: 'Out', value: 'Out' },
-              ],
+              key: "dateTime",
+              label: "Date & Time",
+              isDateTimePicker: true,
             }
           ]}
-          data={[]}
+          data={[
+            {
+              id: '123456',
+              department: 'HR',
+              name: 'John Doe',
+              clocked_in: '08:00 AM',
+              clocked_out: '05:00 PM',
+              dateTime: '2025-04-16'
+            },
+            {
+              id: '654321',
+              department: 'Engineering',
+              name: 'Jane Smith',
+              clocked_in: '09:00 AM',
+              clocked_out: '06:00 PM',
+              dateTime: '2025-04-17'
+            },
+            {
+              id: '789012',
+              department: 'Sales',
+              name: 'Bob Johnson',
+              clocked_in: '08:30 AM',
+              clocked_out: '05:30 PM',
+              dateTime: '2025-04-17'
+            }
+          ].filter((item) => {
+            const matchesDepartment =
+              !search.filter_department || item.department === search.filter_department;
+            const matchesDateTime =
+              !search.filter_dateTime || item.dateTime === search.filter_dateTime;
+            const matchesId =
+              !search.filter_id || item.id === search.filter_id;
+            const matchesName =
+              !search.filter_name || item.name === search.filter_name;
+            const matchesSearch =
+              !search.search ||
+              item.name.toLowerCase().includes(search.search.toLowerCase()) ||
+              item.department.toLowerCase().includes(search.search.toLowerCase()) ||
+              item.id.toLowerCase().includes(search.search.toLowerCase());
+
+            return matchesDepartment && matchesDateTime && matchesId && matchesName && matchesSearch;
+          })}
+          onFilter={handleFilter}
+          onSearch={handleSearch}
+          routeSearch={search}
           isLoading={false}
         />
       </CardSection>

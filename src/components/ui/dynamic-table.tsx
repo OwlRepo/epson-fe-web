@@ -12,7 +12,7 @@ import { useNavigate } from "@tanstack/react-router";
 import Spinner from "./spinner";
 import { Button } from "./button";
 import { Checkbox } from "./checkbox";
-import { ChevronDown, Search, Filter } from "lucide-react";
+import { ChevronDown, Search, Filter, CalendarIcon, Clock } from "lucide-react";
 import { Input } from "./input";
 import {
   Sheet,
@@ -27,6 +27,20 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "./collapsible";
+import { Calendar } from "./calendar";
+import dayjs from "dayjs";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "./popover";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "./dialog";
 
 /**
  * DynamicTable Component Guide:
@@ -55,6 +69,7 @@ export interface Filter {
   label: string;
   options?: { label: string; value: string }[];
   singleSelect?: boolean; // If true, only one option can be selected at a time
+  isDateTimePicker?: boolean; // If true, this filter will be a date-time picker
 }
 
 export interface PaginationConfig {
@@ -114,6 +129,19 @@ export function DynamicTable({
     null
   );
 
+  // State for the time picker
+  const [timeDialogOpen, setTimeDialogOpen] = React.useState<boolean>(false);
+  const [currentFilterKey, setCurrentFilterKey] = React.useState<string>("");
+  const [selectedTime, setSelectedTime] = React.useState<{
+    hour: number;
+    minute: number;
+    period: "AM" | "PM";
+  }>({
+    hour: 12,
+    minute: 0,
+    period: "AM",
+  });
+
   // Get initial search term from URL if it exists
   React.useEffect(() => {
     const urlSearchTerm = routeSearch?.[getSearchKey("search")];
@@ -121,6 +149,115 @@ export function DynamicTable({
       setSearchTerm(urlSearchTerm);
     }
   }, []);
+
+  // Initialize filters from URL parameters when component mounts
+  React.useEffect(() => {
+    if (!routeSearch) return;
+
+    // Initialize all filters from URL
+    const tempFilterValues: Record<string, string[]> = {};
+
+    filters.forEach((filter) => {
+      // Check for both filter_key and the key name directly (in case of different formats)
+      const filterKey = `filter_${filter.key}`;
+      let filterValue = routeSearch[filterKey];
+
+      // Also check for different case variants (filter_name, filter_Name)
+      if (!filterValue) {
+        const possibleKeys = Object.keys(routeSearch).filter(key =>
+          key.toLowerCase() === filterKey.toLowerCase() ||
+          key.toLowerCase() === filter.key.toLowerCase()
+        );
+
+        if (possibleKeys.length > 0) {
+          filterValue = routeSearch[possibleKeys[0]];
+        }
+      }
+
+      if (filterValue) {
+        const values = filterValue.split(',');
+        tempFilterValues[filter.key] = values;
+
+        // If this is a dateTime filter, parse the time information
+        if (filter.isDateTimePicker && values[0]?.includes('T')) {
+          const timeStr = values[0].split('T')[1];
+          if (timeStr) {
+            const [hoursStr, minutesStr] = timeStr.split(':');
+            const hours = parseInt(hoursStr);
+            const minutes = parseInt(minutesStr);
+
+            // Set time picker values
+            setSelectedTime({
+              hour: hours > 12 ? hours - 12 : (hours === 0 ? 12 : hours),
+              minute: minutes,
+              period: hours >= 12 ? "PM" : "AM"
+            });
+
+            setCurrentFilterKey(filter.key);
+          }
+        }
+      }
+    });
+
+    // Set temp filters
+    if (Object.keys(tempFilterValues).length > 0) {
+      setTempFilters(tempFilterValues);
+    }
+  }, []);
+
+  // Initialize temp filters with URL values when filter sheet opens
+  const handleSheetOpenChange = (isOpen: boolean) => {
+    if (isOpen && routeSearch) {
+      const tempFilterValues: Record<string, string[]> = {};
+
+      filters.forEach((filter) => {
+        // Check for both filter_key and the key name directly (in case of different formats)
+        const filterKey = `filter_${filter.key}`;
+        let filterValue = routeSearch[filterKey];
+
+        // Also check for different case variants (filter_name, filter_Name)
+        if (!filterValue) {
+          const possibleKeys = Object.keys(routeSearch).filter(key =>
+            key.toLowerCase() === filterKey.toLowerCase() ||
+            key.toLowerCase() === filter.key.toLowerCase()
+          );
+
+          if (possibleKeys.length > 0) {
+            filterValue = routeSearch[possibleKeys[0]];
+          }
+        }
+
+        if (filterValue) {
+          const values = filterValue.split(',');
+          tempFilterValues[filter.key] = values;
+
+          // If this is a dateTime filter, parse the time information
+          if (filter.isDateTimePicker && values[0]?.includes('T')) {
+            const timeStr = values[0].split('T')[1];
+            if (timeStr) {
+              const [hoursStr, minutesStr] = timeStr.split(':');
+              const hours = parseInt(hoursStr);
+              const minutes = parseInt(minutesStr);
+
+              // Set time picker values
+              setSelectedTime({
+                hour: hours > 12 ? hours - 12 : (hours === 0 ? 12 : hours),
+                minute: minutes,
+                period: hours >= 12 ? "PM" : "AM"
+              });
+
+              setCurrentFilterKey(filter.key);
+            }
+          }
+        }
+      });
+
+      // Set temp filters
+      if (Object.keys(tempFilterValues).length > 0) {
+        setTempFilters(tempFilterValues);
+      }
+    }
+  };
 
   // Helper to get search param key with optional namespace
   const getSearchKey = (key: string) =>
@@ -203,6 +340,16 @@ export function DynamicTable({
       ...prev,
       [key]: "",
     }));
+
+    // Reset time picker data if this is a datetime filter
+    const filter = filters.find(f => f.key === key);
+    if (filter?.isDateTimePicker) {
+      setSelectedTime({
+        hour: 12,
+        minute: 0,
+        period: "AM"
+      });
+    }
   };
 
   // Update URL params when state changes
@@ -276,6 +423,11 @@ export function DynamicTable({
 
   // Filter options based on search input
   const getFilteredOptions = (filter: Filter, searchTerm: string) => {
+    // Don't show options for date picker filters
+    if (filter.isDateTimePicker) {
+      return [];
+    }
+
     const columnValues = getUniqueColumnValues(filter.key);
     const predefinedOptions =
       filter.options || columnValues.map((value) => ({ label: value, value }));
@@ -303,7 +455,7 @@ export function DynamicTable({
             </div>
           )}
           {
-            filters.length > 0 && <Sheet>
+            filters.length > 0 && <Sheet onOpenChange={handleSheetOpenChange}>
               <SheetTrigger asChild>
                 <Button variant="outline" className="flex items-center gap-2">
                   <Filter className="h-4 w-4" />
@@ -354,66 +506,150 @@ export function DynamicTable({
                       <CollapsibleContent className="overflow-hidden transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
                         <div className="p-4 pt-5 bg-white border-x border-b rounded-b-lg">
                           <div className="space-y-4">
-                            <div className="relative w-full">
-                              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                              <Input
-                                type="text"
-                                placeholder="Search..."
-                                value={filterSearches[filter.key] || ""}
-                                onChange={(e) =>
-                                  setFilterSearches((prev) => ({
-                                    ...prev,
-                                    [filter.key]: e.target.value,
-                                  }))
-                                }
-                                className="w-full pl-9 bg-background shadow-[0_0_0_1px_rgba(0,0,0,0.08)] hover:shadow-[0_0_0_1px_rgba(0,0,0,0.12)] focus-visible:shadow-[0_0_0_1px_rgba(0,0,0,0.12)] border-0 rounded-md"
-                              />
-                            </div>
+                            {!filter.isDateTimePicker && (
+                              <div className="relative w-full">
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                  type="text"
+                                  placeholder="Search..."
+                                  value={filterSearches[filter.key] || ""}
+                                  onChange={(e) =>
+                                    setFilterSearches((prev) => ({
+                                      ...prev,
+                                      [filter.key]: e.target.value,
+                                    }))
+                                  }
+                                  className="w-full pl-9 bg-background shadow-[0_0_0_1px_rgba(0,0,0,0.08)] hover:shadow-[0_0_0_1px_rgba(0,0,0,0.12)] focus-visible:shadow-[0_0_0_1px_rgba(0,0,0,0.12)] border-0 rounded-md"
+                                />
+                              </div>
+                            )}
                             <div className="space-y-3 max-h-[200px] overflow-y-auto">
-                              {getFilteredOptions(
-                                filter,
-                                filterSearches[filter.key] || ""
-                              ).length > 0 ? (
+                              {filter.isDateTimePicker ? (
+                                <div className="py-2">
+                                  <Popover>
+                                    <PopoverTrigger asChild>
+                                      <Button
+                                        variant="outline"
+                                        className="w-full justify-start text-left font-normal"
+                                      >
+                                        <CalendarIcon className="mr-2 h-4 w-4" />
+                                        {tempFilters[filter.key]?.[0]
+                                          ? dayjs(tempFilters[filter.key][0].split('T')[0]).format("MMM D, YYYY")
+                                          : "Pick a date"}
+                                      </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0 z-50">
+                                      <div className="relative z-50 bg-background pointer-events-auto">
+                                        <Calendar
+                                          mode="single"
+                                          selected={tempFilters[filter.key]?.[0] ? new Date(tempFilters[filter.key][0].split('T')[0]) : undefined}
+                                          onSelect={(date) => {
+                                            if (date) {
+                                              // Prevent event propagation
+                                              event?.stopPropagation();
+                                              event?.preventDefault();
+
+                                              // Format to YYYY-MM-DD with timezone handling
+                                              const year = date.getFullYear();
+                                              const month = String(date.getMonth() + 1).padStart(2, '0');
+                                              const day = String(date.getDate()).padStart(2, '0');
+                                              const dateStr = `${year}-${month}-${day}`;
+
+                                              // Store the date in temp filters
+                                              setTempFilters((prev) => ({
+                                                ...prev,
+                                                [filter.key]: [dateStr]
+                                              }));
+
+                                              // Close the popover and open time dialog
+                                              const popoverCloseEvent = new Event('mousedown', {
+                                                bubbles: true,
+                                                cancelable: true
+                                              });
+                                              document.body.dispatchEvent(popoverCloseEvent);
+
+                                              // Set current filter key and open time dialog after a short delay
+                                              setCurrentFilterKey(filter.key);
+                                              setTimeout(() => {
+                                                setTimeDialogOpen(true);
+                                              }, 300);
+                                            } else {
+                                              setTempFilters((prev) => ({
+                                                ...prev,
+                                                [filter.key]: []
+                                              }));
+                                            }
+                                          }}
+                                          initialFocus
+                                          className="pointer-events-auto"
+                                        />
+                                      </div>
+                                    </PopoverContent>
+                                  </Popover>
+
+                                  {/* Show selected time if available */}
+                                  {tempFilters[filter.key]?.[0] && tempFilters[filter.key][0].includes('T') && (
+                                    <Button
+                                      variant="outline"
+                                      className="w-full justify-start text-left font-normal mt-2"
+                                      onClick={() => {
+                                        setCurrentFilterKey(filter.key);
+                                        setTimeDialogOpen(true);
+                                      }}
+                                    >
+                                      <Clock className="mr-2 h-4 w-4" />
+                                      {tempFilters[filter.key][0].split('T')[1]
+                                        ? dayjs(`2000-01-01T${tempFilters[filter.key][0].split('T')[1]}`).format("hh:mm A")
+                                        : "Select time"}
+                                    </Button>
+                                  )}
+                                </div>
+                              ) : (
                                 getFilteredOptions(
                                   filter,
                                   filterSearches[filter.key] || ""
-                                ).map((option) => (
-                                  <div
-                                    key={option.value}
-                                    className="flex items-center space-x-3"
-                                  >
-                                    <Checkbox
-                                      id={`${filter.key}-${option.value}`}
-                                      checked={
-                                        tempFilters[filter.key]?.includes(
-                                          option.value
-                                        ) || false
-                                      }
-                                      onCheckedChange={(checked) =>
-                                        handleTempFilter(
-                                          filter.key,
-                                          option.value,
-                                          !!checked
-                                        )
-                                      }
-                                    />
-                                    <label
-                                      htmlFor={`${filter.key}-${option.value}`}
-                                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                ).length > 0 ? (
+                                  getFilteredOptions(
+                                    filter,
+                                    filterSearches[filter.key] || ""
+                                  ).map((option) => (
+                                    <div
+                                      key={option.value}
+                                      className="flex items-center space-x-3"
                                     >
-                                      {option.label}
-                                    </label>
+                                      <Checkbox
+                                        id={`${filter.key}-${option.value}`}
+                                        checked={
+                                          tempFilters[filter.key]?.includes(
+                                            option.value
+                                          ) || false
+                                        }
+                                        onCheckedChange={(checked) =>
+                                          handleTempFilter(
+                                            filter.key,
+                                            option.value,
+                                            !!checked
+                                          )
+                                        }
+                                      />
+                                      <label
+                                        htmlFor={`${filter.key}-${option.value}`}
+                                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                      >
+                                        {option.label}
+                                      </label>
+                                    </div>
+                                  ))
+                                ) : (
+                                  <div className="flex flex-col items-center justify-center py-6 text-center">
+                                    <p className="text-sm text-muted-foreground">
+                                      No options found
+                                    </p>
+                                    <p className="text-xs text-muted-foreground mt-1">
+                                      Try adjusting your search terms
+                                    </p>
                                   </div>
-                                ))
-                              ) : (
-                                <div className="flex flex-col items-center justify-center py-6 text-center">
-                                  <p className="text-sm text-muted-foreground">
-                                    No options found
-                                  </p>
-                                  <p className="text-xs text-muted-foreground mt-1">
-                                    Try adjusting your search terms
-                                  </p>
-                                </div>
+                                )
                               )}
                             </div>
                           </div>
@@ -619,6 +855,112 @@ export function DynamicTable({
           </div>}
         </div>
       )}
+
+      {/* Time picker dialog */}
+      <Dialog open={timeDialogOpen} onOpenChange={setTimeDialogOpen}>
+        <DialogContent className="w-72 rounded-lg p-4">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Clock /> Set Time
+            </DialogTitle>
+          </DialogHeader>
+          <div className="flex justify-center items-center gap-4 shadow-md p-4 px-8 rounded-md">
+            <div className="text-center">
+              <button
+                onClick={() => setSelectedTime(prev => ({
+                  ...prev,
+                  hour: prev.hour === 12 ? 1 : prev.hour + 1
+                }))}
+                className="text-lg font-semibold"
+              >
+                <ChevronDown className="rotate-180" />
+              </button>
+              <div>{selectedTime.hour.toString().padStart(2, "0")}</div>
+              <button
+                onClick={() => setSelectedTime(prev => ({
+                  ...prev,
+                  hour: prev.hour === 1 ? 12 : prev.hour - 1
+                }))}
+                className="text-lg font-semibold"
+              >
+                <ChevronDown />
+              </button>
+            </div>
+            <div>:</div>
+            <div className="text-center">
+              <button
+                onClick={() => setSelectedTime(prev => ({
+                  ...prev,
+                  minute: prev.minute === 59 ? 0 : prev.minute + 1
+                }))}
+                className="text-lg font-semibold"
+              >
+                <ChevronDown className="rotate-180" />
+              </button>
+              <div>{selectedTime.minute.toString().padStart(2, "0")}</div>
+              <button
+                onClick={() => setSelectedTime(prev => ({
+                  ...prev,
+                  minute: prev.minute === 0 ? 59 : prev.minute - 1
+                }))}
+                className="text-lg font-semibold"
+              >
+                <ChevronDown />
+              </button>
+            </div>
+            <div className="text-center">
+              <button
+                onClick={() => setSelectedTime(prev => ({
+                  ...prev,
+                  period: prev.period === "AM" ? "PM" : "AM"
+                }))}
+                className="text-lg font-semibold"
+              >
+                <ChevronDown className="rotate-180" />
+              </button>
+              <div>{selectedTime.period}</div>
+              <button
+                onClick={() => setSelectedTime(prev => ({
+                  ...prev,
+                  period: prev.period === "AM" ? "PM" : "AM"
+                }))}
+                className="text-lg font-semibold"
+              >
+                <ChevronDown />
+              </button>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              onClick={() => {
+                // Format time as HH:MM:SS
+                const hour12 = selectedTime.hour;
+                const hour24 = selectedTime.period === "AM"
+                  ? (hour12 === 12 ? 0 : hour12)
+                  : (hour12 === 12 ? 12 : hour12 + 12);
+
+                const timeStr = `${hour24.toString().padStart(2, "0")}:${selectedTime.minute.toString().padStart(2, "0")}:00`;
+
+                // Combine with the date that was already selected
+                if (tempFilters[currentFilterKey]?.[0]) {
+                  const dateStr = tempFilters[currentFilterKey][0].split('T')[0];
+                  const dateTimeStr = `${dateStr}T${timeStr}`;
+
+                  setTempFilters(prev => ({
+                    ...prev,
+                    [currentFilterKey]: [dateTimeStr]
+                  }));
+                }
+
+                setTimeDialogOpen(false);
+              }}
+              className="w-full"
+            >
+              Done
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
