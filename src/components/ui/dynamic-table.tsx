@@ -295,14 +295,6 @@ export function DynamicTable({
     return value ? value.split(",") : [];
   };
 
-  // Initialize temp filters with URL values when popover opens
-  const handlePopoverOpen = (filterKey: string) => {
-    setTempFilters((prev) => ({
-      ...prev,
-      [filterKey]: getActiveFilters(filterKey),
-    }));
-  };
-
   // Handle temporary filter changes
   const handleTempFilter = (key: string, value: string, checked: boolean) => {
     const filter = filters.find((f) => f.key === key);
