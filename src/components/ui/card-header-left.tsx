@@ -19,8 +19,8 @@ export default function CardHeaderLeft({ title, subtitle }: CardHeaderLeftProps)
 
     return (
         <div className="flex flex-col gap-1">
-            {typeof title === "string" || !title ? <b className="text-[20px] text-primary">{title ? title : "Overview"}</b> : title}
-            {typeof subtitle === "string" || !subtitle ? <p className="text-sm text-muted-foreground">{subtitle ? subtitle : `As of ${currentTime} (GMT +8)`}</p> : subtitle}
+            {typeof title === "string" ? <b className="text-[20px] text-primary">{title}</b> : title ? title : <b className="text-[20px] text-primary">Overview</b>}
+            {typeof subtitle === "string" ? <p className="text-sm text-muted-foreground">{subtitle}</p> : subtitle ? subtitle : <p className="text-sm text-muted-foreground">As of {currentTime} (GMT +8)</p>}
         </div>
     )
 }

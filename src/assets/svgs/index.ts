@@ -11,3 +11,4 @@ export { default as VisitorManagement } from "./visitor_management.svg?react";
 export { default as ClockedInIcon } from "./clocked-in-icon.svg?react";
 export { default as ClockedOutIcon } from "./clocked-out-icon.svg?react";
 export { default as InPremisesIcon } from "./in-premises-icon.svg?react";
+export { default as EpsonFlame } from "./epson-flame.svg?react";

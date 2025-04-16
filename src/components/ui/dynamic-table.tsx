@@ -12,7 +12,7 @@ import { useNavigate } from "@tanstack/react-router";
 import Spinner from "./spinner";
 import { Button } from "./button";
 import { Checkbox } from "./checkbox";
-import { ChevronDown, ChevronUp, Search, X, Filter } from "lucide-react";
+import { ChevronDown, Search, Filter } from "lucide-react";
 import { Input } from "./input";
 import {
   Sheet,
@@ -81,6 +81,7 @@ interface DynamicTableProps {
   onPageChange?: (page: number) => void;
   onPageSizeChange?: (pageSize: number) => void;
   routeSearch?: Record<string, string | undefined>;
+  isLiveData?: boolean; // Optional prop to indicate if the data is live
   searchKey?: string; // Optional key to namespace search params for the specific table
   isLoading?: boolean; // Optional loading state
   onSearch?: (searchTerm: string) => void; // Optional search handler
@@ -98,6 +99,7 @@ export function DynamicTable({
   routeSearch,
   searchKey = "",
   isLoading = false,
+  isLiveData = false,
   onSearch,
 }: DynamicTableProps) {
   const navigate = useNavigate();
@@ -279,8 +281,8 @@ export function DynamicTable({
       filter.options || columnValues.map((value) => ({ label: value, value }));
     return searchTerm
       ? predefinedOptions.filter((option) =>
-          option.label.toLowerCase().includes(searchTerm.toLowerCase())
-        )
+        option.label.toLowerCase().includes(searchTerm.toLowerCase())
+      )
       : predefinedOptions;
   };
 
@@ -300,150 +302,152 @@ export function DynamicTable({
               />
             </div>
           )}
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="outline" className="flex items-center gap-2">
-                <Filter className="h-4 w-4" />
-                Filters
-                {Object.keys(filters).reduce(
-                  (count, key) =>
-                    count + (getActiveFilters(key).length > 0 ? 1 : 0),
-                  0
-                ) > 0 && (
-                  <span className="ml-1 rounded-full bg-primary text-primary-foreground px-1.5 text-xs">
-                    {Object.keys(filters).reduce(
-                      (count, key) =>
-                        count + (getActiveFilters(key).length > 0 ? 1 : 0),
-                      0
-                    )}
-                  </span>
-                )}
-              </Button>
-            </SheetTrigger>
-            <SheetContent className="w-full sm:max-w-md">
-              <SheetHeader>
-                <SheetTitle>Filters</SheetTitle>
-                <SheetDescription>
-                  Refine results using the filters below.
-                </SheetDescription>
-              </SheetHeader>
-              <div className="mt-8 space-y-4">
-                {filters.map((filter) => (
-                  <Collapsible
-                    key={filter.key}
-                    className="overflow-hidden rounded-lg border border-[#e5e7eb] data-[state=open]:border-0"
-                  >
-                    <CollapsibleTrigger className="flex items-center justify-between w-full p-4 hover:bg-accent data-[state=open]:bg-[#1e40af] data-[state=open]:text-white transition-colors duration-200 group">
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">{filter.label}</span>
-                        {getActiveFilters(filter.key).length > 0 && (
-                          <span
-                            className={cn(
-                              "rounded-full bg-primary text-primary-foreground px-1.5 text-xs data-[state=open]:bg-[#1e40af] data-[state=open]:text-white"
-                            )}
-                          >
-                            {getActiveFilters(filter.key).length}
-                          </span>
+          {
+            filters.length > 0 && <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="outline" className="flex items-center gap-2">
+                  <Filter className="h-4 w-4" />
+                  Filters
+                  {Object.keys(filters).reduce(
+                    (count, key) =>
+                      count + (getActiveFilters(key).length > 0 ? 1 : 0),
+                    0
+                  ) > 0 && (
+                      <span className="ml-1 rounded-full bg-primary text-primary-foreground px-1.5 text-xs">
+                        {Object.keys(filters).reduce(
+                          (count, key) =>
+                            count + (getActiveFilters(key).length > 0 ? 1 : 0),
+                          0
                         )}
-                      </div>
-                      <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]:rotate-180" />
-                    </CollapsibleTrigger>
-                    <CollapsibleContent className="overflow-hidden transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
-                      <div className="p-4 pt-5 bg-white border-x border-b rounded-b-lg">
-                        <div className="space-y-4">
-                          <div className="relative w-full">
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input
-                              type="text"
-                              placeholder="Search..."
-                              value={filterSearches[filter.key] || ""}
-                              onChange={(e) =>
-                                setFilterSearches((prev) => ({
-                                  ...prev,
-                                  [filter.key]: e.target.value,
-                                }))
-                              }
-                              className="w-full pl-9 bg-background shadow-[0_0_0_1px_rgba(0,0,0,0.08)] hover:shadow-[0_0_0_1px_rgba(0,0,0,0.12)] focus-visible:shadow-[0_0_0_1px_rgba(0,0,0,0.12)] border-0 rounded-md"
-                            />
-                          </div>
-                          <div className="space-y-3 max-h-[200px] overflow-y-auto">
-                            {getFilteredOptions(
-                              filter,
-                              filterSearches[filter.key] || ""
-                            ).length > 0 ? (
-                              getFilteredOptions(
+                      </span>
+                    )}
+                </Button>
+              </SheetTrigger>
+              <SheetContent className="w-full sm:max-w-md">
+                <SheetHeader>
+                  <SheetTitle>Filters</SheetTitle>
+                  <SheetDescription>
+                    Refine results using the filters below.
+                  </SheetDescription>
+                </SheetHeader>
+                <div className="mt-8 space-y-4">
+                  {filters.map((filter) => (
+                    <Collapsible
+                      key={filter.key}
+                      className="overflow-hidden rounded-lg border border-[#e5e7eb] data-[state=open]:border-0"
+                    >
+                      <CollapsibleTrigger className="flex items-center justify-between w-full p-4 hover:bg-accent data-[state=open]:bg-[#1e40af] data-[state=open]:text-white transition-colors duration-200 group">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">{filter.label}</span>
+                          {getActiveFilters(filter.key).length > 0 && (
+                            <span
+                              className={cn(
+                                "rounded-full bg-primary text-primary-foreground px-1.5 text-xs data-[state=open]:bg-[#1e40af] data-[state=open]:text-white"
+                              )}
+                            >
+                              {getActiveFilters(filter.key).length}
+                            </span>
+                          )}
+                        </div>
+                        <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                      </CollapsibleTrigger>
+                      <CollapsibleContent className="overflow-hidden transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
+                        <div className="p-4 pt-5 bg-white border-x border-b rounded-b-lg">
+                          <div className="space-y-4">
+                            <div className="relative w-full">
+                              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                              <Input
+                                type="text"
+                                placeholder="Search..."
+                                value={filterSearches[filter.key] || ""}
+                                onChange={(e) =>
+                                  setFilterSearches((prev) => ({
+                                    ...prev,
+                                    [filter.key]: e.target.value,
+                                  }))
+                                }
+                                className="w-full pl-9 bg-background shadow-[0_0_0_1px_rgba(0,0,0,0.08)] hover:shadow-[0_0_0_1px_rgba(0,0,0,0.12)] focus-visible:shadow-[0_0_0_1px_rgba(0,0,0,0.12)] border-0 rounded-md"
+                              />
+                            </div>
+                            <div className="space-y-3 max-h-[200px] overflow-y-auto">
+                              {getFilteredOptions(
                                 filter,
                                 filterSearches[filter.key] || ""
-                              ).map((option) => (
-                                <div
-                                  key={option.value}
-                                  className="flex items-center space-x-3"
-                                >
-                                  <Checkbox
-                                    id={`${filter.key}-${option.value}`}
-                                    checked={
-                                      tempFilters[filter.key]?.includes(
-                                        option.value
-                                      ) || false
-                                    }
-                                    onCheckedChange={(checked) =>
-                                      handleTempFilter(
-                                        filter.key,
-                                        option.value,
-                                        !!checked
-                                      )
-                                    }
-                                  />
-                                  <label
-                                    htmlFor={`${filter.key}-${option.value}`}
-                                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                              ).length > 0 ? (
+                                getFilteredOptions(
+                                  filter,
+                                  filterSearches[filter.key] || ""
+                                ).map((option) => (
+                                  <div
+                                    key={option.value}
+                                    className="flex items-center space-x-3"
                                   >
-                                    {option.label}
-                                  </label>
+                                    <Checkbox
+                                      id={`${filter.key}-${option.value}`}
+                                      checked={
+                                        tempFilters[filter.key]?.includes(
+                                          option.value
+                                        ) || false
+                                      }
+                                      onCheckedChange={(checked) =>
+                                        handleTempFilter(
+                                          filter.key,
+                                          option.value,
+                                          !!checked
+                                        )
+                                      }
+                                    />
+                                    <label
+                                      htmlFor={`${filter.key}-${option.value}`}
+                                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                    >
+                                      {option.label}
+                                    </label>
+                                  </div>
+                                ))
+                              ) : (
+                                <div className="flex flex-col items-center justify-center py-6 text-center">
+                                  <p className="text-sm text-muted-foreground">
+                                    No options found
+                                  </p>
+                                  <p className="text-xs text-muted-foreground mt-1">
+                                    Try adjusting your search terms
+                                  </p>
                                 </div>
-                              ))
-                            ) : (
-                              <div className="flex flex-col items-center justify-center py-6 text-center">
-                                <p className="text-sm text-muted-foreground">
-                                  No options found
-                                </p>
-                                <p className="text-xs text-muted-foreground mt-1">
-                                  Try adjusting your search terms
-                                </p>
-                              </div>
-                            )}
+                              )}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </CollapsibleContent>
-                  </Collapsible>
-                ))}
+                      </CollapsibleContent>
+                    </Collapsible>
+                  ))}
 
-                <div className="flex items-center justify-between pt-4 border-t mt-6">
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      filters.forEach((filter) =>
-                        handleResetFilter(filter.key)
-                      );
-                    }}
-                    className="text-muted-foreground hover:text-foreground"
-                  >
-                    Reset
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      filters.forEach((filter) =>
-                        handleApplyFilter(filter.key)
-                      );
-                    }}
-                  >
-                    Apply
-                  </Button>
+                  <div className="flex items-center justify-between pt-4 border-t mt-6">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        filters.forEach((filter) =>
+                          handleResetFilter(filter.key)
+                        );
+                      }}
+                      className="text-muted-foreground hover:text-foreground"
+                    >
+                      Reset
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        filters.forEach((filter) =>
+                          handleApplyFilter(filter.key)
+                        );
+                      }}
+                    >
+                      Apply
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            </SheetContent>
-          </Sheet>
+              </SheetContent>
+            </Sheet>
+          }
         </div>
       </div>
 
@@ -463,7 +467,7 @@ export function DynamicTable({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.map((row, rowIndex) => (
+              {data.length > 0 ? data.map((row, rowIndex) => (
                 <TableRow key={rowIndex}>
                   {columns.map((column) => (
                     <TableCell key={`${rowIndex}-${column.key}`}>
@@ -471,7 +475,13 @@ export function DynamicTable({
                     </TableCell>
                   ))}
                 </TableRow>
-              ))}
+              )) : (
+                <TableRow>
+                  <TableCell colSpan={columns.length} className="text-center">
+                    No data available
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         )}
@@ -506,11 +516,10 @@ export function DynamicTable({
                   key={`page-size-btn-${size}`}
                   type="button"
                   onClick={() => handlePageSizeButtonClick(size)}
-                  className={`px-2 py-1 text-xs rounded ${
-                    pagination.pageSize === size
-                      ? "bg-primary text-white"
-                      : "bg-gray-100 hover:bg-gray-200"
-                  }`}
+                  className={`px-2 py-1 text-xs rounded ${pagination.pageSize === size
+                    ? "bg-primary text-white"
+                    : "bg-gray-100 hover:bg-gray-200"
+                    }`}
                   aria-pressed={pagination.pageSize === size}
                 >
                   {size}
@@ -528,7 +537,7 @@ export function DynamicTable({
               )} of ${pagination.totalItems}`}
             </span>
           </div>
-          <div className="flex items-center gap-2">
+          {!isLiveData && <div className="flex items-center gap-2">
             <button
               className="inline-flex items-center justify-center whitespace-nowrap rounded text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
               onClick={() => handlePageChange(pagination.currentPage - 1)}
@@ -607,7 +616,7 @@ export function DynamicTable({
             >
               Next
             </button>
-          </div>
+          </div>}
         </div>
       )}
     </div>
