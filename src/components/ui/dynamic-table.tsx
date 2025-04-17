@@ -96,6 +96,7 @@ interface DynamicTableProps {
   onPageChange?: (page: number) => void;
   onPageSizeChange?: (pageSize: number) => void;
   routeSearch?: Record<string, string | undefined>;
+  onRowClick?: (row: any) => void; // Optional row click handler
   isLiveData?: boolean; // Optional prop to indicate if the data is live
   searchKey?: string; // Optional key to namespace search params for the specific table
   isLoading?: boolean; // Optional loading state
@@ -116,6 +117,7 @@ export function DynamicTable({
   isLoading = false,
   isLiveData = false,
   onSearch,
+  onRowClick,
 }: DynamicTableProps) {
   const navigate = useNavigate();
   const [filterSearches, setFilterSearches] = React.useState<
@@ -696,7 +698,7 @@ export function DynamicTable({
             </TableHeader>
             <TableBody>
               {data.length > 0 ? data.map((row, rowIndex) => (
-                <TableRow key={rowIndex}>
+                <TableRow key={rowIndex} onClick={() => onRowClick?.(row)}>
                   {columns.map((column) => (
                     <TableCell key={`${rowIndex}-${column.key}`}>
                       {row[column.key]}

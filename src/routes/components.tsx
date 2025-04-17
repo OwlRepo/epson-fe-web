@@ -6,6 +6,7 @@ import { DynamicTableExample } from "@/components/examples/DynamicTableExample";
 import { AxiosExample } from "@/components/examples/AxiosExample";
 import { SidebarExample } from "@/components/examples/SidebarExample";
 import { CardExamples } from "@/components/examples/CardExamples";
+import EmpInfoDialogExample from "@/components/examples/EmpInfoDialogExample";
 
 interface SearchParams {
   q?: string;
@@ -73,6 +74,11 @@ function ComponentsShowcase() {
       {/* Card Examples */}
       <section className="mb-12">
         <CardExamples />
+      </section>
+
+      {/* Employee Info Dialog Example */}
+      <section className="mb-12">
+        <EmpInfoDialogExample />
       </section>
     </div>
   );
