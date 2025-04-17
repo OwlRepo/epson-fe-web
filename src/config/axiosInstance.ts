@@ -1,6 +1,7 @@
 import axios from "axios";
 import envVariables from "./envVariables";
 import { toast } from "sonner";
+import { ToastType } from "@/hooks/useToastStyleTheme";
 
 // Extend the AxiosRequestConfig type to include our custom properties
 declare module "axios" {
@@ -53,11 +54,7 @@ api.interceptors.response.use(
         description:
           toastConfig.message || "Your request was completed successfully",
         className: "bg-green-50 border-green-200 text-green-800",
-        style: {
-          background: "#f0fdf4",
-          border: "1px solid #bbf7d0",
-          color: "#166534",
-        },
+        style: JSON.parse(ToastType.SUCCESS_STYLE),
       });
     }
     return response;
@@ -71,11 +68,7 @@ api.interceptors.response.use(
       toast.error(toastConfig.title || "Request failed", {
         description: toastConfig.message || errorMessage,
         className: "bg-red-50 border-red-200 text-red-800",
-        style: {
-          background: "#fef2f2",
-          border: "1px solid #fecaca",
-          color: "#991b1b",
-        },
+        style: JSON.parse(ToastType.ERROR_STYLE),
       });
     }
 

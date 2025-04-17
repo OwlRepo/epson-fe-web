@@ -13,6 +13,7 @@ import { X, CheckCircle, UserX } from "lucide-react"; // Import UserX icon
 import { useState } from "react";
 import Spinner from "./spinner";
 import { toast } from "sonner";
+import useToastStyleTheme from "@/hooks/useToastStyleTheme";
 
 // Define the type for the employee data
 interface Employee {
@@ -33,6 +34,7 @@ interface EmpInfoDialogProps {
 }
 
 export default function EmpInfoDialog({ employee, isOpen, onOpenChange }: EmpInfoDialogProps) {
+    const { errorStyle, infoStyle, successStyle } = useToastStyleTheme()
     const [isLinkingCard, setIsLinkingCard] = useState(false);
     const handleLinkCard = () => {
         setIsLinkingCard(true);
@@ -40,11 +42,7 @@ export default function EmpInfoDialog({ employee, isOpen, onOpenChange }: EmpInf
         toast.info("Almost here - Tap your card", {
             description: "Please tap your card on the reader.",
             className: "bg-primary-50 border-primary-200 text-black",
-            style: {
-                background: "#edf4fc",
-                border: "1px solid #004099",
-                color: "#004099",
-            },
+            style: infoStyle,
         });
         setTimeout(() => {
             setIsLinkingCard(false);
@@ -55,11 +53,7 @@ export default function EmpInfoDialog({ employee, isOpen, onOpenChange }: EmpInf
                 description:
                     "Please make sure your device is connected and try again.",
                 className: "bg-red-50 border-red-200 text-black",
-                style: {
-                    background: "#fef2f2",
-                    border: "1px solid #fecaca",
-                    color: "#991b1b",
-                },
+                style: errorStyle,
             });
         }, 5000);
         setTimeout(() => {
@@ -71,11 +65,7 @@ export default function EmpInfoDialog({ employee, isOpen, onOpenChange }: EmpInf
             toast.success("Card Linked Successfully", {
                 description: "Card has been linked. You're all set!",
                 className: "bg-green-50 border-green-200 text-black",
-                style: {
-                    background: "#f0fdf4",
-                    border: "1px solid #bbf7d0",
-                    color: "#166534",
-                },
+                style: successStyle,
             });
         }, 8000);
     };

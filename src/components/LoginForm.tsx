@@ -11,6 +11,7 @@ import { useState } from "react";
 import Spinner from "./ui/spinner";
 import { VerifyiColoredLogo } from "@/assets/svgs";
 import { useRouter } from "@tanstack/react-router";
+import useToastStyleTheme from "@/hooks/useToastStyleTheme";
 
 const loginSchema = z.object({
   employeeId: z.string().min(1, "Employee ID is required"),
@@ -38,6 +39,7 @@ export function LoginForm() {
   });
 
   const router = useRouter();
+  const { successStyle, errorStyle } = useToastStyleTheme()
 
   const { mutate: login, isPending } = useMutation({
     mutationFn: loginUser,
@@ -45,11 +47,7 @@ export function LoginForm() {
       toast.success("Login successful!", {
         description: "Welcome back! You've successfully signed in.",
         className: "bg-green-50 border-green-200 text-black",
-        style: {
-          background: "#f0fdf4",
-          border: "1px solid #bbf7d0",
-          color: "#166534",
-        },
+        style: successStyle,
       });
       // TODO: Handle successful login (e.g., store token, redirect)
       console.log("Login successful:", data);
@@ -61,11 +59,7 @@ export function LoginForm() {
           error.response?.data?.error ||
           "Invalid credentials. Please try again.",
         className: "bg-red-50 border-red-200 text-black",
-        style: {
-          background: "#fef2f2",
-          border: "1px solid #fecaca",
-          color: "#991b1b",
-        },
+        style: errorStyle,
       });
     },
   });
