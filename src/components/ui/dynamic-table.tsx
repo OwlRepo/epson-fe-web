@@ -41,6 +41,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "./dialog";
+import useTableSelectionStore from "@/store/tableSelectionStore";
 
 /**
  * DynamicTable Component Guide:
@@ -57,6 +58,10 @@ import {
  * - searchKey: Optional. A string to namespace search parameters for the specific table.
  * - isLoading: Optional. A boolean to indicate if the table data is loading.
  * - onSearch: Optional. A function to handle search input changes. Receives the search term as an argument.
+ * - enableRowSelection: Optional. A boolean to enable row selection feature with checkboxes.
+ * - tableId: Optional. A unique ID for the table when multiple selection tables are used.
+ * - rowIdField: Optional. The field to use as the row ID for selection. Default: 'id'.
+ * - onRowSelectionChange: Optional. Callback when row selection changes.
  */
 export interface Column {
   key: string;
@@ -101,6 +106,11 @@ interface DynamicTableProps {
   searchKey?: string; // Optional key to namespace search params for the specific table
   isLoading?: boolean; // Optional loading state
   onSearch?: (searchTerm: string) => void; // Optional search handler
+  // Multi-select features
+  enableRowSelection?: boolean; // Enable row selection with checkboxes
+  tableId?: string; // Unique ID for the table when multiple selection tables are used
+  rowIdField?: string; // Field to use as row ID for selection
+  onRowSelectionChange?: (selectedRows: Record<string, any>) => void; // Callback when selection changes
 }
 
 export function DynamicTable({
@@ -118,6 +128,11 @@ export function DynamicTable({
   isLiveData = false,
   onSearch,
   onRowClick,
+  // Multi-select props
+  enableRowSelection = false,
+  tableId = "default",
+  rowIdField = "id",
+  onRowSelectionChange,
 }: DynamicTableProps) {
   const navigate = useNavigate();
   const [filterSearches, setFilterSearches] = React.useState<
@@ -143,6 +158,17 @@ export function DynamicTable({
     minute: 0,
     period: "AM",
   });
+
+  // Get selection state from store
+  const {
+    isSelected,
+    selectRow,
+    deselectRow,
+    clearSelection,
+    selectAll,
+    getSelectedRows,
+    getSelectedCount
+  } = useTableSelectionStore();
 
   // Get initial search term from URL if it exists
   React.useEffect(() => {
@@ -207,6 +233,14 @@ export function DynamicTable({
     }
   }, []);
 
+  // Callback when selection changes
+  React.useEffect(() => {
+    if (onRowSelectionChange && enableRowSelection) {
+      const selectedRows = getSelectedRows(tableId);
+      onRowSelectionChange(selectedRows);
+    }
+  }, [tableId, onRowSelectionChange, enableRowSelection]); // Fixed dependencies
+
   // Initialize temp filters with URL values when filter sheet opens
   const handleSheetOpenChange = (isOpen: boolean) => {
     if (isOpen && routeSearch) {
@@ -264,6 +298,32 @@ export function DynamicTable({
   // Helper to get search param key with optional namespace
   const getSearchKey = (key: string) =>
     searchKey ? `${searchKey}_${key}` : key;
+
+  // Handle row selection
+  const handleRowSelectionChange = (row: any, checked: boolean) => {
+    const rowId = String(row[rowIdField]);
+    if (checked) {
+      selectRow(tableId, rowId, row);
+    } else {
+      deselectRow(tableId, rowId);
+    }
+  };
+
+  // Handle select all rows
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      // Convert data array to object with rowId as keys
+      const rowsMap = data.reduce((acc, row) => {
+        const rowId = String(row[rowIdField]);
+        acc[rowId] = row;
+        return acc;
+      }, {} as Record<string, any>);
+
+      selectAll(tableId, rowsMap);
+    } else {
+      clearSelection(tableId);
+    }
+  };
 
   // Handle search input with debounce
   const handleSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -431,6 +491,14 @@ export function DynamicTable({
       )
       : predefinedOptions;
   };
+
+  // Check if all rows in the current page are selected
+  const areAllRowsSelected = data.length > 0 &&
+    data.every(row => isSelected(tableId, String(row[rowIdField])));
+
+  // Check if some (but not all) rows in the current page are selected
+  const areSomeRowsSelected = !areAllRowsSelected &&
+    data.some(row => isSelected(tableId, String(row[rowIdField])));
 
   return (
     <div className="w-full">
@@ -679,6 +747,22 @@ export function DynamicTable({
             </Sheet>
           }
         </div>
+
+        {/* Selection count banner */}
+        {enableRowSelection && getSelectedCount(tableId) > 0 && (
+          <div className="bg-primary/10 border border-primary/20 rounded-md p-2 px-4 flex justify-between items-center">
+            <span className="text-sm font-medium">
+              {getSelectedCount(tableId)} {getSelectedCount(tableId) === 1 ? 'item' : 'items'} selected
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => clearSelection(tableId)}
+            >
+              Clear Selection
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Table */}
@@ -691,6 +775,14 @@ export function DynamicTable({
           <Table className={cn("w-full", className)}>
             <TableHeader>
               <TableRow>
+                {enableRowSelection && (
+                  <TableHead className="w-[50px]">
+                    <Checkbox
+                      checked={areAllRowsSelected}
+                      onCheckedChange={handleSelectAll}
+                    />
+                  </TableHead>
+                )}
                 {columns.map((column) => (
                   <TableHead key={column.key}>{column.label}</TableHead>
                 ))}
@@ -698,7 +790,27 @@ export function DynamicTable({
             </TableHeader>
             <TableBody>
               {data.length > 0 ? data.map((row, rowIndex) => (
-                <TableRow key={rowIndex} onClick={() => onRowClick?.(row)}>
+                <TableRow
+                  key={rowIndex}
+                  onClick={(e) => {
+                    // Don't trigger row click when checkbox is clicked
+                    if ((e.target as HTMLElement).closest('[data-checkbox]')) {
+                      return;
+                    }
+                    onRowClick?.(row);
+                  }}
+                >
+                  {enableRowSelection && (
+                    <TableCell className="w-[50px]">
+                      <div data-checkbox>
+                        <Checkbox
+                          checked={isSelected(tableId, String(row[rowIdField]))}
+                          onCheckedChange={(checked) => handleRowSelectionChange(row, !!checked)}
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      </div>
+                    </TableCell>
+                  )}
                   {columns.map((column) => (
                     <TableCell key={`${rowIndex}-${column.key}`}>
                       {row[column.key]}
@@ -707,7 +819,7 @@ export function DynamicTable({
                 </TableRow>
               )) : (
                 <TableRow>
-                  <TableCell colSpan={columns.length} className="text-center">
+                  <TableCell colSpan={enableRowSelection ? columns.length + 1 : columns.length} className="text-center">
                     No data available
                   </TableCell>
                 </TableRow>
