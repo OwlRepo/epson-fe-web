@@ -37,11 +37,11 @@ export function DynamicTableExample() {
   //     useTableSelectionStore.getState().getSelectedRows(tableId),
   //   [useTableSelectionStore.getState().selectedRows[tableId]]
   // );
-  const selectedRows = useTableSelectionStore(state => state.getSelectedRows(tableId));
+  const selectedRows = useMemo(() => useTableSelectionStore.getState().getSelectedRows(tableId), [useTableSelectionStore(state => state.selectedRows[tableId])]);
   const selectedCount = useMemo(
     () =>
       useTableSelectionStore.getState().getSelectedCount(tableId),
-    [useTableSelectionStore.getState().selectedRows[tableId]]
+    [useTableSelectionStore(state => state.selectedRows[tableId])]
   );
 
   // Add a subscriber to force re-renders when selection changes

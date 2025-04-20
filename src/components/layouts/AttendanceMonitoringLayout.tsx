@@ -46,8 +46,8 @@ export function AttendanceMonitoringLayout({
           href: "/attendance-monitoring/dashboard/overview",
         },
         {
-          label: "Departments",
-          href: "/attendance-monitoring/dashboard/departments",
+          label: "Divisions",
+          href: "/attendance-monitoring/dashboard/divisions",
         },
         {
           label: "Entry & Exit Points",
