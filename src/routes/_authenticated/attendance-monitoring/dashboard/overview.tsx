@@ -3,6 +3,8 @@ import CardSection from "@/components/layouts/CardSection";
 import AttendanceCountCard from "@/components/ui/attendance-count-card";
 import CardHeaderLeft from "@/components/ui/card-header-left";
 import { DynamicTable } from "@/components/ui/dynamic-table";
+import { LiveDataTable } from "@/components/ui/live-data-table";
+import { faker } from "@faker-js/faker";
 import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
 
 export const Route = createFileRoute(
@@ -18,6 +20,17 @@ function RouteComponent() {
   const search = useSearch({
     from: "/_authenticated/attendance-monitoring/dashboard/overview",
   });
+  // Add handler for page size changes
+  const handlePageSizeChange = (newPageSize: number) => {
+    navigate({
+      search: (prev) => ({
+        ...prev,
+        pageSize: String(newPageSize),
+      }),
+      replace: true,
+    });
+  };
+
 
   // Handle filter changes
   const handleFilter = (key: string, value: string) => {
@@ -51,8 +64,9 @@ function RouteComponent() {
         </div>
       </CardSection>
       <CardSection headerLeft={<CardHeaderLeft title={<div className="flex items-center space-x-2"><EpsonFlame /><b className="text-[20px] text-primary">Live Data</b></div>} subtitle="" />} >
-        <DynamicTable
-          isLiveData
+        <LiveDataTable
+          pageSize={Number(search.pageSize) || 10}
+          onPageSizeChange={handlePageSizeChange}
           columns={[
             {
               key: 'id',
@@ -82,14 +96,10 @@ function RouteComponent() {
               label: 'ID',
               options: [
                 { label: 'All', value: '' },
-                { label: '123456', value: '123456' },
-                { label: '654321', value: '654321' },
-                { label: '789012', value: '789012' },
-                { label: '345678', value: '345678' },
-                { label: '901234', value: '901234' },
-                { label: '567890', value: '567890' },
-                { label: '234567', value: '234567' },
-                { label: '890123', value: '890123' },
+                ...Array.from({ length: 10 }, (_, i) => ({
+                  label: faker.string.numeric(6),
+                  value: faker.string.numeric(6),
+                })),
               ]
             },
             {
@@ -117,52 +127,38 @@ function RouteComponent() {
               isDateTimePicker: true,
             }
           ]}
-          data={[
-            {
-              id: '123456',
-              department: 'HR',
-              name: 'John Doe',
-              clocked_in: '08:00 AM',
-              clocked_out: '05:00 PM',
-              dateTime: '2025-04-16'
-            },
-            {
-              id: '654321',
-              department: 'Engineering',
-              name: 'Jane Smith',
-              clocked_in: '09:00 AM',
-              clocked_out: '06:00 PM',
-              dateTime: '2025-04-17'
-            },
-            {
-              id: '789012',
-              department: 'Sales',
-              name: 'Bob Johnson',
-              clocked_in: '08:30 AM',
-              clocked_out: '05:30 PM',
-              dateTime: '2025-04-17'
-            }
-          ].filter((item) => {
-            const matchesDepartment =
-              !search.filter_department || item.department === search.filter_department;
-            const matchesDateTime =
-              !search.filter_dateTime || item.dateTime === search.filter_dateTime;
-            const matchesId =
-              !search.filter_id || item.id === search.filter_id;
-            const matchesName =
-              !search.filter_name || item.name === search.filter_name;
-            const matchesSearch =
-              !search.search ||
-              item.name.toLowerCase().includes(search.search.toLowerCase()) ||
-              item.department.toLowerCase().includes(search.search.toLowerCase()) ||
-              item.id.toLowerCase().includes(search.search.toLowerCase());
+          data={Array.from({ length: 100 }, () => ({
+            id: faker.string.numeric(6),
+            department: faker.commerce.department(),
+            name: faker.person.fullName(),
+            clocked_in: faker.date.recent().toLocaleTimeString(),
+            clocked_out: faker.date.recent().toLocaleTimeString(),
+            dateTime: faker.date.recent().toISOString(),
+          }))
+            .sort((a, b) => new Date(b.dateTime).getTime() - new Date(a.dateTime).getTime()) // Sort by latest first
+            .slice(0, Number(search.pageSize) || 10) // Take only the latest entries based on pageSize
+            .filter((item) => {
+              const matchesDepartment =
+                !search.filter_department || item.department === search.filter_department;
+              const matchesDateTime =
+                !search.filter_dateTime || item.dateTime === search.filter_dateTime;
+              const matchesId =
+                !search.filter_id || item.id === search.filter_id;
+              const matchesName =
+                !search.filter_name || item.name === search.filter_name;
+              const matchesSearch =
+                !search.search ||
+                item.name.toLowerCase().includes(search.search.toLowerCase()) ||
+                item.department.toLowerCase().includes(search.search.toLowerCase()) ||
+                item.id.toLowerCase().includes(search.search.toLowerCase());
 
-            return matchesDepartment && matchesDateTime && matchesId && matchesName && matchesSearch;
-          })}
+              return matchesDepartment && matchesDateTime && matchesId && matchesName && matchesSearch;
+            })}
           onFilter={handleFilter}
           onSearch={handleSearch}
           routeSearch={search}
           isLoading={false}
+          tableId='divisions-departments-sections-table'
         />
       </CardSection>
     </div>

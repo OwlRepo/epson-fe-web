@@ -42,17 +42,17 @@ export function CardExamples() {
       <div>
         <h2 className="text-xl font-semibold mb-4">Department Card</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <DepartmentCard title="IT Department" timeIn={85} timeOut={92} />
-          <DepartmentCard title="HR Department" timeIn={78} timeOut={88} />
-          <DepartmentCard title="Finance" timeIn={92} timeOut={95} />
+          <DepartmentCard title="IT Department" clockedIn={85} clockedOut={92} />
+          <DepartmentCard title="HR Department" clockedIn={78} clockedOut={88} />
+          <DepartmentCard title="Finance" clockedIn={92} clockedOut={95} />
         </div>
 
         <div className="mt-6">
           <pre className="bg-gray-100 p-4 rounded overflow-x-auto">
             <code>{`<DepartmentCard
   title="IT Department"
-  timeIn={85}
-  timeOut={92}
+  clockedIn={85}
+  clockedOut={92}
 />`}</code>
           </pre>
         </div>

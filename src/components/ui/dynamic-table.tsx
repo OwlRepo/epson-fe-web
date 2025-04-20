@@ -869,16 +869,20 @@ export function DynamicTable({
               ))}
             </div>
 
-            <span className="text-sm text-gray-600 ml-2">
-              {`${Math.min(
-                (pagination.currentPage - 1) * pagination.pageSize + 1,
-                pagination.totalItems
-              )}-${Math.min(
-                pagination.currentPage * pagination.pageSize,
-                pagination.totalItems
-              )} of ${pagination.totalItems}`}
-            </span>
+            {!isLiveData && (
+              <span className="text-sm text-gray-600 ml-2">
+                {`${Math.min(
+                  (pagination.currentPage - 1) * pagination.pageSize + 1,
+                  pagination.totalItems
+                )}-${Math.min(
+                  pagination.currentPage * pagination.pageSize,
+                  pagination.totalItems
+                )} of ${pagination.totalItems}`}
+              </span>
+            )}
           </div>
+
+          {/* Pagination navigation - only show when not live data */}
           {!isLiveData && <div className="flex items-center gap-2">
             <button
               className="inline-flex items-center justify-center whitespace-nowrap rounded text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
