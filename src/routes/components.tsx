@@ -1,12 +1,13 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { ButtonExample } from "@/components/examples/ButtonExample";
-import { SpinnerExample } from "@/components/examples/SpinnerExample";
-import { BasicTableExample } from "@/components/examples/BasicTableExample";
-import { DynamicTableExample } from "@/components/examples/DynamicTableExample";
 import { AxiosExample } from "@/components/examples/AxiosExample";
-import { SidebarExample } from "@/components/examples/SidebarExample";
+import { BasicInformationFormExample } from "@/components/examples/BasicInformationFormExample";
+import { BasicTableExample } from "@/components/examples/BasicTableExample";
+import { ButtonExample } from "@/components/examples/ButtonExample";
 import { CardExamples } from "@/components/examples/CardExamples";
+import { DynamicTableExample } from "@/components/examples/DynamicTableExample";
 import EmpInfoDialogExample from "@/components/examples/EmpInfoDialogExample";
+import { SidebarExample } from "@/components/examples/SidebarExample";
+import { SpinnerExample } from "@/components/examples/SpinnerExample";
+import { createFileRoute } from "@tanstack/react-router";
 
 interface SearchParams {
   q?: string;
@@ -79,6 +80,11 @@ function ComponentsShowcase() {
       {/* Employee Info Dialog Example */}
       <section className="mb-12">
         <EmpInfoDialogExample />
+      </section>
+
+      {/* Employee Info Dialog Example */}
+      <section className="mb-12">
+        <BasicInformationFormExample />
       </section>
     </div>
   );
