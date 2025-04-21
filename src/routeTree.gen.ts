@@ -19,6 +19,10 @@ import { Route as AuthenticatedModulesRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home/route'
 import { Route as AuthenticatedAttendanceMonitoringRouteImport } from './routes/_authenticated/attendance-monitoring/route'
 import { Route as AuthenticatedAttendanceMonitoringSettingsImport } from './routes/_authenticated/attendance-monitoring/settings'
+import { Route as AuthenticatedVisitorManagementVipRegisterVipImport } from './routes/_authenticated/visitor-management/vip/register-vip'
+import { Route as AuthenticatedVisitorManagementVipOverviewImport } from './routes/_authenticated/visitor-management/vip/overview'
+import { Route as AuthenticatedVisitorManagementDashboardOverviewImport } from './routes/_authenticated/visitor-management/dashboard/overview'
+import { Route as AuthenticatedVisitorManagementDashboardCheckInVisitorImport } from './routes/_authenticated/visitor-management/dashboard/check-in-visitor'
 import { Route as AuthenticatedAttendanceMonitoringDashboardOverviewImport } from './routes/_authenticated/attendance-monitoring/dashboard/overview'
 import { Route as AuthenticatedAttendanceMonitoringDashboardEntryExitImport } from './routes/_authenticated/attendance-monitoring/dashboard/entry-exit'
 import { Route as AuthenticatedAttendanceMonitoringDashboardDepartmentsImport } from './routes/_authenticated/attendance-monitoring/dashboard/departments'
@@ -74,6 +78,34 @@ const AuthenticatedAttendanceMonitoringSettingsRoute =
     id: '/settings',
     path: '/settings',
     getParentRoute: () => AuthenticatedAttendanceMonitoringRouteRoute,
+  } as any)
+
+const AuthenticatedVisitorManagementVipRegisterVipRoute =
+  AuthenticatedVisitorManagementVipRegisterVipImport.update({
+    id: '/vip/register-vip',
+    path: '/vip/register-vip',
+    getParentRoute: () => AuthenticatedVisitorManagementRouteRoute,
+  } as any)
+
+const AuthenticatedVisitorManagementVipOverviewRoute =
+  AuthenticatedVisitorManagementVipOverviewImport.update({
+    id: '/vip/overview',
+    path: '/vip/overview',
+    getParentRoute: () => AuthenticatedVisitorManagementRouteRoute,
+  } as any)
+
+const AuthenticatedVisitorManagementDashboardOverviewRoute =
+  AuthenticatedVisitorManagementDashboardOverviewImport.update({
+    id: '/dashboard/overview',
+    path: '/dashboard/overview',
+    getParentRoute: () => AuthenticatedVisitorManagementRouteRoute,
+  } as any)
+
+const AuthenticatedVisitorManagementDashboardCheckInVisitorRoute =
+  AuthenticatedVisitorManagementDashboardCheckInVisitorImport.update({
+    id: '/dashboard/check-in-visitor',
+    path: '/dashboard/check-in-visitor',
+    getParentRoute: () => AuthenticatedVisitorManagementRouteRoute,
   } as any)
 
 const AuthenticatedAttendanceMonitoringDashboardOverviewRoute =
@@ -192,6 +224,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAttendanceMonitoringDashboardOverviewImport
       parentRoute: typeof AuthenticatedAttendanceMonitoringRouteImport
     }
+    '/_authenticated/visitor-management/dashboard/check-in-visitor': {
+      id: '/_authenticated/visitor-management/dashboard/check-in-visitor'
+      path: '/dashboard/check-in-visitor'
+      fullPath: '/visitor-management/dashboard/check-in-visitor'
+      preLoaderRoute: typeof AuthenticatedVisitorManagementDashboardCheckInVisitorImport
+      parentRoute: typeof AuthenticatedVisitorManagementRouteImport
+    }
+    '/_authenticated/visitor-management/dashboard/overview': {
+      id: '/_authenticated/visitor-management/dashboard/overview'
+      path: '/dashboard/overview'
+      fullPath: '/visitor-management/dashboard/overview'
+      preLoaderRoute: typeof AuthenticatedVisitorManagementDashboardOverviewImport
+      parentRoute: typeof AuthenticatedVisitorManagementRouteImport
+    }
+    '/_authenticated/visitor-management/vip/overview': {
+      id: '/_authenticated/visitor-management/vip/overview'
+      path: '/vip/overview'
+      fullPath: '/visitor-management/vip/overview'
+      preLoaderRoute: typeof AuthenticatedVisitorManagementVipOverviewImport
+      parentRoute: typeof AuthenticatedVisitorManagementRouteImport
+    }
+    '/_authenticated/visitor-management/vip/register-vip': {
+      id: '/_authenticated/visitor-management/vip/register-vip'
+      path: '/vip/register-vip'
+      fullPath: '/visitor-management/vip/register-vip'
+      preLoaderRoute: typeof AuthenticatedVisitorManagementVipRegisterVipImport
+      parentRoute: typeof AuthenticatedVisitorManagementRouteImport
+    }
   }
 }
 
@@ -224,11 +284,35 @@ const AuthenticatedAttendanceMonitoringRouteRouteWithChildren =
     AuthenticatedAttendanceMonitoringRouteRouteChildren,
   )
 
+interface AuthenticatedVisitorManagementRouteRouteChildren {
+  AuthenticatedVisitorManagementDashboardCheckInVisitorRoute: typeof AuthenticatedVisitorManagementDashboardCheckInVisitorRoute
+  AuthenticatedVisitorManagementDashboardOverviewRoute: typeof AuthenticatedVisitorManagementDashboardOverviewRoute
+  AuthenticatedVisitorManagementVipOverviewRoute: typeof AuthenticatedVisitorManagementVipOverviewRoute
+  AuthenticatedVisitorManagementVipRegisterVipRoute: typeof AuthenticatedVisitorManagementVipRegisterVipRoute
+}
+
+const AuthenticatedVisitorManagementRouteRouteChildren: AuthenticatedVisitorManagementRouteRouteChildren =
+  {
+    AuthenticatedVisitorManagementDashboardCheckInVisitorRoute:
+      AuthenticatedVisitorManagementDashboardCheckInVisitorRoute,
+    AuthenticatedVisitorManagementDashboardOverviewRoute:
+      AuthenticatedVisitorManagementDashboardOverviewRoute,
+    AuthenticatedVisitorManagementVipOverviewRoute:
+      AuthenticatedVisitorManagementVipOverviewRoute,
+    AuthenticatedVisitorManagementVipRegisterVipRoute:
+      AuthenticatedVisitorManagementVipRegisterVipRoute,
+  }
+
+const AuthenticatedVisitorManagementRouteRouteWithChildren =
+  AuthenticatedVisitorManagementRouteRoute._addFileChildren(
+    AuthenticatedVisitorManagementRouteRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAttendanceMonitoringRouteRoute: typeof AuthenticatedAttendanceMonitoringRouteRouteWithChildren
   AuthenticatedHomeRouteRoute: typeof AuthenticatedHomeRouteRoute
   AuthenticatedModulesRouteRoute: typeof AuthenticatedModulesRouteRoute
-  AuthenticatedVisitorManagementRouteRoute: typeof AuthenticatedVisitorManagementRouteRoute
+  AuthenticatedVisitorManagementRouteRoute: typeof AuthenticatedVisitorManagementRouteRouteWithChildren
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -237,7 +321,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedHomeRouteRoute: AuthenticatedHomeRouteRoute,
   AuthenticatedModulesRouteRoute: AuthenticatedModulesRouteRoute,
   AuthenticatedVisitorManagementRouteRoute:
-    AuthenticatedVisitorManagementRouteRoute,
+    AuthenticatedVisitorManagementRouteRouteWithChildren,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -250,12 +334,16 @@ export interface FileRoutesByFullPath {
   '/attendance-monitoring': typeof AuthenticatedAttendanceMonitoringRouteRouteWithChildren
   '/home': typeof AuthenticatedHomeRouteRoute
   '/modules': typeof AuthenticatedModulesRouteRoute
-  '/visitor-management': typeof AuthenticatedVisitorManagementRouteRoute
+  '/visitor-management': typeof AuthenticatedVisitorManagementRouteRouteWithChildren
   '/attendance-monitoring/settings': typeof AuthenticatedAttendanceMonitoringSettingsRoute
   '/attendance-monitoring/dashboard/divisions': typeof AuthenticatedAttendanceMonitoringDashboardDivisionsRouteRoute
   '/attendance-monitoring/dashboard/departments': typeof AuthenticatedAttendanceMonitoringDashboardDepartmentsRoute
   '/attendance-monitoring/dashboard/entry-exit': typeof AuthenticatedAttendanceMonitoringDashboardEntryExitRoute
   '/attendance-monitoring/dashboard/overview': typeof AuthenticatedAttendanceMonitoringDashboardOverviewRoute
+  '/visitor-management/dashboard/check-in-visitor': typeof AuthenticatedVisitorManagementDashboardCheckInVisitorRoute
+  '/visitor-management/dashboard/overview': typeof AuthenticatedVisitorManagementDashboardOverviewRoute
+  '/visitor-management/vip/overview': typeof AuthenticatedVisitorManagementVipOverviewRoute
+  '/visitor-management/vip/register-vip': typeof AuthenticatedVisitorManagementVipRegisterVipRoute
 }
 
 export interface FileRoutesByTo {
@@ -265,12 +353,16 @@ export interface FileRoutesByTo {
   '/attendance-monitoring': typeof AuthenticatedAttendanceMonitoringRouteRouteWithChildren
   '/home': typeof AuthenticatedHomeRouteRoute
   '/modules': typeof AuthenticatedModulesRouteRoute
-  '/visitor-management': typeof AuthenticatedVisitorManagementRouteRoute
+  '/visitor-management': typeof AuthenticatedVisitorManagementRouteRouteWithChildren
   '/attendance-monitoring/settings': typeof AuthenticatedAttendanceMonitoringSettingsRoute
   '/attendance-monitoring/dashboard/divisions': typeof AuthenticatedAttendanceMonitoringDashboardDivisionsRouteRoute
   '/attendance-monitoring/dashboard/departments': typeof AuthenticatedAttendanceMonitoringDashboardDepartmentsRoute
   '/attendance-monitoring/dashboard/entry-exit': typeof AuthenticatedAttendanceMonitoringDashboardEntryExitRoute
   '/attendance-monitoring/dashboard/overview': typeof AuthenticatedAttendanceMonitoringDashboardOverviewRoute
+  '/visitor-management/dashboard/check-in-visitor': typeof AuthenticatedVisitorManagementDashboardCheckInVisitorRoute
+  '/visitor-management/dashboard/overview': typeof AuthenticatedVisitorManagementDashboardOverviewRoute
+  '/visitor-management/vip/overview': typeof AuthenticatedVisitorManagementVipOverviewRoute
+  '/visitor-management/vip/register-vip': typeof AuthenticatedVisitorManagementVipRegisterVipRoute
 }
 
 export interface FileRoutesById {
@@ -281,12 +373,16 @@ export interface FileRoutesById {
   '/_authenticated/attendance-monitoring': typeof AuthenticatedAttendanceMonitoringRouteRouteWithChildren
   '/_authenticated/home': typeof AuthenticatedHomeRouteRoute
   '/_authenticated/modules': typeof AuthenticatedModulesRouteRoute
-  '/_authenticated/visitor-management': typeof AuthenticatedVisitorManagementRouteRoute
+  '/_authenticated/visitor-management': typeof AuthenticatedVisitorManagementRouteRouteWithChildren
   '/_authenticated/attendance-monitoring/settings': typeof AuthenticatedAttendanceMonitoringSettingsRoute
   '/_authenticated/attendance-monitoring/dashboard/divisions': typeof AuthenticatedAttendanceMonitoringDashboardDivisionsRouteRoute
   '/_authenticated/attendance-monitoring/dashboard/departments': typeof AuthenticatedAttendanceMonitoringDashboardDepartmentsRoute
   '/_authenticated/attendance-monitoring/dashboard/entry-exit': typeof AuthenticatedAttendanceMonitoringDashboardEntryExitRoute
   '/_authenticated/attendance-monitoring/dashboard/overview': typeof AuthenticatedAttendanceMonitoringDashboardOverviewRoute
+  '/_authenticated/visitor-management/dashboard/check-in-visitor': typeof AuthenticatedVisitorManagementDashboardCheckInVisitorRoute
+  '/_authenticated/visitor-management/dashboard/overview': typeof AuthenticatedVisitorManagementDashboardOverviewRoute
+  '/_authenticated/visitor-management/vip/overview': typeof AuthenticatedVisitorManagementVipOverviewRoute
+  '/_authenticated/visitor-management/vip/register-vip': typeof AuthenticatedVisitorManagementVipRegisterVipRoute
 }
 
 export interface FileRouteTypes {
@@ -304,6 +400,10 @@ export interface FileRouteTypes {
     | '/attendance-monitoring/dashboard/departments'
     | '/attendance-monitoring/dashboard/entry-exit'
     | '/attendance-monitoring/dashboard/overview'
+    | '/visitor-management/dashboard/check-in-visitor'
+    | '/visitor-management/dashboard/overview'
+    | '/visitor-management/vip/overview'
+    | '/visitor-management/vip/register-vip'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -318,6 +418,10 @@ export interface FileRouteTypes {
     | '/attendance-monitoring/dashboard/departments'
     | '/attendance-monitoring/dashboard/entry-exit'
     | '/attendance-monitoring/dashboard/overview'
+    | '/visitor-management/dashboard/check-in-visitor'
+    | '/visitor-management/dashboard/overview'
+    | '/visitor-management/vip/overview'
+    | '/visitor-management/vip/register-vip'
   id:
     | '__root__'
     | '/'
@@ -332,6 +436,10 @@ export interface FileRouteTypes {
     | '/_authenticated/attendance-monitoring/dashboard/departments'
     | '/_authenticated/attendance-monitoring/dashboard/entry-exit'
     | '/_authenticated/attendance-monitoring/dashboard/overview'
+    | '/_authenticated/visitor-management/dashboard/check-in-visitor'
+    | '/_authenticated/visitor-management/dashboard/overview'
+    | '/_authenticated/visitor-management/vip/overview'
+    | '/_authenticated/visitor-management/vip/register-vip'
   fileRoutesById: FileRoutesById
 }
 
@@ -398,7 +506,13 @@ export const routeTree = rootRoute
     },
     "/_authenticated/visitor-management": {
       "filePath": "_authenticated/visitor-management/route.tsx",
-      "parent": "/_authenticated"
+      "parent": "/_authenticated",
+      "children": [
+        "/_authenticated/visitor-management/dashboard/check-in-visitor",
+        "/_authenticated/visitor-management/dashboard/overview",
+        "/_authenticated/visitor-management/vip/overview",
+        "/_authenticated/visitor-management/vip/register-vip"
+      ]
     },
     "/_authenticated/attendance-monitoring/settings": {
       "filePath": "_authenticated/attendance-monitoring/settings.tsx",
@@ -419,6 +533,22 @@ export const routeTree = rootRoute
     "/_authenticated/attendance-monitoring/dashboard/overview": {
       "filePath": "_authenticated/attendance-monitoring/dashboard/overview.tsx",
       "parent": "/_authenticated/attendance-monitoring"
+    },
+    "/_authenticated/visitor-management/dashboard/check-in-visitor": {
+      "filePath": "_authenticated/visitor-management/dashboard/check-in-visitor.tsx",
+      "parent": "/_authenticated/visitor-management"
+    },
+    "/_authenticated/visitor-management/dashboard/overview": {
+      "filePath": "_authenticated/visitor-management/dashboard/overview.tsx",
+      "parent": "/_authenticated/visitor-management"
+    },
+    "/_authenticated/visitor-management/vip/overview": {
+      "filePath": "_authenticated/visitor-management/vip/overview.tsx",
+      "parent": "/_authenticated/visitor-management"
+    },
+    "/_authenticated/visitor-management/vip/register-vip": {
+      "filePath": "_authenticated/visitor-management/vip/register-vip.tsx",
+      "parent": "/_authenticated/visitor-management"
     }
   }
 }

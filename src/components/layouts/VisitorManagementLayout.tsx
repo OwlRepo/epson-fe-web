@@ -1,16 +1,9 @@
-import * as React from "react";
-import { cn } from "@/lib/utils";
-import { Sidebar } from "@/components/ui/sidebar";
-import { Header } from "@/components/ui/header";
-import {
-  LayoutDashboard,
-  Users,
-  FileText,
-  Settings,
-  HelpCircle,
-  Star,
-} from "lucide-react";
 import { EpsonLogoWhite } from "@/assets/svgs";
+import { Header } from "@/components/ui/header";
+import { Sidebar } from "@/components/ui/sidebar";
+import { cn } from "@/lib/utils";
+import { LayoutDashboard, Star } from "lucide-react";
+import * as React from "react";
 
 interface VisitorManagementLayoutProps {
   children: React.ReactNode;
@@ -56,6 +49,16 @@ export function VisitorManagementLayout({
       icon: <Star />,
       label: "VIP",
       href: "/visitor-management/vip",
+      subItems: [
+        {
+          label: "Overview",
+          href: "/visitor-management/vip/overview",
+        },
+        {
+          label: "Register VIP",
+          href: "/visitor-management/vip/register-vip",
+        },
+      ],
     },
   ];
 
