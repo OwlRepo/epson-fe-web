@@ -15,6 +15,7 @@ import { Check, ChevronsUpDown, Command } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "../ui/button";
+import { DatePickerWithRange } from "../ui/date-range-picker";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import CapturePhoto from "./CapturePhoto";
@@ -23,13 +24,14 @@ import RFIDSection from "./RFIDSection";
 interface BasicInformationFormProps {
   onCheckIn?: (data: any) => void;
   form: ReturnType<typeof useForm>;
+  type?: "check-in" | "register-vip";
 }
 
 const BasicInfromationForm = ({
   form,
   onCheckIn,
+  type = "check-in",
 }: BasicInformationFormProps) => {
-  //   const form = useForm();
   const { register, handleSubmit, formState, setValue, watch } = form;
 
   return (
@@ -43,8 +45,8 @@ const BasicInfromationForm = ({
         </p>
 
         {/* form */}
-        <div className="grid grid-cols-2 gap-2 mt-2">
-          <div className="grid gap-2">
+        <div className="grid grid-cols-2 gap-4 mt-2">
+          <div className="flex flex-col gap-4">
             <BasicInfoTextInput
               label={"Full Name"}
               id="full-name"
@@ -71,13 +73,28 @@ const BasicInfromationForm = ({
               register={register}
               errors={formState.errors}
             />
+            {type === "register-vip" && (
+              <div className="space-y-1">
+                <label
+                  htmlFor="host-person"
+                  className="text-sm font-normal text-gray-700"
+                >
+                  Schedule Of Visit
+                </label>
+                <DatePickerWithRange
+                  className="w-full h-[44px]"
+                  id="date"
+                  onSelect={(date) => setValue("date", date)}
+                />
+              </div>
+            )}
           </div>
 
-          <div className="grid grid-rows-3 gap-2">
+          <div className="flex flex-col gap-4">
             <div className="space-y-1">
               <label
                 htmlFor="host-person"
-                className="text-sm font-medium text-gray-700"
+                className="text-sm font-normal text-gray-700"
               >
                 Host Person
               </label>
@@ -90,16 +107,17 @@ const BasicInfromationForm = ({
               />
             </div>
 
-            <div className="space-y-1 row-span-2">
+            <div className="space-y-1 row-span-2 flex-1">
               <label
                 htmlFor="purpose"
-                className="text-sm font-medium text-gray-700"
+                className="text-sm font-normal text-gray-700"
               >
                 Purpose
               </label>
               <Textarea
                 id="purpose"
                 placeholder="value"
+                className="h-5/6"
                 {...register("purpose")}
               />
             </div>
@@ -144,7 +162,7 @@ const BasicInfoTextInput = ({
 }: BasicInfoTextInputProps) => {
   return (
     <div className="space-y-1">
-      <label htmlFor={id} className="text-sm font-medium text-gray-700">
+      <label htmlFor={id} className="text-sm font-normal text-gray-500">
         {label}
       </label>
       <Input
@@ -209,7 +227,7 @@ const AutoComplete = ({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full h-[44px] justify-between"
+          className="w-full h-[44px] justify-between text-gray-500 font-normal"
         >
           {value
             ? frameworks.find((framework) => framework.value === value)?.label

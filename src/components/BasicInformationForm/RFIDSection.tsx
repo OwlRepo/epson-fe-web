@@ -8,7 +8,7 @@ const RFIDSection = ({ register }: { register: any }) => (
       Link an RFID card as a visitor pass.
     </p>
     <div className="space-y-1">
-      <label htmlFor="rfid" className="text-sm font-medium text-gray-700">
+      <label htmlFor="rfid" className="text-sm font-normal text-gray-700">
         RFID Card
       </label>
       <div className="flex gap-4">
