@@ -7,6 +7,7 @@ import { DynamicTableExample } from "@/components/examples/DynamicTableExample";
 import EmpInfoDialogExample from "@/components/examples/EmpInfoDialogExample";
 import { SidebarExample } from "@/components/examples/SidebarExample";
 import { SpinnerExample } from "@/components/examples/SpinnerExample";
+import { SocketHooksExample } from "@/components/examples/SocketHooksExample";
 import { createFileRoute } from "@tanstack/react-router";
 
 interface SearchParams {
@@ -86,6 +87,11 @@ function ComponentsShowcase() {
       <section className="mb-12">
         <BasicInformationFormExample />
       </section>
-    </div>
+
+      {/* Socket Hooks Example */}
+      <section className="mb-12">
+        <SocketHooksExample />
+      </section>
+    </div >
   );
 }

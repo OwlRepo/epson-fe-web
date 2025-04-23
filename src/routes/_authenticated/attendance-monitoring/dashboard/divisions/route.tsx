@@ -6,6 +6,8 @@ import { createFileRoute, Link, useNavigate, useSearch } from '@tanstack/react-r
 import { faker } from '@faker-js/faker'
 import { EpsonFlame } from '@/assets/svgs'
 import { LiveDataTable } from '@/components/ui/live-data-table'
+import { useDivisionData } from '@/hooks'
+import { useEffect } from 'react'
 
 export const Route = createFileRoute(
   '/_authenticated/attendance-monitoring/dashboard/divisions',
@@ -34,6 +36,12 @@ const sections = Array.from({ length: 200 }, (_, i) => ({
 
 function RouteComponent() {
   const queryParams = useSearch({ from: '/_authenticated/attendance-monitoring/dashboard/divisions' })
+
+  const { data, isLoading, error, isConnected, joinRoom } = useDivisionData();
+
+  useEffect(() => {
+    joinRoom("Division");
+  }, []);
 
   const navigate = useNavigate({
     from: '/attendance-monitoring/dashboard/divisions'
