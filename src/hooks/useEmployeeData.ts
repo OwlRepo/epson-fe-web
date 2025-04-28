@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useSearch } from '@tanstack/react-router';
+import { useParams, useSearch } from '@tanstack/react-router';
 import { useSocket, type LiveData } from './useSocket';
 
 // Extract the valid route paths from TanStack Router type
@@ -11,10 +11,10 @@ interface UseEmployeeDataOptions {
 
 export const useEmployeeData = (options?: UseEmployeeDataOptions) => {
     // Cast to ValidRoutePaths to ensure type safety
-    const defaultPath = '/_authenticated/attendance-monitoring/dashboard/sections' as ValidRoutePaths;
+    const defaultPath = '/_authenticated/attendance-monitoring/dashboard/divisions/$divisionId/$departmentId/$sectionId/' as ValidRoutePaths;
     const searchPath = options?.useSearchFrom || defaultPath;
 
-    const search = useSearch({ from: searchPath }) as {
+    const search = useParams({ from: searchPath }) as {
         divisionId?: string;
         departmentId?: string;
         sectionId?: string

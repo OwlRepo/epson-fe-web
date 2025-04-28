@@ -26,7 +26,10 @@ import { Route as AuthenticatedVisitorManagementDashboardCheckInVisitorImport } 
 import { Route as AuthenticatedAttendanceMonitoringDashboardOverviewImport } from './routes/_authenticated/attendance-monitoring/dashboard/overview'
 import { Route as AuthenticatedAttendanceMonitoringDashboardEntryExitImport } from './routes/_authenticated/attendance-monitoring/dashboard/entry-exit'
 import { Route as AuthenticatedAttendanceMonitoringDashboardDepartmentsImport } from './routes/_authenticated/attendance-monitoring/dashboard/departments'
-import { Route as AuthenticatedAttendanceMonitoringDashboardDivisionsRouteImport } from './routes/_authenticated/attendance-monitoring/dashboard/divisions/route'
+import { Route as AuthenticatedAttendanceMonitoringDashboardDivisionsIndexImport } from './routes/_authenticated/attendance-monitoring/dashboard/divisions/index'
+import { Route as AuthenticatedAttendanceMonitoringDashboardDivisionsDivisionIdIndexImport } from './routes/_authenticated/attendance-monitoring/dashboard/divisions/$divisionId/index'
+import { Route as AuthenticatedAttendanceMonitoringDashboardDivisionsDivisionIdDepartmentIdIndexImport } from './routes/_authenticated/attendance-monitoring/dashboard/divisions/$divisionId/$departmentId/index'
+import { Route as AuthenticatedAttendanceMonitoringDashboardDivisionsDivisionIdDepartmentIdSectionIdIndexImport } from './routes/_authenticated/attendance-monitoring/dashboard/divisions/$divisionId/$departmentId/$sectionId/index'
 
 // Create/Update Routes
 
@@ -129,12 +132,39 @@ const AuthenticatedAttendanceMonitoringDashboardDepartmentsRoute =
     getParentRoute: () => AuthenticatedAttendanceMonitoringRouteRoute,
   } as any)
 
-const AuthenticatedAttendanceMonitoringDashboardDivisionsRouteRoute =
-  AuthenticatedAttendanceMonitoringDashboardDivisionsRouteImport.update({
-    id: '/dashboard/divisions',
-    path: '/dashboard/divisions',
+const AuthenticatedAttendanceMonitoringDashboardDivisionsIndexRoute =
+  AuthenticatedAttendanceMonitoringDashboardDivisionsIndexImport.update({
+    id: '/dashboard/divisions/',
+    path: '/dashboard/divisions/',
     getParentRoute: () => AuthenticatedAttendanceMonitoringRouteRoute,
   } as any)
+
+const AuthenticatedAttendanceMonitoringDashboardDivisionsDivisionIdIndexRoute =
+  AuthenticatedAttendanceMonitoringDashboardDivisionsDivisionIdIndexImport.update(
+    {
+      id: '/dashboard/divisions/$divisionId/',
+      path: '/dashboard/divisions/$divisionId/',
+      getParentRoute: () => AuthenticatedAttendanceMonitoringRouteRoute,
+    } as any,
+  )
+
+const AuthenticatedAttendanceMonitoringDashboardDivisionsDivisionIdDepartmentIdIndexRoute =
+  AuthenticatedAttendanceMonitoringDashboardDivisionsDivisionIdDepartmentIdIndexImport.update(
+    {
+      id: '/dashboard/divisions/$divisionId/$departmentId/',
+      path: '/dashboard/divisions/$divisionId/$departmentId/',
+      getParentRoute: () => AuthenticatedAttendanceMonitoringRouteRoute,
+    } as any,
+  )
+
+const AuthenticatedAttendanceMonitoringDashboardDivisionsDivisionIdDepartmentIdSectionIdIndexRoute =
+  AuthenticatedAttendanceMonitoringDashboardDivisionsDivisionIdDepartmentIdSectionIdIndexImport.update(
+    {
+      id: '/dashboard/divisions/$divisionId/$departmentId/$sectionId/',
+      path: '/dashboard/divisions/$divisionId/$departmentId/$sectionId/',
+      getParentRoute: () => AuthenticatedAttendanceMonitoringRouteRoute,
+    } as any,
+  )
 
 // Populate the FileRoutesByPath interface
 
@@ -196,13 +226,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAttendanceMonitoringSettingsImport
       parentRoute: typeof AuthenticatedAttendanceMonitoringRouteImport
     }
-    '/_authenticated/attendance-monitoring/dashboard/divisions': {
-      id: '/_authenticated/attendance-monitoring/dashboard/divisions'
-      path: '/dashboard/divisions'
-      fullPath: '/attendance-monitoring/dashboard/divisions'
-      preLoaderRoute: typeof AuthenticatedAttendanceMonitoringDashboardDivisionsRouteImport
-      parentRoute: typeof AuthenticatedAttendanceMonitoringRouteImport
-    }
     '/_authenticated/attendance-monitoring/dashboard/departments': {
       id: '/_authenticated/attendance-monitoring/dashboard/departments'
       path: '/dashboard/departments'
@@ -252,6 +275,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedVisitorManagementVipRegisterVipImport
       parentRoute: typeof AuthenticatedVisitorManagementRouteImport
     }
+    '/_authenticated/attendance-monitoring/dashboard/divisions/': {
+      id: '/_authenticated/attendance-monitoring/dashboard/divisions/'
+      path: '/dashboard/divisions'
+      fullPath: '/attendance-monitoring/dashboard/divisions'
+      preLoaderRoute: typeof AuthenticatedAttendanceMonitoringDashboardDivisionsIndexImport
+      parentRoute: typeof AuthenticatedAttendanceMonitoringRouteImport
+    }
+    '/_authenticated/attendance-monitoring/dashboard/divisions/$divisionId/': {
+      id: '/_authenticated/attendance-monitoring/dashboard/divisions/$divisionId/'
+      path: '/dashboard/divisions/$divisionId'
+      fullPath: '/attendance-monitoring/dashboard/divisions/$divisionId'
+      preLoaderRoute: typeof AuthenticatedAttendanceMonitoringDashboardDivisionsDivisionIdIndexImport
+      parentRoute: typeof AuthenticatedAttendanceMonitoringRouteImport
+    }
+    '/_authenticated/attendance-monitoring/dashboard/divisions/$divisionId/$departmentId/': {
+      id: '/_authenticated/attendance-monitoring/dashboard/divisions/$divisionId/$departmentId/'
+      path: '/dashboard/divisions/$divisionId/$departmentId'
+      fullPath: '/attendance-monitoring/dashboard/divisions/$divisionId/$departmentId'
+      preLoaderRoute: typeof AuthenticatedAttendanceMonitoringDashboardDivisionsDivisionIdDepartmentIdIndexImport
+      parentRoute: typeof AuthenticatedAttendanceMonitoringRouteImport
+    }
+    '/_authenticated/attendance-monitoring/dashboard/divisions/$divisionId/$departmentId/$sectionId/': {
+      id: '/_authenticated/attendance-monitoring/dashboard/divisions/$divisionId/$departmentId/$sectionId/'
+      path: '/dashboard/divisions/$divisionId/$departmentId/$sectionId'
+      fullPath: '/attendance-monitoring/dashboard/divisions/$divisionId/$departmentId/$sectionId'
+      preLoaderRoute: typeof AuthenticatedAttendanceMonitoringDashboardDivisionsDivisionIdDepartmentIdSectionIdIndexImport
+      parentRoute: typeof AuthenticatedAttendanceMonitoringRouteImport
+    }
   }
 }
 
@@ -259,24 +310,33 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAttendanceMonitoringRouteRouteChildren {
   AuthenticatedAttendanceMonitoringSettingsRoute: typeof AuthenticatedAttendanceMonitoringSettingsRoute
-  AuthenticatedAttendanceMonitoringDashboardDivisionsRouteRoute: typeof AuthenticatedAttendanceMonitoringDashboardDivisionsRouteRoute
   AuthenticatedAttendanceMonitoringDashboardDepartmentsRoute: typeof AuthenticatedAttendanceMonitoringDashboardDepartmentsRoute
   AuthenticatedAttendanceMonitoringDashboardEntryExitRoute: typeof AuthenticatedAttendanceMonitoringDashboardEntryExitRoute
   AuthenticatedAttendanceMonitoringDashboardOverviewRoute: typeof AuthenticatedAttendanceMonitoringDashboardOverviewRoute
+  AuthenticatedAttendanceMonitoringDashboardDivisionsIndexRoute: typeof AuthenticatedAttendanceMonitoringDashboardDivisionsIndexRoute
+  AuthenticatedAttendanceMonitoringDashboardDivisionsDivisionIdIndexRoute: typeof AuthenticatedAttendanceMonitoringDashboardDivisionsDivisionIdIndexRoute
+  AuthenticatedAttendanceMonitoringDashboardDivisionsDivisionIdDepartmentIdIndexRoute: typeof AuthenticatedAttendanceMonitoringDashboardDivisionsDivisionIdDepartmentIdIndexRoute
+  AuthenticatedAttendanceMonitoringDashboardDivisionsDivisionIdDepartmentIdSectionIdIndexRoute: typeof AuthenticatedAttendanceMonitoringDashboardDivisionsDivisionIdDepartmentIdSectionIdIndexRoute
 }
 
 const AuthenticatedAttendanceMonitoringRouteRouteChildren: AuthenticatedAttendanceMonitoringRouteRouteChildren =
   {
     AuthenticatedAttendanceMonitoringSettingsRoute:
       AuthenticatedAttendanceMonitoringSettingsRoute,
-    AuthenticatedAttendanceMonitoringDashboardDivisionsRouteRoute:
-      AuthenticatedAttendanceMonitoringDashboardDivisionsRouteRoute,
     AuthenticatedAttendanceMonitoringDashboardDepartmentsRoute:
       AuthenticatedAttendanceMonitoringDashboardDepartmentsRoute,
     AuthenticatedAttendanceMonitoringDashboardEntryExitRoute:
       AuthenticatedAttendanceMonitoringDashboardEntryExitRoute,
     AuthenticatedAttendanceMonitoringDashboardOverviewRoute:
       AuthenticatedAttendanceMonitoringDashboardOverviewRoute,
+    AuthenticatedAttendanceMonitoringDashboardDivisionsIndexRoute:
+      AuthenticatedAttendanceMonitoringDashboardDivisionsIndexRoute,
+    AuthenticatedAttendanceMonitoringDashboardDivisionsDivisionIdIndexRoute:
+      AuthenticatedAttendanceMonitoringDashboardDivisionsDivisionIdIndexRoute,
+    AuthenticatedAttendanceMonitoringDashboardDivisionsDivisionIdDepartmentIdIndexRoute:
+      AuthenticatedAttendanceMonitoringDashboardDivisionsDivisionIdDepartmentIdIndexRoute,
+    AuthenticatedAttendanceMonitoringDashboardDivisionsDivisionIdDepartmentIdSectionIdIndexRoute:
+      AuthenticatedAttendanceMonitoringDashboardDivisionsDivisionIdDepartmentIdSectionIdIndexRoute,
   }
 
 const AuthenticatedAttendanceMonitoringRouteRouteWithChildren =
@@ -336,7 +396,6 @@ export interface FileRoutesByFullPath {
   '/modules': typeof AuthenticatedModulesRouteRoute
   '/visitor-management': typeof AuthenticatedVisitorManagementRouteRouteWithChildren
   '/attendance-monitoring/settings': typeof AuthenticatedAttendanceMonitoringSettingsRoute
-  '/attendance-monitoring/dashboard/divisions': typeof AuthenticatedAttendanceMonitoringDashboardDivisionsRouteRoute
   '/attendance-monitoring/dashboard/departments': typeof AuthenticatedAttendanceMonitoringDashboardDepartmentsRoute
   '/attendance-monitoring/dashboard/entry-exit': typeof AuthenticatedAttendanceMonitoringDashboardEntryExitRoute
   '/attendance-monitoring/dashboard/overview': typeof AuthenticatedAttendanceMonitoringDashboardOverviewRoute
@@ -344,6 +403,10 @@ export interface FileRoutesByFullPath {
   '/visitor-management/dashboard/overview': typeof AuthenticatedVisitorManagementDashboardOverviewRoute
   '/visitor-management/vip/overview': typeof AuthenticatedVisitorManagementVipOverviewRoute
   '/visitor-management/vip/register-vip': typeof AuthenticatedVisitorManagementVipRegisterVipRoute
+  '/attendance-monitoring/dashboard/divisions': typeof AuthenticatedAttendanceMonitoringDashboardDivisionsIndexRoute
+  '/attendance-monitoring/dashboard/divisions/$divisionId': typeof AuthenticatedAttendanceMonitoringDashboardDivisionsDivisionIdIndexRoute
+  '/attendance-monitoring/dashboard/divisions/$divisionId/$departmentId': typeof AuthenticatedAttendanceMonitoringDashboardDivisionsDivisionIdDepartmentIdIndexRoute
+  '/attendance-monitoring/dashboard/divisions/$divisionId/$departmentId/$sectionId': typeof AuthenticatedAttendanceMonitoringDashboardDivisionsDivisionIdDepartmentIdSectionIdIndexRoute
 }
 
 export interface FileRoutesByTo {
@@ -355,7 +418,6 @@ export interface FileRoutesByTo {
   '/modules': typeof AuthenticatedModulesRouteRoute
   '/visitor-management': typeof AuthenticatedVisitorManagementRouteRouteWithChildren
   '/attendance-monitoring/settings': typeof AuthenticatedAttendanceMonitoringSettingsRoute
-  '/attendance-monitoring/dashboard/divisions': typeof AuthenticatedAttendanceMonitoringDashboardDivisionsRouteRoute
   '/attendance-monitoring/dashboard/departments': typeof AuthenticatedAttendanceMonitoringDashboardDepartmentsRoute
   '/attendance-monitoring/dashboard/entry-exit': typeof AuthenticatedAttendanceMonitoringDashboardEntryExitRoute
   '/attendance-monitoring/dashboard/overview': typeof AuthenticatedAttendanceMonitoringDashboardOverviewRoute
@@ -363,6 +425,10 @@ export interface FileRoutesByTo {
   '/visitor-management/dashboard/overview': typeof AuthenticatedVisitorManagementDashboardOverviewRoute
   '/visitor-management/vip/overview': typeof AuthenticatedVisitorManagementVipOverviewRoute
   '/visitor-management/vip/register-vip': typeof AuthenticatedVisitorManagementVipRegisterVipRoute
+  '/attendance-monitoring/dashboard/divisions': typeof AuthenticatedAttendanceMonitoringDashboardDivisionsIndexRoute
+  '/attendance-monitoring/dashboard/divisions/$divisionId': typeof AuthenticatedAttendanceMonitoringDashboardDivisionsDivisionIdIndexRoute
+  '/attendance-monitoring/dashboard/divisions/$divisionId/$departmentId': typeof AuthenticatedAttendanceMonitoringDashboardDivisionsDivisionIdDepartmentIdIndexRoute
+  '/attendance-monitoring/dashboard/divisions/$divisionId/$departmentId/$sectionId': typeof AuthenticatedAttendanceMonitoringDashboardDivisionsDivisionIdDepartmentIdSectionIdIndexRoute
 }
 
 export interface FileRoutesById {
@@ -375,7 +441,6 @@ export interface FileRoutesById {
   '/_authenticated/modules': typeof AuthenticatedModulesRouteRoute
   '/_authenticated/visitor-management': typeof AuthenticatedVisitorManagementRouteRouteWithChildren
   '/_authenticated/attendance-monitoring/settings': typeof AuthenticatedAttendanceMonitoringSettingsRoute
-  '/_authenticated/attendance-monitoring/dashboard/divisions': typeof AuthenticatedAttendanceMonitoringDashboardDivisionsRouteRoute
   '/_authenticated/attendance-monitoring/dashboard/departments': typeof AuthenticatedAttendanceMonitoringDashboardDepartmentsRoute
   '/_authenticated/attendance-monitoring/dashboard/entry-exit': typeof AuthenticatedAttendanceMonitoringDashboardEntryExitRoute
   '/_authenticated/attendance-monitoring/dashboard/overview': typeof AuthenticatedAttendanceMonitoringDashboardOverviewRoute
@@ -383,6 +448,10 @@ export interface FileRoutesById {
   '/_authenticated/visitor-management/dashboard/overview': typeof AuthenticatedVisitorManagementDashboardOverviewRoute
   '/_authenticated/visitor-management/vip/overview': typeof AuthenticatedVisitorManagementVipOverviewRoute
   '/_authenticated/visitor-management/vip/register-vip': typeof AuthenticatedVisitorManagementVipRegisterVipRoute
+  '/_authenticated/attendance-monitoring/dashboard/divisions/': typeof AuthenticatedAttendanceMonitoringDashboardDivisionsIndexRoute
+  '/_authenticated/attendance-monitoring/dashboard/divisions/$divisionId/': typeof AuthenticatedAttendanceMonitoringDashboardDivisionsDivisionIdIndexRoute
+  '/_authenticated/attendance-monitoring/dashboard/divisions/$divisionId/$departmentId/': typeof AuthenticatedAttendanceMonitoringDashboardDivisionsDivisionIdDepartmentIdIndexRoute
+  '/_authenticated/attendance-monitoring/dashboard/divisions/$divisionId/$departmentId/$sectionId/': typeof AuthenticatedAttendanceMonitoringDashboardDivisionsDivisionIdDepartmentIdSectionIdIndexRoute
 }
 
 export interface FileRouteTypes {
@@ -396,7 +465,6 @@ export interface FileRouteTypes {
     | '/modules'
     | '/visitor-management'
     | '/attendance-monitoring/settings'
-    | '/attendance-monitoring/dashboard/divisions'
     | '/attendance-monitoring/dashboard/departments'
     | '/attendance-monitoring/dashboard/entry-exit'
     | '/attendance-monitoring/dashboard/overview'
@@ -404,6 +472,10 @@ export interface FileRouteTypes {
     | '/visitor-management/dashboard/overview'
     | '/visitor-management/vip/overview'
     | '/visitor-management/vip/register-vip'
+    | '/attendance-monitoring/dashboard/divisions'
+    | '/attendance-monitoring/dashboard/divisions/$divisionId'
+    | '/attendance-monitoring/dashboard/divisions/$divisionId/$departmentId'
+    | '/attendance-monitoring/dashboard/divisions/$divisionId/$departmentId/$sectionId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -414,7 +486,6 @@ export interface FileRouteTypes {
     | '/modules'
     | '/visitor-management'
     | '/attendance-monitoring/settings'
-    | '/attendance-monitoring/dashboard/divisions'
     | '/attendance-monitoring/dashboard/departments'
     | '/attendance-monitoring/dashboard/entry-exit'
     | '/attendance-monitoring/dashboard/overview'
@@ -422,6 +493,10 @@ export interface FileRouteTypes {
     | '/visitor-management/dashboard/overview'
     | '/visitor-management/vip/overview'
     | '/visitor-management/vip/register-vip'
+    | '/attendance-monitoring/dashboard/divisions'
+    | '/attendance-monitoring/dashboard/divisions/$divisionId'
+    | '/attendance-monitoring/dashboard/divisions/$divisionId/$departmentId'
+    | '/attendance-monitoring/dashboard/divisions/$divisionId/$departmentId/$sectionId'
   id:
     | '__root__'
     | '/'
@@ -432,7 +507,6 @@ export interface FileRouteTypes {
     | '/_authenticated/modules'
     | '/_authenticated/visitor-management'
     | '/_authenticated/attendance-monitoring/settings'
-    | '/_authenticated/attendance-monitoring/dashboard/divisions'
     | '/_authenticated/attendance-monitoring/dashboard/departments'
     | '/_authenticated/attendance-monitoring/dashboard/entry-exit'
     | '/_authenticated/attendance-monitoring/dashboard/overview'
@@ -440,6 +514,10 @@ export interface FileRouteTypes {
     | '/_authenticated/visitor-management/dashboard/overview'
     | '/_authenticated/visitor-management/vip/overview'
     | '/_authenticated/visitor-management/vip/register-vip'
+    | '/_authenticated/attendance-monitoring/dashboard/divisions/'
+    | '/_authenticated/attendance-monitoring/dashboard/divisions/$divisionId/'
+    | '/_authenticated/attendance-monitoring/dashboard/divisions/$divisionId/$departmentId/'
+    | '/_authenticated/attendance-monitoring/dashboard/divisions/$divisionId/$departmentId/$sectionId/'
   fileRoutesById: FileRoutesById
 }
 
@@ -490,10 +568,13 @@ export const routeTree = rootRoute
       "parent": "/_authenticated",
       "children": [
         "/_authenticated/attendance-monitoring/settings",
-        "/_authenticated/attendance-monitoring/dashboard/divisions",
         "/_authenticated/attendance-monitoring/dashboard/departments",
         "/_authenticated/attendance-monitoring/dashboard/entry-exit",
-        "/_authenticated/attendance-monitoring/dashboard/overview"
+        "/_authenticated/attendance-monitoring/dashboard/overview",
+        "/_authenticated/attendance-monitoring/dashboard/divisions/",
+        "/_authenticated/attendance-monitoring/dashboard/divisions/$divisionId/",
+        "/_authenticated/attendance-monitoring/dashboard/divisions/$divisionId/$departmentId/",
+        "/_authenticated/attendance-monitoring/dashboard/divisions/$divisionId/$departmentId/$sectionId/"
       ]
     },
     "/_authenticated/home": {
@@ -516,10 +597,6 @@ export const routeTree = rootRoute
     },
     "/_authenticated/attendance-monitoring/settings": {
       "filePath": "_authenticated/attendance-monitoring/settings.tsx",
-      "parent": "/_authenticated/attendance-monitoring"
-    },
-    "/_authenticated/attendance-monitoring/dashboard/divisions": {
-      "filePath": "_authenticated/attendance-monitoring/dashboard/divisions/route.tsx",
       "parent": "/_authenticated/attendance-monitoring"
     },
     "/_authenticated/attendance-monitoring/dashboard/departments": {
@@ -549,6 +626,22 @@ export const routeTree = rootRoute
     "/_authenticated/visitor-management/vip/register-vip": {
       "filePath": "_authenticated/visitor-management/vip/register-vip.tsx",
       "parent": "/_authenticated/visitor-management"
+    },
+    "/_authenticated/attendance-monitoring/dashboard/divisions/": {
+      "filePath": "_authenticated/attendance-monitoring/dashboard/divisions/index.tsx",
+      "parent": "/_authenticated/attendance-monitoring"
+    },
+    "/_authenticated/attendance-monitoring/dashboard/divisions/$divisionId/": {
+      "filePath": "_authenticated/attendance-monitoring/dashboard/divisions/$divisionId/index.tsx",
+      "parent": "/_authenticated/attendance-monitoring"
+    },
+    "/_authenticated/attendance-monitoring/dashboard/divisions/$divisionId/$departmentId/": {
+      "filePath": "_authenticated/attendance-monitoring/dashboard/divisions/$divisionId/$departmentId/index.tsx",
+      "parent": "/_authenticated/attendance-monitoring"
+    },
+    "/_authenticated/attendance-monitoring/dashboard/divisions/$divisionId/$departmentId/$sectionId/": {
+      "filePath": "_authenticated/attendance-monitoring/dashboard/divisions/$divisionId/$departmentId/$sectionId/index.tsx",
+      "parent": "/_authenticated/attendance-monitoring"
     }
   }
 }

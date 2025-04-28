@@ -28,9 +28,9 @@ export function Header({ userProfile, className }: HeaderProps) {
             <h1 className="text-[2rem] font-bold text-[#1a2b4b] capitalize">
               {
                 pathSegments[
-                  pathSegments.length > 2
-                    ? pathSegments.length - 2
-                    : pathSegments.length - 1
+                pathSegments.length > 2
+                  ? 2
+                  : 1
                 ]
               }
             </h1>
