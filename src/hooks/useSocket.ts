@@ -28,7 +28,7 @@ interface UseSocketProps {
 }
 
 // Updated SOCKET_URL with protocol
-const SOCKET_URL = 'http://62.72.31.234:30725';
+const SOCKET_URL = '62.72.31.234:30725';
 
 export const useSocket = <T extends SummaryData | LiveData>({ room, dataType }: UseSocketProps) => {
     const [data, setData] = useState<T[]>([]);
@@ -69,7 +69,7 @@ export const useSocket = <T extends SummaryData | LiveData>({ room, dataType }: 
             setError(null);
 
             // Join the specified room
-            socketInstance.emit('room', room);
+            socketInstance.emit('join', room);
             console.log(`Joined room: ${room}`);
         });
 
