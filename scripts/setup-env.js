@@ -26,12 +26,17 @@ function copyEnvFile() {
 // Initial copy
 copyEnvFile();
 
-// Watch for changes
-fs.watch(sourceEnvPath, (eventType, filename) => {
-  if (eventType === "change") {
-    console.log(`🔄 Detected changes in ${filename}`);
-    copyEnvFile();
-  }
-});
+// Check if --no-watch flag is provided
+const shouldWatch = !process.argv.includes('--no-watch');
 
-console.log("👀 Watching for changes in .env.development...");
+// Watch for changes only if not using --no-watch
+if (shouldWatch) {
+  fs.watch(sourceEnvPath, (eventType, filename) => {
+    if (eventType === "change") {
+      console.log(`🔄 Detected changes in ${filename}`);
+      copyEnvFile();
+    }
+  });
+
+  console.log("👀 Watching for changes in .env.development...");
+}

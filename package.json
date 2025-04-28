@@ -4,8 +4,9 @@
   "type": "module",
   "scripts": {
     "setup-env": "node scripts/setup-env.js",
+    "setup-env:once": "node scripts/setup-env.js --no-watch",
     "dev": "vite --port 3000",
-    "start": "npm run setup-env && npm run dev",
+    "start": "bun run scripts/dev-with-env-watch.js",
     "build": "vite build && tsc",
     "preview": "vite preview",
     "test": "vitest run",
@@ -64,6 +65,7 @@
     "@types/react-dom": "^19.0.3",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.17",
+    "concurrently": "^9.1.2",
     "jsdom": "^26.0.0",
     "postcss": "^8.4.35",
     "tailwindcss": "^3.4.1",
