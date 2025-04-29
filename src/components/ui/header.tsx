@@ -28,9 +28,9 @@ export function Header({ userProfile, className }: HeaderProps) {
             <h1 className="text-[2rem] font-bold text-[#1a2b4b] capitalize">
               {
                 pathSegments[
-                  pathSegments.length > 2
-                    ? pathSegments.length - 2
-                    : pathSegments.length - 1
+                pathSegments.length > 2
+                  ? 2
+                  : 1
                 ]
               }
             </h1>
@@ -45,7 +45,7 @@ export function Header({ userProfile, className }: HeaderProps) {
                       })
                     }
                   >
-                    {segment}
+                    {segment.includes("%20") ? segment.split("%20").join(" ") : segment.split("%2").join(" ")}
                   </span>
                   {index < pathSegments.length - 1 && (
                     <span className="text-xs text-gray-400">
