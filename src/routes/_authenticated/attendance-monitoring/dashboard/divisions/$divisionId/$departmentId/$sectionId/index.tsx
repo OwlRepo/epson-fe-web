@@ -13,7 +13,6 @@ export const Route = createFileRoute(
 })
 
 function RouteComponent() {
-  const params = useParams({ from: '/_authenticated/attendance-monitoring/dashboard/divisions/$divisionId/$departmentId/$sectionId/' });
   const { data, isLoading, error, isConnected } = useEmployeeData();
 
   return (
