@@ -45,7 +45,7 @@ export function Header({ userProfile, className }: HeaderProps) {
                       })
                     }
                   >
-                    {segment}
+                    {segment.includes("%20") ? segment.split("%20").join(" ") : segment.split("%2").join(" ")}
                   </span>
                   {index < pathSegments.length - 1 && (
                     <span className="text-xs text-gray-400">
