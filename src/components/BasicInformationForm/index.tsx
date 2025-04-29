@@ -12,10 +12,11 @@ import { PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { Popover } from "@radix-ui/react-popover";
-import { Check, ChevronsUpDown, Image } from "lucide-react";
+import { Check, ChevronsUpDown } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { DatePickerWithRange } from "../ui/date-range-picker";
+import CapturePhoto from "./CapturePhoto";
 
 interface BasicInformationFormProps {
   onCheckIn?: (data: any) => void;
@@ -32,14 +33,7 @@ const BasicInfromationForm = ({
 
   return (
     <div className="grid grid-cols-4 gap-2 grid-rows-[auto_1fr] h-full">
-      <div className="bg-white p-4 rounded-lg shadow-md self-start">
-        <p className="font-bold flex gap-2 text-[#1a2b4b]">Capture Photo</p>
-        <p className="text-sm text-slate-500">Snap a visitor's photo</p>
-        <div className="flex justify-center items-center rounded-sm border-dashed h-44 border-[#0F416D] border-2 my-2">
-          <Image className="text-[#0F416D]" />
-        </div>
-        <Button className="w-full">Activate Webcam</Button>
-      </div>
+      <CapturePhoto onCapture={(data) => setValue("image", data)} />
 
       <div className="bg-white col-span-3 p-4 rounded-lg shadow-md overflow-hidden flex flex-col">
         <p className="font-bold flex gap-2 text-[#1a2b4b]">Basic Information</p>
