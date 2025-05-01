@@ -13,7 +13,7 @@ export const Route = createFileRoute(
 })
 
 function RouteComponent() {
-    const { data, isLoading, error, isConnected } = useDivisionData();
+    const { data, isLoading, isConnected } = useDivisionData();
 
     return (
         <CardSection headerLeft={<CardHeaderLeft />} headerRight={<CardHeaderRight />}>

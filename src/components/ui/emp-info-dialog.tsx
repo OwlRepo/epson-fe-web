@@ -3,13 +3,12 @@ import {
     DialogContent,
     DialogHeader,
     DialogTitle,
-    DialogClose,
 } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { X, CheckCircle, UserX } from "lucide-react"; // Import UserX icon
+import { CheckCircle, UserX } from "lucide-react"; // Import UserX icon
 import { useState } from "react";
 import Spinner from "./spinner";
 import { toast } from "sonner";

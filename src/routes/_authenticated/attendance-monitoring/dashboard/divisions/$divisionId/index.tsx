@@ -14,7 +14,7 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
   const params = useParams({ from: '/_authenticated/attendance-monitoring/dashboard/divisions/$divisionId/' });
-  const { data, isLoading, error, isConnected } = useDepartmentData();
+  const { data, isLoading, isConnected } = useDepartmentData();
 
   return (
     <CardSection headerLeft={<CardHeaderLeft />} headerRight={<CardHeaderRight />}>

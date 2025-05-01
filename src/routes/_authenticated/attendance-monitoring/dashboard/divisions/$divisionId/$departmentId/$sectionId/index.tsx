@@ -1,8 +1,6 @@
 import CardSection from '@/components/layouts/CardSection'
 import CardHeaderLeft from '@/components/ui/card-header-left'
-import CardHeaderRight from '@/components/ui/card-header-right'
-import { DepartmentCard } from '@/components/ui/department-card'
-import { createFileRoute, Link, useNavigate, useParams, useSearch } from '@tanstack/react-router'
+import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router'
 import { useEmployeeData } from '@/hooks'
 import { EpsonFlame } from '@/assets/svgs'
 import Spinner from '@/components/ui/spinner'
@@ -15,8 +13,7 @@ export const Route = createFileRoute(
 })
 
 function RouteComponent() {
-  const { data, isLoading, error, isConnected } = useEmployeeData();
-
+  const { data, isLoading, isConnected } = useEmployeeData();
 
   const navigate = useNavigate({
     from: '/attendance-monitoring/dashboard/divisions/$divisionId/$departmentId/$sectionId'

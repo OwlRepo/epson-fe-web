@@ -496,10 +496,6 @@ export function DynamicTable({
   const areAllRowsSelected = data.length > 0 &&
     data.every(row => isSelected(tableId, String(row[rowIdField])));
 
-  // Check if some (but not all) rows in the current page are selected
-  const areSomeRowsSelected = !areAllRowsSelected &&
-    data.some(row => isSelected(tableId, String(row[rowIdField])));
-
   return (
     <div className="w-full">
       <div className="flex flex-col gap-4 mb-4">

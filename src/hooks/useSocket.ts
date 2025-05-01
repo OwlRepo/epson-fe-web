@@ -1,6 +1,6 @@
+import { getApiBaseUrl } from '@/utils/env';
 import { useState, useEffect, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
-import { useNavigate, useSearch } from '@tanstack/react-router';
 
 // Define types for our data
 export interface SummaryData {
@@ -27,8 +27,7 @@ interface UseSocketProps {
     dataType: DataType;
 }
 
-// Updated SOCKET_URL with protocol
-const SOCKET_URL = '62.72.31.234:30725';
+const SOCKET_URL = getApiBaseUrl()
 
 export const useSocket = <T extends SummaryData | LiveData>({ room, dataType }: UseSocketProps) => {
     const [data, setData] = useState<T[]>([]);

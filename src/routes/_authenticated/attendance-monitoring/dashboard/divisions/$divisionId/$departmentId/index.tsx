@@ -3,7 +3,7 @@ import CardHeaderLeft from '@/components/ui/card-header-left'
 import CardHeaderRight from '@/components/ui/card-header-right'
 import { DepartmentCard } from '@/components/ui/department-card'
 import { createFileRoute, Link, useParams } from '@tanstack/react-router'
-import { useDepartmentData, useSectionData } from '@/hooks'
+import { useSectionData } from '@/hooks'
 import Spinner from '@/components/ui/spinner'
 
 
@@ -15,7 +15,7 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
     const params = useParams({ from: '/_authenticated/attendance-monitoring/dashboard/divisions/$divisionId/$departmentId/' });
-    const { data, isLoading, error, isConnected } = useSectionData();
+    const { data, isLoading, isConnected } = useSectionData();
 
     return (
         <CardSection headerLeft={<CardHeaderLeft />} headerRight={<CardHeaderRight />}>

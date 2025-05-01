@@ -1,7 +1,7 @@
 import axios from "axios";
-import envVariables from "./envVariables";
 import { toast } from "sonner";
 import { ToastType } from "@/hooks/useToastStyleTheme";
+import { getApiBaseUrl } from "@/utils/env";
 
 // Extend the AxiosRequestConfig type to include our custom properties
 declare module "axios" {
@@ -20,7 +20,7 @@ declare module "axios" {
 }
 
 export const api = axios.create({
-  baseURL: envVariables.API_BASE_URL,
+  baseURL: getApiBaseUrl(),
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",

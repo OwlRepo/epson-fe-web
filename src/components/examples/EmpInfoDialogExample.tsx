@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import EmpInfoDialog from '@/components/ui/emp-info-dialog';
 import { Button } from '@/components/ui/button';
 

@@ -1,4 +1,3 @@
-import * as React from "react";
 import { DynamicTable } from "./dynamic-table";
 import type { Column, Filter } from "./dynamic-table";
 import { useNavigate } from "@tanstack/react-router";

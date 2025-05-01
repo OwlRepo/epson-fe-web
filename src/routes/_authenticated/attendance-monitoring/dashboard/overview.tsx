@@ -2,7 +2,6 @@ import { ClockedInIcon, ClockedOutIcon, EpsonFlame, InPremisesIcon } from "@/ass
 import CardSection from "@/components/layouts/CardSection";
 import AttendanceCountCard from "@/components/ui/attendance-count-card";
 import CardHeaderLeft from "@/components/ui/card-header-left";
-import { DynamicTable } from "@/components/ui/dynamic-table";
 import { LiveDataTable } from "@/components/ui/live-data-table";
 import { faker } from "@faker-js/faker";
 import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
@@ -96,7 +95,7 @@ function RouteComponent() {
               label: 'ID',
               options: [
                 { label: 'All', value: '' },
-                ...Array.from({ length: 10 }, (_, i) => ({
+                ...Array.from({ length: 10 }, () => ({
                   label: faker.string.numeric(6),
                   value: faker.string.numeric(6),
                 })),

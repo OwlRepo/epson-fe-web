@@ -1,10 +1,9 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useDivisionData, useDepartmentData, useSectionData, useEmployeeData } from "@/hooks";
-import { Loader } from "lucide-react";
 import Spinner from "../ui/spinner";
 
 export function SocketHooksExample() {
