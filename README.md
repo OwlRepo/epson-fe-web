@@ -55,10 +55,131 @@ Development environment variables are stored in `src/envs/.env.development`. Whe
 
 Production environment variables are stored in `src/envs/.env.production`. When you build the application with `bun run build`, these variables are automatically copied to the root `.env` file.
 
-Example `.env.production` file:
+### Adding Environment Variables
+
+To add new environment variables to your project:
+
+1. Open the appropriate environment file:
+   - For development: `src/envs/.env.development`
+   - For production: `src/envs/.env.production`
+
+2. Add your variables using the format `KEY=VALUE` with each variable on a new line
+   - **Important**: Variables must be prefixed with `VITE_` to be exposed to your application code
+
+```bash
+# Example .env.development or .env.production
+VITE_API_BASE_URL=https://api.example.com
+VITE_APP_TITLE=Epson App
+VITE_FEATURE_FLAG_NEW_UI=true
+VITE_AUTH_TIMEOUT=3600
 ```
-VITE_API_BASE_URL=https://api.your-production-domain.com
+
+### Using Environment Variables in Your Code
+
+You can access environment variables in your React components and other code through `import.meta.env`:
+
+```tsx
+// Example usage in a component
+function ApiComponent() {
+  const apiUrl = import.meta.env.VITE_API_BASE_URL;
+  
+  // Use the variable
+  useEffect(() => {
+    fetch(`${apiUrl}/users`)
+      .then(response => response.json())
+      .then(data => console.log(data));
+  }, []);
+  
+  return (
+    <div>
+      <h1>{import.meta.env.VITE_APP_TITLE}</h1>
+      {/* Conditional rendering based on feature flag */}
+      {import.meta.env.VITE_FEATURE_FLAG_NEW_UI === 'true' && (
+        <NewUIComponent />
+      )}
+    </div>
+  );
+}
 ```
+
+### Using the env.ts Utility (Recommended)
+
+The project includes a dedicated utility file (`src/utils/env.ts`) for accessing environment variables in a type-safe and consistent way:
+
+```typescript
+// src/utils/env.ts
+declare global {
+  interface Window {
+    env: Record<string, string>;
+  }
+}
+
+export const getEnvVar = (key: string): string => {
+  return import.meta.env[key] || "";
+};
+
+// Create specific getters for each env variable
+export const getApiBaseUrl = () => getEnvVar("VITE_SOCKET_BASE_URL");
+// Add other env variable getters as needed
+```
+
+Using this utility provides several advantages:
+- Centralized access to environment variables
+- Default fallback values to prevent undefined errors
+- Type safety through specific getter functions
+- Easier mocking for tests
+
+Example usage in components:
+
+```tsx
+import { getApiBaseUrl } from '@/utils/env';
+
+function ApiComponent() {
+  const apiUrl = getApiBaseUrl();
+  
+  useEffect(() => {
+    fetch(`${apiUrl}/users`)
+      .then(response => response.json())
+      .then(data => console.log(data));
+  }, []);
+  
+  return (
+    // Component code...
+  );
+}
+```
+
+To add new environment variable getters, extend the `env.ts` file:
+
+```typescript
+// Adding new environment variable getters
+export const getAppTitle = () => getEnvVar("VITE_APP_TITLE");
+export const getFeatureFlags = () => ({
+  newUI: getEnvVar("VITE_FEATURE_FLAG_NEW_UI") === "true",
+  betaFeatures: getEnvVar("VITE_FEATURE_FLAG_BETA") === "true",
+});
+export const getAuthTimeout = () => Number(getEnvVar("VITE_AUTH_TIMEOUT") || "3600");
+```
+
+### Environment Types
+
+To get TypeScript autocompletion for your environment variables, add them to the `ImportMetaEnv` interface in `vite-end.d.ts`:
+
+```ts
+interface ImportMetaEnv {
+  readonly VITE_API_BASE_URL: string
+  readonly VITE_APP_TITLE: string
+  readonly VITE_FEATURE_FLAG_NEW_UI: string
+  readonly VITE_AUTH_TIMEOUT: string
+  // Add other variables here
+}
+```
+
+### Troubleshooting
+
+- If your environment variables aren't being picked up, ensure they start with `VITE_`
+- After changing environment files, restart your development server
+- For Docker deployments, ensure variables are properly set in your Docker environment
 
 ## 📁 Project Structure
 
