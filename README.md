@@ -14,7 +14,7 @@ A modern React application built with Bun and Vite.
 - **Routing:** TanStack Router
 - **Testing:** Vitest
 
-## Getting Started
+## 🚀 Getting Started
 
 1. Install dependencies:
 
@@ -30,25 +30,51 @@ bun run start
 
 The application will be available at http://localhost:3000
 
-## Available Scripts
+## 📋 Available Scripts
 
-- `bun run start` - Start development server
-- `bun run build` - Build for production
-- `bun run serve` - Preview production build
-- `bun run test` - Run tests
-- `bun run setup-env` - Setup environment variables
+| Command | Description |
+|---------|-------------|
+| `bun run start` | Start development server |
+| `bun run build` | Build for production (uses .env.production) |
+| `bun run preview` | Preview production build |
+| `bun run test` | Run tests |
+| `bun run test:watch` | Run tests in watch mode |
+| `bun run test:coverage` | Run tests with coverage |
+| `bun run setup-env` | Setup development environment variables |
+| `bun run setup-env:prod` | Setup production environment variables |
+| `bun run lint` | Run ESLint |
+| `bun run format` | Format code with Prettier |
 
-## Project Structure
+## 🔧 Environment Setup
+
+### Development Environment
+
+Development environment variables are stored in `src/envs/.env.development`. When you run the development server with `bun run start`, these variables are automatically copied to the root `.env` file.
+
+### Production Environment
+
+Production environment variables are stored in `src/envs/.env.production`. When you build the application with `bun run build`, these variables are automatically copied to the root `.env` file.
+
+Example `.env.production` file:
+```
+VITE_API_BASE_URL=https://api.your-production-domain.com
+```
+
+## 📁 Project Structure
 
 ```
 src/
 ├── components/    # UI components
 ├── routes/        # TanStack Router routes
 ├── store/         # Zustand state management
+├── hooks/         # Custom React hooks
+├── lib/           # Utility libraries
+├── assets/        # Static assets (images, SVGs)
+├── envs/          # Environment variables
 └── main.tsx       # Application entry point
 ```
 
-## State Management with Zustand
+## 🧠 State Management with Zustand
 
 This project uses [Zustand](https://github.com/pmndrs/zustand) for state management. Our setup provides:
 
@@ -112,7 +138,7 @@ useNewStore.setState((state) => ({
 }));
 ```
 
-## Routing with TanStack Router
+## 🧭 Routing with TanStack Router
 
 This project uses file-based routing with [TanStack Router](https://tanstack.com/router). Routes are managed as files in the `src/routes` directory.
 
@@ -144,7 +170,7 @@ export const Route = createRootRoute({
 });
 ```
 
-## Data Fetching with TanStack Query
+## 📊 Data Fetching with TanStack Query
 
 ### Route Loaders
 
@@ -184,26 +210,36 @@ function Users() {
 }
 ```
 
-## Styling
+## 🎨 Styling
 
 This project uses [Tailwind CSS](https://tailwindcss.com/) with [shadcn/ui](https://ui.shadcn.com/) components for styling.
 
-## Testing
+## 🧪 Testing
 
 This project uses [Vitest](https://vitest.dev/) for testing:
 
 ```bash
+# Run tests once
 bun run test
+
+# Run tests in watch mode
+bun run test:watch
+
+# Run tests with coverage
+bun run test:coverage
 ```
 
-## Building for Production
+## 🚢 Building for Production
 
 ```bash
+# Build the application with production environment
 bun run build
-bun run serve # Preview the build
+
+# Preview the build
+bun run preview
 ```
 
-## Docker
+## 🐳 Docker
 
 This application is containerized using Docker with Nginx as the web server.
 
@@ -233,12 +269,30 @@ The application will be available at http://localhost:8765 when running in Docke
 
 ### Environment Variables
 
-The Docker setup will use environment variables from your `.env` file during the build process. Make sure to set the `VITE_API_BASE_URL` and any other required variables.
+The Docker setup will use environment variables from your `.env` file during the build process. Make sure your environment variables are properly set before building the Docker image.
 
-# Demo files
+### Docker Scripts
+
+| Command | Description |
+|---------|-------------|
+| `bun run docker:build:up` | Build and start the container |
+| `bun run docker:up` | Start the container |
+| `bun run docker:down` | Stop the container |
+| `bun run docker:logs` | View container logs |
+| `bun run docker:clean` | Remove container, volumes, and images |
+
+## 🧹 Demo Files
 
 Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.
 
-# Learn More
+## 📚 Learn More
 
 You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
+
+## 🤝 Contributing
+
+Please read our contributing guidelines before submitting PRs.
+
+## 📄 License
+
+This project is licensed under the terms of the MIT license.

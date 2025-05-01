@@ -5,20 +5,24 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const sourceEnvPath = path.join(__dirname, "../src/envs/.env.development");
+// Check if --production flag is provided
+const isProduction = process.argv.includes('--production');
+const envType = isProduction ? 'production' : 'development';
+
+const sourceEnvPath = path.join(__dirname, `../src/envs/.env.${envType}`);
 const targetEnvPath = path.join(__dirname, "../.env");
 
 function copyEnvFile() {
   try {
-    // Read the development environment file
+    // Read the environment file (development or production)
     const envContent = fs.readFileSync(sourceEnvPath, "utf8");
 
     // Write to the root .env file
     fs.writeFileSync(targetEnvPath, envContent);
 
-    console.log("✅ Environment variables copied successfully");
+    console.log(`✅ ${envType.toUpperCase()} environment variables copied successfully`);
   } catch (error) {
-    console.error("❌ Error copying environment variables:", error.message);
+    console.error(`❌ Error copying ${envType} environment variables:`, error.message);
     process.exit(1);
   }
 }
@@ -38,5 +42,5 @@ if (shouldWatch) {
     }
   });
 
-  console.log("👀 Watching for changes in .env.development...");
+  console.log(`👀 Watching for changes in .env.${envType}...`);
 }
