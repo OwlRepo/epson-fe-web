@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import countShortener from "@/utils/count-shortener";
 
 interface DepartmentCardProps {
   title: string;
@@ -24,11 +25,11 @@ export function DepartmentCard({
 
       <div className="flex justify-between">
         <div className="flex flex-col">
-          <span className="text-2xl font-bold">{clockedIn}</span>
+          <span className="text-2xl font-bold">{countShortener(clockedIn)}</span>
           <span className="text-xs text-gray-600">Clocked In</span>
         </div>
         <div className="flex flex-col">
-          <span className="text-2xl font-bold">{clockedOut}</span>
+          <span className="text-2xl font-bold">{countShortener(clockedOut)}</span>
           <span className="text-xs text-gray-600">Clocked Out</span>
         </div>
       </div>
