@@ -42,6 +42,7 @@ import {
   DialogTitle,
 } from "./dialog";
 import useTableSelectionStore from "@/store/tableSelectionStore";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "./dropdown-menu";
 
 /**
  * DynamicTable Component Guide:
@@ -91,6 +92,15 @@ export interface BaseSearchParams {
   [key: string]: string | undefined;
 }
 
+export interface ExportOptions {
+  label: string;
+  onClick: () => void; // Function to handle export logic
+}
+
+export interface ExportTableData {
+  exportOptions?: ExportOptions[];
+}
+
 interface DynamicTableProps {
   columns: Column[];
   data: any[];
@@ -111,6 +121,7 @@ interface DynamicTableProps {
   tableId?: string; // Unique ID for the table when multiple selection tables are used
   rowIdField?: string; // Field to use as row ID for selection
   onRowSelectionChange?: (selectedRows: Record<string, any>) => void; // Callback when selection changes
+  exportTableData?: ExportTableData; // Optional export options
 }
 
 export function DynamicTable({
@@ -133,6 +144,7 @@ export function DynamicTable({
   tableId = "default",
   rowIdField = "id",
   onRowSelectionChange,
+  exportTableData
 }: DynamicTableProps) {
   const navigate = useNavigate();
   const [filterSearches, setFilterSearches] = React.useState<
@@ -499,7 +511,7 @@ export function DynamicTable({
   return (
     <div className="w-full">
       <div className="flex flex-col gap-4 mb-4">
-        <div className="flex flex-col sm:flex-row gap-2 sm:gap-0 justify-between">
+        <div className={cn("flex flex-col sm:flex-row gap-2 sm:gap-0 items-center", exportTableData?.exportOptions ? "justify-start space-x-5 items-center" : "justify-between")}>
           {routeSearch && (
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -508,15 +520,14 @@ export function DynamicTable({
                 placeholder="Search..."
                 value={searchTerm}
                 onChange={handleSearchInput}
-                className="w-full pl-9 bg-background shadow-[0_0_0_1px_rgba(0,0,0,0.08)] hover:shadow-[0_0_0_1px_rgba(0,0,0,0.12)] focus-visible:shadow-[0_0_0_1px_rgba(0,0,0,0.12)] border-0 rounded-md"
+                className="w--full pl-9 ml-1 mt-1 bg-background shadow-[0_0_0_1px_rgba(0,0,0,0.08)] hover:shadow-[0_0_0_1px_rgba(0,0,0,0.12)] focus-visible:shadow-[0_0_0_1px_rgba(0,0,0,0.12)] border-0 rounded-md"
               />
             </div>
           )}
           {
             filters.length > 0 && <Sheet onOpenChange={handleSheetOpenChange}>
               <SheetTrigger asChild>
-                <Button variant="outline" className="flex items-center gap-2">
-                  <Filter className="h-4 w-4" />
+                <Button variant="default" className="flex items-center bg-[#F4F4F4] hover:bg-gray-300 text-black">
                   Filters
                   {Object.keys(filters).reduce(
                     (count, key) =>
@@ -531,6 +542,7 @@ export function DynamicTable({
                         )}
                       </span>
                     )}
+                  <ChevronDown />
                 </Button>
               </SheetTrigger>
               <SheetContent className="w-full sm:max-w-md">
@@ -742,6 +754,27 @@ export function DynamicTable({
               </SheetContent>
             </Sheet>
           }
+          {
+            exportTableData?.exportOptions && (
+
+              <div className="relative flex items-center justify-end flex-1">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button className='h-9'>Export Records <ChevronDown /></Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuLabel>Export options</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    {
+                      exportTableData.exportOptions.map((option) => (
+                        <DropdownMenuItem onClick={option.onClick} key={option.label}>{option.label}</DropdownMenuItem>
+                      ))
+                    }
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            )
+          }
         </div>
 
         {/* Selection count banner */}
@@ -772,7 +805,7 @@ export function DynamicTable({
             <TableHeader>
               <TableRow>
                 {enableRowSelection && (
-                  <TableHead className="w-[50px]">
+                  <TableHead className="w-[50px] uppercase bg-[#F4F7FCBF]/75">
                     <Checkbox
                       checked={areAllRowsSelected}
                       onCheckedChange={handleSelectAll}
@@ -780,7 +813,7 @@ export function DynamicTable({
                   </TableHead>
                 )}
                 {columns.map((column) => (
-                  <TableHead key={column.key} className="text-[#0F416D] font-bold bg-[#F4F7FCBF]/75">{column.label}</TableHead>
+                  <TableHead key={column.key} className="text-[#0F416D] font-bold bg-[#F4F7FCBF]/75 uppercase">{column.label}</TableHead>
                 ))}
               </TableRow>
             </TableHeader>

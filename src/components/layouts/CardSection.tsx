@@ -17,7 +17,7 @@ export default function CardSection({ children, headerLeft, headerRight, content
                 {headerLeft}
                 {headerRight}
             </div>
-            <div className={`max-h-[75vh] overflow-y-auto custom-scrollbar ${contentWrapperClassName}`}>
+            <div className={`max-h-[75vh] overflow-y-auto custom-scrollbar relative ${contentWrapperClassName}`}>
                 {children}
             </div>
         </Card>

@@ -19,6 +19,7 @@ import { Route as AuthenticatedModulesRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home/route'
 import { Route as AuthenticatedAttendanceMonitoringRouteImport } from './routes/_authenticated/attendance-monitoring/route'
 import { Route as AuthenticatedAttendanceMonitoringSettingsImport } from './routes/_authenticated/attendance-monitoring/settings'
+import { Route as AuthenticatedAttendanceMonitoringReportsImport } from './routes/_authenticated/attendance-monitoring/reports'
 import { Route as AuthenticatedVisitorManagementVipRegisterVipImport } from './routes/_authenticated/visitor-management/vip/register-vip'
 import { Route as AuthenticatedVisitorManagementVipOverviewImport } from './routes/_authenticated/visitor-management/vip/overview'
 import { Route as AuthenticatedVisitorManagementDashboardOverviewImport } from './routes/_authenticated/visitor-management/dashboard/overview'
@@ -81,6 +82,13 @@ const AuthenticatedAttendanceMonitoringSettingsRoute =
   AuthenticatedAttendanceMonitoringSettingsImport.update({
     id: '/settings',
     path: '/settings',
+    getParentRoute: () => AuthenticatedAttendanceMonitoringRouteRoute,
+  } as any)
+
+const AuthenticatedAttendanceMonitoringReportsRoute =
+  AuthenticatedAttendanceMonitoringReportsImport.update({
+    id: '/reports',
+    path: '/reports',
     getParentRoute: () => AuthenticatedAttendanceMonitoringRouteRoute,
   } as any)
 
@@ -229,6 +237,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedVisitorManagementRouteImport
       parentRoute: typeof AuthenticatedRouteImport
     }
+    '/_authenticated/attendance-monitoring/reports': {
+      id: '/_authenticated/attendance-monitoring/reports'
+      path: '/reports'
+      fullPath: '/attendance-monitoring/reports'
+      preLoaderRoute: typeof AuthenticatedAttendanceMonitoringReportsImport
+      parentRoute: typeof AuthenticatedAttendanceMonitoringRouteImport
+    }
     '/_authenticated/attendance-monitoring/settings': {
       id: '/_authenticated/attendance-monitoring/settings'
       path: '/settings'
@@ -326,6 +341,7 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 interface AuthenticatedAttendanceMonitoringRouteRouteChildren {
+  AuthenticatedAttendanceMonitoringReportsRoute: typeof AuthenticatedAttendanceMonitoringReportsRoute
   AuthenticatedAttendanceMonitoringSettingsRoute: typeof AuthenticatedAttendanceMonitoringSettingsRoute
   AuthenticatedAttendanceMonitoringDashboardDepartmentsRoute: typeof AuthenticatedAttendanceMonitoringDashboardDepartmentsRoute
   AuthenticatedAttendanceMonitoringDashboardOverviewRoute: typeof AuthenticatedAttendanceMonitoringDashboardOverviewRoute
@@ -339,6 +355,8 @@ interface AuthenticatedAttendanceMonitoringRouteRouteChildren {
 
 const AuthenticatedAttendanceMonitoringRouteRouteChildren: AuthenticatedAttendanceMonitoringRouteRouteChildren =
   {
+    AuthenticatedAttendanceMonitoringReportsRoute:
+      AuthenticatedAttendanceMonitoringReportsRoute,
     AuthenticatedAttendanceMonitoringSettingsRoute:
       AuthenticatedAttendanceMonitoringSettingsRoute,
     AuthenticatedAttendanceMonitoringDashboardDepartmentsRoute:
@@ -415,6 +433,7 @@ export interface FileRoutesByFullPath {
   '/home': typeof AuthenticatedHomeRouteRoute
   '/modules': typeof AuthenticatedModulesRouteRoute
   '/visitor-management': typeof AuthenticatedVisitorManagementRouteRouteWithChildren
+  '/attendance-monitoring/reports': typeof AuthenticatedAttendanceMonitoringReportsRoute
   '/attendance-monitoring/settings': typeof AuthenticatedAttendanceMonitoringSettingsRoute
   '/attendance-monitoring/dashboard/departments': typeof AuthenticatedAttendanceMonitoringDashboardDepartmentsRoute
   '/attendance-monitoring/dashboard/overview': typeof AuthenticatedAttendanceMonitoringDashboardOverviewRoute
@@ -438,6 +457,7 @@ export interface FileRoutesByTo {
   '/home': typeof AuthenticatedHomeRouteRoute
   '/modules': typeof AuthenticatedModulesRouteRoute
   '/visitor-management': typeof AuthenticatedVisitorManagementRouteRouteWithChildren
+  '/attendance-monitoring/reports': typeof AuthenticatedAttendanceMonitoringReportsRoute
   '/attendance-monitoring/settings': typeof AuthenticatedAttendanceMonitoringSettingsRoute
   '/attendance-monitoring/dashboard/departments': typeof AuthenticatedAttendanceMonitoringDashboardDepartmentsRoute
   '/attendance-monitoring/dashboard/overview': typeof AuthenticatedAttendanceMonitoringDashboardOverviewRoute
@@ -462,6 +482,7 @@ export interface FileRoutesById {
   '/_authenticated/home': typeof AuthenticatedHomeRouteRoute
   '/_authenticated/modules': typeof AuthenticatedModulesRouteRoute
   '/_authenticated/visitor-management': typeof AuthenticatedVisitorManagementRouteRouteWithChildren
+  '/_authenticated/attendance-monitoring/reports': typeof AuthenticatedAttendanceMonitoringReportsRoute
   '/_authenticated/attendance-monitoring/settings': typeof AuthenticatedAttendanceMonitoringSettingsRoute
   '/_authenticated/attendance-monitoring/dashboard/departments': typeof AuthenticatedAttendanceMonitoringDashboardDepartmentsRoute
   '/_authenticated/attendance-monitoring/dashboard/overview': typeof AuthenticatedAttendanceMonitoringDashboardOverviewRoute
@@ -487,6 +508,7 @@ export interface FileRouteTypes {
     | '/home'
     | '/modules'
     | '/visitor-management'
+    | '/attendance-monitoring/reports'
     | '/attendance-monitoring/settings'
     | '/attendance-monitoring/dashboard/departments'
     | '/attendance-monitoring/dashboard/overview'
@@ -509,6 +531,7 @@ export interface FileRouteTypes {
     | '/home'
     | '/modules'
     | '/visitor-management'
+    | '/attendance-monitoring/reports'
     | '/attendance-monitoring/settings'
     | '/attendance-monitoring/dashboard/departments'
     | '/attendance-monitoring/dashboard/overview'
@@ -531,6 +554,7 @@ export interface FileRouteTypes {
     | '/_authenticated/home'
     | '/_authenticated/modules'
     | '/_authenticated/visitor-management'
+    | '/_authenticated/attendance-monitoring/reports'
     | '/_authenticated/attendance-monitoring/settings'
     | '/_authenticated/attendance-monitoring/dashboard/departments'
     | '/_authenticated/attendance-monitoring/dashboard/overview'
@@ -593,6 +617,7 @@ export const routeTree = rootRoute
       "filePath": "_authenticated/attendance-monitoring/route.tsx",
       "parent": "/_authenticated",
       "children": [
+        "/_authenticated/attendance-monitoring/reports",
         "/_authenticated/attendance-monitoring/settings",
         "/_authenticated/attendance-monitoring/dashboard/departments",
         "/_authenticated/attendance-monitoring/dashboard/overview",
@@ -621,6 +646,10 @@ export const routeTree = rootRoute
         "/_authenticated/visitor-management/vip/overview",
         "/_authenticated/visitor-management/vip/register-vip"
       ]
+    },
+    "/_authenticated/attendance-monitoring/reports": {
+      "filePath": "_authenticated/attendance-monitoring/reports.tsx",
+      "parent": "/_authenticated/attendance-monitoring"
     },
     "/_authenticated/attendance-monitoring/settings": {
       "filePath": "_authenticated/attendance-monitoring/settings.tsx",
