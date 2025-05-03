@@ -780,7 +780,7 @@ export function DynamicTable({
                   </TableHead>
                 )}
                 {columns.map((column) => (
-                  <TableHead key={column.key}>{column.label}</TableHead>
+                  <TableHead key={column.key} className="text-[#0F416D] font-bold bg-[#F4F7FCBF]/75">{column.label}</TableHead>
                 ))}
               </TableRow>
             </TableHeader>
@@ -788,6 +788,7 @@ export function DynamicTable({
               {data.length > 0 ? data.map((row, rowIndex) => (
                 <TableRow
                   key={rowIndex}
+                  className={rowIndex % 2 === 0 ? "bg-white" : "bg-[#F7F9FD]"}
                   onClick={(e) => {
                     // Don't trigger row click when checkbox is clicked
                     if ((e.target as HTMLElement).closest('[data-checkbox]')) {
@@ -828,42 +829,42 @@ export function DynamicTable({
       {/* Pagination */}
       {pagination && !isLoading && (
         <div className="mt-4 flex items-center justify-between">
-          <div className="flex items-center gap-2 flex-wrap">
-            {/* Page size selector - both dropdown and buttons */}
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">Rows per page:</span>
-              <select
-                className="p-1 border rounded bg-white text-sm cursor-pointer"
-                value={pagination.pageSize}
-                onChange={handlePageSizeChange}
-                aria-label="Select rows per page"
-                data-testid="page-size-select"
-              >
-                {pageSizeOptions.map((size) => (
-                  <option key={size} value={size}>
-                    {size}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Alternative page size buttons */}
-            <div className="hidden sm:flex gap-1 ml-1">
+          {/* Page size selector - both dropdown and buttons */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-600 font-bold">Rows per page:</span>
+            <select
+              className="p-1 border-none rounded bg-white text-sm cursor-pointer"
+              value={pagination.pageSize}
+              onChange={handlePageSizeChange}
+              aria-label="Select rows per page"
+              data-testid="page-size-select"
+            >
               {pageSizeOptions.map((size) => (
-                <button
-                  key={`page-size-btn-${size}`}
-                  type="button"
-                  onClick={() => handlePageSizeButtonClick(size)}
-                  className={`px-2 py-1 text-xs rounded ${pagination.pageSize === size
-                    ? "bg-primary text-white"
-                    : "bg-gray-100 hover:bg-gray-200"
-                    }`}
-                  aria-pressed={pagination.pageSize === size}
-                >
+                <option key={size} value={size}>
                   {size}
-                </button>
+                </option>
               ))}
-            </div>
+            </select>
+          </div>
+
+          {/* Alternative page size buttons */}
+          {/* <div className="hidden sm:flex gap-1 ml-1">
+          {pageSizeOptions.map((size) => (
+            <button
+              key={`page-size-btn-${size}`}
+              type="button"
+              onClick={() => handlePageSizeButtonClick(size)}
+              className={`px-2 py-1 text-xs rounded ${pagination.pageSize === size
+                ? "bg-primary text-white"
+                : "bg-gray-100 hover:bg-gray-200"
+                }`}
+              aria-pressed={pagination.pageSize === size}
+            >
+              {size}
+            </button>
+          ))}
+        </div> */}
+          <div className="flex items-center gap-2 flex-wrap">
 
             {!isLiveData && (
               <span className="text-sm text-gray-600 ml-2">

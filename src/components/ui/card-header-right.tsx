@@ -1,3 +1,4 @@
+import countShortener from '@/utils/count-shortener';
 import React from 'react';
 
 interface CardHeaderRightProps {
@@ -13,11 +14,11 @@ export default function CardHeaderRight({ title, subtitle }: CardHeaderRightProp
             {typeof subtitle === 'string' || subtitle ? <p className='text-muted-foreground text-sm'>{subtitle}</p> : <div className='flex flex-row space-x-10'>
                 <div className='flex flex-row space-x-2'>
                     <p>Clocked In:</p>
-                    <b className="text-positive">0</b>
+                    <b className="text-positive">{countShortener(0)}</b>
                 </div>
                 <div className='flex flex-row space-x-2'>
                     <p>Clocked Out:</p>
-                    <b className="text-negative">0</b>
+                    <b className="text-negative">{countShortener(0)}</b>
                 </div>
             </div>}
         </div>
