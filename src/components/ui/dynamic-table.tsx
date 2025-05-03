@@ -527,7 +527,7 @@ export function DynamicTable({
           {
             filters.length > 0 && <Sheet onOpenChange={handleSheetOpenChange}>
               <SheetTrigger asChild>
-                <Button variant="default" className="flex items-center bg-[#F4F4F4] hover:bg-gray-300 text-black">
+                <Button variant="default" className="flex items-center shadow-none bg-[#F4F4F4] hover:bg-gray-300 text-black">
                   Filters
                   {Object.keys(filters).reduce(
                     (count, key) =>
