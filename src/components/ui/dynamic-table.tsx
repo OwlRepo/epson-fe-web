@@ -29,11 +29,7 @@ import {
 } from "./collapsible";
 import { Calendar } from "./calendar";
 import dayjs from "dayjs";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "./popover";
+import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 import {
   Dialog,
   DialogContent,
@@ -42,7 +38,14 @@ import {
   DialogTitle,
 } from "./dialog";
 import useTableSelectionStore from "@/store/tableSelectionStore";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "./dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "./dropdown-menu";
 
 /**
  * DynamicTable Component Guide:
@@ -63,6 +66,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
  * - tableId: Optional. A unique ID for the table when multiple selection tables are used.
  * - rowIdField: Optional. The field to use as the row ID for selection. Default: 'id'.
  * - onRowSelectionChange: Optional. Callback when row selection changes.
+ * - onRowClick: Optional. Callback when row clicked.
  */
 export interface Column {
   key: string;
@@ -144,7 +148,7 @@ export function DynamicTable({
   tableId = "default",
   rowIdField = "id",
   onRowSelectionChange,
-  exportTableData
+  exportTableData,
 }: DynamicTableProps) {
   const navigate = useNavigate();
   const [filterSearches, setFilterSearches] = React.useState<
@@ -179,7 +183,7 @@ export function DynamicTable({
     clearSelection,
     selectAll,
     getSelectedRows,
-    getSelectedCount
+    getSelectedCount,
   } = useTableSelectionStore();
 
   // Get initial search term from URL if it exists
@@ -204,9 +208,10 @@ export function DynamicTable({
 
       // Also check for different case variants (filter_name, filter_Name)
       if (!filterValue) {
-        const possibleKeys = Object.keys(routeSearch).filter(key =>
-          key.toLowerCase() === filterKey.toLowerCase() ||
-          key.toLowerCase() === filter.key.toLowerCase()
+        const possibleKeys = Object.keys(routeSearch).filter(
+          (key) =>
+            key.toLowerCase() === filterKey.toLowerCase() ||
+            key.toLowerCase() === filter.key.toLowerCase()
         );
 
         if (possibleKeys.length > 0) {
@@ -215,22 +220,22 @@ export function DynamicTable({
       }
 
       if (filterValue) {
-        const values = filterValue.split(',');
+        const values = filterValue.split(",");
         tempFilterValues[filter.key] = values;
 
         // If this is a dateTime filter, parse the time information
-        if (filter.isDateTimePicker && values[0]?.includes('T')) {
-          const timeStr = values[0].split('T')[1];
+        if (filter.isDateTimePicker && values[0]?.includes("T")) {
+          const timeStr = values[0].split("T")[1];
           if (timeStr) {
-            const [hoursStr, minutesStr] = timeStr.split(':');
+            const [hoursStr, minutesStr] = timeStr.split(":");
             const hours = parseInt(hoursStr);
             const minutes = parseInt(minutesStr);
 
             // Set time picker values
             setSelectedTime({
-              hour: hours > 12 ? hours - 12 : (hours === 0 ? 12 : hours),
+              hour: hours > 12 ? hours - 12 : hours === 0 ? 12 : hours,
               minute: minutes,
-              period: hours >= 12 ? "PM" : "AM"
+              period: hours >= 12 ? "PM" : "AM",
             });
 
             setCurrentFilterKey(filter.key);
@@ -265,9 +270,10 @@ export function DynamicTable({
 
         // Also check for different case variants (filter_name, filter_Name)
         if (!filterValue) {
-          const possibleKeys = Object.keys(routeSearch).filter(key =>
-            key.toLowerCase() === filterKey.toLowerCase() ||
-            key.toLowerCase() === filter.key.toLowerCase()
+          const possibleKeys = Object.keys(routeSearch).filter(
+            (key) =>
+              key.toLowerCase() === filterKey.toLowerCase() ||
+              key.toLowerCase() === filter.key.toLowerCase()
           );
 
           if (possibleKeys.length > 0) {
@@ -276,22 +282,22 @@ export function DynamicTable({
         }
 
         if (filterValue) {
-          const values = filterValue.split(',');
+          const values = filterValue.split(",");
           tempFilterValues[filter.key] = values;
 
           // If this is a dateTime filter, parse the time information
-          if (filter.isDateTimePicker && values[0]?.includes('T')) {
-            const timeStr = values[0].split('T')[1];
+          if (filter.isDateTimePicker && values[0]?.includes("T")) {
+            const timeStr = values[0].split("T")[1];
             if (timeStr) {
-              const [hoursStr, minutesStr] = timeStr.split(':');
+              const [hoursStr, minutesStr] = timeStr.split(":");
               const hours = parseInt(hoursStr);
               const minutes = parseInt(minutesStr);
 
               // Set time picker values
               setSelectedTime({
-                hour: hours > 12 ? hours - 12 : (hours === 0 ? 12 : hours),
+                hour: hours > 12 ? hours - 12 : hours === 0 ? 12 : hours,
                 minute: minutes,
-                period: hours >= 12 ? "PM" : "AM"
+                period: hours >= 12 ? "PM" : "AM",
               });
 
               setCurrentFilterKey(filter.key);
@@ -325,11 +331,14 @@ export function DynamicTable({
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
       // Convert data array to object with rowId as keys
-      const rowsMap = data.reduce((acc, row) => {
-        const rowId = String(row[rowIdField]);
-        acc[rowId] = row;
-        return acc;
-      }, {} as Record<string, any>);
+      const rowsMap = data.reduce(
+        (acc, row) => {
+          const rowId = String(row[rowIdField]);
+          acc[rowId] = row;
+          return acc;
+        },
+        {} as Record<string, any>
+      );
 
       selectAll(tableId, rowsMap);
     } else {
@@ -408,12 +417,12 @@ export function DynamicTable({
     }));
 
     // Reset time picker data if this is a datetime filter
-    const filter = filters.find(f => f.key === key);
+    const filter = filters.find((f) => f.key === key);
     if (filter?.isDateTimePicker) {
       setSelectedTime({
         hour: 12,
         minute: 0,
-        period: "AM"
+        period: "AM",
       });
     }
   };
@@ -499,19 +508,27 @@ export function DynamicTable({
       filter.options || columnValues.map((value) => ({ label: value, value }));
     return searchTerm
       ? predefinedOptions.filter((option) =>
-        option.label.toLowerCase().includes(searchTerm.toLowerCase())
-      )
+          option.label.toLowerCase().includes(searchTerm.toLowerCase())
+        )
       : predefinedOptions;
   };
 
   // Check if all rows in the current page are selected
-  const areAllRowsSelected = data.length > 0 &&
-    data.every(row => isSelected(tableId, String(row[rowIdField])));
+  const areAllRowsSelected =
+    data.length > 0 &&
+    data.every((row) => isSelected(tableId, String(row[rowIdField])));
 
   return (
     <div className="w-full">
       <div className="flex flex-col gap-4 mb-4">
-        <div className={cn("flex flex-col sm:flex-row gap-2 sm:gap-0 items-center", exportTableData?.exportOptions ? "justify-start space-x-5 items-center" : "justify-between")}>
+        <div
+          className={cn(
+            "flex flex-col sm:flex-row gap-2 sm:gap-0 items-center",
+            exportTableData?.exportOptions
+              ? "justify-start space-x-5 items-center"
+              : "justify-between"
+          )}
+        >
           {routeSearch && (
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -524,24 +541,27 @@ export function DynamicTable({
               />
             </div>
           )}
-          {
-            filters.length > 0 && <Sheet onOpenChange={handleSheetOpenChange}>
+          {filters.length > 0 && (
+            <Sheet onOpenChange={handleSheetOpenChange}>
               <SheetTrigger asChild>
-                <Button variant="default" className="flex items-center shadow-none bg-[#F4F4F4] hover:bg-gray-300 text-black">
+                <Button
+                  variant="default"
+                  className="flex items-center shadow-none bg-[#F4F4F4] hover:bg-gray-300 text-black"
+                >
                   Filters
                   {Object.keys(filters).reduce(
                     (count, key) =>
                       count + (getActiveFilters(key).length > 0 ? 1 : 0),
                     0
                   ) > 0 && (
-                      <span className="ml-1 rounded-full bg-primary text-primary-foreground px-1.5 text-xs">
-                        {Object.keys(filters).reduce(
-                          (count, key) =>
-                            count + (getActiveFilters(key).length > 0 ? 1 : 0),
-                          0
-                        )}
-                      </span>
-                    )}
+                    <span className="ml-1 rounded-full bg-primary text-primary-foreground px-1.5 text-xs">
+                      {Object.keys(filters).reduce(
+                        (count, key) =>
+                          count + (getActiveFilters(key).length > 0 ? 1 : 0),
+                        0
+                      )}
+                    </span>
+                  )}
                   <ChevronDown />
                 </Button>
               </SheetTrigger>
@@ -604,7 +624,11 @@ export function DynamicTable({
                                       >
                                         <CalendarIcon className="mr-2 h-4 w-4" />
                                         {tempFilters[filter.key]?.[0]
-                                          ? dayjs(tempFilters[filter.key][0].split('T')[0]).format("MMM D, YYYY")
+                                          ? dayjs(
+                                              tempFilters[filter.key][0].split(
+                                                "T"
+                                              )[0]
+                                            ).format("MMM D, YYYY")
                                           : "Pick a date"}
                                       </Button>
                                     </PopoverTrigger>
@@ -612,7 +636,15 @@ export function DynamicTable({
                                       <div className="relative z-50 bg-background pointer-events-auto">
                                         <Calendar
                                           mode="single"
-                                          selected={tempFilters[filter.key]?.[0] ? new Date(tempFilters[filter.key][0].split('T')[0]) : undefined}
+                                          selected={
+                                            tempFilters[filter.key]?.[0]
+                                              ? new Date(
+                                                  tempFilters[
+                                                    filter.key
+                                                  ][0].split("T")[0]
+                                                )
+                                              : undefined
+                                          }
                                           onSelect={(date) => {
                                             if (date) {
                                               // Prevent event propagation
@@ -621,22 +653,29 @@ export function DynamicTable({
 
                                               // Format to YYYY-MM-DD with timezone handling
                                               const year = date.getFullYear();
-                                              const month = String(date.getMonth() + 1).padStart(2, '0');
-                                              const day = String(date.getDate()).padStart(2, '0');
+                                              const month = String(
+                                                date.getMonth() + 1
+                                              ).padStart(2, "0");
+                                              const day = String(
+                                                date.getDate()
+                                              ).padStart(2, "0");
                                               const dateStr = `${year}-${month}-${day}`;
 
                                               // Store the date in temp filters
                                               setTempFilters((prev) => ({
                                                 ...prev,
-                                                [filter.key]: [dateStr]
+                                                [filter.key]: [dateStr],
                                               }));
 
                                               // Close the popover and open time dialog
-                                              const popoverCloseEvent = new Event('mousedown', {
-                                                bubbles: true,
-                                                cancelable: true
-                                              });
-                                              document.body.dispatchEvent(popoverCloseEvent);
+                                              const popoverCloseEvent =
+                                                new Event("mousedown", {
+                                                  bubbles: true,
+                                                  cancelable: true,
+                                                });
+                                              document.body.dispatchEvent(
+                                                popoverCloseEvent
+                                              );
 
                                               // Set current filter key and open time dialog after a short delay
                                               setCurrentFilterKey(filter.key);
@@ -646,7 +685,7 @@ export function DynamicTable({
                                             } else {
                                               setTempFilters((prev) => ({
                                                 ...prev,
-                                                [filter.key]: []
+                                                [filter.key]: [],
                                               }));
                                             }
                                           }}
@@ -658,68 +697,73 @@ export function DynamicTable({
                                   </Popover>
 
                                   {/* Show selected time if available */}
-                                  {tempFilters[filter.key]?.[0] && tempFilters[filter.key][0].includes('T') && (
-                                    <Button
-                                      variant="outline"
-                                      className="w-full justify-start text-left font-normal mt-2"
-                                      onClick={() => {
-                                        setCurrentFilterKey(filter.key);
-                                        setTimeDialogOpen(true);
-                                      }}
-                                    >
-                                      <Clock className="mr-2 h-4 w-4" />
-                                      {tempFilters[filter.key][0].split('T')[1]
-                                        ? dayjs(`2000-01-01T${tempFilters[filter.key][0].split('T')[1]}`).format("hh:mm A")
-                                        : "Select time"}
-                                    </Button>
-                                  )}
+                                  {tempFilters[filter.key]?.[0] &&
+                                    tempFilters[filter.key][0].includes(
+                                      "T"
+                                    ) && (
+                                      <Button
+                                        variant="outline"
+                                        className="w-full justify-start text-left font-normal mt-2"
+                                        onClick={() => {
+                                          setCurrentFilterKey(filter.key);
+                                          setTimeDialogOpen(true);
+                                        }}
+                                      >
+                                        <Clock className="mr-2 h-4 w-4" />
+                                        {tempFilters[filter.key][0].split(
+                                          "T"
+                                        )[1]
+                                          ? dayjs(
+                                              `2000-01-01T${tempFilters[filter.key][0].split("T")[1]}`
+                                            ).format("hh:mm A")
+                                          : "Select time"}
+                                      </Button>
+                                    )}
                                 </div>
-                              ) : (
-                                getFilteredOptions(
+                              ) : getFilteredOptions(
                                   filter,
                                   filterSearches[filter.key] || ""
                                 ).length > 0 ? (
-                                  getFilteredOptions(
-                                    filter,
-                                    filterSearches[filter.key] || ""
-                                  ).map((option) => (
-                                    <div
-                                      key={option.value}
-                                      className="flex items-center space-x-3"
+                                getFilteredOptions(
+                                  filter,
+                                  filterSearches[filter.key] || ""
+                                ).map((option) => (
+                                  <div
+                                    key={option.value}
+                                    className="flex items-center space-x-3"
+                                  >
+                                    <Checkbox
+                                      id={`${filter.key}-${option.value}`}
+                                      checked={
+                                        tempFilters[filter.key]?.includes(
+                                          option.value
+                                        ) || false
+                                      }
+                                      onCheckedChange={(checked) =>
+                                        handleTempFilter(
+                                          filter.key,
+                                          option.value,
+                                          !!checked
+                                        )
+                                      }
+                                    />
+                                    <label
+                                      htmlFor={`${filter.key}-${option.value}`}
+                                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                                     >
-                                      <Checkbox
-                                        id={`${filter.key}-${option.value}`}
-                                        checked={
-                                          tempFilters[filter.key]?.includes(
-                                            option.value
-                                          ) || false
-                                        }
-                                        onCheckedChange={(checked) =>
-                                          handleTempFilter(
-                                            filter.key,
-                                            option.value,
-                                            !!checked
-                                          )
-                                        }
-                                      />
-                                      <label
-                                        htmlFor={`${filter.key}-${option.value}`}
-                                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                                      >
-                                        {option.label}
-                                      </label>
-                                    </div>
-                                  ))
-                                ) : (
-                                  <div className="flex flex-col items-center justify-center py-6 text-center">
-                                    <p className="text-sm text-muted-foreground">
-                                      No options found
-                                    </p>
-                                    <p className="text-xs text-muted-foreground mt-1">
-                                      Try adjusting your search terms
-                                    </p>
+                                      {option.label}
+                                    </label>
                                   </div>
-                                )
+                                ))
+                              ) : (
+                                <div className="flex flex-col items-center justify-center py-6 text-center">
+                                  <p className="text-sm text-muted-foreground">
+                                    No options found
+                                  </p>
+                                  <p className="text-xs text-muted-foreground mt-1">
+                                    Try adjusting your search terms
+                                  </p>
+                                </div>
                               )}
                             </div>
                           </div>
@@ -753,35 +797,38 @@ export function DynamicTable({
                 </div>
               </SheetContent>
             </Sheet>
-          }
-          {
-            exportTableData?.exportOptions && (
-
-              <div className="relative flex items-center justify-end flex-1">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button className='h-9'>Export Records <ChevronDown /></Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuLabel>Export options</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    {
-                      exportTableData.exportOptions.map((option) => (
-                        <DropdownMenuItem onClick={option.onClick} key={option.label}>{option.label}</DropdownMenuItem>
-                      ))
-                    }
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            )
-          }
+          )}
+          {exportTableData?.exportOptions && (
+            <div className="relative flex items-center justify-end flex-1">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button className="h-9">
+                    Export Records <ChevronDown />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuLabel>Export options</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {exportTableData.exportOptions.map((option) => (
+                    <DropdownMenuItem
+                      onClick={option.onClick}
+                      key={option.label}
+                    >
+                      {option.label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          )}
         </div>
 
         {/* Selection count banner */}
         {enableRowSelection && getSelectedCount(tableId) > 0 && (
           <div className="bg-primary/10 border border-primary/20 rounded-md p-2 px-4 flex justify-between items-center">
             <span className="text-sm font-medium">
-              {getSelectedCount(tableId)} {getSelectedCount(tableId) === 1 ? 'item' : 'items'} selected
+              {getSelectedCount(tableId)}{" "}
+              {getSelectedCount(tableId) === 1 ? "item" : "items"} selected
             </span>
             <Button
               variant="outline"
@@ -813,43 +860,62 @@ export function DynamicTable({
                   </TableHead>
                 )}
                 {columns.map((column) => (
-                  <TableHead key={column.key} className="text-[#0F416D] font-bold bg-[#F4F7FCBF]/75 uppercase">{column.label}</TableHead>
+                  <TableHead
+                    key={column.key}
+                    className="text-[#0F416D] font-bold bg-[#F4F7FCBF]/75 uppercase"
+                  >
+                    {column.label}
+                  </TableHead>
                 ))}
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.length > 0 ? data.map((row, rowIndex) => (
-                <TableRow
-                  key={rowIndex}
-                  className={rowIndex % 2 === 0 ? "bg-white" : "bg-[#F7F9FD]"}
-                  onClick={(e) => {
-                    // Don't trigger row click when checkbox is clicked
-                    if ((e.target as HTMLElement).closest('[data-checkbox]')) {
-                      return;
-                    }
-                    onRowClick?.(row);
-                  }}
-                >
-                  {enableRowSelection && (
-                    <TableCell className="w-[50px]">
-                      <div data-checkbox>
-                        <Checkbox
-                          checked={isSelected(tableId, String(row[rowIdField]))}
-                          onCheckedChange={(checked) => handleRowSelectionChange(row, !!checked)}
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                      </div>
-                    </TableCell>
-                  )}
-                  {columns.map((column) => (
-                    <TableCell key={`${rowIndex}-${column.key}`}>
-                      {row[column.key]}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              )) : (
+              {data.length > 0 ? (
+                data.map((row, rowIndex) => (
+                  <TableRow
+                    key={rowIndex}
+                    className={rowIndex % 2 === 0 ? "bg-white" : "bg-[#F7F9FD]"}
+                    onClick={(e) => {
+                      // Don't trigger row click when checkbox is clicked
+                      if (
+                        (e.target as HTMLElement).closest("[data-checkbox]")
+                      ) {
+                        return;
+                      }
+                      onRowClick?.(row);
+                    }}
+                  >
+                    {enableRowSelection && (
+                      <TableCell className="w-[50px]">
+                        <div data-checkbox>
+                          <Checkbox
+                            checked={isSelected(
+                              tableId,
+                              String(row[rowIdField])
+                            )}
+                            onCheckedChange={(checked) =>
+                              handleRowSelectionChange(row, !!checked)
+                            }
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        </div>
+                      </TableCell>
+                    )}
+                    {columns.map((column) => (
+                      <TableCell key={`${rowIndex}-${column.key}`}>
+                        {row[column.key]}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
                 <TableRow>
-                  <TableCell colSpan={enableRowSelection ? columns.length + 1 : columns.length} className="text-center">
+                  <TableCell
+                    colSpan={
+                      enableRowSelection ? columns.length + 1 : columns.length
+                    }
+                    className="text-center"
+                  >
                     No data available
                   </TableCell>
                 </TableRow>
@@ -864,7 +930,9 @@ export function DynamicTable({
         <div className="mt-4 flex items-center justify-between">
           {/* Page size selector - both dropdown and buttons */}
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600 font-bold">Rows per page:</span>
+            <span className="text-sm text-gray-600 font-bold">
+              Rows per page:
+            </span>
             <select
               className="p-1 border-none rounded bg-white text-sm cursor-pointer"
               value={pagination.pageSize}
@@ -898,7 +966,6 @@ export function DynamicTable({
           ))}
         </div> */}
           <div className="flex items-center gap-2 flex-wrap">
-
             {!isLiveData && (
               <span className="text-sm text-gray-600 ml-2">
                 {`${Math.min(
@@ -913,86 +980,90 @@ export function DynamicTable({
           </div>
 
           {/* Pagination navigation - only show when not live data */}
-          {!isLiveData && <div className="flex items-center gap-2">
-            <button
-              className="inline-flex items-center justify-center whitespace-nowrap rounded text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
-              onClick={() => handlePageChange(pagination.currentPage - 1)}
-              disabled={pagination.currentPage === 1}
-              aria-label="Go to previous page"
-              type="button"
-            >
-              Previous
-            </button>
+          {!isLiveData && (
+            <div className="flex items-center gap-2">
+              <button
+                className="inline-flex items-center justify-center whitespace-nowrap rounded text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+                onClick={() => handlePageChange(pagination.currentPage - 1)}
+                disabled={pagination.currentPage === 1}
+                aria-label="Go to previous page"
+                type="button"
+              >
+                Previous
+              </button>
 
-            {/* Page number buttons - show appropriate range of buttons */}
-            {(() => {
-              // Always show first page, last page, current page, and 1 page on each side of current page
-              const currentPage = pagination.currentPage;
-              const totalPages = pagination.totalPages;
-              const pageNumbers = new Set<number>();
+              {/* Page number buttons - show appropriate range of buttons */}
+              {(() => {
+                // Always show first page, last page, current page, and 1 page on each side of current page
+                const currentPage = pagination.currentPage;
+                const totalPages = pagination.totalPages;
+                const pageNumbers = new Set<number>();
 
-              // Always include page 1
-              pageNumbers.add(1);
+                // Always include page 1
+                pageNumbers.add(1);
 
-              // Add current page and one on each side
-              for (
-                let i = Math.max(2, currentPage - 1);
-                i <= Math.min(totalPages - 1, currentPage + 1);
-                i++
-              ) {
-                pageNumbers.add(i);
-              }
+                // Add current page and one on each side
+                for (
+                  let i = Math.max(2, currentPage - 1);
+                  i <= Math.min(totalPages - 1, currentPage + 1);
+                  i++
+                ) {
+                  pageNumbers.add(i);
+                }
 
-              // Always include last page if we have more than 1 page
-              if (totalPages > 1) {
-                pageNumbers.add(totalPages);
-              }
+                // Always include last page if we have more than 1 page
+                if (totalPages > 1) {
+                  pageNumbers.add(totalPages);
+                }
 
-              // Convert to sorted array
-              const sortedPageNumbers = Array.from(pageNumbers).sort(
-                (a, b) => a - b
-              );
-
-              // Render buttons with ellipses
-              return sortedPageNumbers.map((pageNum, index) => {
-                const prevPage = sortedPageNumbers[index - 1];
-                // Add ellipsis if there's a gap
-                const showEllipsis = prevPage && pageNum - prevPage > 1;
-
-                return (
-                  <React.Fragment key={pageNum}>
-                    {showEllipsis && <span className="mx-1">...</span>}
-                    <button
-                      onClick={() => handlePageChange(pageNum)}
-                      className={cn(
-                        "inline-flex items-center justify-center whitespace-nowrap rounded text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input h-10 w-10",
-                        pagination.currentPage === pageNum
-                          ? "bg-accent text-accent-foreground"
-                          : "bg-background hover:bg-accent hover:text-accent-foreground"
-                      )}
-                      aria-label={`Go to page ${pageNum}`}
-                      aria-current={
-                        pagination.currentPage === pageNum ? "page" : undefined
-                      }
-                      type="button"
-                    >
-                      {pageNum}
-                    </button>
-                  </React.Fragment>
+                // Convert to sorted array
+                const sortedPageNumbers = Array.from(pageNumbers).sort(
+                  (a, b) => a - b
                 );
-              });
-            })()}
 
-            <button
-              className="inline-flex items-center justify-center whitespace-nowrap rounded text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
-              onClick={() => handlePageChange(pagination.currentPage + 1)}
-              disabled={pagination.currentPage === pagination.totalPages}
-              aria-label="Go to next page"
-              type="button"
-            >
-              Next
-            </button>
-          </div>}
+                // Render buttons with ellipses
+                return sortedPageNumbers.map((pageNum, index) => {
+                  const prevPage = sortedPageNumbers[index - 1];
+                  // Add ellipsis if there's a gap
+                  const showEllipsis = prevPage && pageNum - prevPage > 1;
+
+                  return (
+                    <React.Fragment key={pageNum}>
+                      {showEllipsis && <span className="mx-1">...</span>}
+                      <button
+                        onClick={() => handlePageChange(pageNum)}
+                        className={cn(
+                          "inline-flex items-center justify-center whitespace-nowrap rounded text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input h-10 w-10",
+                          pagination.currentPage === pageNum
+                            ? "bg-accent text-accent-foreground"
+                            : "bg-background hover:bg-accent hover:text-accent-foreground"
+                        )}
+                        aria-label={`Go to page ${pageNum}`}
+                        aria-current={
+                          pagination.currentPage === pageNum
+                            ? "page"
+                            : undefined
+                        }
+                        type="button"
+                      >
+                        {pageNum}
+                      </button>
+                    </React.Fragment>
+                  );
+                });
+              })()}
+
+              <button
+                className="inline-flex items-center justify-center whitespace-nowrap rounded text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+                onClick={() => handlePageChange(pagination.currentPage + 1)}
+                disabled={pagination.currentPage === pagination.totalPages}
+                aria-label="Go to next page"
+                type="button"
+              >
+                Next
+              </button>
+            </div>
+          )}
         </div>
       )}
 
@@ -1007,20 +1078,24 @@ export function DynamicTable({
           <div className="flex justify-center items-center gap-4 shadow-md p-4 px-8 rounded-md">
             <div className="text-center">
               <button
-                onClick={() => setSelectedTime(prev => ({
-                  ...prev,
-                  hour: prev.hour === 12 ? 1 : prev.hour + 1
-                }))}
+                onClick={() =>
+                  setSelectedTime((prev) => ({
+                    ...prev,
+                    hour: prev.hour === 12 ? 1 : prev.hour + 1,
+                  }))
+                }
                 className="text-lg font-semibold"
               >
                 <ChevronDown className="rotate-180" />
               </button>
               <div>{selectedTime.hour.toString().padStart(2, "0")}</div>
               <button
-                onClick={() => setSelectedTime(prev => ({
-                  ...prev,
-                  hour: prev.hour === 1 ? 12 : prev.hour - 1
-                }))}
+                onClick={() =>
+                  setSelectedTime((prev) => ({
+                    ...prev,
+                    hour: prev.hour === 1 ? 12 : prev.hour - 1,
+                  }))
+                }
                 className="text-lg font-semibold"
               >
                 <ChevronDown />
@@ -1029,20 +1104,24 @@ export function DynamicTable({
             <div>:</div>
             <div className="text-center">
               <button
-                onClick={() => setSelectedTime(prev => ({
-                  ...prev,
-                  minute: prev.minute === 59 ? 0 : prev.minute + 1
-                }))}
+                onClick={() =>
+                  setSelectedTime((prev) => ({
+                    ...prev,
+                    minute: prev.minute === 59 ? 0 : prev.minute + 1,
+                  }))
+                }
                 className="text-lg font-semibold"
               >
                 <ChevronDown className="rotate-180" />
               </button>
               <div>{selectedTime.minute.toString().padStart(2, "0")}</div>
               <button
-                onClick={() => setSelectedTime(prev => ({
-                  ...prev,
-                  minute: prev.minute === 0 ? 59 : prev.minute - 1
-                }))}
+                onClick={() =>
+                  setSelectedTime((prev) => ({
+                    ...prev,
+                    minute: prev.minute === 0 ? 59 : prev.minute - 1,
+                  }))
+                }
                 className="text-lg font-semibold"
               >
                 <ChevronDown />
@@ -1050,20 +1129,24 @@ export function DynamicTable({
             </div>
             <div className="text-center">
               <button
-                onClick={() => setSelectedTime(prev => ({
-                  ...prev,
-                  period: prev.period === "AM" ? "PM" : "AM"
-                }))}
+                onClick={() =>
+                  setSelectedTime((prev) => ({
+                    ...prev,
+                    period: prev.period === "AM" ? "PM" : "AM",
+                  }))
+                }
                 className="text-lg font-semibold"
               >
                 <ChevronDown className="rotate-180" />
               </button>
               <div>{selectedTime.period}</div>
               <button
-                onClick={() => setSelectedTime(prev => ({
-                  ...prev,
-                  period: prev.period === "AM" ? "PM" : "AM"
-                }))}
+                onClick={() =>
+                  setSelectedTime((prev) => ({
+                    ...prev,
+                    period: prev.period === "AM" ? "PM" : "AM",
+                  }))
+                }
                 className="text-lg font-semibold"
               >
                 <ChevronDown />
@@ -1075,20 +1158,26 @@ export function DynamicTable({
               onClick={() => {
                 // Format time as HH:MM:SS
                 const hour12 = selectedTime.hour;
-                const hour24 = selectedTime.period === "AM"
-                  ? (hour12 === 12 ? 0 : hour12)
-                  : (hour12 === 12 ? 12 : hour12 + 12);
+                const hour24 =
+                  selectedTime.period === "AM"
+                    ? hour12 === 12
+                      ? 0
+                      : hour12
+                    : hour12 === 12
+                      ? 12
+                      : hour12 + 12;
 
                 const timeStr = `${hour24.toString().padStart(2, "0")}:${selectedTime.minute.toString().padStart(2, "0")}:00`;
 
                 // Combine with the date that was already selected
                 if (tempFilters[currentFilterKey]?.[0]) {
-                  const dateStr = tempFilters[currentFilterKey][0].split('T')[0];
+                  const dateStr =
+                    tempFilters[currentFilterKey][0].split("T")[0];
                   const dateTimeStr = `${dateStr}T${timeStr}`;
 
-                  setTempFilters(prev => ({
+                  setTempFilters((prev) => ({
                     ...prev,
-                    [currentFilterKey]: [dateTimeStr]
+                    [currentFilterKey]: [dateTimeStr],
                   }));
                 }
 
