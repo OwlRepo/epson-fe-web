@@ -11,7 +11,7 @@ declare global {
   }
 }
 import { Buffer } from "buffer";
-import { readRFIDData } from "@/utils/rfidReaderCommand";
+import { readEPC, readRFIDData } from "@/utils/rfidReaderCommand";
 
 function uiCrc16Cal(buffer) {
   const POLYNOMIAL = 0x8408;
@@ -79,7 +79,7 @@ const SerialPortComponent = () => {
 
   const openPort = async () => {
     if (!port) return;
-    const data = await readRFIDData(port, "E20000165903003823202B91");
+    const data = await readRFIDData(port);
     setResponseData(data);
     console.log(data);
   };
