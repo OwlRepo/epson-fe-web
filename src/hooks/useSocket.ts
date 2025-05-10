@@ -1,4 +1,4 @@
-import { getApiBaseUrl } from '@/utils/env';
+import { getApiSocketBaseUrl } from '@/utils/env';
 import { useState, useEffect, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
 
@@ -27,7 +27,7 @@ interface UseSocketProps {
     dataType: DataType;
 }
 
-const SOCKET_URL = getApiBaseUrl()
+const SOCKET_URL = getApiSocketBaseUrl()
 
 export const useSocket = <T extends SummaryData | LiveData>({ room, dataType }: UseSocketProps) => {
     const [data, setData] = useState<T[]>([]);

@@ -454,13 +454,13 @@ export function DynamicTable({
     }
   };
 
-  const handlePageSizeButtonClick = (size: number) => {
-    onPageSizeChange?.(size);
-    updateUrlParams({
-      pageSize: size,
-      page: 1,
-    });
-  };
+  // const handlePageSizeButtonClick = (size: number) => {
+  //   onPageSizeChange?.(size);
+  //   updateUrlParams({
+  //     pageSize: size,
+  //     page: 1,
+  //   });
+  // };
 
   const pageSizeOptions = [10, 20, 50, 100];
 

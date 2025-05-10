@@ -19,7 +19,7 @@
     "docker:down": "docker compose down",
     "docker:logs": "docker compose logs -f",
     "docker:clean": "docker compose down -v --rmi all",
-    "deploy:prod": "npm run build && npm run docker:build && npm run docker:up",
+    "deploy:prod": "npm run build && npm run docker:build:up",
     "deploy:dev": "npm run docker:build && npm run docker:up"
   },
   "dependencies": {
