@@ -1,7 +1,8 @@
 import { cn } from "@/lib/utils";
-import { ChevronRight } from "lucide-react";
 import React from "react";
-import { useLocation, useNavigate } from "@tanstack/react-router";
+import { useRouterState } from "@tanstack/react-router";
+import { Breadcrumbs } from "./breadcrumbs";
+
 interface HeaderProps {
   userProfile?: {
     name: string;
@@ -12,12 +13,13 @@ interface HeaderProps {
 }
 
 export function Header({ userProfile, className }: HeaderProps) {
-  const location = useLocation();
-  const pathSegments = location.pathname
-    .split("/")
-    .filter(Boolean)
-    .map((path) => path.split("_").join(" ").replace(/-/g, " "));
-  const navigate = useNavigate();
+  const { location } = useRouterState();
+
+  // Get page title from the last segment of the URL
+  const pathSegments = location.pathname.split('/').filter(Boolean);
+  const pageTitle = pathSegments.length > 0
+    ? pathSegments[pathSegments.length - 1].split("_").join(" ").replace(/-/g, " ")
+    : "";
 
   return (
     <header className={cn("bg-white px-6 py-4", className)}>
@@ -26,35 +28,9 @@ export function Header({ userProfile, className }: HeaderProps) {
           {/* Page title and breadcrumbs */}
           <div className="space-y-1">
             <h1 className="text-[2rem] font-bold text-[#1a2b4b] capitalize">
-              {
-                pathSegments[
-                pathSegments.length > 2
-                  ? 2
-                  : 1
-                ]
-              }
+              {pageTitle}
             </h1>
-            <div className="flex items-center gap-2 text-gray-500">
-              {pathSegments.map((segment, index) => (
-                <React.Fragment key={index}>
-                  <span
-                    className="text-sm font-normal capitalize hover:text-gray-700 hover:cursor-pointer"
-                    onClick={() =>
-                      navigate({
-                        to: `/${pathSegments.slice(0, index + 1).join("/")}`,
-                      })
-                    }
-                  >
-                    {segment.includes("%20") ? segment.split("%20").join(" ") : segment.split("%2").join(" ")}
-                  </span>
-                  {index < pathSegments.length - 1 && (
-                    <span className="text-xs text-gray-400">
-                      <ChevronRight className="w-3 h-3" />
-                    </span>
-                  )}
-                </React.Fragment>
-              ))}
-            </div>
+            <Breadcrumbs />
           </div>
 
           {/* User profile area */}
