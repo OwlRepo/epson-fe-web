@@ -64,20 +64,6 @@ export function AttendanceMonitoringLayout({
       icon: <FileText />,
       label: "Reports",
       href: "/attendance-monitoring/reports",
-      subItems: [
-        {
-          label: "Daily Reports",
-          href: "/attendance-monitoring/reports/daily",
-        },
-        {
-          label: "Weekly Summary",
-          href: "/attendance-monitoring/reports/weekly",
-        },
-        {
-          label: "Monthly Analytics",
-          href: "/attendance-monitoring/reports/monthly",
-        },
-      ],
     },
     {
       icon: <Settings />,
