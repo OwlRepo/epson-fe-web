@@ -13,10 +13,10 @@ export const Route = createFileRoute(
 })
 
 function RouteComponent() {
-    const { data, isLoading, isConnected } = useDivisionData();
+    const { data, isLoading, isConnected, countData: totalLogs } = useDivisionData();
 
     return (
-        <CardSection headerLeft={<CardHeaderLeft />} headerRight={<CardHeaderRight />}>
+        <CardSection headerLeft={<CardHeaderLeft />} headerRight={<CardHeaderRight clockedOut={totalLogs?.out} clockedIn={totalLogs?.in} />}>
             <h2 className='text-2xl font-bold my-5'>Divisions</h2>
             <div className='grid grid-cols-1 md:grid-cols-4 gap-8'>
                 {

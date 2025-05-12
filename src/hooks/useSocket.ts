@@ -7,6 +7,13 @@ export interface SummaryData {
     name: string;
     in: string; // Total Count
     out: string; // Total Count
+    inside: string; // Optional, only for summary data
+}
+
+export interface SummaryCountData {
+    in: number; // Total Count
+    out: number; // Total Count
+    inside?: number; // Optional, only for summary data
 }
 
 export interface LiveData {
@@ -29,8 +36,9 @@ interface UseSocketProps {
 
 const SOCKET_URL = getApiSocketBaseUrl()
 
-export const useSocket = <T extends SummaryData | LiveData>({ room, dataType }: UseSocketProps) => {
+export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({ room, dataType }: UseSocketProps) => {
     const [data, setData] = useState<T[]>([]);
+    const [countData, setCountData] = useState<SummaryCountData | null>(null);
     const [isConnected, setIsConnected] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [socket, setSocket] = useState<Socket | null>(null);
@@ -141,6 +149,18 @@ export const useSocket = <T extends SummaryData | LiveData>({ room, dataType }: 
             }
         });
 
+        socketInstance.on('count', (countData) => {
+            console.log('Count data received:', countData);
+            setCountData((prevData) => {
+                return {
+                    ...prevData,
+                    in: countData.in,
+                    out: countData.out,
+                    inside: countData.inside,
+                }
+            });
+        })
+
         setSocket(socketInstance);
 
         // Clean up function
@@ -172,7 +192,7 @@ export const useSocket = <T extends SummaryData | LiveData>({ room, dataType }: 
     }, []);
 
     return {
-        data,
+        data, countData,
         isConnected,
         error,
         isLoading,

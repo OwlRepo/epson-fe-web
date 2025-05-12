@@ -3,6 +3,8 @@ import CardSection from "@/components/layouts/CardSection";
 import AttendanceCountCard from "@/components/ui/attendance-count-card";
 import CardHeaderLeft from "@/components/ui/card-header-left";
 import { LiveDataTable } from "@/components/ui/live-data-table";
+import { useOverviewCountData } from "@/hooks/useOverviewCountData";
+import countShortener from "@/utils/count-shortener";
 import { faker } from "@faker-js/faker";
 import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
 
@@ -52,14 +54,15 @@ function RouteComponent() {
       replace: true,
     });
   };
+  const { countData } = useOverviewCountData()
 
   return (
     <div className="space-y-8">
       <CardSection headerLeft={<CardHeaderLeft />} >
         <div className="flex flex-col lg:flex-row justify-between gap-4">
-          <AttendanceCountCard count={1500} icon={<InPremisesIcon />} subtitle="Inside premises" />
-          <AttendanceCountCard count={0} icon={<ClockedInIcon />} subtitle="Clocked in" variant="success" />
-          <AttendanceCountCard count={0} icon={<ClockedOutIcon />} subtitle="Clocked out" variant="error" />
+          <AttendanceCountCard count={countData?.inside ? parseInt(countShortener(countData.inside)) : 0} icon={<InPremisesIcon />} subtitle="Inside premises" />
+          <AttendanceCountCard count={countData?.in ? parseInt(countShortener(countData.in)) : 0} icon={<ClockedInIcon />} subtitle="Clocked in" variant="success" />
+          <AttendanceCountCard count={countData?.out ? parseInt(countShortener(countData.out)) : 0} icon={<ClockedOutIcon />} subtitle="Clocked out" variant="error" />
         </div>
       </CardSection>
       <CardSection headerLeft={<CardHeaderLeft title={<div className="flex items-center space-x-2"><EpsonFlame /><b className="text-[20px] text-primary">Live Data</b></div>} subtitle="" />} >
