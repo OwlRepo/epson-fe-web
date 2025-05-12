@@ -4,6 +4,7 @@ import { io, Socket } from 'socket.io-client';
 
 // Define types for our data
 export interface SummaryData {
+    device_id: string;
     name: string;
     in: string; // Total Count
     out: string; // Total Count
@@ -16,7 +17,7 @@ export interface SummaryCountData {
     inside?: number; // Optional, only for summary data
 }
 
-export interface LiveData {
+export interface LiveData extends SummaryData {
     employee_id: string;
     full_name: string;
     department: string;
@@ -25,6 +26,7 @@ export interface LiveData {
     tag_id: string;
     in: string;
     out: string;
+
 }
 
 type DataType = 'summary' | 'live';
