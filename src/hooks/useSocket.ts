@@ -26,7 +26,6 @@ export interface LiveData extends SummaryData {
     tag_id: string;
     in: string;
     out: string;
-
 }
 
 type DataType = 'summary' | 'live';
@@ -151,6 +150,7 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
             }
         });
 
+        // Listen for summary count data
         socketInstance.on('count', (countData) => {
             console.log('Count data received:', countData);
             setCountData((prevData) => {
