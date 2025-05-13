@@ -1,5 +1,7 @@
 import { Buffer } from "buffer";
 
+const validUSERID = ["1234", "0000000000000000"];
+
 const uiCrc16Cal = (buffer: any) => {
   const POLYNOMIAL = 0x8408;
   let crc = 0xffff;
@@ -23,11 +25,11 @@ const buildInventoryCommand = () => {
   return Buffer.concat([body, crc]);
 };
 
-export const buildReadCommand = (epcHex: any, memory = 0x01, addr = 0x00) => {
+export const buildReadCommand = (epcHex: any, addr = 0x00) => {
   const epc = Buffer.from(epcHex, "hex");
   const epcWords = epc.length / 2; // 2 bytes per word
 
-  const mem = 0x01; // User memory
+  const mem = 0x03; // User memory
   const wordPtr = 0x00;
   const numWords = 0x04;
   const pwd = Buffer.from([0x00, 0x00, 0x00, 0x00]);
@@ -37,7 +39,7 @@ export const buildReadCommand = (epcHex: any, memory = 0x01, addr = 0x00) => {
   const data = Buffer.concat([
     Buffer.from([epcWords]),
     epc,
-    Buffer.from([memory, wordPtr, numWords]),
+    Buffer.from([mem, wordPtr, numWords]),
     pwd,
     Buffer.from([maskAdr, maskLen]),
   ]);
@@ -54,108 +56,79 @@ export const buildReadCommand = (epcHex: any, memory = 0x01, addr = 0x00) => {
 let reader: any;
 
 export const readEPC = async (port: any) => {
-  try {
-    const readEPC = buildInventoryCommand();
+  const readEPC = buildInventoryCommand();
 
-    const writer = port.writable.getWriter();
-    await writer.write(readEPC);
-    writer.releaseLock();
+  const writer = port.writable.getWriter();
+  await writer.write(readEPC);
+  writer.releaseLock();
 
-    if (!port.readable) {
-      console.error("Port is not readable.");
-      return;
+  if (!port.readable) {
+    console.error("Port is not readable.");
+    return;
+  }
+
+  if (reader) {
+    try {
+      await reader.cancel();
+    } catch (cancelErr) {
+      console.warn("Error cancelling previous reader:", cancelErr);
     }
-
-    if (reader) {
-      try {
-        await reader.cancel();
-      } catch (cancelErr) {
-        console.warn("Error cancelling previous reader:", cancelErr);
-      }
-      try {
-        reader.releaseLock();
-      } catch (releaseErr) {
-        console.warn("Error releasing previous reader:", releaseErr);
-      }
-      reader = null;
-    }
-
-    await new Promise((res) => setTimeout(res, 100)); // 100ms delay
-
-    reader = port.readable.getReader();
-
-    const timeout = 1000; // 1 second timeout
-    const startTime = Date.now();
-
-    // let buffer: number[] = [];
-
-    while (Date.now() - startTime < timeout) {
-      const { value, done } = await reader.read();
-      if (done || !value) break;
-
-      const data = Array.from(value);
-      console.log(
-        "Raw response:",
-        data
-          .map((b) => b.toString(16).padStart(2, "0"))
-          .join("")
-          .toUpperCase()
-      );
-      console.log(data[4]);
-
-      if (data.length > 5 && data[2] === 0x01 && data[3] === 0x01) {
-        console.log("Valid tag detected!");
-
-        let pos = 5;
-        const numTags = data[4] as number;
-
-        for (let i = 0; i < numTags; i++) {
-          const epcLen = data[pos] as number;
-          const epcBytes = data.slice(pos + 1, pos + 1 + epcLen);
-          console.log(
-            `Tag ${i + 1} EPC:`,
-            epcBytes
-              .map((b) => b.toString(16).padStart(2, "0"))
-              .join("")
-              .toUpperCase()
-          );
-          pos += 1 + epcLen;
-          return epcBytes
-            .map((b) => b.toString(16).padStart(2, "0"))
-            .join("")
-            .toUpperCase();
-        }
-
-        // Optionally break if only one read is needed
-        // break;
-      } else {
-        console.log("No tag detected.");
-      }
-    }
-  } catch (err) {
-    console.error("Listening error:", err);
-  } finally {
     try {
       reader.releaseLock();
-    } catch {}
+    } catch (releaseErr) {
+      console.warn("Error releasing previous reader:", releaseErr);
+    }
+    reader = null;
+  }
+
+  await new Promise((res) => setTimeout(res, 100)); // 100ms delay
+
+  reader = port.readable.getReader();
+
+  const timeout = 1000; // 1 second timeout
+  const startTime = Date.now();
+
+  while (Date.now() - startTime < timeout) {
+    const { value, done } = await reader.read();
+    if (done || !value) break;
+
+    const data = Array.from(value);
+    console.log(
+      "Raw response:",
+      data
+        .map((b: any) => b.toString(16).padStart(2, "0"))
+        .join("")
+        .toUpperCase()
+    );
+    console.log(data[4]);
+
+    if (data.length > 5 && data[2] === 0x01 && data[3] === 0x01) {
+      console.log("Valid tag detected!");
+
+      let pos = 5;
+      const numTags = data[4] as number;
+
+      for (let i = 0; i < numTags; i++) {
+        const epcLen = data[pos] as number;
+        const epcBytes = data.slice(pos + 1, pos + 1 + epcLen);
+        const epc = epcBytes
+          .map((b: any) => b.toString(16).padStart(2, "0"))
+          .join("")
+          .toUpperCase();
+
+        console.log(`Tag ${i + 1} EPC:`, epc);
+        pos += 1 + epcLen;
+        return epc;
+      }
+    } else {
+      console.log("No tag detected.");
+    }
   }
 };
 
-export const readRFIDData = async (port: any) => {
-  let epc;
-
-  //get default EPC
+const getUFHData = async (port: any, epc: any) => {
   try {
-    epc = await readEPC(port);
-    console.log("EPC:", epc);
-  } catch (e) {
-    console.error("Error in readRFIDData:", e);
-  }
-  await new Promise((res) => setTimeout(res, 100)); // delay for 100ms
-
-  //get RFID data
-  try {
-    const readCmd = buildReadCommand("E2000016590301990980B698");
+    const readCmd = buildReadCommand(epc);
 
     const writer = port.writable.getWriter();
     await writer.write(readCmd);
@@ -184,7 +157,7 @@ export const readRFIDData = async (port: any) => {
 
     reader = port.readable.getReader();
 
-    const timeout = 1000; // 1 second timeout
+    const timeout = 1000;
     const startTime = Date.now();
 
     let buffer: number[] = [];
@@ -211,7 +184,6 @@ export const readRFIDData = async (port: any) => {
           .join("")
           .toUpperCase();
 
-        console.log("Read Data:", hexString);
         return hexString;
       }
     }
@@ -228,5 +200,26 @@ export const readRFIDData = async (port: any) => {
       }
       reader = null;
     }
+  }
+};
+
+export const readRFIDData = async (port: any) => {
+  try {
+    return await new Promise<{ epc: string; userID: string } | null>(
+      (resolve) => {
+        const intervalId = setInterval(async () => {
+          const epc = await readEPC(port);
+          if (epc) {
+            clearInterval(intervalId);
+            await new Promise((res) => setTimeout(res, 100)); // delay for 100ms
+            const data = (await getUFHData(port, epc)) ?? "";
+            resolve({ epc, userID: data });
+          }
+        }, 1000);
+      }
+    );
+  } catch (error) {
+    console.error("Error reading RFID data:", error);
+    return null;
   }
 };
