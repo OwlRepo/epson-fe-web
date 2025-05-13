@@ -6,15 +6,17 @@ import {
   type Filter,
 } from "@/components/ui/dynamic-table";
 import EmpInfoDialog from "@/components/ui/emp-info-dialog";
-import RFIDSerialReader from "@/components/ui/rfid-reader";
 import SerialPortComponent from "@/components/ui/serial-port";
+import api from "@/config/axiosInstance";
 import {
   createFileRoute,
   useNavigate,
   useSearch,
 } from "@tanstack/react-router";
+import { set } from "date-fns";
 import dayjs from "dayjs";
-import { useEffect, useState } from "react";
+import { IdCard } from "lucide-react";
+import React, { useEffect, useState } from "react";
 
 export const Route = createFileRoute(
   "/_authenticated/attendance-monitoring/employees"
@@ -25,26 +27,89 @@ export const Route = createFileRoute(
 const lastSyncDate = dayjs().format("MMMM D, YYYY");
 const tableId = "employee-table";
 
-interface EmployeeData {
-  id: string | number;
-  name: string;
-  department: string;
-  sampleData: string;
+export interface EmployeeData {
+  APOAccount?: string;
+  Birthdate?: string;
+  CardNo1?: string;
+  Cardno2?: string;
+  CostCenterCode?: string;
+  DateHired?: string;
+  DepartmentName?: string;
+  DivisionName?: string;
+  EPC?: string;
+  EmailAddress?: string;
+  EmployeeID?: string;
+  EmployeeNo?: string;
+  EmploymentStatus?: string;
+  FirstName?: string;
+  Gender?: string;
+  Grade?: string;
+  LastName?: string;
+  MiddleName?: string;
+  Position?: string;
+  SectionName?: string;
+  FullName?: string;
+  AC?: React.ReactNode;
 }
 
-// Mock data for the example
-const MOCK_USERS: EmployeeData[] = Array.from({ length: 50 }, (_, i) => ({
-  id: i + 1,
-  name: `User ${i + 1}`,
-  department: i % 3 === 0 ? "R&D" : i % 3 === 1 ? "ACCOUNTING" : "R&D",
-  sampleData: i % 2 === 0 ? "Active" : "Inactive",
-}));
+// Mock data
+export const mockEmployeeData: EmployeeData[] = [
+  {
+    APOAccount: "APO123",
+    Birthdate: "1990-01-01",
+    CardNo1: "12345",
+    Cardno2: "67890",
+    CostCenterCode: "CC001",
+    DateHired: "2020-06-15",
+    DepartmentName: "R&D",
+    DivisionName: "Engineering",
+    EPC: "",
+    EmailAddress: "john.doe@example.com",
+    EmployeeID: "EMP001",
+    EmployeeNo: "1001",
+    EmploymentStatus: "Active",
+    FirstName: "John",
+    Gender: "Male",
+    Grade: "A",
+    LastName: "Doe",
+    MiddleName: "M",
+    Position: "Software Engineer",
+    SectionName: "Development",
+    FullName: "John Doe",
+    AC: <IdCard className="text-gray-400" />,
+  },
+  {
+    APOAccount: "APO456",
+    Birthdate: "1985-05-20",
+    CardNo1: "54321",
+    Cardno2: "09876",
+    CostCenterCode: "CC002",
+    DateHired: "2018-03-10",
+    DepartmentName: "ACCOUNTING",
+    DivisionName: "Finance",
+    EPC: "",
+    EmailAddress: "jane.smith@example.com",
+    EmployeeID: "EMP002",
+    EmployeeNo: "1002",
+    EmploymentStatus: "Inactive",
+    FirstName: "Jane",
+    Gender: "Female",
+    Grade: "B",
+    LastName: "Smith",
+    MiddleName: "A",
+    Position: "Accountant",
+    SectionName: "Audit",
+    FullName: "Jane Smith",
+    AC: <IdCard className="text-gray-400" />,
+  },
+];
 
 // Column definitions
 const columns: Column[] = [
-  { key: "id", label: "ID" },
-  { key: "name", label: "Name" },
-  { key: "department", label: "Department" },
+  { key: "AC", label: "AC" },
+  { key: "EmployeeID", label: "ID" },
+  { key: "FullName", label: "Name" },
+  { key: "DepartmentName", label: "Department" },
   { key: "sampleData", label: "Status" },
 ];
 
@@ -60,6 +125,9 @@ function RouteComponent() {
 
   const [isOpen, setIsOpen] = useState(false);
 
+  //employee data
+  const [employeeData, setEmployeeData] = useState({});
+
   // Get pagination values from URL params
   const currentPage = parseInt(search.page || "1");
   const pageSize = parseInt(search.pageSize || "10");
@@ -67,11 +135,28 @@ function RouteComponent() {
   // Simulate data fetching
   useEffect(() => {
     const fetchData = async () => {
-      setIsLoading(true);
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setData(MOCK_USERS);
-      setIsLoading(false);
+      try {
+        // Simulate an API call to fetch employee datas
+        const res = await api.get("/api/employees");
+
+        const employeeData = res.data.map((item: EmployeeData) => ({
+          ...item,
+          FullName: `${item.FirstName} ${item.LastName}`,
+          AC: item.EPC ? (
+            <IdCard className="text-green-400" />
+          ) : (
+            <IdCard className="text-gray-400" />
+          ),
+        }));
+
+        setIsLoading(true);
+        setData([...mockEmployeeData, ...employeeData]);
+        setIsLoading(false);
+      } catch {
+        console.error("Error fetching data");
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     fetchData();
@@ -133,7 +218,7 @@ function RouteComponent() {
     return data.filter((item) => {
       const matchesDepartment =
         !search.filter_department ||
-        item.department === search.filter_department;
+        item.DepartmentName === search.filter_department;
 
       return matchesDepartment;
     });
@@ -172,44 +257,17 @@ function RouteComponent() {
           isLoading={isLoading}
           tableId={tableId}
           onRowClick={(row) => {
+            setEmployeeData(row);
             setIsOpen(true);
           }}
         />
       </CardSection>
       <EmpInfoDialog
-        employee={employeeData}
+        employee={employeeData as Employee}
         isOpen={isOpen}
         onOpenChange={setIsOpen}
       />
       <SerialPortComponent />
     </>
   );
-}
-
-// Example employee data
-const employeeData: Employee = {
-  id: "000000481",
-  name: "Sophia Carter",
-  section: "Research & Development",
-  avatarUrl: "https://via.placeholder.com/150/0077FF/FFFFFF?text=SC", // Example avatar URL
-  skills: [
-    "Machine Operation",
-    "Welding & Fabrication",
-    "Assembly Line Work",
-    "CNC Machining",
-    "Quality Control & Inspection",
-    "Inventory Management",
-  ],
-  rfidCard: "",
-  cardLinked: false,
-};
-
-interface Employee {
-  id: string;
-  name: string;
-  section: string;
-  avatarUrl?: string;
-  skills: string[];
-  rfidCard: string;
-  cardLinked: boolean;
 }

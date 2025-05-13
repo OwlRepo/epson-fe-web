@@ -74,7 +74,7 @@ const SerialPortComponent = () => {
   };
 
   useEffect(() => {
-    () => port.close();
+    // () => port.close();
   }, []);
 
   const openPort = async () => {
