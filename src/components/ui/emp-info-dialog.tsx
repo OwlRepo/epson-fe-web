@@ -5,7 +5,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, UserX } from "lucide-react"; // Import UserX icon
@@ -23,7 +22,7 @@ interface EmpInfoDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const validUserID = ["1234", "00000000000000001"];
+const validUserID = ["1234000000000000", "00000000000000001"];
 
 export default function EmpInfoDialog({
   employee,
@@ -187,6 +186,20 @@ export default function EmpInfoDialog({
               </div>
 
               <div className="border-t border-gray-200 mt-10" />
+
+              <h3 className=" mt-6 text-md font-semibold text-primary">
+                Manual time in and time out
+              </h3>
+              <p>Use the button to log attendance manually.</p>
+
+              <div className="flex flex-row gap-4 mt-4 justify-center px-10">
+                <Button className="h-12 w-full bg-red-800 text-white px-4 py-2 rounded text-sm font-semibold self-end">
+                  Time Out
+                </Button>
+                <Button className="h-12 w-full text-white px-4 py-2 rounded text-sm font-semibold self-end">
+                  Time In
+                </Button>
+              </div>
             </div>
           </>
         )}
