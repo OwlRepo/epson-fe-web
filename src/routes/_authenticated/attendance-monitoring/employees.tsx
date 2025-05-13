@@ -13,7 +13,6 @@ import {
   useNavigate,
   useSearch,
 } from "@tanstack/react-router";
-import { set } from "date-fns";
 import dayjs from "dayjs";
 import { IdCard } from "lucide-react";
 import React, { useEffect, useState } from "react";
@@ -263,11 +262,10 @@ function RouteComponent() {
         />
       </CardSection>
       <EmpInfoDialog
-        employee={employeeData as Employee}
+        employee={employeeData as EmployeeData}
         isOpen={isOpen}
         onOpenChange={setIsOpen}
       />
-      <SerialPortComponent />
     </>
   );
 }
