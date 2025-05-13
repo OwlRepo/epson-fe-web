@@ -14,6 +14,7 @@ import Spinner from "./spinner";
 import { toast } from "sonner";
 import useToastStyleTheme from "@/hooks/useToastStyleTheme";
 import type { EmployeeData } from "@/routes/_authenticated/attendance-monitoring/employees";
+import { readRFIDData } from "@/utils/rfidReaderCommand";
 
 // Define the props for the component
 interface EmpInfoDialogProps {
@@ -22,14 +23,18 @@ interface EmpInfoDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
+const validUserID = ["1234", "00000000000000001"];
+
 export default function EmpInfoDialog({
   employee,
   isOpen,
   onOpenChange,
 }: EmpInfoDialogProps) {
-  const { errorStyle, infoStyle, successStyle } = useToastStyleTheme();
+  const { infoStyle, errorStyle } = useToastStyleTheme();
   const [isLinkingCard, setIsLinkingCard] = useState(false);
   const [port, setPort] = useState<any>(null);
+  const [deviceUHFValue, setDeviceUHFValue] = useState("");
+  const [isUHFLinking, setIsUHFLinking] = useState(false);
 
   const hanldePortOpen = async () => {
     try {
@@ -41,37 +46,57 @@ export default function EmpInfoDialog({
     }
   };
 
-  const handleLinkCard = () => {
-    setIsLinkingCard(true);
-    // Simulate a delay for linking the card
+  const handleLinkCard = async () => {
+    if (!port) return;
     toast.info("Almost here - Tap your card", {
       description: "Please tap your card on the reader.",
       className: "bg-primary-50 border-primary-200 text-black",
       style: infoStyle,
     });
-    setTimeout(() => {
-      setIsLinkingCard(false);
-      // Simulate an error if the card is not read successfully
-      // This is where you would handle the error case, such as showing a toast notification
+    try {
+      setIsUHFLinking(true);
+      const data = await readRFIDData(port);
 
-      toast.error("Oops! Couldn’t Read the RFID Card", {
-        description: "Please make sure your device is connected and try again.",
-        className: "bg-red-50 border-red-200 text-black",
-        style: errorStyle,
-      });
-    }, 5000);
-    setTimeout(() => {
-      setIsLinkingCard(false);
-      // Here you would typically handle the card linking logic like doing an API call to update the employee's information
-      // and if the update is a success then you will need to refetch the employee data
-      // For now, we will just simulate a success message
+      if (validUserID.includes(data?.userID ?? "")) {
+        setDeviceUHFValue(data?.epc ?? "");
+      } else {
+        toast.error("Oops! Card is not valid", {
+          description: "Please make sure your card is valid and try again.",
+          className: "bg-red-50 border-red-200 text-black",
+          style: errorStyle,
+        });
+      }
+    } catch (error) {
+      console.error("Error reading RFID data:", error);
+    } finally {
+      setIsUHFLinking(false);
+    }
 
-      toast.success("Card Linked Successfully", {
-        description: "Card has been linked. You're all set!",
-        className: "bg-green-50 border-green-200 text-black",
-        style: successStyle,
-      });
-    }, 8000);
+    // Simulate a delay for linking the card
+
+    // setTimeout(() => {
+    //   setIsLinkingCard(false);
+    //   // Simulate an error if the card is not read successfully
+    //   // This is where you would handle the error case, such as showing a toast notification
+
+    //   toast.error("Oops! Couldn’t Read the RFID Card", {
+    //     description: "Please make sure your device is connected and try again.",
+    //     className: "bg-red-50 border-red-200 text-black",
+    //     style: errorStyle,
+    //   });
+    // }, 5000);
+    // setTimeout(() => {
+    //   setIsLinkingCard(false);
+    //   // Here you would typically handle the card linking logic like doing an API call to update the employee's information
+    //   // and if the update is a success then you will need to refetch the employee data
+    //   // For now, we will just simulate a success message
+
+    //   toast.success("Card Linked Successfully", {
+    //     description: "Card has been linked. You're all set!",
+    //     className: "bg-green-50 border-green-200 text-black",
+    //     style: successStyle,
+    //   });
+    // }, 8000);
   };
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -143,8 +168,8 @@ export default function EmpInfoDialog({
               <div className="flex flex-col gap-4">
                 <LinkCardInput
                   label="UHF Card"
-                  value={employee.EPC || ""}
-                  isLinking={isLinkingCard}
+                  value={employee.EPC || deviceUHFValue}
+                  isLinking={isUHFLinking}
                   isDeviceConnected={!!port} // Replace with actual device connection status
                   onLinkCard={handleLinkCard}
                   onClickConnect={hanldePortOpen}
@@ -153,15 +178,11 @@ export default function EmpInfoDialog({
                   label="MIFARE Card"
                   value={employee.EPC || ""}
                   isLinking={isLinkingCard}
-                  onLinkCard={handleLinkCard}
-                  onClickConnect={hanldePortOpen}
                 />
                 <LinkCardInput
                   label="EM Card"
                   value={employee.EPC || ""}
                   isLinking={isLinkingCard}
-                  onLinkCard={handleLinkCard}
-                  onClickConnect={hanldePortOpen}
                 />
               </div>
 
@@ -179,8 +200,8 @@ interface LinkCardInputProps {
   isLinking: boolean;
   isDeviceConnected?: boolean;
   label: string;
-  onLinkCard: () => void;
-  onClickConnect: () => void;
+  onLinkCard?: () => void;
+  onClickConnect?: () => void;
 }
 
 const LinkCardInput = ({
@@ -208,7 +229,7 @@ const LinkCardInput = ({
       {value && !isLinking && (
         <Button
           disabled
-          className="bg-green-500 text-white px-4 py-2 rounded text-sm font-semibold self-end w-12"
+          className="bg-green-500 text-white px-4 py-2 rounded text-sm font-semibold self-end w-32"
         >
           <CheckCircle className="h-4 w-4 mr-1 inline-block" />
           Card Linked
