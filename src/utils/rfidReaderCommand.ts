@@ -1,7 +1,5 @@
 import { Buffer } from "buffer";
 
-const validUSERID = ["1234", "0000000000000000"];
-
 const uiCrc16Cal = (buffer: any) => {
   const POLYNOMIAL = 0x8408;
   let crc = 0xffff;

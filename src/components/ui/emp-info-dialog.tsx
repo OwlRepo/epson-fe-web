@@ -9,6 +9,16 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, UserX } from "lucide-react"; // Import UserX icon
 import { useState } from "react";
+
+// Extend the Navigator type to include the serial property
+declare global {
+  interface Navigator {
+    serial: {
+      requestPort: () => Promise<any>;
+      getPorts: () => Promise<any[]>;
+    };
+  }
+}
 import Spinner from "./spinner";
 import { toast } from "sonner";
 import useToastStyleTheme from "@/hooks/useToastStyleTheme";
@@ -30,7 +40,7 @@ export default function EmpInfoDialog({
   onOpenChange,
 }: EmpInfoDialogProps) {
   const { infoStyle, errorStyle } = useToastStyleTheme();
-  const [isLinkingCard, setIsLinkingCard] = useState(false);
+  const [isLinkingCard] = useState(false);
   const [port, setPort] = useState<any>(null);
   const [deviceUHFValue, setDeviceUHFValue] = useState("");
   const [isUHFLinking, setIsUHFLinking] = useState(false);
@@ -119,7 +129,7 @@ export default function EmpInfoDialog({
                 <Avatar className="h-24 w-24 border rounded-xl">
                   <AvatarImage
                     className="rounded-xl"
-                    src={employee.avatarUrl}
+                    // src={employee.avatarUrl}
                     alt={employee.FullName}
                   />
                   <AvatarFallback className="rounded-xl">
