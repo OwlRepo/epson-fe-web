@@ -125,7 +125,7 @@ export default function EmpInfoDialog({
           // Render employee details when data is available
           <>
             <div className="grid grid-cols-3 gap-2">
-              <div className="col-span-1 flex justify-center items-start">
+              {/* <div className="col-span-1 flex justify-center items-start">
                 <Avatar className="h-24 w-24 border rounded-xl">
                   <AvatarImage
                     className="rounded-xl"
@@ -138,7 +138,7 @@ export default function EmpInfoDialog({
                       .join("") || "N/A"}
                   </AvatarFallback>
                 </Avatar>
-              </div>
+              </div> */}
               <div className="col-span-2">
                 <p className="text-sm text-gray-500">
                   ID: {employee.EmployeeID}
@@ -193,22 +193,6 @@ export default function EmpInfoDialog({
                   value={employee.EPC || ""}
                   isLinking={isLinkingCard}
                 />
-              </div>
-
-              <div className="border-t border-gray-200 mt-10" />
-
-              <h3 className=" mt-6 text-md font-semibold text-primary">
-                Manual time in and time out
-              </h3>
-              <p>Use the button to log attendance manually.</p>
-
-              <div className="flex flex-row gap-4 mt-4 justify-center px-10">
-                <Button className="h-12 w-full bg-red-800 text-white px-4 py-2 rounded text-sm font-semibold self-end">
-                  Time Out
-                </Button>
-                <Button className="h-12 w-full text-white px-4 py-2 rounded text-sm font-semibold self-end">
-                  Time In
-                </Button>
               </div>
             </div>
           </>
