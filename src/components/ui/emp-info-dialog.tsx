@@ -13,10 +13,7 @@ import { useState } from "react";
 // Extend the Navigator type to include the serial property
 declare global {
   interface Navigator {
-    serial: {
-      requestPort: () => Promise<any>;
-      getPorts: () => Promise<any[]>;
-    };
+    serial: any;
   }
 }
 import Spinner from "./spinner";
@@ -24,6 +21,14 @@ import { toast } from "sonner";
 import useToastStyleTheme from "@/hooks/useToastStyleTheme";
 import type { EmployeeData } from "@/routes/_authenticated/attendance-monitoring/employees";
 import { readRFIDData } from "@/utils/rfidReaderCommand";
+
+//device filters
+const filters = [
+  {
+    usbVendorId: 0x1a86, // replace with your device's VID
+    usbProductId: 0x7523, // replace with your device's PID
+  },
+];
 
 // Define the props for the component
 interface EmpInfoDialogProps {
@@ -47,7 +52,7 @@ export default function EmpInfoDialog({
 
   const hanldePortOpen = async () => {
     try {
-      const port = await navigator.serial.requestPort();
+      const port = await navigator.serial.requestPort({ filters });
       await port.open({ baudRate: 115200 });
       setPort(port);
     } catch (error) {
