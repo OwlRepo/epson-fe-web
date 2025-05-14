@@ -5,6 +5,7 @@ import { useEmployeeData } from '@/hooks'
 import { EpsonFlame } from '@/assets/svgs'
 import Spinner from '@/components/ui/spinner'
 import { LiveDataTable } from '@/components/ui/live-data-table'
+import CardHeaderRight from '@/components/ui/card-header-right'
 
 export const Route = createFileRoute(
   '/_authenticated/attendance-monitoring/dashboard/divisions/$divisionId/$departmentId/$sectionId/',
@@ -13,7 +14,7 @@ export const Route = createFileRoute(
 })
 
 function RouteComponent() {
-  const { data, isLoading, isConnected } = useEmployeeData();
+  const { data, isLoading, isConnected, countData: totalLogs } = useEmployeeData();
 
   const navigate = useNavigate({
     from: '/attendance-monitoring/dashboard/divisions/$divisionId/$departmentId/$sectionId'
@@ -55,7 +56,7 @@ function RouteComponent() {
     });
   };
   return (
-    <CardSection headerLeft={<CardHeaderLeft title={<div className="flex items-center space-x-2"><EpsonFlame /><b className="text-[20px] text-primary">Live Data</b></div>} />}>
+    <CardSection headerRight={<CardHeaderRight clockedOut={totalLogs?.out} clockedIn={totalLogs?.in} />} headerLeft={<CardHeaderLeft title={<div className="flex items-center space-x-2"><EpsonFlame /><b className="text-[20px] text-primary">Live Data</b></div>} />}>
 
       {
         isConnected && !isLoading ? <div className='flex'>
