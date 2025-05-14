@@ -6,7 +6,6 @@ import {
   type Filter,
 } from "@/components/ui/dynamic-table";
 import EmpInfoDialog from "@/components/ui/emp-info-dialog";
-import SerialPortComponent from "@/components/ui/serial-port";
 import api from "@/config/axiosInstance";
 import {
   createFileRoute,
