@@ -4,11 +4,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, UserX } from "lucide-react"; // Import UserX icon
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 // Extend the Navigator type to include the serial property
 declare global {
@@ -19,29 +18,33 @@ declare global {
 import Spinner from "./spinner";
 import { toast } from "sonner";
 import useToastStyleTheme from "@/hooks/useToastStyleTheme";
-import type { EmployeeData } from "@/routes/_authenticated/attendance-monitoring/employees";
 import { readRFIDData } from "@/utils/rfidReaderCommand";
+import { getUHFDeviceID, getUHFProductID, getValidUserID } from "@/utils/env";
+import type { EmployeeData } from "@/routes/_authenticated/attendance-monitoring/employees";
+import { useMutateEmployee } from "@/hooks/mutation/useMutateEmployee";
 
 //device filters
 const filters = [
   {
-    usbVendorId: 0x1a86, // replace with your device's VID
-    usbProductId: 0x7523, // replace with your device's PID
+    usbVendorId: getUHFDeviceID(), // replace with your device's VID
+    usbProductId: getUHFProductID(), // replace with your device's PID
   },
 ];
 
 // Define the props for the component
 interface EmpInfoDialogProps {
-  employee: EmployeeData | null; // Allow null when no employee is selected
+  employee: EmployeeData | null;
   isOpen: boolean;
+  isLoading?: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-const validUserID = ["1234000000000000", "00000000000000001"];
+const validUserID = getValidUserID();
 
 export default function EmpInfoDialog({
   employee,
   isOpen,
+  isLoading,
   onOpenChange,
 }: EmpInfoDialogProps) {
   const { infoStyle, errorStyle } = useToastStyleTheme();
@@ -49,6 +52,8 @@ export default function EmpInfoDialog({
   const [port, setPort] = useState<any>(null);
   const [deviceUHFValue, setDeviceUHFValue] = useState("");
   const [isUHFLinking, setIsUHFLinking] = useState(false);
+
+  const { mutate, isError, isPending } = useMutateEmployee();
 
   const hanldePortOpen = async () => {
     try {
@@ -73,6 +78,10 @@ export default function EmpInfoDialog({
 
       if (validUserID.includes(data?.userID ?? "")) {
         setDeviceUHFValue(data?.epc ?? "");
+        mutate({
+          employeeNo: employee?.EmployeeID,
+          payload: { EPC: data?.epc },
+        });
       } else {
         toast.error("Oops! Card is not valid", {
           description: "Please make sure your card is valid and try again.",
@@ -85,33 +94,20 @@ export default function EmpInfoDialog({
     } finally {
       setIsUHFLinking(false);
     }
-
-    // Simulate a delay for linking the card
-
-    // setTimeout(() => {
-    //   setIsLinkingCard(false);
-    //   // Simulate an error if the card is not read successfully
-    //   // This is where you would handle the error case, such as showing a toast notification
-
-    //   toast.error("Oops! Couldn’t Read the RFID Card", {
-    //     description: "Please make sure your device is connected and try again.",
-    //     className: "bg-red-50 border-red-200 text-black",
-    //     style: errorStyle,
-    //   });
-    // }, 5000);
-    // setTimeout(() => {
-    //   setIsLinkingCard(false);
-    //   // Here you would typically handle the card linking logic like doing an API call to update the employee's information
-    //   // and if the update is a success then you will need to refetch the employee data
-    //   // For now, we will just simulate a success message
-
-    //   toast.success("Card Linked Successfully", {
-    //     description: "Card has been linked. You're all set!",
-    //     className: "bg-green-50 border-green-200 text-black",
-    //     style: successStyle,
-    //   });
-    // }, 8000);
   };
+
+  useEffect(() => {
+    console.log("isError", isError);
+    if (isError) {
+      toast.error("Oops! Card saving error!", {
+        description: "Please try again.",
+        className: "bg-red-50 border-red-200 text-black",
+        style: errorStyle,
+      });
+      setDeviceUHFValue("");
+    }
+  }, [isError]);
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] p-8 bg-white rounded-lg shadow-xl">
@@ -120,36 +116,23 @@ export default function EmpInfoDialog({
             Employee Information
           </DialogTitle>
         </DialogHeader>
-        {!employee ? (
+        {isLoading && <Spinner />}
+        {!employee && !isLoading && (
           // Fallback UI when no employee data is provided
           <div className="flex flex-col items-center justify-center h-64 text-gray-500">
             <UserX className="h-12 w-12 mb-4" />
             <p>No employee information found.</p>
           </div>
-        ) : (
-          // Render employee details when data is available
+        )}
+        {employee && !isLoading && (
           <>
             <div className="grid grid-cols-3 gap-2">
-              {/* <div className="col-span-1 flex justify-center items-start">
-                <Avatar className="h-24 w-24 border rounded-xl">
-                  <AvatarImage
-                    className="rounded-xl"
-                    // src={employee.avatarUrl}
-                    alt={employee.FullName}
-                  />
-                  <AvatarFallback className="rounded-xl">
-                    {employee.FullName?.split(" ")
-                      .map((n) => n[0])
-                      .join("") || "N/A"}
-                  </AvatarFallback>
-                </Avatar>
-              </div> */}
               <div className="col-span-2">
                 <p className="text-sm text-gray-500">
                   ID: {employee.EmployeeID}
                 </p>
                 <h2 className="text-2xl font-bold text-primary mt-1">
-                  {employee.FullName}
+                  {`${employee.FirstName} ${employee.LastName}`}
                 </h2>
                 <p className="text-sm text-gray-600 mt-1">
                   {employee.DepartmentName}
@@ -157,23 +140,6 @@ export default function EmpInfoDialog({
               </div>
             </div>
             <div className="border-t border-gray-200 mt-6" />
-
-            {/* <div className="mt-6">
-              <h3 className="text-md font-semibold text-primary mb-3">
-                Skills
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {employee.skills.map((skill) => (
-                  <Badge
-                    key={skill}
-                    variant="secondary"
-                    className="bg-blue-100 text-primary hover:bg-primary hover:text-white px-3 py-1 rounded-full text-sm font-medium"
-                  >
-                    {skill}
-                  </Badge>
-                ))}
-              </div>
-            </div> */}
 
             <div className="mt-8">
               <h3 className="text-md font-semibold text-primary mb-3">
@@ -183,19 +149,19 @@ export default function EmpInfoDialog({
                 <LinkCardInput
                   label="UHF Card"
                   value={employee.EPC || deviceUHFValue}
-                  isLinking={isUHFLinking}
-                  isDeviceConnected={!!port} // Replace with actual device connection status
+                  isLinking={isUHFLinking || isPending}
+                  isDeviceConnected={!!port}
                   onLinkCard={handleLinkCard}
                   onClickConnect={hanldePortOpen}
                 />
                 <LinkCardInput
                   label="MIFARE Card"
-                  value={employee.EPC || ""}
+                  value={""}
                   isLinking={isLinkingCard}
                 />
                 <LinkCardInput
                   label="EM Card"
-                  value={employee.EPC || ""}
+                  value={""}
                   isLinking={isLinkingCard}
                 />
               </div>
@@ -261,7 +227,7 @@ const LinkCardInput = ({
           Reading
         </Button>
       )}
-      {!isDeviceConnected && (
+      {!isDeviceConnected && !value && (
         <Button
           onClick={onClickConnect}
           className=" text-white px-4 py-2 rounded text-sm font-semibold self-end w-32"

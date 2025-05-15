@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/dynamic-table";
 import EmpInfoDialog from "@/components/ui/emp-info-dialog";
 import api from "@/config/axiosInstance";
+import { useGetEmployeeByNo } from "@/hooks/query/useGetEmployeeById";
 import {
   createFileRoute,
   useNavigate,
@@ -124,7 +125,9 @@ function RouteComponent() {
   const [isOpen, setIsOpen] = useState(false);
 
   //employee data
-  const [employeeData, setEmployeeData] = useState({});
+  const [employeeNo, setEmployeeNo] = useState("");
+  const { data: employee, isLoading: isEmployeeLoading } =
+    useGetEmployeeByNo(employeeNo);
 
   // Get pagination values from URL params
   const currentPage = parseInt(search.page || "1");
@@ -255,13 +258,14 @@ function RouteComponent() {
           isLoading={isLoading}
           tableId={tableId}
           onRowClick={(row) => {
-            setEmployeeData(row);
+            setEmployeeNo(row.EmployeeNo);
             setIsOpen(true);
           }}
         />
       </CardSection>
       <EmpInfoDialog
-        employee={employeeData as EmployeeData}
+        employee={employee}
+        isLoading={isEmployeeLoading}
         isOpen={isOpen}
         onOpenChange={setIsOpen}
       />
