@@ -9,7 +9,7 @@ const saveEmployeeData = async ({
   payload: any;
 }) => {
   try {
-    const response = await api.post(`/api/employee/${employeeNo}`, payload);
+    const response = await api.put(`/api/employees/${employeeNo}`, payload);
     return response.data;
   } catch (error) {
     console.error("Error saving employee data:", error);

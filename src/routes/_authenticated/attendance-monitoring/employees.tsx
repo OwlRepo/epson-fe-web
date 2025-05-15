@@ -6,8 +6,9 @@ import {
   type Filter,
 } from "@/components/ui/dynamic-table";
 import EmpInfoDialog from "@/components/ui/emp-info-dialog";
-import api from "@/config/axiosInstance";
 import { useGetEmployeeByNo } from "@/hooks/query/useGetEmployeeById";
+import { useGetEmployees } from "@/hooks/query/useGetEmployees";
+import { objToParams } from "@/utils/objToParams";
 import {
   createFileRoute,
   useNavigate,
@@ -35,7 +36,7 @@ export interface EmployeeData {
   DateHired?: string;
   DepartmentName?: string;
   DivisionName?: string;
-  EPC?: string;
+  UHF?: string;
   EmailAddress?: string;
   EmployeeID?: string;
   EmployeeNo?: string;
@@ -50,58 +51,6 @@ export interface EmployeeData {
   FullName?: string;
   AC?: React.ReactNode;
 }
-
-// Mock data
-export const mockEmployeeData: EmployeeData[] = [
-  {
-    APOAccount: "APO123",
-    Birthdate: "1990-01-01",
-    CardNo1: "12345",
-    Cardno2: "67890",
-    CostCenterCode: "CC001",
-    DateHired: "2020-06-15",
-    DepartmentName: "R&D",
-    DivisionName: "Engineering",
-    EPC: "",
-    EmailAddress: "john.doe@example.com",
-    EmployeeID: "EMP001",
-    EmployeeNo: "1001",
-    EmploymentStatus: "Active",
-    FirstName: "John",
-    Gender: "Male",
-    Grade: "A",
-    LastName: "Doe",
-    MiddleName: "M",
-    Position: "Software Engineer",
-    SectionName: "Development",
-    FullName: "John Doe",
-    AC: <IdCard className="text-gray-400" />,
-  },
-  {
-    APOAccount: "APO456",
-    Birthdate: "1985-05-20",
-    CardNo1: "54321",
-    Cardno2: "09876",
-    CostCenterCode: "CC002",
-    DateHired: "2018-03-10",
-    DepartmentName: "ACCOUNTING",
-    DivisionName: "Finance",
-    EPC: "",
-    EmailAddress: "jane.smith@example.com",
-    EmployeeID: "EMP002",
-    EmployeeNo: "1002",
-    EmploymentStatus: "Inactive",
-    FirstName: "Jane",
-    Gender: "Female",
-    Grade: "B",
-    LastName: "Smith",
-    MiddleName: "A",
-    Position: "Accountant",
-    SectionName: "Audit",
-    FullName: "Jane Smith",
-    AC: <IdCard className="text-gray-400" />,
-  },
-];
 
 // Column definitions
 const columns: Column[] = [
@@ -119,61 +68,55 @@ function RouteComponent() {
   const navigate = useNavigate({
     from: "/attendance-monitoring/employees",
   });
-  const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState<EmployeeData[]>([]);
 
   const [isOpen, setIsOpen] = useState(false);
+
+  const currentPage = parseInt(search.page || "1");
+  const pageSize = parseInt(search.limit || "10");
 
   //employee data
   const [employeeNo, setEmployeeNo] = useState("");
   const { data: employee, isLoading: isEmployeeLoading } =
     useGetEmployeeByNo(employeeNo);
 
-  // Get pagination values from URL params
-  const currentPage = parseInt(search.page || "1");
-  const pageSize = parseInt(search.pageSize || "10");
+  //employeeList
+  const {
+    data: employeeList,
+    isLoading: isEmployeeListLoading,
+    refetch,
+  } = useGetEmployees(objToParams(search) as any);
 
-  // Simulate data fetching
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Simulate an API call to fetch employee datas
-        const res = await api.get("/api/employees");
-
-        const employeeData = res.data.map((item: EmployeeData) => ({
-          ...item,
-          FullName: `${item.FirstName} ${item.LastName}`,
-          AC: item.EPC ? (
-            <IdCard className="text-green-400" />
-          ) : (
-            <IdCard className="text-gray-400" />
-          ),
-        }));
-
-        setIsLoading(true);
-        setData([...mockEmployeeData, ...employeeData]);
-        setIsLoading(false);
-      } catch {
-        console.error("Error fetching data");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [currentPage, pageSize, search.filter_role, search.filter_status]);
+    if (employeeList) {
+      const data = employeeList.map((item: EmployeeData) => ({
+        ...item,
+        FullName: `${item.FirstName} ${item.LastName}`,
+        AC: item.UHF ? (
+          <IdCard className="text-green-400" />
+        ) : (
+          <IdCard className="text-gray-400" />
+        ),
+      }));
+      setData(data);
+    }
+  }, [employeeList]);
 
   const filters: Filter[] = [
     {
-      key: "department",
+      key: "Department",
       label: "Department",
       options: [
-        { label: "R&D", value: "R&D" },
+        { label: "GAD", value: "GAD" },
         { label: "ACCOUNTING", value: "ACCOUNTING" },
       ],
       singleSelect: true,
     },
   ];
+
+  useEffect(() => {
+    refetch();
+  }, [search]);
 
   // Handlers for table interactions
   const handlePageChange = (page: number) => {
@@ -195,7 +138,7 @@ function RouteComponent() {
       navigate({
         search: (prev) => ({
           ...prev,
-          pageSize: String(parsedSize),
+          limit: String(parsedSize),
           page: "1",
         }),
         replace: true,
@@ -203,34 +146,27 @@ function RouteComponent() {
     }
   };
 
-  const handleFilter = (key: string, value: string) => {
+  const handleSearch = (searchTerm: string) => {
+    console.log("handleSearch", searchTerm);
     navigate({
       search: (prev) => ({
         ...prev,
-        [`filter_${key}`]: value || undefined,
-        page: "1",
+        search: searchTerm,
       }),
       replace: true,
     });
   };
 
-  // Filter data based on search params
-  const filterData = (data: EmployeeData[]) => {
-    return data.filter((item) => {
-      const matchesDepartment =
-        !search.filter_department ||
-        item.DepartmentName === search.filter_department;
-
-      return matchesDepartment;
+  const handleFilter = (key: string, value: string) => {
+    navigate({
+      search: (prev) => ({
+        ...prev,
+        [key]: value || undefined,
+        page: "1",
+      }),
+      replace: true,
     });
   };
-
-  // Apply filtering and pagination
-  const filteredData = filterData(data);
-  const paginatedData = filteredData.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
-  );
 
   return (
     <>
@@ -244,18 +180,20 @@ function RouteComponent() {
       >
         <DynamicTable
           columns={columns}
-          data={paginatedData}
+          data={data}
           filters={filters}
           pagination={{
             currentPage,
             pageSize,
-            totalPages: Math.ceil(filteredData.length / pageSize),
-            totalItems: filteredData.length,
+            totalPages: 10,
+            totalItems: 10,
           }}
+          routeSearch={search}
+          onSearch={handleSearch}
           onPageChange={handlePageChange}
           onPageSizeChange={handlePageSizeChange}
           onFilter={handleFilter}
-          isLoading={isLoading}
+          isLoading={isEmployeeListLoading}
           tableId={tableId}
           onRowClick={(row) => {
             setEmployeeNo(row.EmployeeNo);
@@ -263,12 +201,14 @@ function RouteComponent() {
           }}
         />
       </CardSection>
-      <EmpInfoDialog
-        employee={employee}
-        isLoading={isEmployeeLoading}
-        isOpen={isOpen}
-        onOpenChange={setIsOpen}
-      />
+      {isOpen && (
+        <EmpInfoDialog
+          employee={employee}
+          isLoading={isEmployeeLoading}
+          isOpen={isOpen}
+          onOpenChange={setIsOpen}
+        />
+      )}
     </>
   );
 }

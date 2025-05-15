@@ -12,7 +12,7 @@ const getEmployeeByNo = async (employeeNo: string) => {
 
 export const useGetEmployeeByNo = (employeeNo: string) =>
   useQuery({
-    queryKey: ["employees", employeeNo],
+    queryKey: ["employee", employeeNo],
     queryFn: () => getEmployeeByNo(employeeNo),
     enabled: !!employeeNo,
     refetchOnWindowFocus: false,
