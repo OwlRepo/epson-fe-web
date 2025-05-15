@@ -15,10 +15,14 @@ export function Header({ userProfile, className }: HeaderProps) {
   const { location } = useRouterState();
 
   // Get page title from the last segment of the URL
-  const pathSegments = location.pathname.split('/').filter(Boolean);
-  const pageTitle = pathSegments.length > 0
-    ? pathSegments[pathSegments.length - 1].split("_").join(" ").replace(/-/g, " ")
-    : "";
+  const pathSegments = location.pathname.split("/").filter(Boolean);
+  const pageTitle =
+    pathSegments.length > 0
+      ? pathSegments[pathSegments.length - 1]
+          .split("_")
+          .join(" ")
+          .replace(/-/g, " ")
+      : "";
 
   return (
     <header className={cn("bg-white px-6 py-4", className)}>

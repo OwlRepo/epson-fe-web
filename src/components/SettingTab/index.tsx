@@ -9,6 +9,9 @@ import { Moon, RefreshCw, SunMedium } from "lucide-react";
 import { useEffect, useState } from "react";
 import SyncTimeInput from "./SyncTimeInput";
 import TimePickerModal from "./TimePickerModal";
+import { useMutateSyncEmployees } from "@/hooks/mutation/useMutateSyncEmployees";
+import { toast } from "sonner";
+import useToastStyleTheme from "@/hooks/useToastStyleTheme";
 
 interface SyncActivity {
   id: number;
@@ -34,6 +37,7 @@ const SettingTab = () => {
     from: "/attendance-monitoring/settings",
   });
 
+  const { errorStyle } = useToastStyleTheme();
   const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState<SyncActivity[]>([]);
 
@@ -45,6 +49,7 @@ const SettingTab = () => {
   const [timeKey, setTimeKey] = useState<"am" | "pm">("am");
 
   const [open, setOpen] = useState(false);
+  const { mutate, isError } = useMutateSyncEmployees();
 
   // Get pagination values from URL params
   const currentPage = parseInt(search.page || "1");
@@ -62,6 +67,16 @@ const SettingTab = () => {
 
     fetchData();
   }, [currentPage, pageSize, search.filter_role, search.filter_status]);
+
+  useEffect(() => {
+    if (isError) {
+      toast.error("Error syncing employees", {
+        description: "Please try again later.",
+        className: "bg-red-50 border-red-200 text-black",
+        style: errorStyle,
+      });
+    }
+  }, [isError]);
 
   const columns: Column[] = [
     { key: "activity", label: "Activity" },
@@ -175,7 +190,9 @@ const SettingTab = () => {
           />
 
           <p className="mt-4 font-bold text-center">or</p>
-          <Button className="w-full mt-4">Sync Now</Button>
+          <Button className="w-full mt-4" onClick={() => mutate()}>
+            Sync Now
+          </Button>
         </div>
 
         {/* Second Column (Expands Fully) */}
