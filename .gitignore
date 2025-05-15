@@ -3,3 +3,11 @@ node_modules
 dist
 dist-ssr
 *.local
+
+# Environment files
+src/envs/.env.development
+src/envs/.env.production
+src/envs/.env.local
+src/envs/.env.staging
+src/envs/.env.test
+.env

@@ -14,6 +14,17 @@ const targetEnvPath = path.join(__dirname, "../.env");
 
 function copyEnvFile() {
   try {
+    // Check if source env file exists
+    if (!fs.existsSync(sourceEnvPath)) {
+      throw new Error(`Source environment file ${sourceEnvPath} does not exist`);
+    }
+
+    // Ensure target directory exists
+    const targetDir = path.dirname(targetEnvPath);
+    if (!fs.existsSync(targetDir)) {
+      fs.mkdirSync(targetDir, { recursive: true });
+    }
+
     // Read the environment file (development or production)
     const envContent = fs.readFileSync(sourceEnvPath, "utf8");
 
