@@ -22,6 +22,7 @@ import { readRFIDData } from "@/utils/rfidReaderCommand";
 import { getUHFDeviceID, getUHFProductID, getValidUserID } from "@/utils/env";
 import type { EmployeeData } from "@/routes/_authenticated/attendance-monitoring/employees";
 import { useMutateEmployee } from "@/hooks/mutation/useMutateEmployee";
+import usePortStore from "@/store/usePortStore";
 
 //device filters
 const filters = [
@@ -49,9 +50,9 @@ export default function EmpInfoDialog({
 }: EmpInfoDialogProps) {
   const { infoStyle, errorStyle } = useToastStyleTheme();
   const [isLinkingCard] = useState(false);
-  const [port, setPort] = useState<any>(null);
   const [deviceUHFValue, setDeviceUHFValue] = useState("");
   const [isUHFLinking, setIsUHFLinking] = useState(false);
+  const { port, setPort } = usePortStore((store) => store);
 
   const { mutate, isError, isPending } = useMutateEmployee();
 
@@ -80,7 +81,7 @@ export default function EmpInfoDialog({
         setDeviceUHFValue(data?.epc ?? "");
         mutate({
           employeeNo: employee?.EmployeeID,
-          payload: { EPC: data?.epc },
+          payload: { UHF: data?.epc },
         });
       } else {
         toast.error("Oops! Card is not valid", {
@@ -148,7 +149,7 @@ export default function EmpInfoDialog({
               <div className="flex flex-col gap-4">
                 <LinkCardInput
                   label="UHF Card"
-                  value={employee.EPC || deviceUHFValue}
+                  value={employee.UHF || deviceUHFValue}
                   isLinking={isUHFLinking || isPending}
                   isDeviceConnected={!!port}
                   onLinkCard={handleLinkCard}

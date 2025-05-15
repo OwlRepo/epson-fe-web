@@ -18,7 +18,7 @@ export default function EmpInfoDialogExample() {
     DateHired: "2015-06-15",
     DepartmentName: "Engineering",
     DivisionName: "Product Development",
-    EPC: "EPC123456",
+    UHF: "EPC123456",
     EmailAddress: "johndoe@example.com",
     EmployeeID: "EMP12345",
     EmployeeNo: "EMP001",
