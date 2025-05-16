@@ -524,9 +524,8 @@ export function DynamicTable({
         <div
           className={cn(
             "flex flex-col sm:flex-row gap-2 sm:gap-0 items-center",
-            exportTableData?.exportOptions
-              ? "justify-start space-x-5 items-center"
-              : "justify-between"
+
+            "justify-start space-x-5 items-center"
           )}
         >
           {routeSearch && (

@@ -3,7 +3,9 @@ import { useQuery } from "@tanstack/react-query";
 
 const getEmployeeByNo = async (employeeNo: string) => {
   try {
-    const response = await api.get(`api/employees/${employeeNo}`);
+    const response = await api.get(
+      `api/employees/getByEmployeeNo/${employeeNo}`
+    );
     return response.data;
   } catch (error) {
     console.error("Error fetching employee data:", error);

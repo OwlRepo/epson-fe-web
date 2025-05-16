@@ -48,13 +48,13 @@ export default function EmpInfoDialog({
   isLoading,
   onOpenChange,
 }: EmpInfoDialogProps) {
-  const { infoStyle, errorStyle } = useToastStyleTheme();
+  const { infoStyle, errorStyle, successStyle } = useToastStyleTheme();
   const [isLinkingCard] = useState(false);
   const [deviceUHFValue, setDeviceUHFValue] = useState("");
   const [isUHFLinking, setIsUHFLinking] = useState(false);
   const { port, setPort } = usePortStore((store) => store);
 
-  const { mutate, isError, isPending } = useMutateEmployee();
+  const { mutate, isError, isSuccess, isPending } = useMutateEmployee();
 
   const hanldePortOpen = async () => {
     try {
@@ -70,7 +70,6 @@ export default function EmpInfoDialog({
     if (!port) return;
     toast.info("Almost here - Tap your card", {
       description: "Please tap your card on the reader.",
-      className: "bg-primary-50 border-primary-200 text-black",
       style: infoStyle,
     });
     try {
@@ -98,7 +97,6 @@ export default function EmpInfoDialog({
   };
 
   useEffect(() => {
-    console.log("isError", isError);
     if (isError) {
       toast.error("Oops! Card saving error!", {
         description: "Please try again.",
@@ -107,7 +105,13 @@ export default function EmpInfoDialog({
       });
       setDeviceUHFValue("");
     }
-  }, [isError]);
+    if (isSuccess) {
+      toast.success("RFID Card Linked Successfully!", {
+        description: "Your RFID card has been linked. You're all set!",
+        style: successStyle,
+      });
+    }
+  }, [isError, isSuccess]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
