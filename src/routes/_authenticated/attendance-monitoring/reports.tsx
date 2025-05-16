@@ -49,7 +49,7 @@ function ReportsDataTable() {
   } = useGetEmployeeReports(objToParams(search) as any);
 
   useEffect(() => {
-    if (reportList) {
+    if (Array.isArray(reportList.data)) {
       setData(reportList.data);
       setTotalPages(reportList?.pagination?.totalPages ?? 10);
       setTotalItems(reportList?.pagination?.totalItems ?? 10);

@@ -74,12 +74,14 @@ const SettingTab = () => {
   );
   // Simulate data fetching
   useEffect(() => {
-    if (syncActivities) {
+    if (Array.isArray(syncActivities)) {
       const data = syncActivities.map((item: SyncActivity) => ({
         ...item,
         DateTime: dayjs(item?.DateTime).format("hh:mm A"),
       }));
       setData(data);
+    } else {
+      setData([]);
     }
   }, [syncActivities]);
 
