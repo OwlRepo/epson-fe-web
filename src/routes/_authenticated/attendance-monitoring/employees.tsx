@@ -90,7 +90,7 @@ function RouteComponent() {
   } = useGetEmployees(objToParams(search) as any);
 
   useEffect(() => {
-    if (Array.isArray(employeeList.data)) {
+    if (Array.isArray(employeeList?.data)) {
       const data = employeeList.data.map((item: EmployeeData) => ({
         ...item,
         FullName: `${item.FirstName} ${item.LastName}`,

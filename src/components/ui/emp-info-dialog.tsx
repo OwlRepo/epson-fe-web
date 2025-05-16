@@ -54,7 +54,7 @@ export default function EmpInfoDialog({
   const [isUHFLinking, setIsUHFLinking] = useState(false);
   const { port, setPort } = usePortStore((store) => store);
 
-  const { mutate, isError, isSuccess, isPending } = useMutateEmployee();
+  const { mutate, isError, error, isSuccess, isPending } = useMutateEmployee();
 
   const hanldePortOpen = async () => {
     try {
@@ -79,7 +79,7 @@ export default function EmpInfoDialog({
       if (validUserID.includes(data?.userID ?? "")) {
         setDeviceUHFValue(data?.epc ?? "");
         mutate({
-          employeeNo: employee?.EmployeeID,
+          employeeNo: employee?.EmployeeNo,
           payload: { UHF: data?.epc },
         });
       } else {
@@ -99,7 +99,9 @@ export default function EmpInfoDialog({
   useEffect(() => {
     if (isError) {
       toast.error("Oops! Card saving error!", {
-        description: "Please try again.",
+        description:
+          (error as any)?.response?.data?.message ??
+          "An unknown error occurred",
         className: "bg-red-50 border-red-200 text-black",
         style: errorStyle,
       });
