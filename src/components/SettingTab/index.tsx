@@ -82,8 +82,8 @@ const SettingTab = () => {
         DateTime: dayjs(item?.DateTime).format("hh:mm A"),
       }));
       setData(data);
-      setTotalPages(syncActivities?.pagination.totalPages ?? 10);
-      setTotalItems(syncActivities?.pagination.totalItems ?? 10);
+      setTotalPages(syncActivities?.pagination?.totalPages ?? 10);
+      setTotalItems(syncActivities?.pagination?.totalItems ?? 10);
     }
   }, [syncActivities]);
 

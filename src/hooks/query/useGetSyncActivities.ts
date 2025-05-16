@@ -17,7 +17,7 @@ const getSyncActivities = async (params: EmployeeParams) => {
 
 export const useGetSyncActivities = (params: EmployeeParams) =>
   useQuery({
-    queryKey: ["employees"],
+    queryKey: ["acitivties"],
     queryFn: () => getSyncActivities(params),
     refetchOnWindowFocus: false,
   });
