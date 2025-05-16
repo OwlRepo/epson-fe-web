@@ -37,6 +37,8 @@ const SettingTab = () => {
 
   const { errorStyle, successStyle, infoStyle } = useToastStyleTheme();
   const [data, setData] = useState<SyncActivity[]>([]);
+  const [totalPages, setTotalPages] = useState(10);
+  const [totalItems, setTotalItems] = useState(10);
 
   const [syncTime, setSyncTime] = useState({
     am: "",
@@ -74,14 +76,14 @@ const SettingTab = () => {
   );
   // Simulate data fetching
   useEffect(() => {
-    if (Array.isArray(syncActivities)) {
-      const data = syncActivities.map((item: SyncActivity) => ({
+    if (Array.isArray(syncActivities?.data)) {
+      const data = syncActivities?.data?.map((item: SyncActivity) => ({
         ...item,
         DateTime: dayjs(item?.DateTime).format("hh:mm A"),
       }));
       setData(data);
-    } else {
-      setData([]);
+      setTotalPages(syncActivities?.pagination.totalPages ?? 10);
+      setTotalItems(syncActivities?.pagination.totalItems ?? 10);
     }
   }, [syncActivities]);
 
@@ -139,7 +141,7 @@ const SettingTab = () => {
   // Filter definitions
   const filters: Filter[] = [
     {
-      key: "activity",
+      key: "Activity",
       label: "Activity",
       options: [
         { label: "SCHEDULED", value: "SCHEDULED" },
@@ -147,7 +149,7 @@ const SettingTab = () => {
       ],
     },
     {
-      key: "dateTime",
+      key: "DateTime",
       label: "Date & TIme",
       options: [
         { label: "6:00 PM", value: "6:00 PM" },
@@ -177,7 +179,7 @@ const SettingTab = () => {
       navigate({
         search: (prev) => ({
           ...prev,
-          pageSize: String(parsedSize),
+          limit: String(parsedSize),
           page: "1",
         }),
         replace: true,
@@ -189,7 +191,7 @@ const SettingTab = () => {
     navigate({
       search: (prev) => ({
         ...prev,
-        [`filter_${key}`]: value || undefined,
+        [key]: value || undefined,
         page: "1",
       }),
       replace: true,
@@ -250,8 +252,8 @@ const SettingTab = () => {
               pagination={{
                 currentPage,
                 pageSize,
-                totalPages: 10,
-                totalItems: 10,
+                totalPages,
+                totalItems,
               }}
               onPageChange={handlePageChange}
               onPageSizeChange={handlePageSizeChange}
