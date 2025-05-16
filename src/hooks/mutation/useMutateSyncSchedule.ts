@@ -18,7 +18,7 @@ export const useMutateSyncSchedule = () => {
     mutationFn: saveSyncDate,
     onSuccess: (data) => {
       queryClient.invalidateQueries({
-        queryKey: ["employees"],
+        queryKey: ["activities"],
       });
       console.log("Sync Schedule saved successfully:", data);
     },
