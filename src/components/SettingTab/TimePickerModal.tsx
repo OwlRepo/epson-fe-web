@@ -9,16 +9,24 @@ import {
 } from "../ui/dialog";
 import { ChevronDown, ChevronUp, Clock } from "lucide-react";
 import { Button } from "../ui/button";
+import Spinner from "../ui/spinner";
 
 interface TimePickerModalProps extends DialogProps {
+  value: string;
+  isLoading: boolean;
   onDone?: (value: string) => void;
   onClose?: () => void;
 }
 
-const TimePickerModal = (props: TimePickerModalProps) => {
-  const [hour, setHour] = useState(12);
-  const [minute, setMinute] = useState(0);
-  const [period, setPeriod] = useState("AM");
+const TimePickerModal = ({
+  isLoading = false,
+  ...props
+}: TimePickerModalProps) => {
+  const [hr, mm, AA] = props.value.split(/[: ]/);
+
+  const [hour, setHour] = useState(parseInt(hr) ?? 12);
+  const [minute, setMinute] = useState(parseInt(mm) ?? 0);
+  const [period, setPeriod] = useState(AA);
 
   const incrementHour = () => setHour((prev) => (prev === 12 ? 1 : prev + 1));
   const decrementHour = () => setHour((prev) => (prev === 1 ? 12 : prev - 1));
@@ -66,16 +74,24 @@ const TimePickerModal = (props: TimePickerModalProps) => {
           </div>
         </div>
         <DialogFooter>
-          <Button
-            onClick={() =>
-              props.onDone?.(
-                `${hour.toString().padStart(2, "0")} : ${minute.toString().padStart(2, "0")} ${period}`
-              )
-            }
-            className="w-full"
-          >
-            Done
-          </Button>
+          {!isLoading && (
+            <Button
+              onClick={() =>
+                props.onDone?.(
+                  `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")} ${period}`
+                )
+              }
+              className="w-full"
+            >
+              Done
+            </Button>
+          )}
+          {isLoading && (
+            <Button disabled className="w-full">
+              <Spinner size={15} color="white" containerClassName="w-6" />
+              Saving
+            </Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -7,10 +7,10 @@ interface EmployeeParams {
 
 const getSyncActivities = async (params: EmployeeParams) => {
   try {
-    const response = await api.get(`/api/employees?${params}`);
+    const response = await api.get(`/api/syncing/logs?${params}`);
     return response.data;
   } catch (error) {
-    console.error("Error fetching employee data:", error);
+    console.error("Error fetching synced data:", error);
     throw error;
   }
 };
