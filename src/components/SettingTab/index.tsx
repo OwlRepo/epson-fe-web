@@ -12,22 +12,20 @@ import TimePickerModal from "./TimePickerModal";
 import { useMutateSyncEmployees } from "@/hooks/mutation/useMutateSyncEmployees";
 import { toast } from "sonner";
 import useToastStyleTheme from "@/hooks/useToastStyleTheme";
+import { useGetSyncActivities } from "@/hooks/query/useGetSyncActivities";
+import { objToParams } from "@/utils/objToParams";
+import dayjs from "dayjs";
+import Spinner from "../ui/spinner";
+import { useMutateSyncSchedule } from "@/hooks/mutation/useMutateSyncSchedule";
+import { useGetSyncingSchedule } from "@/hooks/query/useGetSyncingSchedule";
 
 interface SyncActivity {
-  id: number;
-  activity: "SCHEDULED" | "MANUAL";
-  totalSyncTarget: number;
-  totalSynced: number;
-  dateTime: string;
+  ID: number;
+  Activity: "SCHEDULED" | "MANUAL";
+  TotalSyncTarget: number;
+  TotalSynced: number;
+  DateTime: string;
 }
-// Mock data for the example
-const MOCK_DATA: SyncActivity[] = Array.from({ length: 50 }, (_, i) => ({
-  id: i + 1,
-  activity: i % 2 === 0 ? "SCHEDULED" : "MANUAL",
-  totalSyncTarget: 2000 + i,
-  totalSynced: 1000 + i,
-  dateTime: `6:00 PM`,
-}));
 
 const SettingTab = () => {
   const search = useSearch({
@@ -37,9 +35,10 @@ const SettingTab = () => {
     from: "/attendance-monitoring/settings",
   });
 
-  const { errorStyle } = useToastStyleTheme();
-  const [isLoading, setIsLoading] = useState(false);
+  const { errorStyle, successStyle, infoStyle } = useToastStyleTheme();
   const [data, setData] = useState<SyncActivity[]>([]);
+  const [totalPages, setTotalPages] = useState(10);
+  const [totalItems, setTotalItems] = useState(10);
 
   const [syncTime, setSyncTime] = useState({
     am: "",
@@ -49,46 +48,100 @@ const SettingTab = () => {
   const [timeKey, setTimeKey] = useState<"am" | "pm">("am");
 
   const [open, setOpen] = useState(false);
-  const { mutate, isError } = useMutateSyncEmployees();
+  const { mutate, isError, isSuccess, isPending } = useMutateSyncEmployees();
+  const {
+    mutate: mutateSched,
+    isError: isErrorSched,
+    isSuccess: isSuccessSched,
+    isPending: isPendingSched,
+  } = useMutateSyncSchedule();
 
   // Get pagination values from URL params
   const currentPage = parseInt(search.page || "1");
   const pageSize = parseInt(search.pageSize || "10");
 
+  const { data: syncSched } = useGetSyncingSchedule();
+
+  useEffect(() => {
+    if (syncSched) {
+      setSyncTime({
+        am: syncSched[0]?.scheduleTime,
+        pm: syncSched[1]?.scheduleTime,
+      });
+    }
+  }, [syncSched]);
+
+  const { data: syncActivities, isLoading } = useGetSyncActivities(
+    objToParams(search) as any
+  );
   // Simulate data fetching
   useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setData(MOCK_DATA);
-      setIsLoading(false);
-    };
-
-    fetchData();
-  }, [currentPage, pageSize, search.filter_role, search.filter_status]);
+    if (Array.isArray(syncActivities?.data)) {
+      const data = syncActivities?.data?.map((item: SyncActivity) => ({
+        ...item,
+        DateTime: dayjs(item?.DateTime).format("hh:mm A"),
+      }));
+      setData(data);
+      setTotalPages(syncActivities?.pagination.totalPages ?? 10);
+      setTotalItems(syncActivities?.pagination.totalItems ?? 10);
+    }
+  }, [syncActivities]);
 
   useEffect(() => {
     if (isError) {
       toast.error("Error syncing employees", {
         description: "Please try again later.",
-        className: "bg-red-50 border-red-200 text-black",
         style: errorStyle,
       });
     }
-  }, [isError]);
+    if (isSuccess) {
+      toast.success("Success syncing employees", {
+        description: "Your Employee List  has been synced. You're all set!",
+        style: successStyle,
+      });
+    }
+    if (isPending) {
+      toast.info("Syncing employee list", {
+        description:
+          "Please Wait. Your Employee List is syncing. This will take time!",
+        style: infoStyle,
+      });
+    }
+  }, [isError, isSuccess, isPending]);
+
+  useEffect(() => {
+    if (isErrorSched) {
+      toast.error("Error saving syncing schedule", {
+        description: "Please try again later.",
+        style: errorStyle,
+      });
+    }
+    if (isSuccessSched) {
+      toast.success("Success saving syncing schedule", {
+        description: "Your syncing schedule  has been saved. You're all set!",
+        style: successStyle,
+      });
+      setOpen(false);
+    }
+    if (isPendingSched) {
+      toast.info("Saving syncing schedule", {
+        description: "Please Wait.",
+        style: infoStyle,
+      });
+    }
+  }, [isErrorSched, isSuccessSched, isPendingSched]);
 
   const columns: Column[] = [
-    { key: "activity", label: "Activity" },
-    { key: "totalSyncTarget", label: "Total Sync Target" },
-    { key: "totalSynced", label: "Total Synced" },
-    { key: "dateTime", label: "Date & Time" },
+    { key: "Activity", label: "Activity" },
+    { key: "TotalSyncTarget", label: "Total Sync Target" },
+    { key: "TotalSynced", label: "Total Synced" },
+    { key: "DateTime", label: "Date & Time" },
   ];
 
   // Filter definitions
   const filters: Filter[] = [
     {
-      key: "activity",
+      key: "Activity",
       label: "Activity",
       options: [
         { label: "SCHEDULED", value: "SCHEDULED" },
@@ -96,7 +149,7 @@ const SettingTab = () => {
       ],
     },
     {
-      key: "dateTime",
+      key: "DateTime",
       label: "Date & TIme",
       options: [
         { label: "6:00 PM", value: "6:00 PM" },
@@ -126,7 +179,7 @@ const SettingTab = () => {
       navigate({
         search: (prev) => ({
           ...prev,
-          pageSize: String(parsedSize),
+          limit: String(parsedSize),
           page: "1",
         }),
         replace: true,
@@ -138,31 +191,12 @@ const SettingTab = () => {
     navigate({
       search: (prev) => ({
         ...prev,
-        [`filter_${key}`]: value || undefined,
+        [key]: value || undefined,
         page: "1",
       }),
       replace: true,
     });
   };
-
-  // Filter data based on search params
-  const filterData = (data: SyncActivity[]) => {
-    return data.filter((item) => {
-      const matchesActivity =
-        !search.filter_activity || item.activity === search.filter_activity;
-      const matchesDateTime =
-        !search.filter_date_time || item.dateTime === search.filter_date_time;
-
-      return matchesActivity && matchesDateTime;
-    });
-  };
-
-  // Apply filtering and pagination
-  const filteredData = filterData(data);
-  const paginatedData = filteredData.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
-  );
 
   const handleOpenModal = (key: "am" | "pm") => {
     setOpen(true);
@@ -190,24 +224,36 @@ const SettingTab = () => {
           />
 
           <p className="mt-4 font-bold text-center">or</p>
-          <Button className="w-full mt-4" onClick={() => mutate()}>
-            Sync Now
-          </Button>
+          {!isPending && (
+            <Button className="w-full mt-4" onClick={() => mutate()}>
+              Sync Now
+            </Button>
+          )}
+          {isPending && (
+            <Button
+              className="w-full mt-4  gap-2"
+              onClick={() => mutate()}
+              disabled
+            >
+              <Spinner size={15} color="white" containerClassName="w-6" />
+              Syncing Now
+            </Button>
+          )}
         </div>
 
         {/* Second Column (Expands Fully) */}
         <div className="bg-white col-span-2 p-4 rounded-lg shadow-md overflow-hidden flex flex-col">
           <p className="font-extrabold">List of Activities</p>
-          <div className="flex-1 overflow-auto">
+          <div className="flex-1 overflow-auto mt-4">
             <DynamicTable
               columns={columns}
-              data={paginatedData}
+              data={data}
               filters={filters}
               pagination={{
                 currentPage,
                 pageSize,
-                totalPages: Math.ceil(filteredData.length / pageSize),
-                totalItems: filteredData.length,
+                totalPages,
+                totalItems,
               }}
               onPageChange={handlePageChange}
               onPageSizeChange={handlePageSizeChange}
@@ -217,14 +263,24 @@ const SettingTab = () => {
           </div>
         </div>
       </div>
-      <TimePickerModal
-        open={open}
-        onOpenChange={() => setOpen(false)}
-        onDone={(value) => {
-          setSyncTime((prev) => ({ ...prev, [timeKey]: value }));
-          setOpen(false);
-        }}
-      />
+      {open && (
+        <TimePickerModal
+          isLoading={isPendingSched}
+          value={syncTime[timeKey]}
+          open={open}
+          onOpenChange={() => setOpen(false)}
+          onDone={(value) => {
+            const id = timeKey === "am" ? "1" : "2";
+            setSyncTime((prev) => ({ ...prev, [timeKey]: value }));
+            mutateSched({
+              id,
+              payload: {
+                scheduleTime: value,
+              },
+            });
+          }}
+        />
+      )}
     </>
   );
 };

@@ -1,31 +1,29 @@
 import api from "@/config/axiosInstance";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-const syncEmployees = async () => {
+const saveSyncDate = async ({ id, payload }: { id?: string; payload: any }) => {
   try {
-    const response = await api.post("/api/syncing/manually", {
-      timeout: 120000,
-    });
+    const response = await api.put(`/api/syncing/schedule/${id}`, payload);
     return response.data;
   } catch (error) {
-    console.error("Error syncing employees:", error);
+    console.error("ESync Schedule:", error);
     throw error;
   }
 };
 
-export const useMutateSyncEmployees = () => {
+export const useMutateSyncSchedule = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: syncEmployees,
+    mutationFn: saveSyncDate,
     onSuccess: (data) => {
       queryClient.invalidateQueries({
         queryKey: ["employees"],
       });
-      console.log("Employee data synced successfully:", data);
+      console.log("Sync Schedule saved successfully:", data);
     },
     onError: (error) => {
-      console.error("Error syncing employee data:", error);
+      console.error("Error Sync Schedule:", error);
     },
   });
 };

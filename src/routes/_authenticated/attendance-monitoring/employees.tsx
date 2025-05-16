@@ -69,6 +69,8 @@ function RouteComponent() {
     from: "/attendance-monitoring/employees",
   });
   const [data, setData] = useState<EmployeeData[]>([]);
+  const [totalPages, setTotalPages] = useState(10);
+  const [totalItems, setTotalItems] = useState(10);
 
   const [isOpen, setIsOpen] = useState(false);
 
@@ -88,8 +90,8 @@ function RouteComponent() {
   } = useGetEmployees(objToParams(search) as any);
 
   useEffect(() => {
-    if (employeeList) {
-      const data = employeeList.map((item: EmployeeData) => ({
+    if (Array.isArray(employeeList?.data)) {
+      const data = employeeList.data.map((item: EmployeeData) => ({
         ...item,
         FullName: `${item.FirstName} ${item.LastName}`,
         AC: item.UHF ? (
@@ -99,6 +101,8 @@ function RouteComponent() {
         ),
       }));
       setData(data);
+      setTotalPages(employeeList.pagination.totalPages ?? 10);
+      setTotalItems(employeeList.pagination.totalItems ?? 10);
     }
   }, [employeeList]);
 
@@ -185,8 +189,8 @@ function RouteComponent() {
           pagination={{
             currentPage,
             pageSize,
-            totalPages: 10,
-            totalItems: 10,
+            totalPages,
+            totalItems,
           }}
           routeSearch={search}
           onSearch={handleSearch}

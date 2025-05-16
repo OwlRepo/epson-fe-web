@@ -5,9 +5,9 @@ interface EmployeeParams {
   params?: string | undefined;
 }
 
-const getEmployees = async (params: EmployeeParams) => {
+const getAttendanceReports = async (params: EmployeeParams) => {
   try {
-    const response = await api.get(`/api/employees/getAll?${params}`);
+    const response = await api.get(`/api/employees/reports?${params}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching employee data:", error);
@@ -15,9 +15,9 @@ const getEmployees = async (params: EmployeeParams) => {
   }
 };
 
-export const useGetEmployees = (params: EmployeeParams) =>
+export const useGetEmployeeReports = (params: EmployeeParams) =>
   useQuery({
-    queryKey: ["employees"],
-    queryFn: () => getEmployees(params),
+    queryKey: ["employee-reports"],
+    queryFn: () => getAttendanceReports(params),
     refetchOnWindowFocus: false,
   });

@@ -48,13 +48,13 @@ export default function EmpInfoDialog({
   isLoading,
   onOpenChange,
 }: EmpInfoDialogProps) {
-  const { infoStyle, errorStyle } = useToastStyleTheme();
+  const { infoStyle, errorStyle, successStyle } = useToastStyleTheme();
   const [isLinkingCard] = useState(false);
   const [deviceUHFValue, setDeviceUHFValue] = useState("");
   const [isUHFLinking, setIsUHFLinking] = useState(false);
   const { port, setPort } = usePortStore((store) => store);
 
-  const { mutate, isError, isPending } = useMutateEmployee();
+  const { mutate, isError, error, isSuccess, isPending } = useMutateEmployee();
 
   const hanldePortOpen = async () => {
     try {
@@ -70,7 +70,6 @@ export default function EmpInfoDialog({
     if (!port) return;
     toast.info("Almost here - Tap your card", {
       description: "Please tap your card on the reader.",
-      className: "bg-primary-50 border-primary-200 text-black",
       style: infoStyle,
     });
     try {
@@ -80,7 +79,7 @@ export default function EmpInfoDialog({
       if (validUserID.includes(data?.userID ?? "")) {
         setDeviceUHFValue(data?.epc ?? "");
         mutate({
-          employeeNo: employee?.EmployeeID,
+          employeeNo: employee?.EmployeeNo,
           payload: { UHF: data?.epc },
         });
       } else {
@@ -98,16 +97,23 @@ export default function EmpInfoDialog({
   };
 
   useEffect(() => {
-    console.log("isError", isError);
     if (isError) {
       toast.error("Oops! Card saving error!", {
-        description: "Please try again.",
+        description:
+          (error as any)?.response?.data?.message ??
+          "An unknown error occurred",
         className: "bg-red-50 border-red-200 text-black",
         style: errorStyle,
       });
       setDeviceUHFValue("");
     }
-  }, [isError]);
+    if (isSuccess) {
+      toast.success("RFID Card Linked Successfully!", {
+        description: "Your RFID card has been linked. You're all set!",
+        style: successStyle,
+      });
+    }
+  }, [isError, isSuccess]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
