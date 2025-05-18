@@ -19,6 +19,8 @@ export interface SummaryCountData {
 
 export interface LiveData {
     id: string
+    device_id: string
+    name: string
     employee_id: string
     full_name: string
     department: string
