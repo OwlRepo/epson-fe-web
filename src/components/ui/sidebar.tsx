@@ -64,7 +64,7 @@ const NavItem = ({
   // Add states for controlling submenu visibility and opacity
   const [showSubmenu, setShowSubmenu] = React.useState(false);
   const [isSubmenuVisible, setIsSubmenuVisible] = React.useState(false);
-  const closeTimeoutRef = React.useRef<number | undefined>(undefined);
+  const closeTimeoutRef = React.useRef<any | undefined>(undefined);
 
   // Check if current path matches this nav item or any of its subitems
   const isExactMatch = href === currentPath;
