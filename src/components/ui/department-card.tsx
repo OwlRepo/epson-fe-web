@@ -24,11 +24,11 @@ export function DepartmentCard({
       </div>
 
       <div className="flex justify-between">
-        {clockedIn && <div className="flex flex-col">
+        {clockedIn !== undefined && <div className="flex flex-col">
           <span className="text-2xl font-bold">{countShortener(clockedIn)}</span>
           <span className="text-xs text-gray-600">Clocked In</span>
         </div>}
-        {clockedOut && <div className="flex flex-col">
+        {clockedOut !== undefined && <div className="flex flex-col">
           <span className="text-2xl font-bold">{countShortener(clockedOut)}</span>
           <span className="text-xs text-gray-600">Clocked Out</span>
         </div>}
