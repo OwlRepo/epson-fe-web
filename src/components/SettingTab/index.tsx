@@ -48,6 +48,7 @@ const SettingTab = () => {
   const [timeKey, setTimeKey] = useState<"am" | "pm">("am");
 
   const [open, setOpen] = useState(false);
+
   const { mutate, isError, isSuccess, isPending } = useMutateSyncEmployees();
   const {
     mutate: mutateSched,
@@ -57,6 +58,9 @@ const SettingTab = () => {
   } = useMutateSyncSchedule();
 
   // Get pagination values from URL params
+  const [totalPages, setTotalPages] = useState(10);
+  const [totalItems, setTotalItems] = useState(10);
+
   const currentPage = parseInt(search.page || "1");
   const pageSize = parseInt(search.pageSize || "10");
 
@@ -71,9 +75,11 @@ const SettingTab = () => {
     }
   }, [syncSched]);
 
-  const { data: syncActivities, isLoading } = useGetSyncActivities(
-    objToParams(search) as any
-  );
+  const {
+    data: syncActivities,
+    isLoading,
+    refetch,
+  } = useGetSyncActivities(objToParams(search) as any);
   // Simulate data fetching
   useEffect(() => {
     if (Array.isArray(syncActivities?.data)) {
@@ -86,6 +92,10 @@ const SettingTab = () => {
       setTotalItems(syncActivities?.pagination?.totalItems ?? 10);
     }
   }, [syncActivities]);
+
+  useEffect(() => {
+    refetch();
+  }, [search]);
 
   useEffect(() => {
     if (isError) {

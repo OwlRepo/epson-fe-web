@@ -11,6 +11,8 @@ import useTableSelectionStore from "@/store/tableSelectionStore";
 
 import { useGetEmployeeReports } from "@/hooks/query/useGetAttendaceReports";
 import { objToParams } from "@/utils/objToParams";
+import { unparse } from "papaparse";
+import dayjs from "dayjs";
 
 export interface EmployeeReport {
   EmployeeNo: string;
@@ -50,7 +52,16 @@ function ReportsDataTable() {
 
   useEffect(() => {
     if (Array.isArray(reportList?.data)) {
-      setData(reportList.data);
+      const data = reportList?.data.map((item: EmployeeReport) => ({
+        ...item,
+        ClockedIN: item.ClockedIN
+          ? dayjs(item.ClockedIN).format("hh:mm:ss A")
+          : null,
+        ClockedOUT: item.ClockedOUT
+          ? dayjs(item.ClockedOUT).format("hh:mm:ss A")
+          : null,
+      }));
+      setData(data);
       setTotalPages(reportList?.pagination?.totalPages ?? 10);
       setTotalItems(reportList?.pagination?.totalItems ?? 10);
     }
@@ -65,6 +76,11 @@ function ReportsDataTable() {
 
   // Fix selection hooks - use useMemo to prevent re-renders
   const tableId = "report-table";
+
+  const selectedRows = useMemo(
+    () => useTableSelectionStore.getState().getSelectedRows(tableId),
+    [useTableSelectionStore((state) => state.selectedRows[tableId])]
+  );
 
   useMemo(
     () => useTableSelectionStore.getState().getSelectedRows(tableId),
@@ -83,8 +99,8 @@ function ReportsDataTable() {
     { key: "EmployeeNo", label: "ID" },
     { key: "Name", label: "Name" },
     { key: "Department", label: "Department" },
-    { key: "ClockedIn", label: "Clocked In" },
-    { key: "ClockedOut", label: "Clocked Out" },
+    { key: "ClockedIN", label: "Clocked In" },
+    { key: "ClockedOUT", label: "Clocked Out" },
   ];
 
   const filters = [
@@ -99,6 +115,20 @@ function ReportsDataTable() {
       ],
     },
   ];
+
+  const handleExport = (exportData: any) => {
+    const csv = unparse(exportData);
+
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", "report.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   // Handle selection changes
   const handleRowSelectionChange = (selected: any) => {
@@ -178,13 +208,13 @@ function ReportsDataTable() {
             {
               label: "Export Page",
               onClick: () => {
-                console.log("Export Page clicked");
+                handleExport(data);
               },
             },
             {
               label: "Export Selected Data",
               onClick: () => {
-                console.log("Export Selected Data clicked");
+                handleExport(selectedRows);
               },
             },
           ],

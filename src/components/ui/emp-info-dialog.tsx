@@ -79,7 +79,7 @@ export default function EmpInfoDialog({
       if (validUserID.includes(data?.userID ?? "")) {
         setDeviceUHFValue(data?.epc ?? "");
         mutate({
-          employeeNo: employee?.EmployeeNo,
+          employeeID: employee?.EmployeeID,
           payload: { UHF: data?.epc },
         });
       } else {
