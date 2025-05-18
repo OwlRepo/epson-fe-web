@@ -36,9 +36,9 @@ function RouteComponent() {
 
   //employee data
   const [isOpen, setIsOpen] = useState(false);
-  const [employeeNo, setEmployeeNo] = useState("");
+  const [employeeID, setEmployeeID] = useState("");
   const { data: employee, isLoading: isEmployeeLoading } =
-    useGetEmployeeByNo(employeeNo);
+    useGetEmployeeByNo(employeeID);
 
   // Add handler for page size changes
   const handlePageSizeChange = (newPageSize: number) => {
@@ -132,7 +132,7 @@ function RouteComponent() {
                 pageSize={Number(search.pageSize) || 10}
                 onPageSizeChange={handlePageSizeChange}
                 onRowClick={(row) => {
-                  setEmployeeNo(row.employee_id);
+                  setEmployeeID(row.employee_id);
                   setIsOpen(true);
                 }}
                 columns={[

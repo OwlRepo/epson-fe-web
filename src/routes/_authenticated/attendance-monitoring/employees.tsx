@@ -8,6 +8,7 @@ import {
 import EmpInfoDialog from "@/components/ui/emp-info-dialog";
 import { useGetEmployeeByNo } from "@/hooks/query/useGetEmployeeById";
 import { useGetEmployees } from "@/hooks/query/useGetEmployees";
+import { useGetSyncActivities } from "@/hooks/query/useGetSyncActivities";
 import { objToParams } from "@/utils/objToParams";
 import {
   createFileRoute,
@@ -24,7 +25,6 @@ export const Route = createFileRoute(
   component: RouteComponent,
 });
 
-const lastSyncDate = dayjs().format("MMMM D, YYYY");
 const tableId = "employee-table";
 
 export interface EmployeeData {
@@ -78,9 +78,9 @@ function RouteComponent() {
   const pageSize = parseInt(search.limit || "10");
 
   //employee data
-  const [employeeNo, setEmployeeNo] = useState("");
+  const [employeeID, setEmployeeID] = useState("");
   const { data: employee, isLoading: isEmployeeLoading } =
-    useGetEmployeeByNo(employeeNo);
+    useGetEmployeeByNo(employeeID);
 
   //employeeList
   const {
@@ -88,6 +88,11 @@ function RouteComponent() {
     isLoading: isEmployeeListLoading,
     refetch,
   } = useGetEmployees(objToParams(search) as any);
+
+  //last synced
+  const { data: lastSynced } = useGetSyncActivities({
+    params: "page=1&limit=1",
+  });
 
   useEffect(() => {
     if (Array.isArray(employeeList?.data)) {
@@ -178,7 +183,11 @@ function RouteComponent() {
         headerLeft={
           <CardHeaderLeft
             title="Employees"
-            subtitle={`Last Sync: ${lastSyncDate}`}
+            subtitle={`Last Sync: ${
+              lastSynced?.data[0]?.DateTime
+                ? dayjs(lastSynced?.data[0]?.DateTime).format("MMMM D, YYYY")
+                : ""
+            }`}
           />
         }
       >
@@ -200,7 +209,7 @@ function RouteComponent() {
           isLoading={isEmployeeListLoading}
           tableId={tableId}
           onRowClick={(row) => {
-            setEmployeeNo(row.EmployeeNo);
+            setEmployeeID(row.EmployeeID);
             setIsOpen(true);
           }}
         />
