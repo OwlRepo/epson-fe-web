@@ -82,11 +82,6 @@ function ReportsDataTable() {
     [useTableSelectionStore((state) => state.selectedRows[tableId])]
   );
 
-  useMemo(
-    () => useTableSelectionStore.getState().getSelectedRows(tableId),
-    [useTableSelectionStore((state) => state.selectedRows[tableId])]
-  );
-
   // Add a subscriber to force re-renders when selection changes
   useEffect(() => {
     return useTableSelectionStore.subscribe(
@@ -195,6 +190,7 @@ function ReportsDataTable() {
 
   return (
     <div>
+      {JSON.stringify(selectedRows)}
       {/* Render the table with multi-select enabled */}
       <DynamicTable
         columns={columns}
@@ -214,7 +210,7 @@ function ReportsDataTable() {
             {
               label: "Export Selected Data",
               onClick: () => {
-                handleExport(selectedRows);
+                handleExport(Object.values(selectedRows));
               },
             },
           ],
