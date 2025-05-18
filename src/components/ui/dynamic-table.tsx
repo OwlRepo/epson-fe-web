@@ -508,8 +508,8 @@ export function DynamicTable({
       filter.options || columnValues.map((value) => ({ label: value, value }));
     return searchTerm
       ? predefinedOptions.filter((option) =>
-          option.label.toLowerCase().includes(searchTerm.toLowerCase())
-        )
+        option.label.toLowerCase().includes(searchTerm.toLowerCase())
+      )
       : predefinedOptions;
   };
 
@@ -553,14 +553,14 @@ export function DynamicTable({
                       count + (getActiveFilters(key).length > 0 ? 1 : 0),
                     0
                   ) > 0 && (
-                    <span className="ml-1 rounded-full bg-primary text-primary-foreground px-1.5 text-xs">
-                      {Object.keys(filters).reduce(
-                        (count, key) =>
-                          count + (getActiveFilters(key).length > 0 ? 1 : 0),
-                        0
-                      )}
-                    </span>
-                  )}
+                      <span className="ml-1 rounded-full bg-primary text-primary-foreground px-1.5 text-xs">
+                        {Object.keys(filters).reduce(
+                          (count, key) =>
+                            count + (getActiveFilters(key).length > 0 ? 1 : 0),
+                          0
+                        )}
+                      </span>
+                    )}
                   <ChevronDown />
                 </Button>
               </SheetTrigger>
@@ -624,10 +624,10 @@ export function DynamicTable({
                                         <CalendarIcon className="mr-2 h-4 w-4" />
                                         {tempFilters[filter.key]?.[0]
                                           ? dayjs(
-                                              tempFilters[filter.key][0].split(
-                                                "T"
-                                              )[0]
-                                            ).format("MMM D, YYYY")
+                                            tempFilters[filter.key][0].split(
+                                              "T"
+                                            )[0]
+                                          ).format("MMM D, YYYY")
                                           : "Pick a date"}
                                       </Button>
                                     </PopoverTrigger>
@@ -638,10 +638,10 @@ export function DynamicTable({
                                           selected={
                                             tempFilters[filter.key]?.[0]
                                               ? new Date(
-                                                  tempFilters[
-                                                    filter.key
-                                                  ][0].split("T")[0]
-                                                )
+                                                tempFilters[
+                                                  filter.key
+                                                ][0].split("T")[0]
+                                              )
                                               : undefined
                                           }
                                           onSelect={(date) => {
@@ -713,16 +713,16 @@ export function DynamicTable({
                                           "T"
                                         )[1]
                                           ? dayjs(
-                                              `2000-01-01T${tempFilters[filter.key][0].split("T")[1]}`
-                                            ).format("hh:mm A")
+                                            `2000-01-01T${tempFilters[filter.key][0].split("T")[1]}`
+                                          ).format("hh:mm A")
                                           : "Select time"}
                                       </Button>
                                     )}
                                 </div>
                               ) : getFilteredOptions(
-                                  filter,
-                                  filterSearches[filter.key] || ""
-                                ).length > 0 ? (
+                                filter,
+                                filterSearches[filter.key] || ""
+                              ).length > 0 ? (
                                 getFilteredOptions(
                                   filter,
                                   filterSearches[filter.key] || ""
@@ -902,7 +902,7 @@ export function DynamicTable({
                     )}
                     {columns.map((column) => (
                       <TableCell key={`${rowIndex}-${column.key}`}>
-                        {row[column.key]}
+                        {row[column.key] ?? '-'}
                       </TableCell>
                     ))}
                   </TableRow>

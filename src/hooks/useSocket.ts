@@ -17,15 +17,23 @@ export interface SummaryCountData {
     inside?: number; // Optional, only for summary data
 }
 
-export interface LiveData extends SummaryData {
-    employee_id: string;
-    full_name: string;
-    department: string;
-    division: string;
-    section: string;
-    tag_id: string;
-    in: string;
-    out: string;
+export interface LiveData {
+    id: string
+    employee_id: string
+    full_name: string
+    department: string
+    division: string
+    section: string
+    epc: string
+    in: number
+    out: number
+    clocked_in?: string
+    clocked_out?: string
+    device_in: string
+    device_out: string
+    date_time: string
+    status_in: string
+    status_out: string
 }
 
 type DataType = 'summary' | 'live';

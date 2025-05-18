@@ -200,16 +200,16 @@ function RouteComponent() {
                     const {
                       employee_id,
                       department,
-                      in: clockedIn,
-                      out,
+                      clocked_in,
+                      clocked_out,
                       full_name,
                     } = employeeData;
                     return {
                       employee_id: employee_id,
                       department: department,
                       name: full_name,
-                      clocked_in: clockedIn,
-                      clocked_out: out,
+                      clocked_in: clocked_in,
+                      clocked_out: clocked_out,
                     };
                   })
                   .filter((item) => {
