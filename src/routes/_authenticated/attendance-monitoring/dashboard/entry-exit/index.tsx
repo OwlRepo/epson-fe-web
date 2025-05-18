@@ -26,8 +26,8 @@ function RouteComponent() {
                         <Link to={`/attendance-monitoring/dashboard/entry-exit/$deviceId`} params={{ deviceId: point.device_id }} key={point.name}>
                             <DepartmentCard
                                 title={point.name}
-                                clockedIn={point.in}
-                                clockedOut={point.out}
+                                clockedIn={point.controller_type === 'entry' ? point.in : undefined}
+                                clockedOut={point.controller_type === 'exit' ? point.out : undefined}
                             />
                         </Link>))
                         : <div className='flex flex-col items-center justify-center space-y-2 w-full col-span-4 p-10'><Spinner /><p>Loading...</p></div>

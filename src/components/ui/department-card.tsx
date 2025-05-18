@@ -3,8 +3,8 @@ import countShortener from "@/utils/count-shortener";
 
 interface DepartmentCardProps {
   title: string;
-  clockedIn: number | string;
-  clockedOut: number | string;
+  clockedIn: number | string | undefined;
+  clockedOut: number | string | undefined;
   className?: string;
   onClick?: () => void;
 }
