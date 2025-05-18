@@ -37,9 +37,6 @@ const SettingTab = () => {
 
   const { errorStyle, successStyle, infoStyle } = useToastStyleTheme();
   const [data, setData] = useState<SyncActivity[]>([]);
-  const [totalPages, setTotalPages] = useState(10);
-  const [totalItems, setTotalItems] = useState(10);
-
   const [syncTime, setSyncTime] = useState({
     am: "",
     pm: "",
