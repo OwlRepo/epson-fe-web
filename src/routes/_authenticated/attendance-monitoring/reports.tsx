@@ -190,7 +190,6 @@ function ReportsDataTable() {
 
   return (
     <div>
-      {JSON.stringify(selectedRows)}
       {/* Render the table with multi-select enabled */}
       <DynamicTable
         columns={columns}
