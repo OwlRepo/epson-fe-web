@@ -28,8 +28,9 @@ export interface LiveData {
     division: string
     section: string
     epc: string
-    in: number
-    out: number
+    in: string;
+    out: string;
+    tag_id: string
     clocked_in?: string
     clocked_out?: string
     device_in: string
