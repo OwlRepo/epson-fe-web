@@ -129,43 +129,32 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
             if (dataType === 'summary') {
                 // For summary data, update the matching item in array
                 setData((prevData) => {
-                    // Check if the item exists
-                    const isDevice = Object.keys(prevData[0]).includes('DeviceId');
-                    if (isDevice) {
-                        // Check if the item exists
-                        const exists = prevData.some(
-                            (item) => (item as DeviceData).DeviceId === (newData as DeviceData).DeviceId
-                        );
+                    const updateItem = (item: T) => {
+                        return { ...item, ...newData };
+                    };
 
-                        if (exists) {
-                            // Update existing item
-                            return prevData.map((item) => {
-                                if ((item as DeviceData).DeviceId === (newData as DeviceData).DeviceId) {
-                                    return { ...item, ...newData };
-                                }
-                                return item;
-                            });
-                        } else {
-                            // Add new item
-                            return [...prevData, newData as T];
-                        }
-                    }
-                    else {
-                        const exists = prevData.some(
-                            (item) => (item as SummaryData).name === (newData as SummaryData).name
-                        );
-                        if (exists) {
-                            // Update existing item
-                            return prevData.map((item) => {
-                                if ((item as SummaryData).name === (newData as SummaryData).name) {
-                                    return { ...item, ...newData };
-                                }
-                                return item;
-                            });
-                        } else {
-                            // Add new item
-                            return [...prevData, newData as T];
-                        }
+                    const addItem = () => {
+                        return [...prevData, newData as T];
+                    };
+
+                    if (Object.keys(prevData[0]).includes('DeviceId')) {
+                        const deviceId = (newData as DeviceData).DeviceId;
+                        const exists = prevData.some((item) => (item as DeviceData).DeviceId === deviceId);
+
+                        return exists
+                            ? prevData.map((item) =>
+                                (item as DeviceData).DeviceId === deviceId ? updateItem(item) : item
+                            )
+                            : addItem();
+                    } else {
+                        const itemName = (newData as SummaryData).name;
+                        const exists = prevData.some((item) => (item as SummaryData).name === itemName);
+
+                        return exists
+                            ? prevData.map((item) =>
+                                (item as SummaryData).name === itemName ? updateItem(item) : item
+                            )
+                            : addItem();
                     }
                 });
             } else if (dataType === 'live') {
