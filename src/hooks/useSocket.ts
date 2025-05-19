@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
 
 // Define types for our data
-export interface SummaryData {
+export interface SummaryData extends DeviceData {
     device_id: string;
     name: string;
     in: string; // Total Count
@@ -126,26 +126,46 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
         // Listen for updates
         socketInstance.on('data', (newData) => {
             console.log('New data received:', newData);
-            console.log('data', data)
             if (dataType === 'summary') {
                 // For summary data, update the matching item in array
                 setData((prevData) => {
                     // Check if the item exists
-                    const exists = prevData.some(
-                        (item) => (item as SummaryData).name === (newData as SummaryData).name
-                    );
+                    const isDevice = Object.keys(prevData[0]).includes('DeviceId');
+                    if (isDevice) {
+                        // Check if the item exists
+                        const exists = prevData.some(
+                            (item) => (item as DeviceData).DeviceId === (newData as DeviceData).DeviceId
+                        );
 
-                    if (exists) {
-                        // Update existing item
-                        return prevData.map((item) => {
-                            if ((item as SummaryData).name === (newData as SummaryData).name) {
-                                return { ...item, ...newData };
-                            }
-                            return item;
-                        });
-                    } else {
-                        // Add new item
-                        return [...prevData, newData as T];
+                        if (exists) {
+                            // Update existing item
+                            return prevData.map((item) => {
+                                if ((item as DeviceData).DeviceId === (newData as DeviceData).DeviceId) {
+                                    return { ...item, ...newData };
+                                }
+                                return item;
+                            });
+                        } else {
+                            // Add new item
+                            return [...prevData, newData as T];
+                        }
+                    }
+                    else {
+                        const exists = prevData.some(
+                            (item) => (item as SummaryData).name === (newData as SummaryData).name
+                        );
+                        if (exists) {
+                            // Update existing item
+                            return prevData.map((item) => {
+                                if ((item as SummaryData).name === (newData as SummaryData).name) {
+                                    return { ...item, ...newData };
+                                }
+                                return item;
+                            });
+                        } else {
+                            // Add new item
+                            return [...prevData, newData as T];
+                        }
                     }
                 });
             } else if (dataType === 'live') {
