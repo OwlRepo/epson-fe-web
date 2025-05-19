@@ -25,9 +25,9 @@ function RouteComponent() {
                     isConnected && !isLoading ? data.filter(d => d.DeviceName).map((point) => (
                         <Link to={`/attendance-monitoring/dashboard/entry-exit/$deviceId`} params={{ deviceId: point.DeviceId.toString() }} key={point.DeviceName}>
                             <DepartmentCard
-                                title={point.DeviceLabel}
-                                clockedIn={point.controller_type === 'entry' ? point.DeviceCount : undefined}
-                                clockedOut={point.controller_type === 'exit' ? point.DeviceCount : undefined}
+                                title={point.DeviceName}
+                                clockedIn={point.DeviceLabel === 'Clocked In' ? point.DeviceCount : undefined}
+                                clockedOut={point.DeviceLabel === 'Clocked Out' ? point.DeviceCount : undefined}
                             />
                         </Link>))
                         : <div className='flex flex-col items-center justify-center space-y-2 w-full col-span-4 p-10'><Spinner /><p>Loading...</p></div>

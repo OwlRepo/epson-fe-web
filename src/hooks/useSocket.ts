@@ -20,14 +20,13 @@ export interface SummaryCountData {
 export interface DeviceData {
     DeviceId: string | number
     DeviceName: string
-    DeviceLabel: string
+    DeviceLabel: "Clocked In" | "Clocked Out"
     DeviceCount: string | number
 }
 
 export interface LiveData extends DeviceData {
     id: string
     device_id: string
-    controller_type: "entry" | "exit"
     name: string
     employee_id: string
     full_name: string
