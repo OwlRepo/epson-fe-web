@@ -132,7 +132,7 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
                 setData((prevData) => {
                     // Check if the item exists
                     const exists = prevData.some(
-                        (item) => (item as SummaryData).name === (newData as SummaryData & DeviceData).name
+                        (item) => (item as SummaryData).name === (newData as SummaryData).name
                     );
 
                     if (exists) {

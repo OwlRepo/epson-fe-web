@@ -23,7 +23,7 @@ function RouteComponent() {
             <div className='grid grid-cols-1 md:grid-cols-4 gap-8'>
                 {
                     isConnected && !isLoading ? data.filter(d => d.DeviceName).map((point) => (
-                        <Link to={`/attendance-monitoring/dashboard/entry-exit/$deviceId`} params={{ deviceId: point.DeviceId.toString() }} key={point.DeviceName}>
+                        <Link to={`/attendance-monitoring/dashboard/entry-exit/$deviceId`} params={{ deviceId: point.DeviceId.toString() }} key={point.DeviceId.toString()}>
                             <DepartmentCard
                                 title={point.DeviceName}
                                 clockedIn={point.DeviceLabel === 'Clocked In' ? point.DeviceCount : undefined}
