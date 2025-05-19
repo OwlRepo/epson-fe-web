@@ -6,6 +6,7 @@ import {
   type Filter,
 } from "@/components/ui/dynamic-table";
 import EmpInfoDialog from "@/components/ui/emp-info-dialog";
+import { useGetDepartmentList } from "@/hooks/query/useGetDepartmentList";
 import { useGetEmployeeByNo } from "@/hooks/query/useGetEmployeeById";
 import { useGetEmployees } from "@/hooks/query/useGetEmployees";
 import { useGetSyncActivities } from "@/hooks/query/useGetSyncActivities";
@@ -94,6 +95,9 @@ function RouteComponent() {
     params: "page=1&limit=1",
   });
 
+  //deparment list
+  const { data: departments } = useGetDepartmentList();
+
   useEffect(() => {
     if (Array.isArray(employeeList?.data)) {
       const data = employeeList.data.map((item: EmployeeData) => ({
@@ -115,10 +119,7 @@ function RouteComponent() {
     {
       key: "Department",
       label: "Department",
-      options: [
-        { label: "GAD", value: "GAD" },
-        { label: "ACCOUNTING", value: "ACCOUNTING" },
-      ],
+      options: departments ?? [],
       singleSelect: true,
     },
   ];
