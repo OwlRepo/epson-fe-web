@@ -17,7 +17,14 @@ export interface SummaryCountData {
     inside?: number; // Optional, only for summary data
 }
 
-export interface LiveData {
+export interface DeviceData {
+    DeviceId: string | number
+    DeviceName: string
+    DeviceLabel: string
+    DeviceCount: string | number
+}
+
+export interface LiveData extends DeviceData {
     id: string
     device_id: string
     controller_type: "entry" | "exit"
