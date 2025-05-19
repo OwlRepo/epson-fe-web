@@ -130,13 +130,13 @@ function RouteComponent() {
               }
             ]}
             data={data.map(employeeData => {
-              const { employee_id, department, in: clockedIn, out, full_name } = employeeData;
+              const { employee_id, department, clocked_in, clocked_out, full_name } = employeeData;
               return {
                 employee_id: employee_id,
                 department: department,
                 name: full_name,
-                clocked_in: clockedIn,
-                clocked_out: out,
+                clocked_in: clocked_in ?? '-',
+                clocked_out: clocked_out ?? '-',
               };
             }).filter((item) => {
               const matchesDepartment =
@@ -147,7 +147,7 @@ function RouteComponent() {
                 !search.filter_name || item.name === search.filter_name;
 
               return matchesDepartment && matchesId && matchesName;
-            })}
+            }).reverse()}
             onFilter={handleFilter}
             onSearch={handleSearch}
             routeSearch={search}

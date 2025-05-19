@@ -126,13 +126,13 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
         // Listen for updates
         socketInstance.on('data', (newData) => {
             console.log('New data received:', newData);
-
+            console.log('data', data)
             if (dataType === 'summary') {
                 // For summary data, update the matching item in array
                 setData((prevData) => {
                     // Check if the item exists
                     const exists = prevData.some(
-                        (item) => (item as SummaryData).name === (newData as SummaryData).name
+                        (item) => (item as SummaryData).name === (newData as SummaryData & DeviceData).name
                     );
 
                     if (exists) {
