@@ -13,6 +13,7 @@ import { useGetEmployeeReports } from "@/hooks/query/useGetAttendaceReports";
 import { objToParams } from "@/utils/objToParams";
 import { unparse } from "papaparse";
 import dayjs from "dayjs";
+import { useGetDepartmentList } from "@/hooks/query/useGetDepartmentList";
 
 export interface EmployeeReport {
   EmployeeNo: string;
@@ -49,6 +50,9 @@ function ReportsDataTable() {
     isLoading,
     refetch,
   } = useGetEmployeeReports(objToParams(search) as any);
+
+  //deparment list
+  const { data: departments } = useGetDepartmentList();
 
   useEffect(() => {
     if (Array.isArray(reportList?.data)) {
@@ -102,12 +106,7 @@ function ReportsDataTable() {
     {
       key: "Department",
       label: "Department",
-      options: [
-        { label: "GAD", value: "GAD" },
-        { label: "HR", value: "HR" },
-        { label: "Engineering", value: "Engineering" },
-        { label: "Sales", value: "Sales" },
-      ],
+      options: departments ?? [],
     },
   ];
 
