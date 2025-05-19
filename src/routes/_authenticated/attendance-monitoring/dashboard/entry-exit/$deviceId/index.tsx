@@ -6,6 +6,7 @@ import { EpsonFlame } from '@/assets/svgs'
 import Spinner from '@/components/ui/spinner'
 import { LiveDataTable } from '@/components/ui/live-data-table'
 import CardHeaderRight from '@/components/ui/card-header-right'
+import useEntryExitStore from '@/store/useEntryExitStore'
 
 export const Route = createFileRoute(
   '/_authenticated/attendance-monitoring/dashboard/entry-exit/$deviceId/',
@@ -61,9 +62,11 @@ function RouteComponent() {
       replace: true,
     });
   };
-  return (
-    <CardSection headerLeft={<CardHeaderLeft title={<div className="flex items-center space-x-2"><EpsonFlame /><b className="text-[20px] text-primary">Live Data</b></div>} />} headerRight={<CardHeaderRight clockedOut={totalLogs?.out} clockedIn={totalLogs?.in} />}>
 
+  const { currentSelectedDeviceType } = useEntryExitStore()
+
+  return (
+    <CardSection headerLeft={<CardHeaderLeft title={<div className="flex items-center space-x-2"><EpsonFlame /><b className="text-[20px] text-primary">Live Data</b></div>} />} headerRight={<CardHeaderRight clockedOut={currentSelectedDeviceType === 'Clocked Out' ? totalLogs?.out : undefined} clockedIn={currentSelectedDeviceType === 'Clocked In' ? totalLogs?.in : undefined} />}>
       {
         isConnected && !isLoading ? <div className='flex'>
           <LiveDataTable
@@ -82,11 +85,10 @@ function RouteComponent() {
                 key: 'name',
                 label: 'NAME',
               },
-              {
+              currentSelectedDeviceType === 'Clocked In' ? {
                 key: 'clocked_in',
                 label: 'CLOCKED IN',
-              },
-              {
+              } : {
                 key: 'clocked_out',
                 label: 'CLOCKED OUT',
               }

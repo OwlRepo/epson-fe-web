@@ -14,10 +14,10 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
   const params = useParams({ from: '/_authenticated/attendance-monitoring/dashboard/divisions/$divisionId/' });
-  const { data, isLoading, isConnected } = useDepartmentData();
+  const { data, isLoading, isConnected, countData: totalLogs } = useDepartmentData();
 
   return (
-    <CardSection headerLeft={<CardHeaderLeft />} headerRight={<CardHeaderRight />}>
+    <CardSection headerLeft={<CardHeaderLeft />} headerRight={<CardHeaderRight clockedOut={totalLogs?.out} clockedIn={totalLogs?.in} />}>
       <h2 className='text-2xl font-bold my-5'>Departments</h2>
       <div className='grid grid-cols-1 md:grid-cols-4 gap-8'>
         {

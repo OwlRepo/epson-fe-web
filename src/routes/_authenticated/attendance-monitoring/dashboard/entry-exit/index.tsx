@@ -5,6 +5,8 @@ import { DepartmentCard } from '@/components/ui/department-card'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useEntryExitPointsData } from '@/hooks'
 import Spinner from '@/components/ui/spinner'
+import useEntryExitStore from '@/store/useEntryExitStore'
+import { useEffect } from 'react'
 export const Route = createFileRoute(
     "/_authenticated/attendance-monitoring/dashboard/entry-exit/"
 )({
@@ -17,13 +19,19 @@ function RouteComponent() {
         dataType: 'summary'
     });
 
+    const { setCurrentSelectedDeviceType } = useEntryExitStore()
+
+    useEffect(() => {
+        setCurrentSelectedDeviceType(null)
+    }, [])
+
     return (
         <CardSection headerLeft={<CardHeaderLeft />} headerRight={<CardHeaderRight clockedOut={totalLogs?.out} clockedIn={totalLogs?.in} />}>
             <h2 className='text-2xl font-bold my-5'>Entry & Exit Points</h2>
             <div className='grid grid-cols-1 md:grid-cols-4 gap-8'>
                 {
                     isConnected && !isLoading ? data.filter(d => d.DeviceName).map((point) => (
-                        <Link to={`/attendance-monitoring/dashboard/entry-exit/$deviceId`} params={{ deviceId: point.DeviceId.toString() }} key={point.DeviceId.toString()}>
+                        <Link to={`/attendance-monitoring/dashboard/entry-exit/$deviceId`} onClick={() => setCurrentSelectedDeviceType(point.DeviceLabel)} params={{ deviceId: point.DeviceId.toString() }} key={point.DeviceId.toString()}>
                             <DepartmentCard
                                 title={point.DeviceName}
                                 clockedIn={point.DeviceLabel === 'Clocked In' ? point.DeviceCount : undefined}
