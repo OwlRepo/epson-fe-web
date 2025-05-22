@@ -223,7 +223,7 @@ function RouteComponent() {
                       !search.filter_name || item.name === search.filter_name;
 
                     return matchesDepartment && matchesId && matchesName;
-                  })}
+                  }).reverse()}
                 onFilter={handleFilter}
                 onSearch={handleSearch}
                 routeSearch={search}
