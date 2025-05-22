@@ -19,18 +19,18 @@ import Spinner from "./spinner";
 import { toast } from "sonner";
 import useToastStyleTheme from "@/hooks/useToastStyleTheme";
 import { readRFIDData } from "@/utils/rfidReaderCommand";
-import { getUHFDeviceID, getUHFProductID, getValidUserID } from "@/utils/env";
+import { getValidUserID } from "@/utils/env";
 import type { EmployeeData } from "@/routes/_authenticated/attendance-monitoring/employees";
 import { useMutateEmployee } from "@/hooks/mutation/useMutateEmployee";
 import usePortStore from "@/store/usePortStore";
 
 //device filters
-const filters = [
-  {
-    usbVendorId: getUHFDeviceID(), // replace with your device's VID
-    usbProductId: getUHFProductID(), // replace with your device's PID
-  },
-];
+// const filters = [
+//   {
+//     usbVendorId: getUHFDeviceID(), // replace with your device's VID
+//     usbProductId: getUHFProductID(), // replace with your device's PID
+//   },
+// ];
 
 // Define the props for the component
 interface EmpInfoDialogProps {
@@ -58,8 +58,8 @@ export default function EmpInfoDialog({
 
   const hanldePortOpen = async () => {
     try {
-      const port = await navigator.serial.requestPort({ filters });
-      await port.open({ baudRate: 115200 });
+      const port = await navigator.serial.requestPort();
+      await port.open({ baudRate: 57600 });
       setPort(port);
     } catch (error) {
       console.log(error);
@@ -73,6 +73,7 @@ export default function EmpInfoDialog({
       style: infoStyle,
     });
     try {
+      console.log("card is linking");
       setIsUHFLinking(true);
       const data = await readRFIDData(port);
 

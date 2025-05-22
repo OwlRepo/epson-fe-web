@@ -22,6 +22,7 @@ declare module "axios" {
 export const api = axios.create({
   baseURL: getApiRESTBaseUrl(),
   headers: {
+    "ngrok-skip-browser-warning": "true",
     "Content-Type": "application/json",
     Accept: "application/json",
     "Access-Control-Allow-Origin": "*",

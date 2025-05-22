@@ -75,6 +75,9 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
 
         try {
             socketInstance = io(SOCKET_URL, {
+                extraHeaders: {
+                 'ngrok-skip-browser-warning': 'true'
+                 },
                 transports: ['websocket'],
                 reconnection: true,
                 reconnectionAttempts: 5,
