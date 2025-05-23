@@ -23,6 +23,7 @@ import { getValidUserID } from "@/utils/env";
 import type { EmployeeData } from "@/routes/_authenticated/attendance-monitoring/employees";
 import { useMutateEmployee } from "@/hooks/mutation/useMutateEmployee";
 import usePortStore from "@/store/usePortStore";
+import { useSocket } from "@/hooks";
 
 //device filters
 // const filters = [
@@ -55,6 +56,7 @@ export default function EmpInfoDialog({
   const { port, setPort } = usePortStore((store) => store);
 
   const { mutate, isError, error, isSuccess, isPending } = useMutateEmployee();
+  const { emitData } = useSocket({ room: "updates" });
 
   const handleLinkCard = async () => {
     try {
@@ -120,6 +122,7 @@ export default function EmpInfoDialog({
         description: "Your RFID card has been linked. You're all set!",
         style: successStyle,
       });
+      emitData("users");
     }
   }, [isError, isSuccess]);
 
