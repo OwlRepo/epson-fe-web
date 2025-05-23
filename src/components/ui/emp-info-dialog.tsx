@@ -200,8 +200,6 @@ const LinkCardInput = ({
   label,
   value,
   isLinking,
-  isDeviceConnected = true,
-  onClickConnect,
   onLinkCard,
 }: LinkCardInputProps) => {
   return (
