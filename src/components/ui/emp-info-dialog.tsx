@@ -56,18 +56,25 @@ export default function EmpInfoDialog({
 
   const { mutate, isError, error, isSuccess, isPending } = useMutateEmployee();
 
-  const hanldePortOpen = async () => {
+  const handleLinkCard = async () => {
     try {
-      const port = await navigator.serial.requestPort();
-      await port.open({ baudRate: 57600 });
-      setPort(port);
+      let portToUse = port;
+
+      if (!portToUse) {
+        const newPort = await navigator.serial.requestPort();
+        await newPort.open({ baudRate: 57600 });
+        setPort(newPort);
+        portToUse = newPort;
+      }
+
+      await linkCard(portToUse);
     } catch (error) {
-      console.log(error);
+      console.error("Failed to link card:", error);
     }
   };
 
-  const handleLinkCard = async () => {
-    if (!port) return;
+  const linkCard = async (newPort: any) => {
+    if (!newPort) return;
     toast.info("Almost here - Tap your card", {
       description: "Please tap your card on the reader.",
       style: infoStyle,
@@ -75,7 +82,7 @@ export default function EmpInfoDialog({
     try {
       console.log("card is linking");
       setIsUHFLinking(true);
-      const data = await readRFIDData(port);
+      const data = await readRFIDData(newPort);
 
       if (validUserID.includes(data?.userID ?? "")) {
         setDeviceUHFValue(data?.epc ?? "");
@@ -160,7 +167,6 @@ export default function EmpInfoDialog({
                   isLinking={isUHFLinking || isPending}
                   isDeviceConnected={!!port}
                   onLinkCard={handleLinkCard}
-                  onClickConnect={hanldePortOpen}
                 />
                 <LinkCardInput
                   label="MIFARE Card"
@@ -202,7 +208,7 @@ const LinkCardInput = ({
     <div className="flex items-center gap-4">
       <div className="flex-grow">
         <label htmlFor="rfidCard" className="text-xs text-gray-500 mb-1 block">
-          {label}
+          {label} {value && !isLinking && "Linked"}
         </label>
         <Input
           id="rfidCard"
@@ -214,14 +220,14 @@ const LinkCardInput = ({
       </div>
       {value && !isLinking && (
         <Button
-          disabled
+          onClick={onLinkCard}
           className="bg-green-500 text-white px-4 py-2 rounded text-sm font-semibold self-end w-32"
         >
           <CheckCircle className="h-4 w-4 mr-1 inline-block" />
-          Card Linked
+          Replace
         </Button>
       )}
-      {!value && !isLinking && isDeviceConnected && (
+      {!value && !isLinking && (
         <Button
           onClick={onLinkCard}
           className=" text-white px-4 py-2 rounded text-sm font-semibold self-end w-32"
@@ -233,14 +239,6 @@ const LinkCardInput = ({
         <Button className=" text-white px-4 py-2 rounded text-sm font-semibold self-end w-32">
           <Spinner size={15} color="white" />
           Reading
-        </Button>
-      )}
-      {!isDeviceConnected && !value && (
-        <Button
-          onClick={onClickConnect}
-          className=" text-white px-4 py-2 rounded text-sm font-semibold self-end w-32"
-        >
-          Connect Device
         </Button>
       )}
     </div>
