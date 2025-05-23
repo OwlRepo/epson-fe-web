@@ -246,9 +246,13 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
   }, []);
 
   //emit
-  const emitData = useCallback((payload: any) => {
-    socket?.emit(room, payload);
-  }, []);
+  const emitData = useCallback(
+    (payload: any) => {
+      if (!socket) return;
+      socket.emit(room, payload);
+    },
+    [socket]
+  );
 
   return {
     data,
