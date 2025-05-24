@@ -2,7 +2,7 @@ import { EpsonLogoWhite } from "@/assets/svgs";
 import { Header } from "@/components/ui/header";
 import { Sidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Star } from "lucide-react";
+import { FileText, LayoutDashboard, Star } from "lucide-react";
 import * as React from "react";
 
 interface VisitorManagementLayoutProps {
@@ -59,6 +59,11 @@ export function VisitorManagementLayout({
           href: "/visitor-management/vip/register-vip",
         },
       ],
+    },
+    {
+      icon: <FileText />,
+      label: "Reports",
+      href: "/visitor-management/reports",
     },
   ];
 
