@@ -126,7 +126,7 @@ function RouteComponent() {
             />
           }
         >
-          {isLiveDataConnected && !isLiveDataLoading ? (
+          {!isLiveDataConnected && isLiveDataLoading ? (
             <div className="flex">
               <LiveDataTable
                 pageSize={Number(search.pageSize) || 10}
@@ -141,12 +141,12 @@ function RouteComponent() {
                     label: "ID",
                   },
                   {
-                    key: "department",
-                    label: "DEPARTMENT",
+                    key: "section",
+                    label: "Section",
                   },
                   {
                     key: "name",
-                    label: "NAME",
+                    label: "Name",
                   },
                   {
                     key: "clocked_in",
@@ -169,10 +169,10 @@ function RouteComponent() {
                     })),
                   },
                   {
-                    key: "department",
-                    label: "Department",
+                    key: "section",
+                    label: "Section",
                     options: Array.from(
-                      new Set(liveData.map((item) => item.department))
+                      new Set(liveData.map((item) => item.section))
                     ).map((item) => ({
                       label: item,
                       value: item,
@@ -213,30 +213,30 @@ function RouteComponent() {
                   .map((employeeData) => {
                     const {
                       employee_id,
-                      department,
+                      section,
                       clocked_in,
                       clocked_out,
                       full_name,
                     } = employeeData;
                     return {
                       employee_id: employee_id,
-                      department: department,
+                      section: section,
                       name: full_name,
                       clocked_in: clocked_in,
                       clocked_out: clocked_out,
                     };
                   })
                   .filter((item) => {
-                    const matchesDepartment =
-                      !search.filter_department ||
-                      item.department === search.filter_department;
+                    const matchesSection =
+                      !search.filter_section ||
+                      item.section === search.filter_section;
                     const matchesId =
                       !search.filter_employee_id ||
                       item.employee_id === search.filter_employee_id;
                     const matchesName =
                       !search.filter_name || item.name === search.filter_name;
 
-                    return matchesDepartment && matchesId && matchesName;
+                    return matchesSection && matchesId && matchesName;
                   })
                   .reverse()}
                 onFilter={handleFilter}
