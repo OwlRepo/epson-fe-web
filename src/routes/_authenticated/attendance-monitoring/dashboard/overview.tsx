@@ -19,6 +19,7 @@ import {
   useSearch,
 } from "@tanstack/react-router";
 import { useState } from "react";
+import matchesFilter from "@/utils/matchesFilter";
 
 export const Route = createFileRoute(
   "/_authenticated/attendance-monitoring/dashboard/overview"
@@ -227,20 +228,26 @@ function RouteComponent() {
                     };
                   })
                   .filter((item) => {
-                    const matchesSection =
-                      !search.filter_section ||
-                      item.section === search.filter_section;
-                    const matchesId =
-                      !search.filter_employee_id ||
-                      item.employee_id === search.filter_employee_id;
-                    const matchesName =
-                      !search.filter_name || item.name === search.filter_name;
-                    const matchesTimeIn =
-                      !search.filter_clocked_in ||
-                      item.clocked_in === search.filter_clocked_in;
-                    const matchesTimeOut =
-                      !search.filter_clocked_out ||
-                      item.clocked_out === search.filter_clocked_out;
+                    const matchesSection = matchesFilter(
+                      item.section ?? "",
+                      search.filter_section
+                    );
+                    const matchesId = matchesFilter(
+                      item.employee_id ?? "",
+                      search.filter_employee_id
+                    );
+                    const matchesName = matchesFilter(
+                      item.name ?? "",
+                      search.filter_name
+                    );
+                    const matchesTimeIn = matchesFilter(
+                      item.clocked_in ?? "",
+                      search.filter_clocked_in
+                    );
+                    const matchesTimeOut = matchesFilter(
+                      item.clocked_out ?? "",
+                      search.filter_clocked_out
+                    );
 
                     return (
                       matchesSection &&
