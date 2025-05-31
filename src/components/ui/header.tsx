@@ -31,7 +31,13 @@ export function Header({ userProfile, className }: HeaderProps) {
           {/* Page title and breadcrumbs */}
           <div className="space-y-1">
             <h1 className="text-[2rem] font-bold text-[#1a2b4b] capitalize">
-              {pageTitle}
+              {pageTitle
+                .split("_")
+                .join(" ")
+                .replace(/-/g, " ")
+                .replace(/%20/g, " ")
+                .split("%2")
+                .join(" ")}
             </h1>
             <Breadcrumbs />
           </div>
