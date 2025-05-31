@@ -208,8 +208,20 @@ function RouteComponent() {
                   item.employee_id === search.filter_employee_id;
                 const matchesName =
                   !search.filter_name || item.name === search.filter_name;
+                const matchesTimeIn =
+                  !search.filter_clocked_in ||
+                  item.clocked_in === search.filter_clocked_in;
+                const matchesTimeOut =
+                  !search.filter_clocked_out ||
+                  item.clocked_out === search.filter_clocked_out;
 
-                return matchesSection && matchesId && matchesName;
+                return (
+                  matchesSection &&
+                  matchesId &&
+                  matchesName &&
+                  matchesTimeIn &&
+                  matchesTimeOut
+                );
               })
               .reverse()}
             onFilter={handleFilter}
