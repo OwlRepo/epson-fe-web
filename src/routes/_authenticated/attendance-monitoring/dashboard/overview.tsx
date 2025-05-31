@@ -100,7 +100,7 @@ function RouteComponent() {
             <AttendanceCountCard
               count={countData?.in ? parseInt(countShortener(countData.in)) : 0}
               icon={<ClockedInIcon />}
-              subtitle="Clocked in"
+              subtitle="Time in"
               variant="success"
             />
             <AttendanceCountCard
@@ -108,7 +108,7 @@ function RouteComponent() {
                 countData?.out ? parseInt(countShortener(countData.out)) : 0
               }
               icon={<ClockedOutIcon />}
-              subtitle="Clocked out"
+              subtitle="Time out"
               variant="error"
             />
           </div>
@@ -150,49 +150,63 @@ function RouteComponent() {
                   },
                   {
                     key: "clocked_in",
-                    label: "CLOCKED IN",
+                    label: "Time In",
                   },
                   {
                     key: "clocked_out",
-                    label: "CLOCKED OUT",
+                    label: "Time Out",
                   },
                 ]}
                 filters={[
                   {
                     key: "employee_id",
                     label: "ID",
-                    options: [
-                      { label: "All", value: "" },
-                      ...liveData.map((item) => ({
-                        label: item.employee_id,
-                        value: item.employee_id,
-                      })),
-                    ],
+                    options: Array.from(
+                      new Set(liveData.map((item) => item.employee_id))
+                    ).map((item) => ({
+                      label: item,
+                      value: item,
+                    })),
                   },
                   {
                     key: "department",
                     label: "Department",
-                    options: [
-                      ...liveData.map((item) => ({
-                        label: item.department,
-                        value: item.department,
-                      })),
-                    ],
+                    options: Array.from(
+                      new Set(liveData.map((item) => item.department))
+                    ).map((item) => ({
+                      label: item,
+                      value: item,
+                    })),
                   },
                   {
                     key: "name",
                     label: "Name",
-                    options: [
-                      ...liveData.map((item) => ({
-                        label: item.full_name,
-                        value: item.full_name,
-                      })),
-                    ],
+                    options: Array.from(
+                      new Set(liveData.map((item) => item.full_name))
+                    ).map((item) => ({
+                      label: item,
+                      value: item,
+                    })),
                   },
                   {
-                    key: "dateTime",
-                    label: "Date & Time",
-                    isDateTimePicker: true,
+                    key: "clocked_in",
+                    label: "Time In",
+                    options: Array.from(
+                      new Set(liveData.map((item) => item.clocked_in ?? "-"))
+                    ).map((item) => ({
+                      label: item,
+                      value: item,
+                    })),
+                  },
+                  {
+                    key: "clocked_out",
+                    label: "Time Out",
+                    options: Array.from(
+                      new Set(liveData.map((item) => item.clocked_out ?? "-"))
+                    ).map((item) => ({
+                      label: item,
+                      value: item,
+                    })),
                   },
                 ]}
                 data={liveData
@@ -223,7 +237,8 @@ function RouteComponent() {
                       !search.filter_name || item.name === search.filter_name;
 
                     return matchesDepartment && matchesId && matchesName;
-                  }).reverse()}
+                  })
+                  .reverse()}
                 onFilter={handleFilter}
                 onSearch={handleSearch}
                 routeSearch={search}
