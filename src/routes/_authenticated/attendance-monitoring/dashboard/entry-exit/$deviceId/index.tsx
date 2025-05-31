@@ -102,7 +102,7 @@ function RouteComponent() {
         />
       }
     >
-      {!isConnected && isLoading ? (
+      {isConnected && !isLoading ? (
         <div className="flex">
           <LiveDataTable
             pageSize={Number(search.pageSize) || 10}
