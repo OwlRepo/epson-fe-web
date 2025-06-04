@@ -12,3 +12,6 @@ export { default as ClockedInIcon } from "./clocked-in-icon.svg?react";
 export { default as ClockedOutIcon } from "./clocked-out-icon.svg?react";
 export { default as InPremisesIcon } from "./in-premises-icon.svg?react";
 export { default as EpsonFlame } from "./epson-flame.svg?react";
+export { default as EvacuatedIcon } from "./evacuated_icon.svg?react";
+export { default as InPremisesEvsIcon } from "./in-premises-evs-icon.svg?react";
+export { default as EpsonEvsFlame } from "./epson-evs-flame.svg?react";
