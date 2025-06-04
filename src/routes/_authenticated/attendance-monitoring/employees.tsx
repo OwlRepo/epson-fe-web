@@ -51,6 +51,8 @@ export interface EmployeeData {
   SectionName?: string;
   FullName?: string;
   AC?: React.ReactNode;
+  MIFARE?: string;
+  EM?: string;
 }
 
 // Column definitions

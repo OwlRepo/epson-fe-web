@@ -7,7 +7,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, UserX } from "lucide-react"; // Import UserX icon
-import { useEffect, useState } from "react";
+import {
+  forwardRef,
+  useEffect,
+  useRef,
+  useState,
+  type ForwardedRef,
+} from "react";
 
 // Extend the Navigator type to include the serial property
 declare global {
@@ -50,13 +56,20 @@ export default function EmpInfoDialog({
   onOpenChange,
 }: EmpInfoDialogProps) {
   const { infoStyle, errorStyle, successStyle } = useToastStyleTheme();
-  const [isLinkingCard] = useState(false);
+
   const [deviceUHFValue, setDeviceUHFValue] = useState("");
+  const [deviceMIFAREValue, setDeviceMIFAREValue] = useState("");
+  const [deviceEMValue, setDeviceEMValue] = useState("");
   const [isUHFLinking, setIsUHFLinking] = useState(false);
+  const [isMIFARELinking, setIsMIFARELinking] = useState(false);
+  const [isEMLinking, setIsEMLinking] = useState(false);
   const { port, setPort } = usePortStore((store) => store);
 
   const { mutate, isError, error, isSuccess, isPending } = useMutateEmployee();
   const { emitData } = useSocket({ room: "updates" });
+
+  const mifareRef = useRef<HTMLInputElement>(null);
+  const emRef = useRef<HTMLInputElement>(null);
 
   const handleLinkCard = async () => {
     try {
@@ -126,6 +139,44 @@ export default function EmpInfoDialog({
     }
   }, [isError, isSuccess]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+
+    let buffer = "";
+    let timeout: ReturnType<typeof setTimeout>;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (isMIFARELinking || isEMLinking) {
+        clearTimeout(timeout);
+
+        if (e.key === "Enter") {
+          isEMLinking ? setDeviceEMValue(buffer) : setDeviceMIFAREValue(buffer);
+          mutate({
+            employeeID: employee?.EmployeeID,
+            payload: { [isEMLinking ? "EM" : "MIFARE"]: buffer },
+          });
+          setIsMIFARELinking(false);
+          setIsEMLinking(false);
+          buffer = "";
+        } else {
+          buffer += e.key;
+
+          timeout = setTimeout(() => {
+            setDeviceMIFAREValue(buffer);
+            setIsMIFARELinking(false);
+            setIsEMLinking(false);
+            buffer = "";
+          }, 500);
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen, isMIFARELinking, isEMLinking]);
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] p-8 bg-white rounded-lg shadow-xl">
@@ -172,14 +223,24 @@ export default function EmpInfoDialog({
                   onLinkCard={handleLinkCard}
                 />
                 <LinkCardInput
+                  ref={mifareRef}
                   label="MIFARE Card"
-                  value={""}
-                  isLinking={isLinkingCard}
+                  value={employee.MIFARE || deviceMIFAREValue}
+                  onLinkCard={() => {
+                    setIsMIFARELinking(true);
+                    mifareRef.current?.focus();
+                  }}
+                  isLinking={isMIFARELinking}
                 />
                 <LinkCardInput
+                  ref={emRef}
                   label="EM Card"
-                  value={""}
-                  isLinking={isLinkingCard}
+                  value={employee.EM || deviceEMValue}
+                  isLinking={isEMLinking}
+                  onLinkCard={() => {
+                    setIsEMLinking(true);
+                    emRef.current?.focus();
+                  }}
                 />
               </div>
             </div>
@@ -199,49 +260,50 @@ interface LinkCardInputProps {
   onClickConnect?: () => void;
 }
 
-const LinkCardInput = ({
-  label,
-  value,
-  isLinking,
-  onLinkCard,
-}: LinkCardInputProps) => {
-  return (
-    <div className="flex items-center gap-4">
-      <div className="flex-grow">
-        <label htmlFor="rfidCard" className="text-xs text-gray-500 mb-1 block">
-          {label} {value && !isLinking && "Linked"}
-        </label>
-        <Input
-          id="rfidCard"
-          type="text"
-          value={value}
-          readOnly
-          className="bg-gray-100 border-gray-300 rounded"
-        />
+const LinkCardInput = forwardRef(
+  ({ label, value, isLinking, onLinkCard }: LinkCardInputProps, ref) => {
+    return (
+      <div className="flex items-center gap-4">
+        <div className="flex-grow">
+          <label
+            htmlFor="rfidCard"
+            className="text-xs text-gray-500 mb-1 block"
+          >
+            {label} {value && !isLinking && "Linked"}
+          </label>
+          <Input
+            ref={ref as ForwardedRef<HTMLInputElement>}
+            id="rfidCard"
+            type="text"
+            value={value}
+            readOnly
+            className="bg-gray-100 border-gray-300 rounded"
+          />
+        </div>
+        {value && !isLinking && (
+          <Button
+            onClick={onLinkCard}
+            className="bg-green-500 text-white px-4 py-2 rounded text-sm font-semibold self-end w-32"
+          >
+            <CheckCircle className="h-4 w-4 mr-1 inline-block" />
+            Replace
+          </Button>
+        )}
+        {!value && !isLinking && (
+          <Button
+            onClick={onLinkCard}
+            className=" text-white px-4 py-2 rounded text-sm font-semibold self-end w-32"
+          >
+            Link a Card
+          </Button>
+        )}
+        {isLinking && (
+          <Button className=" text-white px-4 py-2 rounded text-sm font-semibold self-end w-32">
+            <Spinner size={15} color="white" />
+            Reading
+          </Button>
+        )}
       </div>
-      {value && !isLinking && (
-        <Button
-          onClick={onLinkCard}
-          className="bg-green-500 text-white px-4 py-2 rounded text-sm font-semibold self-end w-32"
-        >
-          <CheckCircle className="h-4 w-4 mr-1 inline-block" />
-          Replace
-        </Button>
-      )}
-      {!value && !isLinking && (
-        <Button
-          onClick={onLinkCard}
-          className=" text-white px-4 py-2 rounded text-sm font-semibold self-end w-32"
-        >
-          Link a Card
-        </Button>
-      )}
-      {isLinking && (
-        <Button className=" text-white px-4 py-2 rounded text-sm font-semibold self-end w-32">
-          <Spinner size={15} color="white" />
-          Reading
-        </Button>
-      )}
-    </div>
-  );
-};
+    );
+  }
+);
