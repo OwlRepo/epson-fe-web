@@ -91,12 +91,12 @@ function RouteComponent() {
                   : 0
               }
               icon={<InPremisesIcon />}
-              subtitle="Inside premises"
+              subtitle="Registered Visitors"
             />
             <AttendanceCountCard
               count={countData?.in ? parseInt(countShortener(countData.in)) : 0}
               icon={<ClockedInIcon />}
-              subtitle="Clocked in"
+              subtitle="Active Visitors"
               variant="success"
             />
             <AttendanceCountCard
@@ -104,7 +104,7 @@ function RouteComponent() {
                 countData?.out ? parseInt(countShortener(countData.out)) : 0
               }
               icon={<ClockedOutIcon />}
-              subtitle="Clocked out"
+              subtitle="Inactive Visitors"
               variant="error"
             />
           </div>
