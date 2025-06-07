@@ -10,8 +10,9 @@ export const Route = createFileRoute(
 function RouteComponent() {
   return (
     <BasicInfromationForm
+      isDialog
       type="register-vip"
-      onCheckIn={(data) => {
+      onSubmitData={(data) => {
         console.log(data);
       }}
     />

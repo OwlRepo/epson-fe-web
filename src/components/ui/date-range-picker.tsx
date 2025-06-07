@@ -14,18 +14,26 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
+interface Range {
+  from: Date; // Start date of the range
+  to?: Date; // Optional end date of the range
+}
 interface DatePickerWithRangeProps
   extends Omit<React.HTMLAttributes<HTMLDivElement>, "onSelect"> {
   onSelect?: (date: DateRange | undefined) => void;
+  value?: Range | undefined;
+  readOnly?: boolean;
 }
 
 export function DatePickerWithRange({
   className,
   onSelect,
+  value,
+  readOnly,
 }: DatePickerWithRangeProps) {
   const [date, setDate] = React.useState<DateRange | undefined>({
-    from: new Date(2022, 0, 20),
-    to: addDays(new Date(2022, 0, 20), 20),
+    from: value?.from || new Date(),
+    to: value?.to || addDays(new Date(), 20),
   });
 
   const handleSelect = (selectedDate: DateRange | undefined) => {
@@ -34,6 +42,10 @@ export function DatePickerWithRange({
       onSelect(selectedDate);
     }
   };
+
+  React.useEffect(() => {
+    setDate(value);
+  }, [value]);
 
   return (
     <div className={cn("grid gap-2", className)}>
@@ -46,6 +58,7 @@ export function DatePickerWithRange({
               "w-[full] h-[44px] justify-start text-left font-normal",
               !date && "text-muted-foreground"
             )}
+            disabled={readOnly}
           >
             <CalendarIcon />
             {date?.from ? (

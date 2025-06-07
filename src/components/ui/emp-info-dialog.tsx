@@ -252,19 +252,19 @@ export default function EmpInfoDialog({
 }
 
 interface LinkCardInputProps {
-  value: string;
+  value?: string;
   isLinking: boolean;
   isDeviceConnected?: boolean;
-  label: string;
+  label?: string;
   onLinkCard?: () => void;
   onClickConnect?: () => void;
 }
 
-const LinkCardInput = forwardRef(
+export const LinkCardInput = forwardRef(
   ({ label, value, isLinking, onLinkCard }: LinkCardInputProps, ref) => {
     return (
-      <div className="flex items-center gap-4">
-        <div className="flex-grow">
+      <div className="flex items-center gap-4 w-full">
+        <div className="flex-grow w-full">
           <label
             htmlFor="rfidCard"
             className="text-xs text-gray-500 mb-1 block"
@@ -277,7 +277,7 @@ const LinkCardInput = forwardRef(
             type="text"
             value={value}
             readOnly
-            className="bg-gray-100 border-gray-300 rounded"
+            className="bg-gray-100 border-gray-300 rounded w-full"
           />
         </div>
         {value && !isLinking && (

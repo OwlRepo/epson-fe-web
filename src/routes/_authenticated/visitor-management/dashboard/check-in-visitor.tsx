@@ -11,7 +11,7 @@ function RouteComponent() {
   return (
     <BasicInfromationForm
       type="check-in"
-      onCheckIn={(data) => {
+      onSubmitData={(data) => {
         console.log(data);
       }}
     />
