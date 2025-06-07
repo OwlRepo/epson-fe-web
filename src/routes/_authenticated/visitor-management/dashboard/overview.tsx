@@ -161,32 +161,32 @@ function RouteComponent() {
                   {
                     key: "employee_id",
                     label: "ID",
-                    options: [
-                      ...liveData.map((item) => ({
-                        label: item.employee_id,
-                        value: item.employee_id,
-                      })),
-                    ],
+                    options: Array.from(
+                      new Set(liveData.map((item) => item.ID))
+                    ).map((item) => ({
+                      label: item,
+                      value: item,
+                    })),
                   },
                   {
                     key: "Name",
                     label: "Name",
-                    options: [
-                      ...liveData.map((item) => ({
-                        label: item.Name,
-                        value: item.Name,
-                      })),
-                    ],
+                    options: Array.from(
+                      new Set(liveData.map((item) => item.Name))
+                    ).map((item) => ({
+                      label: item,
+                      value: item,
+                    })),
                   },
                   {
                     key: "Purpose",
                     label: "Purpose",
-                    options: [
-                      ...liveData.map((item) => ({
-                        label: item.Purpose,
-                        value: item.Purpose,
-                      })),
-                    ],
+                    options: Array.from(
+                      new Set(liveData.map((item) => item.Purpose))
+                    ).map((item) => ({
+                      label: item,
+                      value: item,
+                    })),
                   },
                   {
                     key: "clocked_in",

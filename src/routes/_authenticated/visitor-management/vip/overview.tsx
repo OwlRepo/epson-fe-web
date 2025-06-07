@@ -1,9 +1,4 @@
-import {
-  ClockedInIcon,
-  ClockedOutIcon,
-  EpsonFlame,
-  InPremisesIcon,
-} from "@/assets/svgs";
+import { ClockedInIcon, ClockedOutIcon, InPremisesIcon } from "@/assets/svgs";
 import CardSection from "@/components/layouts/CardSection";
 import AttendanceCountCard from "@/components/ui/attendance-count-card";
 import CardHeaderLeft from "@/components/ui/card-header-left";
@@ -224,7 +219,8 @@ function RouteComponent() {
                       !search.filter_name || item.name === search.filter_name;
 
                     return matchesDepartment && matchesId && matchesName;
-                  }).reverse()}
+                  })
+                  .reverse()}
                 onFilter={handleFilter}
                 onSearch={handleSearch}
                 routeSearch={search}

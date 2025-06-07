@@ -9,20 +9,17 @@ import { useEffect, useMemo, useState } from "react";
 import { DynamicTable } from "@/components/ui/dynamic-table";
 import useTableSelectionStore from "@/store/tableSelectionStore";
 
-import { useGetEmployeeReports } from "@/hooks/query/useGetAttendaceReports";
 import { objToParams } from "@/utils/objToParams";
 import { unparse } from "papaparse";
 import dayjs from "dayjs";
-import { useGetDepartmentList } from "@/hooks/query/useGetDepartmentList";
+import { useGetVisitorReports } from "@/hooks/query/useGetVisitorReports";
 
-export interface EmployeeReport {
-  EmployeeNo: string;
+export interface VisitorReport {
+  VisitorID: string;
   Name: string;
-  Department: string;
-  LogDate: string | null;
-  ClockedIN: string | null;
-  ClockedOUT: string | null;
-  FullName: string;
+  Purpose: string;
+  CheckedIn: string | null;
+  CheckedOut: string | null;
 }
 
 export const Route = createFileRoute(
@@ -41,29 +38,25 @@ function ReportsDataTable() {
     from: "/_authenticated/visitor-management/reports",
   });
 
-  const [data, setData] = useState<EmployeeReport[]>([]);
+  const [data, setData] = useState<VisitorReport[]>([]);
   const [totalPages, setTotalPages] = useState(10);
   const [totalItems, setTotalItems] = useState(10);
 
-  //TODO: Replace with actual API call for fetching VIP reports
   const {
     data: reportList,
     isLoading,
     refetch,
-  } = useGetEmployeeReports(objToParams(search) as any);
-
-  //deparment list
-  const { data: departments } = useGetDepartmentList();
+  } = useGetVisitorReports(objToParams(search) as any);
 
   useEffect(() => {
     if (Array.isArray(reportList?.data)) {
-      const data = reportList?.data.map((item: EmployeeReport) => ({
+      const data = reportList?.data.map((item: VisitorReport) => ({
         ...item,
-        ClockedIN: item.ClockedIN
-          ? dayjs(item.ClockedIN).format("hh:mm:ss A")
+        CheckedIn: item.CheckedIn
+          ? dayjs(item.CheckedIn).format("hh:mm:ss A")
           : null,
-        ClockedOUT: item.ClockedOUT
-          ? dayjs(item.ClockedOUT).format("hh:mm:ss A")
+        CheckedOut: item.CheckedOut
+          ? dayjs(item.CheckedOut).format("hh:mm:ss A")
           : null,
       }));
       setData(data);
@@ -80,7 +73,7 @@ function ReportsDataTable() {
   const pageSize = parseInt(search.limit || "10");
 
   // Fix selection hooks - use useMemo to prevent re-renders
-  const tableId = "vip-report-table";
+  const tableId = "visitor-report-table";
 
   const selectedRows = useMemo(
     () => useTableSelectionStore.getState().getSelectedRows(tableId),
@@ -96,18 +89,63 @@ function ReportsDataTable() {
 
   // Define columns
   const columns = [
-    { key: "EmployeeNo", label: "ID" },
+    { key: "VisitorID", label: "ID" },
     { key: "Name", label: "Name" },
     { key: "Purpose", label: "Purpose" },
-    { key: "CheckedIN", label: "Checked In" },
-    { key: "CheckedOUT", label: "Checked Out" },
+    { key: "CheckedIn", label: "Checked In" },
+    { key: "CheckedOut", label: "Checked Out" },
   ];
 
   const filters = [
     {
-      key: "Department",
-      label: "Department",
-      options: departments ?? [],
+      key: "VisitorID",
+      label: "ID",
+      options: Array.from(
+        new Set(reportList?.data.map((item: VisitorReport) => item.VisitorID))
+      ).map((item) => ({
+        label: item,
+        value: item,
+      })),
+    },
+    {
+      key: "Name",
+      label: "Name",
+      options: Array.from(
+        new Set(reportList?.data.map((item: VisitorReport) => item.Name))
+      ).map((item) => ({
+        label: item,
+        value: item,
+      })),
+    },
+    {
+      key: "Purpose",
+      label: "Purpose",
+      options: Array.from(
+        new Set(reportList?.data.map((item: VisitorReport) => item.Purpose))
+      ).map((item) => ({
+        label: item,
+        value: item,
+      })),
+    },
+    {
+      key: "CheckedIn",
+      label: "Checked In",
+      options: Array.from(
+        new Set(reportList?.data.map((item: VisitorReport) => item.CheckedIn))
+      ).map((item) => ({
+        label: item,
+        value: item,
+      })),
+    },
+    {
+      key: "CheckedOut",
+      label: "Checked Out",
+      options: Array.from(
+        new Set(reportList?.data.map((item: VisitorReport) => item.CheckedOut))
+      ).map((item) => ({
+        label: item,
+        value: item,
+      })),
     },
   ];
 
@@ -217,7 +255,7 @@ function ReportsDataTable() {
         // Multi-select configuration
         enableRowSelection={true}
         tableId={tableId}
-        rowIdField="EmployeeNo"
+        rowIdField="VisitorID"
         onRowSelectionChange={handleRowSelectionChange}
         filters={filters}
         // Other optional props
