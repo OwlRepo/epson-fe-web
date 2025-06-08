@@ -43,7 +43,7 @@ const CapturePhoto: React.FC<CapturePhotoProps> = ({ onCapture }) => {
       canvas.width = videoRef.current.videoWidth;
       canvas.height = videoRef.current.videoHeight;
       ctx?.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-      const photoData = canvas.toDataURL("image/png");
+      const photoData = canvas.toDataURL("image/jpeg");
       setPhoto(photoData);
       if (onCapture) {
         const base64 = photoData.split(",")[1];

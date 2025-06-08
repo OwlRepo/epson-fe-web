@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/command";
 import { Button } from "@/components/ui/button";
 import type { useForm } from "react-hook-form";
+import type { VisitorData } from ".";
 
 type Option = {
   label: string;
@@ -24,15 +25,15 @@ type Option = {
 };
 
 type AutoCompleteProps = {
-  name: string;
+  name: keyof VisitorData;
   id: string;
   label: string;
   readOnly?: boolean;
   required?: boolean;
-  setValue: ReturnType<typeof useForm>["setValue"];
-  watch: ReturnType<typeof useForm>["watch"];
-  register: ReturnType<typeof useForm>["register"];
-  errors: ReturnType<typeof useForm>["formState"]["errors"];
+  setValue: ReturnType<typeof useForm<VisitorData>>["setValue"];
+  watch: ReturnType<typeof useForm<VisitorData>>["watch"];
+  register: ReturnType<typeof useForm<VisitorData>>["register"];
+  errors: ReturnType<typeof useForm<VisitorData>>["formState"]["errors"];
   queryHook: (search: string) => {
     data: Option[] | undefined;
     isLoading: boolean;

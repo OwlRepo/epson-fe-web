@@ -23,6 +23,8 @@ interface DatePickerWithRangeProps
   onSelect?: (date: DateRange | undefined) => void;
   value?: Range | undefined;
   readOnly?: boolean;
+  isWarning?: boolean;
+  isError?: boolean;
 }
 
 export function DatePickerWithRange({
@@ -30,6 +32,8 @@ export function DatePickerWithRange({
   onSelect,
   value,
   readOnly,
+  isError = false,
+  isWarning = false,
 }: DatePickerWithRangeProps) {
   const [date, setDate] = React.useState<DateRange | undefined>({
     from: value?.from || new Date(),
@@ -55,12 +59,15 @@ export function DatePickerWithRange({
             id="date"
             variant={"outline"}
             className={cn(
-              "w-[full] h-[44px] justify-start text-left font-normal",
+              "w-[full] h-[44px] justify-start text-left font-normal border-2",
+              isError &&
+                "disabled:border-red-500 text-red-500 disabled:opacity-100 disabled:pointer-events-auto disabled:font-bold ",
+              isWarning &&
+                "disabled:border-[#A8A830] text-[#A8A830] disabled:opacity-100 disabled:pointer-events-auto disabled:font-bold ",
               !date && "text-muted-foreground"
             )}
             disabled={readOnly}
           >
-            <CalendarIcon />
             {date?.from ? (
               date.to ? (
                 <>
@@ -73,6 +80,7 @@ export function DatePickerWithRange({
             ) : (
               <span>Pick a date</span>
             )}
+            <CalendarIcon />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">

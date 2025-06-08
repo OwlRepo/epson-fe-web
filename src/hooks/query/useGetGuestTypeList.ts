@@ -4,8 +4,9 @@ import { useQuery } from "@tanstack/react-query";
 const getGuestTypeList = async () => {
   try {
     const response = await api.get(`/api/vms/guestTypeList`);
+    console.log("Guest Type List Response:", response.data);
     return response.data.map((item: any) => ({
-      value: item.Name,
+      value: item.ID,
       label: item.Name,
     }));
   } catch (error) {
