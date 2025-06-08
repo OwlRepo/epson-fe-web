@@ -2,19 +2,25 @@ import { ClockedInIcon, ClockedOutIcon, InPremisesIcon } from "@/assets/svgs";
 import CardSection from "@/components/layouts/CardSection";
 import AttendanceCountCard from "@/components/ui/attendance-count-card";
 import CardHeaderLeft from "@/components/ui/card-header-left";
+import {
+  DynamicTable,
+  type Column,
+  type Filter,
+} from "@/components/ui/dynamic-table";
 import EmpInfoDialog from "@/components/ui/emp-info-dialog";
-import { LiveDataTable } from "@/components/ui/live-data-table";
-import Spinner from "@/components/ui/spinner";
-import { useGetEmployeeByNo } from "@/hooks/query/useGetEmployeeById";
-import { useOverviewCountData } from "@/hooks/useOverviewCountData";
+import { useGetSyncActivities } from "@/hooks/query/useGetSyncActivities";
+import { useGetVisitorById } from "@/hooks/query/useGetVisitorById";
+import { useGetVisitors } from "@/hooks/query/useGetVisitors";
 import countShortener from "@/utils/count-shortener";
+import { objToParams } from "@/utils/objToParams";
 import {
   createFileRoute,
   useNavigate,
   useSearch,
 } from "@tanstack/react-router";
+import dayjs from "dayjs";
 import { Star } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export const Route = createFileRoute(
   "/_authenticated/visitor-management/vip/overview"
@@ -22,44 +28,181 @@ export const Route = createFileRoute(
   component: RouteComponent,
 });
 
+const tableId = "employee-table";
+
+export interface GuestType {
+  id: number | string;
+  name: string;
+}
+
+export interface VisitorData {
+  ID: number;
+  Name: string;
+  HostPerson: string;
+  ContactInformation: string;
+  Company: string;
+  Purpose: string;
+  Picture: string | null;
+  DateFrom: string;
+  DateTo: string;
+  GuestType: GuestType;
+  Room: string;
+  PlateNo: string;
+  SocMed: string;
+  Batch: string;
+  Beverage: string;
+  Num: string;
+  IsUserPassword: boolean;
+  Created_at: string;
+}
+
+// Column definitions
+const columns: Column[] = [
+  { key: "ID", label: "ID" },
+  { key: "Name", label: "Name" },
+  {
+    key: "GuestType",
+    label: "Guest Type",
+    render: (row) => row.GuestType.name,
+  },
+  { key: "Purpose", label: "Purpose" },
+  { key: "DateFrom", label: "From Date" },
+  { key: "DateTo", label: "To Date" },
+];
+
 function RouteComponent() {
-  const navigate = useNavigate({
-    from: "/visitor-management/vip/overview",
-  });
   const search = useSearch({
     from: "/_authenticated/visitor-management/vip/overview",
   });
+  const navigate = useNavigate({
+    from: "/visitor-management/vip/overview",
+  });
+  const [data, setData] = useState<VisitorData[]>([]);
+  const [totalPages, setTotalPages] = useState(10);
+  const [totalItems, setTotalItems] = useState(10);
 
-  //employee data
   const [isOpen, setIsOpen] = useState(false);
-  const [employeeID, setEmployeeID] = useState("");
-  const { data: employee, isLoading: isEmployeeLoading } =
-    useGetEmployeeByNo(employeeID);
 
-  // Add handler for page size changes
-  const handlePageSizeChange = (newPageSize: number) => {
-    navigate({
-      search: (prev) => ({
-        ...prev,
-        pageSize: String(newPageSize),
-      }),
-      replace: true,
-    });
+  const currentPage = parseInt(search.page || "1");
+  const pageSize = parseInt(search.limit || "10");
+
+  //visitor data
+  const [visitorID, setVisitorID] = useState("");
+  const { data: visitor, isLoading: isVisitorLoading } =
+    useGetVisitorById(visitorID);
+
+  //visitorList
+  const {
+    data: visitorList,
+    isLoading: isVisitorListLoading,
+    refetch,
+  } = useGetVisitors(objToParams(search) as any);
+
+  useEffect(() => {
+    if (Array.isArray(visitorList?.data)) {
+      setData(data);
+      setTotalPages(visitorList.pagination.totalPages ?? 10);
+      setTotalItems(visitorList.pagination.totalItems ?? 10);
+    }
+  }, [visitorList]);
+
+  const filters: Filter[] = [
+    {
+      key: "ID",
+      label: "ID",
+      options: Array.from(
+        new Set(visitorList?.data?.map((item: VisitorData) => item.ID))
+      ).map((item) => ({
+        label: item,
+        value: item,
+      })),
+    },
+    {
+      key: "Name",
+      label: "Name",
+      options: Array.from(
+        new Set(visitorList?.data?.map((item: VisitorData) => item.Name))
+      ).map((item) => ({
+        label: item,
+        value: item,
+      })),
+    },
+    {
+      key: "GuestType",
+      label: "Guest Type",
+      options: Array.from(
+        new Set(visitorList?.data?.map((item: VisitorData) => item.GuestType))
+      ).map((item) => ({
+        label: (item as GuestType).name,
+        value: (item as GuestType).id,
+      })),
+    },
+    {
+      key: "Purpose",
+      label: "Purpose",
+      options: Array.from(
+        new Set(visitorList?.data?.map((item: VisitorData) => item.Purpose))
+      ).map((item) => ({
+        label: item,
+        value: item,
+      })),
+    },
+    {
+      key: "DateFrom",
+      label: "From Date",
+      options: Array.from(
+        new Set(visitorList?.data?.map((item: VisitorData) => item.DateFrom))
+      ).map((item) => ({
+        label: item,
+        value: item,
+      })),
+    },
+    {
+      key: "DateTo",
+      label: "To Date",
+      options: Array.from(
+        new Set(visitorList?.data?.map((item: VisitorData) => item.DateTo))
+      ).map((item) => ({
+        label: item,
+        value: item,
+      })),
+    },
+  ];
+
+  useEffect(() => {
+    refetch();
+  }, [search]);
+
+  // Handlers for table interactions
+  const handlePageChange = (page: number) => {
+    const parsedPage = parseInt(String(page));
+    if (!isNaN(parsedPage) && parsedPage > 0) {
+      navigate({
+        search: (prev) => ({
+          ...prev,
+          page: String(parsedPage),
+        }),
+        replace: true,
+      });
+    }
   };
 
-  // Handle filter changes
-  const handleFilter = (key: string, value: string) => {
-    navigate({
-      search: (prev) => ({
-        ...prev,
-        [`filter_${key}`]: value || undefined,
-      }),
-      replace: true,
-    });
+  const handlePageSizeChange = (size: number) => {
+    const parsedSize = parseInt(String(size));
+    if (!isNaN(parsedSize) && parsedSize > 0) {
+      navigate({
+        search: (prev) => ({
+          ...prev,
+          limit: String(parsedSize),
+          page: "1",
+        }),
+        replace: true,
+      });
+    }
   };
 
-  // Handle search
   const handleSearch = (searchTerm: string) => {
+    console.log("handleSearch", searchTerm);
     navigate({
       search: (prev) => ({
         ...prev,
@@ -68,16 +211,17 @@ function RouteComponent() {
       replace: true,
     });
   };
-  // TODO: this will be replaced with an API call instead of connecting to a live data source
-  const {
-    data: liveData,
-    isLoading: isLiveDataLoading,
-    isConnected: isLiveDataConnected,
-    countData,
-  } = useOverviewCountData({
-    room: "AMS",
-    dataType: "live",
-  });
+
+  const handleFilter = (key: string, value: string) => {
+    navigate({
+      search: (prev) => ({
+        ...prev,
+        [key]: value || undefined,
+        page: "1",
+      }),
+      replace: true,
+    });
+  };
 
   return (
     <>
@@ -85,24 +229,18 @@ function RouteComponent() {
         <CardSection headerLeft={<CardHeaderLeft />}>
           <div className="flex flex-col lg:flex-row justify-between gap-4">
             <AttendanceCountCard
-              count={
-                countData?.inside
-                  ? parseInt(countShortener(countData.inside))
-                  : 0
-              }
+              count={parseInt(countShortener(0))}
               icon={<InPremisesIcon />}
               subtitle="Registered Visitors"
             />
             <AttendanceCountCard
-              count={countData?.in ? parseInt(countShortener(countData.in)) : 0}
+              count={parseInt(countShortener(0))}
               icon={<ClockedInIcon />}
               subtitle="Active Visitors"
               variant="success"
             />
             <AttendanceCountCard
-              count={
-                countData?.out ? parseInt(countShortener(countData.out)) : 0
-              }
+              count={parseInt(countShortener(0))}
               icon={<ClockedOutIcon />}
               subtitle="Inactive Visitors"
               variant="error"
@@ -113,7 +251,7 @@ function RouteComponent() {
           headerLeft={
             <CardHeaderLeft
               title={
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 text-primary">
                   <Star />
                   <b className="text-[20px] text-primary">List of VIP</b>
                 </div>
@@ -122,124 +260,34 @@ function RouteComponent() {
             />
           }
         >
-          {isLiveDataConnected && !isLiveDataLoading ? (
-            <div className="flex">
-              <LiveDataTable
-                pageSize={Number(search.pageSize) || 10}
-                onPageSizeChange={handlePageSizeChange}
-                onRowClick={(row) => {
-                  setEmployeeID(row.employee_id);
-                  setIsOpen(true);
-                }}
-                columns={[
-                  {
-                    key: "employee_id",
-                    label: "ID",
-                  },
-                  {
-                    key: "name",
-                    label: "NAME",
-                  },
-                  {
-                    key: "purpose",
-                    label: "PURPOSE",
-                  },
-                  {
-                    key: "clocked_in",
-                    label: "CLOCKED IN",
-                  },
-                  {
-                    key: "clocked_out",
-                    label: "CLOCKED OUT",
-                  },
-                ]}
-                filters={[
-                  {
-                    key: "employee_id",
-                    label: "ID",
-                    options: [
-                      { label: "All", value: "" },
-                      ...liveData.map((item) => ({
-                        label: item.employee_id,
-                        value: item.employee_id,
-                      })),
-                    ],
-                  },
-                  {
-                    key: "department",
-                    label: "Department",
-                    options: [
-                      ...liveData.map((item) => ({
-                        label: item.department,
-                        value: item.department,
-                      })),
-                    ],
-                  },
-                  {
-                    key: "name",
-                    label: "Name",
-                    options: [
-                      ...liveData.map((item) => ({
-                        label: item.full_name,
-                        value: item.full_name,
-                      })),
-                    ],
-                  },
-                  {
-                    key: "dateTime",
-                    label: "Date & Time",
-                    isDateTimePicker: true,
-                  },
-                ]}
-                data={liveData
-                  .map((employeeData) => {
-                    const {
-                      employee_id,
-                      department,
-                      clocked_in,
-                      clocked_out,
-                      full_name,
-                    } = employeeData;
-                    return {
-                      employee_id: employee_id,
-                      department: department,
-                      name: full_name,
-                      clocked_in: clocked_in,
-                      clocked_out: clocked_out,
-                    };
-                  })
-                  .filter((item) => {
-                    const matchesDepartment =
-                      !search.filter_department ||
-                      item.department === search.filter_department;
-                    const matchesId =
-                      !search.filter_employee_id ||
-                      item.employee_id === search.filter_employee_id;
-                    const matchesName =
-                      !search.filter_name || item.name === search.filter_name;
-
-                    return matchesDepartment && matchesId && matchesName;
-                  })
-                  .reverse()}
-                onFilter={handleFilter}
-                onSearch={handleSearch}
-                routeSearch={search}
-                isLoading={false}
-                tableId="divisions-departments-sections-table"
-              />
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center space-y-2 w-full col-span-4 p-10">
-              <Spinner />
-              <p>Loading...</p>
-            </div>
-          )}
+          <DynamicTable
+            columns={columns}
+            data={data}
+            filters={filters}
+            pagination={{
+              currentPage,
+              pageSize,
+              totalPages,
+              totalItems,
+            }}
+            routeSearch={search}
+            onSearch={handleSearch}
+            onPageChange={handlePageChange}
+            onPageSizeChange={handlePageSizeChange}
+            onFilter={handleFilter}
+            isLoading={isVisitorListLoading}
+            tableId={tableId}
+            onRowClick={(row) => {
+              setVisitorID(row.ID);
+              setIsOpen(true);
+            }}
+          />
         </CardSection>
       </div>
       {isOpen && (
         <EmpInfoDialog
-          employee={employee}
-          isLoading={isEmployeeLoading}
+          employee={visitor}
+          isLoading={isVisitorLoading}
           isOpen={isOpen}
           onOpenChange={setIsOpen}
         />

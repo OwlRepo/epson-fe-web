@@ -72,6 +72,7 @@ export interface Column {
   key: string;
   label: string;
   sortable?: boolean;
+  render?: (row: any) => React.ReactNode;
 }
 
 export interface Filter {
@@ -904,7 +905,7 @@ export function DynamicTable({
                     )}
                     {columns.map((column) => (
                       <TableCell key={`${rowIndex}-${column.key}`}>
-                        {row[column.key] ?? "-"}
+                        {column.render ? column.render(row) : row[column.key]}
                       </TableCell>
                     ))}
                   </TableRow>
