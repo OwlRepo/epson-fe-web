@@ -928,7 +928,7 @@ export function DynamicTable({
       </div>
 
       {/* Pagination */}
-      {pagination && !isLoading && (
+      {pagination && !isLoading && data.length > 0 && (
         <div className="mt-4 flex items-center justify-between">
           {/* Page size selector - both dropdown and buttons */}
           <div className="flex items-center gap-2">
