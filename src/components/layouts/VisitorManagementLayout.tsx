@@ -47,16 +47,16 @@ export function VisitorManagementLayout({
     },
     {
       icon: <Star />,
-      label: "VIP",
-      href: "/visitor-management/vip",
+      label: "Reserved Guest",
+      href: "/visitor-management/reserved-guest",
       subItems: [
         {
           label: "Overview",
-          href: "/visitor-management/vip/overview",
+          href: "/visitor-management/reserved-guest/overview",
         },
         {
-          label: "Register VIP",
-          href: "/visitor-management/vip/register-vip",
+          label: "Register Guest",
+          href: "/visitor-management/reserved-guest/register-guest",
         },
       ],
     },

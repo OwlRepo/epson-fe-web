@@ -23,7 +23,7 @@ import { Star } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export const Route = createFileRoute(
-  "/_authenticated/visitor-management/vip/overview"
+  "/_authenticated/visitor-management/reserved-guest/overview"
 )({
   component: RouteComponent,
 });
@@ -72,10 +72,10 @@ const columns: Column[] = [
 
 function RouteComponent() {
   const search = useSearch({
-    from: "/_authenticated/visitor-management/vip/overview",
+    from: "/_authenticated/visitor-management/reserved-guest/overview",
   });
   const navigate = useNavigate({
-    from: "/visitor-management/vip/overview",
+    from: "/visitor-management/reserved-guest/overview",
   });
   const [data, setData] = useState<VisitorData[]>([]);
   const [totalPages, setTotalPages] = useState(10);
@@ -231,18 +231,18 @@ function RouteComponent() {
             <AttendanceCountCard
               count={parseInt(countShortener(0))}
               icon={<InPremisesIcon />}
-              subtitle="Registered Visitors"
+              subtitle="Registered Guest"
             />
             <AttendanceCountCard
               count={parseInt(countShortener(0))}
               icon={<ClockedInIcon />}
-              subtitle="Active Visitors"
+              subtitle="Active Guest"
               variant="success"
             />
             <AttendanceCountCard
               count={parseInt(countShortener(0))}
               icon={<ClockedOutIcon />}
-              subtitle="Inactive Visitors"
+              subtitle="Inactive Guest"
               variant="error"
             />
           </div>
@@ -253,7 +253,7 @@ function RouteComponent() {
               title={
                 <div className="flex items-center space-x-2 text-primary">
                   <Star />
-                  <b className="text-[20px] text-primary">List of VIP</b>
+                  <b className="text-[20px] text-primary">Reserved Guest</b>
                 </div>
               }
               subtitle=""
