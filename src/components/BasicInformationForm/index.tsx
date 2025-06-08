@@ -51,6 +51,7 @@ export interface VisitorData {
   PlateNo: string;
   Beverage?: string;
   GuestType?: string;
+  CardSurrendered?: boolean;
   type?: "check-in" | "extend-visit" | "check-out" | undefined;
 }
 

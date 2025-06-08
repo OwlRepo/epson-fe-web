@@ -48,9 +48,10 @@ const CapturePhoto: React.FC<CapturePhotoProps> = ({ onCapture }) => {
   const takePhoto = () => {
     if (videoRef.current && canvasRef.current) {
       const canvas = canvasRef.current;
+      const scale = 0.5;
       const ctx = canvas.getContext("2d");
-      canvas.width = videoRef.current.videoWidth;
-      canvas.height = videoRef.current.videoHeight;
+      canvas.width = videoRef.current.videoWidth * scale;
+      canvas.height = videoRef.current.videoHeight * scale;
       ctx?.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
       const photoData = canvas.toDataURL("image/jpeg");
       setPhoto(photoData);

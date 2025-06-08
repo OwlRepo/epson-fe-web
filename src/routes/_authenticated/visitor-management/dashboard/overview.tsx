@@ -4,15 +4,24 @@ import {
   EpsonFlame,
   InPremisesIcon,
 } from "@/assets/svgs";
+import type { VisitorData } from "@/components/BasicInformationForm";
+
 import CardSection from "@/components/layouts/CardSection";
 import AttendanceCountCard from "@/components/ui/attendance-count-card";
+import { Button } from "@/components/ui/button";
 import CardHeaderLeft from "@/components/ui/card-header-left";
-import EmpInfoDialog from "@/components/ui/emp-info-dialog";
+import {
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
 import { LiveDataTable } from "@/components/ui/live-data-table";
 import Spinner from "@/components/ui/spinner";
 import { useGetVisitorById } from "@/hooks/query/useGetVisitorById";
 import { useOverviewCountData } from "@/hooks/useOverviewCountData";
 import countShortener from "@/utils/count-shortener";
+import { Dialog, type DialogProps } from "@radix-ui/react-dialog";
 import {
   createFileRoute,
   useNavigate,
@@ -261,13 +270,73 @@ function RouteComponent() {
         </CardSection>
       </div>
       {isOpen && (
-        <EmpInfoDialog
-          employee={visitor}
-          isLoading={isVisitorLoading}
-          isOpen={isOpen}
+        <VisitorInformationDialog
+          open
+          visitor={visitor}
           onOpenChange={setIsOpen}
         />
       )}
     </>
   );
 }
+
+interface VisitorInfoDialogProps extends DialogProps {
+  visitor?: VisitorData;
+  isLoading?: boolean;
+}
+
+export const VisitorInformationDialog = ({
+  open,
+  visitor,
+  onOpenChange,
+  isLoading,
+}: VisitorInfoDialogProps) => {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="w-auto p-8 bg-white rounded-lg shadow-xl">
+        <DialogHeader className="flex flex-row justify-between items-center mb-6">
+          <DialogTitle className="text-xl font-semibold text-gray-800">
+            Visitor Information
+          </DialogTitle>
+        </DialogHeader>
+        {isLoading ? (
+          <Spinner />
+        ) : (
+          <div className="flex gap-2">
+            <div>
+              <img
+                src={`data:image/jpeg;base64,${visitor?.Picture}`}
+                alt="Captured"
+                className="w-24 h-24  object-cover rounded-xl"
+              />
+            </div>
+            <div>
+              <p>{`CARD ID: ${visitor?.UHF}`}</p>
+              <h2 className="text-2xl font-bold text-primary mt-1">
+                {visitor?.Name}
+              </h2>
+              <h2 className="text-lg font-bold text-primary mt-1">
+                Contact No
+              </h2>
+              <p>{visitor?.ContactInformation}</p>
+
+              <h2 className="text-lg font-bold text-primary mt-1">
+                Host Person
+              </h2>
+              <p>{visitor?.HostPerson}</p>
+
+              <h2 className="text-lg font-bold text-primary mt-1">
+                Plate Number
+              </h2>
+              <p>{visitor?.PlateNo}</p>
+
+              <h2 className="text-lg font-bold text-primary mt-1">Purpose</h2>
+              <p>{visitor?.Purpose}</p>
+            </div>
+          </div>
+        )}
+        <Button>Check Out</Button>
+      </DialogContent>
+    </Dialog>
+  );
+};
