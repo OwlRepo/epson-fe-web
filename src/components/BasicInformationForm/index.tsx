@@ -23,7 +23,10 @@ import useToastStyleTheme from "@/hooks/useToastStyleTheme";
 import { readRFIDData } from "@/utils/rfidReaderCommand";
 import { getValidUserID } from "@/utils/env";
 import { LinkCardInput } from "../ui/emp-info-dialog";
-import { addDays, set } from "date-fns";
+import { addDays } from "date-fns";
+import { useGetHostPerson } from "@/hooks/query/useGeHostPersonList";
+import { CustomAutoComplete } from "./CustomAutoComplete";
+import { useGetGuestTypeList } from "@/hooks/query/useGetGuestTypeList";
 
 interface BasicInformationFormProps {
   onSubmitData?: (data: any) => void;
@@ -43,11 +46,11 @@ const BasicInfromationForm = ({
   const { register, handleSubmit, formState, setValue, watch, control, reset } =
     form;
 
-  const [setCalendarOpen] = useState(false);
-
   const { infoStyle, errorStyle } = useToastStyleTheme();
   const [isLinking, setIsLinking] = useState(false);
   const { port, setPort } = usePortStore((store) => store);
+
+  const { data } = useGetGuestTypeList();
 
   const handleLinkCard = async () => {
     try {
@@ -119,7 +122,7 @@ const BasicInfromationForm = ({
             readOnly={isDialog}
           />
 
-          <AutoComplete
+          <CustomAutoComplete
             label="Host Person"
             name={"hostPerson"}
             id="host-person"
@@ -128,6 +131,7 @@ const BasicInfromationForm = ({
             register={register}
             readOnly={isDialog}
             errors={formState?.errors}
+            queryHook={useGetHostPerson}
           />
 
           <BasicInfoTextInput
@@ -161,6 +165,7 @@ const BasicInfromationForm = ({
               register={register}
               readOnly={isDialog}
               errors={formState?.errors}
+              list={data}
             />
           )}
 
@@ -350,29 +355,6 @@ const BasicInfoTextInput = ({
   );
 };
 
-const frameworks = [
-  {
-    value: "john.doe",
-    label: "John Doe",
-  },
-  {
-    value: "jane.smith",
-    label: "Jane Smith",
-  },
-  {
-    value: "michael.johnson",
-    label: "Michael Johnson",
-  },
-  {
-    value: "emily.davis",
-    label: "Emily Davis",
-  },
-  {
-    value: "william.brown",
-    label: "William Brown",
-  },
-];
-
 const AutoComplete = ({
   name,
   id,
@@ -383,6 +365,7 @@ const AutoComplete = ({
   required = true,
   label,
   errors,
+  list,
 }: {
   name: string;
   id: string;
@@ -393,6 +376,7 @@ const AutoComplete = ({
   required?: boolean;
   label: string;
   errors: ReturnType<typeof useForm>["formState"]["errors"];
+  list: { value: string; label: string }[];
 }) => {
   const [open, setOpen] = useState(false);
   const value = watch(name, "");
@@ -418,7 +402,7 @@ const AutoComplete = ({
             disabled={readOnly}
           >
             {value
-              ? frameworks.find((framework) => framework.value === value)?.label
+              ? list.find((framework) => framework.value === value)?.label
               : "Select..."}
             <ChevronsUpDown className="opacity-50" />
           </Button>
@@ -435,7 +419,7 @@ const AutoComplete = ({
             <CommandList className="w-full">
               <CommandEmpty>No person found.</CommandEmpty>
               <CommandGroup>
-                {frameworks.map((framework) => (
+                {list?.map((framework) => (
                   <CommandItem
                     key={framework.value}
                     value={framework.value}
