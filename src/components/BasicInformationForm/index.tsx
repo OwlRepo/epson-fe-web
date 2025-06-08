@@ -74,7 +74,7 @@ const BasicInfromationForm = ({
     setError,
   } = form;
 
-  const { infoStyle, errorStyle } = useToastStyleTheme();
+  const { infoStyle, errorStyle, successStyle } = useToastStyleTheme();
   const [isLinking, setIsLinking] = useState(false);
   const { port, setPort } = usePortStore((store) => store);
   const [openExtendDialog, setOpenExtendDialog] = useState(false);
@@ -118,6 +118,10 @@ const BasicInfromationForm = ({
 
       if (validUserID.includes(data?.userID ?? "")) {
         setValue("UHF", data?.epc ?? "");
+        toast.success("Captured Successfully", {
+          description: "Visitor photo has been captured successfully.",
+          style: successStyle,
+        });
       } else {
         toast.error("Oops! Card is not valid", {
           description: "Please make sure your card is valid and try again.",

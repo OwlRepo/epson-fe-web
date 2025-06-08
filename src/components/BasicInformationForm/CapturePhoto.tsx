@@ -1,6 +1,8 @@
 import { Image, Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "../ui/button";
+import useToastStyleTheme from "@/hooks/useToastStyleTheme";
+import { toast } from "sonner";
 
 interface CapturePhotoProps {
   onCapture?: (photo: string) => void;
@@ -12,6 +14,8 @@ const CapturePhoto: React.FC<CapturePhotoProps> = ({ onCapture }) => {
   const [photo, setPhoto] = useState<string | null>(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [isActivating, setIsActivating] = useState(false);
+
+  const { errorStyle, successStyle } = useToastStyleTheme();
 
   const startCamera = async () => {
     try {
@@ -31,6 +35,11 @@ const CapturePhoto: React.FC<CapturePhotoProps> = ({ onCapture }) => {
       }
     } catch (err) {
       console.error("Camera access error:", err);
+      toast.error("Oops! Couldn’t find any camera", {
+        description: "Please make sure your device is connected and try again.",
+        className: "bg-red-50 border-red-200 text-black",
+        style: errorStyle,
+      });
     } finally {
       setIsActivating(false);
     }
@@ -48,6 +57,10 @@ const CapturePhoto: React.FC<CapturePhotoProps> = ({ onCapture }) => {
       if (onCapture) {
         const base64 = photoData.split(",")[1];
         onCapture(base64);
+        toast.success("Captured Successfully", {
+          description: "Visitor photo has been captured successfully.",
+          style: successStyle,
+        });
       }
     }
   };
