@@ -23,7 +23,7 @@ import useToastStyleTheme from "@/hooks/useToastStyleTheme";
 import { readRFIDData } from "@/utils/rfidReaderCommand";
 import { getValidUserID } from "@/utils/env";
 import { LinkCardInput } from "../ui/emp-info-dialog";
-import { addDays, set } from "date-fns";
+import { addDays, isBefore, startOfDay } from "date-fns";
 import { useGetHostPerson } from "@/hooks/query/useGeHostPersonList";
 import { CustomAutoComplete } from "./CustomAutoComplete";
 import { useGetGuestTypeList } from "@/hooks/query/useGetGuestTypeList";
@@ -35,10 +35,12 @@ interface BasicInformationFormProps {
   onSubmitData?: (data: any) => void;
   onUpdate?: (data: any) => void;
   type?: "check-in" | "register-vip";
-  isDialog?: boolean;
+  isReadOnly?: boolean;
+  initialData?: VisitorData;
 }
 
 export interface VisitorData {
+  ID?: string;
   Name: string;
   HostPerson: string;
   ContactInformation?: string;
@@ -47,21 +49,30 @@ export interface VisitorData {
   Picture: string;
   UHF: string;
   Date: any;
+  DateFrom: Date;
+  DateTo: Date;
   Room: string;
   PlateNo: string;
   Beverage?: string;
   GuestType?: string;
   CardSurrendered?: boolean;
-  type?: "check-in" | "extend-visit" | "check-out" | undefined;
+  type?:
+    | "check-in"
+    | "extend-visit"
+    | "check-out"
+    | "link-new-card"
+    | "save-new-photo"
+    | undefined;
 }
 
 const validUserID = getValidUserID();
 const daysBeforeExpiration = 3; // days before expiration to show warning
 
 const BasicInfromationForm = ({
+  initialData,
   onSubmitData,
   type = "check-in",
-  isDialog = false,
+  isReadOnly = false,
 }: BasicInformationFormProps) => {
   const form = useForm<VisitorData>();
   const {
@@ -75,12 +86,25 @@ const BasicInfromationForm = ({
     setError,
   } = form;
 
-  const { infoStyle, errorStyle, successStyle } = useToastStyleTheme();
+  const { infoStyle, errorStyle } = useToastStyleTheme();
   const [isLinking, setIsLinking] = useState(false);
   const { port, setPort } = usePortStore((store) => store);
   const [openExtendDialog, setOpenExtendDialog] = useState(false);
 
   const { data } = useGetGuestTypeList();
+
+  useEffect(() => {
+    setValue("Date", {
+      from: new Date(),
+      to: addDays(new Date(), 5),
+    });
+  }, []);
+
+  useEffect(() => {
+    if (initialData) {
+      reset(initialData);
+    }
+  }, [initialData, reset]);
 
   const handleLinkCard = async () => {
     try {
@@ -99,13 +123,6 @@ const BasicInfromationForm = ({
     }
   };
 
-  useEffect(() => {
-    setValue("Date", {
-      from: new Date(),
-      to: addDays(new Date(), 5),
-    });
-  }, []);
-
   const linkCard = async (newPort: any) => {
     if (!newPort) return;
     toast.info("Almost here - Tap your card", {
@@ -113,16 +130,15 @@ const BasicInfromationForm = ({
       style: infoStyle,
     });
     try {
-      console.log("card is linking");
       setIsLinking(true);
       const data = await readRFIDData(newPort);
 
       if (validUserID.includes(data?.userID ?? "")) {
-        setValue("UHF", data?.epc ?? "");
-        toast.success("Captured Successfully", {
-          description: "Visitor photo has been captured successfully.",
-          style: successStyle,
-        });
+        if (isReadOnly) {
+          linkNewCard(data?.epc ?? "");
+        } else {
+          setValue("UHF", data?.epc ?? "");
+        }
       } else {
         toast.error("Oops! Card is not valid", {
           description: "Please make sure your card is valid and try again.",
@@ -137,12 +153,21 @@ const BasicInfromationForm = ({
     }
   };
 
+  const linkNewCard = (epc?: string) => {
+    onSubmitData?.({
+      UHF: epc ?? "",
+      type: "link-new-card",
+    });
+  };
+
+  //date range validation
   const dateRange = watch("Date") || {};
   const expireSoon =
     dateRange.to &&
     dateRange.to.getTime() - new Date().getTime() <=
       daysBeforeExpiration * 24 * 60 * 60 * 1000;
-  const isExpired = dateRange.to && dateRange.to < new Date();
+  const isExpired =
+    dateRange.to && isBefore(startOfDay(dateRange.to), startOfDay(new Date()));
 
   useEffect(() => {
     const isVIP = type === "register-vip";
@@ -159,12 +184,24 @@ const BasicInfromationForm = ({
         message: "Looks like this VIP’s access has expired.",
       });
     }
-  }, [expireSoon, isExpired, type]);
+  }, [expireSoon, isExpired, type, dateRange]);
+
+  //handle capture photo
+  const handleCapturePhoto = (data: string) => {
+    if (isReadOnly) {
+      onSubmitData?.({
+        Picture: data,
+        type: "save-new-photo",
+      });
+    } else {
+      setValue("Picture", data);
+    }
+  };
 
   return (
     <>
       <div className="grid grid-cols-4 gap-2 grid-rows-[auto_1fr] h-full">
-        <CapturePhoto onCapture={(data) => setValue("Picture", data)} />
+        <CapturePhoto onCapture={handleCapturePhoto} value={watch("Picture")} />
 
         <div className="bg-white col-span-3 p-4 rounded-lg shadow-md overflow-hidden flex flex-col">
           <p className="font-bold flex gap-2 text-[#1a2b4b]">
@@ -183,7 +220,7 @@ const BasicInfromationForm = ({
               placeholder="ex. John Doe"
               register={register}
               errors={formState.errors}
-              readOnly={isDialog}
+              readOnly={isReadOnly}
             />
 
             <CustomAutoComplete
@@ -193,7 +230,7 @@ const BasicInfromationForm = ({
               setValue={setValue}
               watch={watch}
               register={register}
-              readOnly={isDialog}
+              readOnly={isReadOnly}
               errors={formState?.errors}
               queryHook={useGetHostPerson}
             />
@@ -206,7 +243,7 @@ const BasicInfromationForm = ({
               register={register}
               errors={formState.errors}
               required={false}
-              readOnly={isDialog}
+              readOnly={isReadOnly}
             />
 
             <BasicInfoTextInput
@@ -216,7 +253,7 @@ const BasicInfromationForm = ({
               placeholder="value"
               register={register}
               errors={formState.errors}
-              readOnly={isDialog}
+              readOnly={isReadOnly}
             />
 
             {type === "register-vip" && (
@@ -228,7 +265,7 @@ const BasicInfromationForm = ({
                   setValue={setValue}
                   watch={watch}
                   register={register}
-                  readOnly={isDialog}
+                  readOnly={isReadOnly}
                   errors={formState?.errors}
                   list={data}
                 />
@@ -265,7 +302,7 @@ const BasicInfromationForm = ({
                           value={field.value}
                           onSelect={field.onChange}
                           className="w-full h-[44px] border-red-600"
-                          readOnly={isDialog}
+                          readOnly={isReadOnly}
                           isError={fieldState.error?.message?.includes(
                             "expired"
                           )}
@@ -299,7 +336,7 @@ const BasicInfromationForm = ({
               placeholder="ex. ABC-1234"
               register={register}
               errors={formState.errors}
-              readOnly={isDialog}
+              readOnly={isReadOnly}
             />
 
             <BasicInfoTextInput
@@ -310,7 +347,7 @@ const BasicInfromationForm = ({
               register={register}
               errors={formState.errors}
               required={false}
-              readOnly={isDialog}
+              readOnly={isReadOnly}
             />
 
             <BasicInfoTextInput
@@ -321,7 +358,7 @@ const BasicInfromationForm = ({
               register={register}
               errors={formState.errors}
               required={false}
-              readOnly={isDialog}
+              readOnly={isReadOnly}
             />
 
             <div className="space-y-1 col-span-2 flex-1">
@@ -335,7 +372,7 @@ const BasicInfromationForm = ({
                 id="purpose"
                 placeholder="ex. Business Meeting, Conference"
                 {...register("Purpose")}
-                readOnly={isDialog}
+                readOnly={isReadOnly}
               />
             </div>
           </div>
@@ -364,7 +401,7 @@ const BasicInfromationForm = ({
           </div>
         </div>
         <div className="col-span-4 flex gap-2 justify-end">
-          {isDialog && (
+          {isReadOnly && (
             <>
               <Button
                 className="bg-red-600 hover:bg-red-400"
@@ -382,7 +419,7 @@ const BasicInfromationForm = ({
               </Button>
             </>
           )}
-          {!isDialog && (
+          {!isReadOnly && (
             <>
               <Button
                 onClick={() => reset()}
@@ -535,7 +572,7 @@ const AutoComplete = ({
             disabled={readOnly}
           >
             {value
-              ? list.find((framework) => framework.value === value)?.label
+              ? list?.find((framework) => framework.value === value)?.label
               : "Select..."}
             <ChevronsUpDown className="opacity-50" />
           </Button>

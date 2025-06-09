@@ -18,9 +18,13 @@ import {
 
 import { LiveDataTable } from "@/components/ui/live-data-table";
 import Spinner from "@/components/ui/spinner";
+import { useCheckoutVisitor } from "@/hooks/mutation/useCheckoutVisitor";
 import { useGetVisitorById } from "@/hooks/query/useGetVisitorById";
 import { useOverviewCountData } from "@/hooks/useOverviewCountData";
+import useToastStyleTheme from "@/hooks/useToastStyleTheme";
+import usePortStore from "@/store/usePortStore";
 import countShortener from "@/utils/count-shortener";
+import { readRFIDData } from "@/utils/rfidReaderCommand";
 import { Dialog, type DialogProps } from "@radix-ui/react-dialog";
 import {
   createFileRoute,
@@ -28,6 +32,7 @@ import {
   useSearch,
 } from "@tanstack/react-router";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute(
   "/_authenticated/visitor-management/dashboard/overview"
@@ -291,6 +296,57 @@ export const VisitorInformationDialog = ({
   onOpenChange,
   isLoading,
 }: VisitorInfoDialogProps) => {
+  const { port, setPort } = usePortStore((store) => store);
+
+  const { mutate: checkoutVisitor } = useCheckoutVisitor();
+  const { infoStyle, errorStyle } = useToastStyleTheme();
+  const [isLinking, setIsLinking] = useState(false);
+  const handleLinkCard = async () => {
+    try {
+      let portToUse = port;
+
+      if (!portToUse) {
+        const newPort = await navigator.serial.requestPort();
+        await newPort.open({ baudRate: 57600 });
+        setPort(newPort);
+        portToUse = newPort;
+      }
+
+      await linkCard(portToUse);
+    } catch (error) {
+      console.error("Failed to link card:", error);
+    }
+  };
+
+  const linkCard = async (newPort: any) => {
+    if (!newPort) return;
+    toast.info("Almost here - Tap your card", {
+      description: "Please tap your card on the reader.",
+      style: infoStyle,
+    });
+    try {
+      console.log("card is linking");
+      setIsLinking(true);
+      const data = await readRFIDData(newPort);
+
+      if (data?.epc === visitor?.UHF) {
+        checkoutVisitor({
+          VisitorID: visitor?.ID ?? "",
+        });
+      } else {
+        toast.error("Oops! Card not matched", {
+          description: "Please make sure your card is matached and try again.",
+          className: "bg-red-50 border-red-200 text-black",
+          style: errorStyle,
+        });
+      }
+    } catch (error) {
+      console.error("Error reading RFID data:", error);
+    } finally {
+      setIsLinking(false);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-auto p-8 bg-white rounded-lg shadow-xl">
@@ -335,7 +391,16 @@ export const VisitorInformationDialog = ({
             </div>
           </div>
         )}
-        <Button>Check Out</Button>
+        {!isLinking && !visitor?.CardSurrendered && (
+          <Button onClick={handleLinkCard}>Check Out Now</Button>
+        )}
+
+        {isLinking && !visitor?.CardSurrendered && (
+          <Button>
+            <Spinner size={15} color="white" containerClassName="w-auto" />
+            Reading
+          </Button>
+        )}
       </DialogContent>
     </Dialog>
   );

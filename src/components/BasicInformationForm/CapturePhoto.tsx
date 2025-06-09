@@ -1,4 +1,4 @@
-import { Image, Loader2 } from "lucide-react";
+import { Camera, Image, Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "../ui/button";
 import useToastStyleTheme from "@/hooks/useToastStyleTheme";
@@ -6,12 +6,12 @@ import { toast } from "sonner";
 
 interface CapturePhotoProps {
   onCapture?: (photo: string) => void;
+  value?: string;
 }
 
-const CapturePhoto: React.FC<CapturePhotoProps> = ({ onCapture }) => {
+const CapturePhoto: React.FC<CapturePhotoProps> = ({ onCapture, value }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [photo, setPhoto] = useState<string | null>(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [isActivating, setIsActivating] = useState(false);
 
@@ -54,10 +54,11 @@ const CapturePhoto: React.FC<CapturePhotoProps> = ({ onCapture }) => {
       canvas.height = videoRef.current.videoHeight * scale;
       ctx?.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
       const photoData = canvas.toDataURL("image/jpeg");
-      setPhoto(photoData);
+
       if (onCapture) {
         const base64 = photoData.split(",")[1];
         onCapture(base64);
+        setIsCameraActive(false);
         toast.success("Captured Successfully", {
           description: "Visitor photo has been captured successfully.",
           style: successStyle,
@@ -68,7 +69,7 @@ const CapturePhoto: React.FC<CapturePhotoProps> = ({ onCapture }) => {
 
   const handleClick = () => {
     if (isCameraActive) {
-      photo ? setPhoto(null) : takePhoto();
+      takePhoto();
     } else {
       startCamera();
     }
@@ -88,13 +89,16 @@ const CapturePhoto: React.FC<CapturePhotoProps> = ({ onCapture }) => {
 
       <div
         className={`flex justify-center items-center rounded-sm my-2 relative ${
-          isCameraActive ? "" : "border-dashed border-2 border-[#0F416D]"
+          isCameraActive || value
+            ? ""
+            : "border-dashed border-2 border-[#0F416D]"
         } aspect-square`}
       >
         {!isCameraActive && <Image className="text-[#0F416D] absolute" />}
-        {photo && (
+
+        {value && !isCameraActive && (
           <img
-            src={photo}
+            src={`data:image/jpeg;base64,${value}`}
             alt="Captured"
             className="w-full h-full absolute object-cover rounded-2xl"
           />
@@ -111,7 +115,7 @@ const CapturePhoto: React.FC<CapturePhotoProps> = ({ onCapture }) => {
 
       <Button
         className={`w-full h-[54px] ${
-          !isActivating && isCameraActive && !photo
+          !isActivating && isCameraActive
             ? "bg-green-500 hover:bg-green-400"
             : ""
         }`}
@@ -120,7 +124,7 @@ const CapturePhoto: React.FC<CapturePhotoProps> = ({ onCapture }) => {
         {isActivating && <Loader2 className="animate-spin w-5 h-5 mr-2" />}
         {isActivating
           ? "Activating..."
-          : photo
+          : value && !isCameraActive
             ? "Capture Again"
             : isCameraActive
               ? "Capture"

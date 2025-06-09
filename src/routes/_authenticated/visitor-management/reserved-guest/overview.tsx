@@ -1,24 +1,26 @@
 import { ClockedInIcon, ClockedOutIcon, InPremisesIcon } from "@/assets/svgs";
+import { type VisitorData } from "@/components/BasicInformationForm";
 import CardSection from "@/components/layouts/CardSection";
 import AttendanceCountCard from "@/components/ui/attendance-count-card";
 import CardHeaderLeft from "@/components/ui/card-header-left";
+
 import {
   DynamicTable,
   type Column,
   type Filter,
 } from "@/components/ui/dynamic-table";
-import EmpInfoDialog from "@/components/ui/emp-info-dialog";
-import { useGetSyncActivities } from "@/hooks/query/useGetSyncActivities";
+import { ReservedGuestInfoDialog } from "@/components/ui/reserved-guest-dialog.card";
+
 import { useGetVisitorById } from "@/hooks/query/useGetVisitorById";
 import { useGetVisitors } from "@/hooks/query/useGetVisitors";
 import countShortener from "@/utils/count-shortener";
 import { objToParams } from "@/utils/objToParams";
+
 import {
   createFileRoute,
   useNavigate,
   useSearch,
 } from "@tanstack/react-router";
-import dayjs from "dayjs";
 import { Star } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -33,27 +35,6 @@ const tableId = "employee-table";
 export interface GuestType {
   id: number | string;
   name: string;
-}
-
-export interface VisitorData {
-  ID: number;
-  Name: string;
-  HostPerson: string;
-  ContactInformation: string;
-  Company: string;
-  Purpose: string;
-  Picture: string | null;
-  DateFrom: string;
-  DateTo: string;
-  GuestType: GuestType;
-  Room: string;
-  PlateNo: string;
-  SocMed: string;
-  Batch: string;
-  Beverage: string;
-  Num: string;
-  IsUserPassword: boolean;
-  Created_at: string;
 }
 
 // Column definitions
@@ -81,7 +62,7 @@ function RouteComponent() {
   const [totalPages, setTotalPages] = useState(10);
   const [totalItems, setTotalItems] = useState(10);
 
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
 
   const currentPage = parseInt(search.page || "1");
   const pageSize = parseInt(search.limit || "10");
@@ -285,10 +266,10 @@ function RouteComponent() {
         </CardSection>
       </div>
       {isOpen && (
-        <EmpInfoDialog
-          employee={visitor}
+        <ReservedGuestInfoDialog
+          visitor={visitor}
           isLoading={isVisitorLoading}
-          isOpen={isOpen}
+          open={isOpen}
           onOpenChange={setIsOpen}
         />
       )}
