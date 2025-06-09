@@ -12,7 +12,7 @@ import { PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { Popover } from "@radix-ui/react-popover";
-import { Check, ChevronsUpDown, CircleAlert } from "lucide-react";
+import { Check, ChevronsUpDown } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { DatePickerWithRange } from "../ui/date-range-picker";

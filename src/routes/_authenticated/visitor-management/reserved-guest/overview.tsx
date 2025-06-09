@@ -62,7 +62,7 @@ function RouteComponent() {
   const [totalPages, setTotalPages] = useState(10);
   const [totalItems, setTotalItems] = useState(10);
 
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
 
   const currentPage = parseInt(search.page || "1");
   const pageSize = parseInt(search.limit || "10");
