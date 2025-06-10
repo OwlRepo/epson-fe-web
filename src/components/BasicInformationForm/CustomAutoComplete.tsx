@@ -56,8 +56,9 @@ export const CustomAutoComplete = ({
   const [input, setInput] = useState("");
   const [debouncedInput] = useDebounce(input, 300);
 
-  const { data = [], isLoading } = queryHook(debouncedInput);
   const value = watch(name, "");
+
+  const { data = [], isLoading } = queryHook(debouncedInput);
 
   return (
     <div className="space-y-1">
@@ -77,9 +78,7 @@ export const CustomAutoComplete = ({
             )}
             disabled={readOnly}
           >
-            {value
-              ? data.find((item) => item.value === value)?.label
-              : "Select..."}
+            {value ?? "Select..."}
             <ChevronsUpDown className="opacity-50" />
           </Button>
         </PopoverTrigger>

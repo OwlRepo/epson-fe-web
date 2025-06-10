@@ -162,12 +162,14 @@ const BasicInfromationForm = ({
 
   //date range validation
   const dateRange = watch("Date") || {};
+
   const expireSoon =
     dateRange.to &&
-    dateRange.to.getTime() - new Date().getTime() <=
+    new Date(dateRange.to).getTime() - new Date().getTime() <=
       daysBeforeExpiration * 24 * 60 * 60 * 1000;
   const isExpired =
-    dateRange.to && isBefore(startOfDay(dateRange.to), startOfDay(new Date()));
+    dateRange.to &&
+    isBefore(startOfDay(new Date(dateRange.to)), startOfDay(new Date()));
 
   useEffect(() => {
     const isVIP = type === "register-vip";
@@ -449,12 +451,12 @@ const BasicInfromationForm = ({
           <div className="bg-white p-4 rounded-lg shadow-lg border">
             <Calendar
               mode="single"
-              selected={dateRange.to}
+              selected={new Date(dateRange.to)}
               className="w-full"
-              defaultMonth={dateRange.to ?? new Date()}
-              onSelect={(val: any) =>
-                setValue("Date", { ...dateRange, to: val })
-              }
+              defaultMonth={new Date(dateRange.to) ?? new Date()}
+              onSelect={(val: any) => {
+                setValue("Date", { ...dateRange, to: val });
+              }}
             />
           </div>
           <Button

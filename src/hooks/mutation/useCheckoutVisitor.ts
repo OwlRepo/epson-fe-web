@@ -5,7 +5,7 @@ import useToastStyleTheme from "../useToastStyleTheme";
 
 const checkoutVisitor = async (payload: { VisitorID: string }) => {
   try {
-    const response = await api.post(`/api/vms/registerDayPass`, payload);
+    const response = await api.post(`/api/vms/checkout`, payload);
     return response.data;
   } catch (error) {
     console.error("Error saving employee data:", error);
