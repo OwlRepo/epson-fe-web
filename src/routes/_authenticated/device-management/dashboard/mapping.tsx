@@ -156,7 +156,7 @@ function DraggableText({
           <div
             ref={setNodeRef}
             style={{ position: "absolute", ...style }}
-            className="cursor-move select-none p-2 bg-white/80 rounded-md border border-gray-300 shadow-sm hover:shadow-md transition-shadow duration-200 text-gray-800 font-bold"
+            className="cursor-move select-none p-2 bg-primary rounded-md border border-primary-300 shadow-sm hover:shadow-md transition-shadow duration-200 text-white font-bold"
             {...listeners}
             {...attributes}
           >
@@ -170,10 +170,10 @@ function DraggableText({
           style={{ left: 0, top: 0 }}
         >
           <div className="-mt-16 mb-2 bg-white rounded-full shadow-lg p-3 border-4 border-white">
-            <Computer className="w-16 h-16 text-blue-900" />
+            <Computer className="w-16 h-16 text-primary" />
           </div>
           <div className="w-full text-left">
-            <div className="text-3xl font-extrabold text-blue-900 mb-1">
+            <div className="text-3xl font-extrabold text-primary mb-1">
               {device?.name}
             </div>
             <div className="text-2xl text-gray-400 font-medium mb-6">
@@ -214,7 +214,7 @@ function DraggableText({
       <div
         ref={setNodeRef}
         style={{ position: "absolute", ...style }}
-        className="group cursor-move select-none p-2 bg-white/80 rounded-md border border-gray-300 shadow-sm hover:shadow-md transition-shadow duration-200 text-gray-800 font-bold"
+        className="group cursor-move select-none p-2 bg-primary rounded-md border border-primary-300 shadow-sm hover:shadow-md transition-shadow duration-200 text-white font-bold"
         {...(isRelocating ? listeners : {})}
         {...(isRelocating ? attributes : {})}
       >
@@ -233,7 +233,7 @@ function DraggableText({
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <div
-            className="cursor-pointer select-none p-2 bg-white/80 rounded-md border border-gray-300 shadow-sm hover:shadow-md transition-shadow duration-200 text-gray-800 font-bold"
+            className="cursor-pointer select-none p-2 bg-primary rounded-md border border-primary-300 shadow-sm hover:shadow-md transition-shadow duration-200 text-white font-bold"
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             onFocus={handleMouseEnter}
