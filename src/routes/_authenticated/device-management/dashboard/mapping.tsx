@@ -6,14 +6,6 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogFooter,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
 import { Computer } from "lucide-react";
 import { createFileRoute } from "@tanstack/react-router";
 import {
@@ -39,7 +31,45 @@ interface PercentPosition {
   y: number; // percent (0-100)
 }
 
-const DRAGGABLES = ["item1", "item2", "item3"];
+interface Device {
+  id: string; // internal unique id
+  deviceId: string; // shown Device ID
+  name: string;
+  type: "controller" | "printer" | "scanner";
+  deviceType: string; // e.g., "ELID Controller"
+  controllerType: string; // e.g., "Entry"
+  status: "online" | "offline" | "maintenance";
+  description: string;
+  x: number; // percent (0-100)
+  y: number; // percent (0-100)
+}
+
+const DRAGGABLES: Device[] = [
+  {
+    id: "device1",
+    deviceId: "000000481",
+    name: "Entry A1",
+    type: "controller",
+    deviceType: "ELID Controller",
+    controllerType: "Entry",
+    status: "online",
+    description: "Morem ipsum dolor sit amet, consectetur adipiscing elit.",
+    x: 10,
+    y: 20,
+  },
+  {
+    id: "device2",
+    deviceId: "000000482",
+    name: "Printer B2",
+    type: "printer",
+    deviceType: "ELID Printer",
+    controllerType: "Printer",
+    status: "online",
+    description: "Morem ipsum dolor sit amet, consectetur adipiscing elit.",
+    x: 30,
+    y: 40,
+  },
+];
 
 function DraggableText({
   id,
@@ -74,6 +104,7 @@ function DraggableText({
   const closeTimeout = useRef<NodeJS.Timeout | null>(null);
   const isRelocating = relocatingId === id;
   const isConfirmPopover = confirmPopoverId === id && !activeId;
+  const device = DRAGGABLES.find((d) => d.id === id);
   const {
     attributes,
     listeners,
@@ -129,7 +160,7 @@ function DraggableText({
             {...listeners}
             {...attributes}
           >
-            Draggable Item {id.slice(-1)}
+            {device?.name || `Device ${id}`}
           </div>
         </PopoverTrigger>
         <PopoverContent
@@ -143,7 +174,7 @@ function DraggableText({
           </div>
           <div className="w-full text-left">
             <div className="text-3xl font-extrabold text-blue-900 mb-1">
-              Entry A1
+              {device?.name}
             </div>
             <div className="text-2xl text-gray-400 font-medium mb-6">
               Drag me to the area that fits your layout.
@@ -187,7 +218,7 @@ function DraggableText({
         {...(isRelocating ? listeners : {})}
         {...(isRelocating ? attributes : {})}
       >
-        Draggable Item {id.slice(-1)}
+        {device?.name || `Device ${id}`}
       </div>
     );
   }
@@ -208,7 +239,7 @@ function DraggableText({
             onFocus={handleMouseEnter}
             onBlur={handleMouseLeave}
           >
-            Draggable Item {id.slice(-1)}
+            {device?.name || `Device ${id}`}
           </div>
         </PopoverTrigger>
         <PopoverContent
@@ -221,18 +252,28 @@ function DraggableText({
           <div className="flex items-start justify-between">
             <div>
               <div className="text-2xl font-extrabold text-gray-900">
-                Entry A1
+                {device?.name}
               </div>
               <div className="text-lg font-bold text-blue-800">
-                Controller - Entry
+                {device?.type
+                  ? device.type.charAt(0).toUpperCase() + device.type.slice(1)
+                  : ""}
               </div>
             </div>
-            <div className="text-green-600 font-extrabold text-lg mt-1">
-              ONLINE
+            <div
+              className={`font-extrabold text-lg mt-1 ${
+                device?.status === "online"
+                  ? "text-green-600"
+                  : device?.status === "maintenance"
+                    ? "text-yellow-600"
+                    : "text-red-600"
+              }`}
+            >
+              {device?.status.toUpperCase()}
             </div>
           </div>
           <div className="text-gray-400 text-xl font-medium">
-            Dorem ipsum dolor sit amet, consectetur adipiscing elit.
+            {device?.description}
           </div>
           <div className="flex gap-4 mt-2">
             <Button
@@ -256,11 +297,10 @@ function DraggableText({
 }
 
 function RouteComponent() {
-  const initialPositions: Record<string, PercentPosition> = {
-    item1: { x: 0, y: 0 },
-    item2: { x: 20, y: 0 },
-    item3: { x: 40, y: 0 },
-  };
+  // Use device.x and device.y for initial positions
+  const initialPositions: Record<string, PercentPosition> = Object.fromEntries(
+    DRAGGABLES.map((d) => [d.id, { x: d.x, y: d.y }])
+  );
   const [positions, setPositions] =
     useState<Record<string, PercentPosition>>(initialPositions);
   const [defaultPositions, setDefaultPositions] =
@@ -308,9 +348,9 @@ function RouteComponent() {
     if (!containerRect || !initialized) return;
     setPositions((old) => {
       const updated: Record<string, PercentPosition> = { ...old };
-      DRAGGABLES.forEach((id) => {
-        const pos = old[id];
-        updated[id] = {
+      DRAGGABLES.forEach((d) => {
+        const pos = old[d.id];
+        updated[d.id] = {
           x: Math.max(0, Math.min(pos.x, 100)),
           y: Math.max(0, Math.min(pos.y, 100)),
         };
@@ -395,12 +435,12 @@ function RouteComponent() {
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
           >
-            {DRAGGABLES.map((id) => (
+            {DRAGGABLES.map((d) => (
               <DraggableText
-                key={id}
-                id={id}
-                percentPosition={positions[id]}
-                isDragging={activeId === id}
+                key={d.id}
+                id={d.id}
+                percentPosition={positions[d.id]}
+                isDragging={activeId === d.id}
                 containerRect={containerRect}
                 relocatingId={relocatingId}
                 setRelocatingId={initialized ? setRelocatingId : () => {}}
@@ -418,7 +458,8 @@ function RouteComponent() {
             <DragOverlay>
               {activeId ? (
                 <div className="cursor-move select-none p-2 bg-white/90 rounded-md border border-gray-400 shadow-lg text-gray-900 font-bold">
-                  Draggable Item {activeId.slice(-1)}
+                  {DRAGGABLES.find((d) => d.id === activeId)?.name ||
+                    `Device ${activeId}`}
                 </div>
               ) : null}
             </DragOverlay>
