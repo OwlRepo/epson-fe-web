@@ -14,18 +14,30 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
+interface Range {
+  from: Date; // Start date of the range
+  to?: Date; // Optional end date of the range
+}
 interface DatePickerWithRangeProps
   extends Omit<React.HTMLAttributes<HTMLDivElement>, "onSelect"> {
   onSelect?: (date: DateRange | undefined) => void;
+  value?: Range | undefined;
+  readOnly?: boolean;
+  isWarning?: boolean;
+  isError?: boolean;
 }
 
 export function DatePickerWithRange({
   className,
   onSelect,
+  value,
+  readOnly,
+  isError = false,
+  isWarning = false,
 }: DatePickerWithRangeProps) {
   const [date, setDate] = React.useState<DateRange | undefined>({
-    from: new Date(2022, 0, 20),
-    to: addDays(new Date(2022, 0, 20), 20),
+    from: value?.from || new Date(),
+    to: value?.to || addDays(new Date(), 20),
   });
 
   const handleSelect = (selectedDate: DateRange | undefined) => {
@@ -35,6 +47,10 @@ export function DatePickerWithRange({
     }
   };
 
+  React.useEffect(() => {
+    setDate(value);
+  }, [value]);
+
   return (
     <div className={cn("grid gap-2", className)}>
       <Popover>
@@ -43,11 +59,15 @@ export function DatePickerWithRange({
             id="date"
             variant={"outline"}
             className={cn(
-              "w-[full] h-[44px] justify-start text-left font-normal",
+              "w-[full] h-[44px] justify-start text-left font-normal border-2",
+              isError &&
+                "disabled:border-red-500 text-red-500 disabled:opacity-100 disabled:pointer-events-auto disabled:font-bold ",
+              isWarning &&
+                "disabled:border-[#A8A830] text-[#A8A830] disabled:opacity-100 disabled:pointer-events-auto disabled:font-bold ",
               !date && "text-muted-foreground"
             )}
+            disabled={readOnly}
           >
-            <CalendarIcon />
             {date?.from ? (
               date.to ? (
                 <>
@@ -60,6 +80,7 @@ export function DatePickerWithRange({
             ) : (
               <span>Pick a date</span>
             )}
+            <CalendarIcon />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">

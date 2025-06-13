@@ -1,23 +1,23 @@
 import BasicInfromationForm from "@/components/BasicInformationForm";
-import { useMutateDayPassVisitor } from "@/hooks/mutation/useMutateDayPassVisitor";
+import { useMutateReservedGuest } from "@/hooks/mutation/useMutateReservedGuest";
 import useToastStyleTheme from "@/hooks/useToastStyleTheme";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute(
-  "/_authenticated/visitor-management/dashboard/check-in-visitor"
+  "/_authenticated/visitor-management/reserved-guest/register-guest"
 )({
   component: RouteComponent,
 });
 
 function RouteComponent() {
   const {
-    mutate: checkInVisitor,
+    mutate: checkInReservedGuest,
     isError,
-    isSuccess,
     error,
-  } = useMutateDayPassVisitor();
+    isSuccess,
+  } = useMutateReservedGuest();
 
   const { errorStyle, successStyle } = useToastStyleTheme();
 
@@ -41,9 +41,9 @@ function RouteComponent() {
 
   return (
     <BasicInfromationForm
-      type="check-in"
+      type="register-vip"
       onSubmitData={(data) => {
-        checkInVisitor(data);
+        checkInReservedGuest(data);
       }}
     />
   );

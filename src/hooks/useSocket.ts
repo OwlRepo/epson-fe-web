@@ -24,7 +24,13 @@ export interface DeviceData {
   DeviceCount: string | number;
 }
 
-export interface LiveData extends DeviceData {
+export interface VisitorData {
+  ID: string;
+  Name: string;
+  Purpose: string;
+}
+
+export interface LiveData extends DeviceData, VisitorData {
   id: string;
   device_id: string;
   name: string;
