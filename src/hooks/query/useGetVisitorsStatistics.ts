@@ -1,10 +1,6 @@
 import api from "@/config/axiosInstance";
 import { useQuery } from "@tanstack/react-query";
 
-interface VisitorStatisticsParams {
-  params?: string | undefined;
-}
-
 const getVisitorsStatistics = async () => {
   try {
     const response = await api.get(`/api/vms/visitorsOverview`);

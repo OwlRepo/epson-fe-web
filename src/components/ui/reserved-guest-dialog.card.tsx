@@ -44,7 +44,7 @@ export const ReservedGuestInfoDialog = ({
         break;
       case "check-out":
         // Handle check-out logic here
-        checkoutVisitor({ VisitorID: visitor?.ID });
+        checkoutVisitor({ VisitorID: visitor?.ID ?? "" });
         break;
       case "save-new-photo":
         // Handle check-out logic here

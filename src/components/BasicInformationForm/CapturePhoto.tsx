@@ -1,4 +1,4 @@
-import { Camera, Image, Loader2 } from "lucide-react";
+import { Image, Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "../ui/button";
 import useToastStyleTheme from "@/hooks/useToastStyleTheme";

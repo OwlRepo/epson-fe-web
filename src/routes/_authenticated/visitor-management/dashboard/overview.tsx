@@ -51,8 +51,7 @@ function RouteComponent() {
   //employee data
   const [isOpen, setIsOpen] = useState(false);
   const [visitorID, setVisitorID] = useState("");
-  const { data: visitor, isLoading: isVisitorLoading } =
-    useGetVisitorById(visitorID);
+  const { data: visitor } = useGetVisitorById(visitorID);
 
   // Add handler for page size changes
   const handlePageSizeChange = (newPageSize: number) => {
