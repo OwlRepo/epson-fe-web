@@ -13,6 +13,7 @@ import { ReservedGuestInfoDialog } from "@/components/ui/reserved-guest-dialog.c
 
 import { useGetVisitorById } from "@/hooks/query/useGetVisitorById";
 import { useGetVisitors } from "@/hooks/query/useGetVisitors";
+import { useGetVisitorsStatistics } from "@/hooks/query/useGetVisitorsStatistics";
 import countShortener from "@/utils/count-shortener";
 import { objToParams } from "@/utils/objToParams";
 
@@ -78,6 +79,9 @@ function RouteComponent() {
     isLoading: isVisitorListLoading,
     refetch,
   } = useGetVisitors(objToParams(search) as any);
+
+  const { data: visitorStatistics, isLoading: isVisitorStatisticsLoading } =
+    useGetVisitorsStatistics();
 
   useEffect(() => {
     if (Array.isArray(visitorList?.data)) {
@@ -210,18 +214,40 @@ function RouteComponent() {
         <CardSection headerLeft={<CardHeaderLeft />}>
           <div className="flex flex-col lg:flex-row justify-between gap-4">
             <AttendanceCountCard
-              count={parseInt(countShortener(0))}
+              count={
+                isVisitorStatisticsLoading
+                  ? 0
+                  : parseInt(
+                      countShortener(
+                        visitorStatistics?.data?.RegisteredGuest ?? 0
+                      )
+                    )
+              }
               icon={<InPremisesIcon />}
               subtitle="Registered Guest"
             />
             <AttendanceCountCard
-              count={parseInt(countShortener(0))}
+              count={
+                isVisitorStatisticsLoading
+                  ? 0
+                  : parseInt(
+                      countShortener(visitorStatistics?.data?.Active ?? 0)
+                    )
+              }
               icon={<ClockedInIcon />}
               subtitle="Active Guest"
               variant="success"
             />
             <AttendanceCountCard
-              count={parseInt(countShortener(0))}
+              count={
+                isVisitorStatisticsLoading
+                  ? 0
+                  : parseInt(
+                      countShortener(
+                        visitorStatistics?.data?.InactiveGuest ?? 0
+                      )
+                    )
+              }
               icon={<ClockedOutIcon />}
               subtitle="Inactive Guest"
               variant="error"
