@@ -104,8 +104,8 @@ function RouteComponent() {
       options: isVisitorTypesLoading
         ? []
         : visitorTypes?.map((item: any) => ({
-            label: item.name,
-            value: item.id,
+            label: item.Name,
+            value: item.ID,
           })),
     },
   ];
