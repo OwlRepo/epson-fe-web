@@ -14,6 +14,7 @@ import { ReservedGuestInfoDialog } from "@/components/ui/reserved-guest-dialog.c
 import { useGetVisitorById } from "@/hooks/query/useGetVisitorById";
 import { useGetVisitors } from "@/hooks/query/useGetVisitors";
 import { useGetVisitorsStatistics } from "@/hooks/query/useGetVisitorsStatistics";
+import { useGetVisitorTypes } from "@/hooks/query/useGetVisitorTypes";
 import countShortener from "@/utils/count-shortener";
 import { objToParams } from "@/utils/objToParams";
 
@@ -83,6 +84,9 @@ function RouteComponent() {
   const { data: visitorStatistics, isLoading: isVisitorStatisticsLoading } =
     useGetVisitorsStatistics();
 
+  const { data: visitorTypes, isLoading: isVisitorTypesLoading } =
+    useGetVisitorTypes();
+
   useEffect(() => {
     if (Array.isArray(visitorList?.data) || Array.isArray(visitorList)) {
       setData(visitorList);
@@ -95,73 +99,11 @@ function RouteComponent() {
 
   const filters: Filter[] = [
     {
-      key: "ID",
-      label: "ID",
-      options: Array.from(
-        new Set(visitorList?.map((item: VisitorData) => item.ID))
-      ).map((item) => ({
-        label: item,
-        value: item,
-      })),
-    },
-    {
-      key: "Name",
-      label: "Name",
-      options: Array.from(
-        new Set(visitorList?.map((item: VisitorData) => item.Name))
-      ).map((item) => ({
-        label: item,
-        value: item,
-      })),
-    },
-    {
       key: "GuestType",
       label: "Guest Type",
-      options: Array.from(
-        new Set(
-          visitorList?.map((item: VisitorData) =>
-            JSON.stringify({
-              id: item.GuestType?.id,
-              name: item.GuestType?.name,
-            })
-          )
-        )
-      ).map((item) => {
-        const parsed = JSON.parse(item as string);
-        return {
-          label: parsed.name,
-          value: parsed.id,
-        };
-      }),
-    },
-    {
-      key: "Purpose",
-      label: "Purpose",
-      options: Array.from(
-        new Set(visitorList?.map((item: VisitorData) => item.Purpose))
-      ).map((item) => ({
-        label: item,
-        value: item,
-      })),
-    },
-    {
-      key: "DateFrom",
-      label: "From Date",
-      options: Array.from(
-        new Set(visitorList?.map((item: VisitorData) => item.DateFrom))
-      ).map((item) => ({
-        label: item,
-        value: item,
-      })),
-    },
-    {
-      key: "DateTo",
-      label: "To Date",
-      options: Array.from(
-        new Set(visitorList?.map((item: VisitorData) => item.DateTo))
-      ).map((item) => ({
-        label: item,
-        value: item,
+      options: visitorTypes?.map((item: any) => ({
+        label: item.name,
+        value: item.id,
       })),
     },
   ];
