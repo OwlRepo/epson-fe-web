@@ -218,9 +218,7 @@ function RouteComponent() {
                 isVisitorStatisticsLoading
                   ? 0
                   : parseInt(
-                      countShortener(
-                        visitorStatistics?.data?.RegisteredGuest ?? 0
-                      )
+                      countShortener(visitorStatistics?.RegisteredGuest ?? 0)
                     )
               }
               icon={<InPremisesIcon />}
@@ -230,9 +228,7 @@ function RouteComponent() {
               count={
                 isVisitorStatisticsLoading
                   ? 0
-                  : parseInt(
-                      countShortener(visitorStatistics?.data?.Active ?? 0)
-                    )
+                  : parseInt(countShortener(visitorStatistics?.Active ?? 0))
               }
               icon={<ClockedInIcon />}
               subtitle="Active Guest"
@@ -243,9 +239,7 @@ function RouteComponent() {
                 isVisitorStatisticsLoading
                   ? 0
                   : parseInt(
-                      countShortener(
-                        visitorStatistics?.data?.InactiveGuest ?? 0
-                      )
+                      countShortener(visitorStatistics?.InactiveGuest ?? 0)
                     )
               }
               icon={<ClockedOutIcon />}
