@@ -84,8 +84,8 @@ function RouteComponent() {
     useGetVisitorsStatistics();
 
   useEffect(() => {
-    if (Array.isArray(visitorList?.data)) {
-      setData(data);
+    if (Array.isArray(visitorList?.data || Array.isArray(visitorList))) {
+      setData(visitorList);
       setTotalPages(visitorList.pagination.totalPages ?? 10);
       setTotalItems(visitorList.pagination.totalItems ?? 10);
     }
