@@ -217,9 +217,7 @@ function RouteComponent() {
               count={
                 isVisitorStatisticsLoading
                   ? 0
-                  : parseInt(
-                      countShortener(visitorStatistics?.RegisteredGuest ?? 0)
-                    )
+                  : parseInt(countShortener(visitorStatistics?.Registered ?? 0))
               }
               icon={<InPremisesIcon />}
               subtitle="Registered Guest"
@@ -238,9 +236,7 @@ function RouteComponent() {
               count={
                 isVisitorStatisticsLoading
                   ? 0
-                  : parseInt(
-                      countShortener(visitorStatistics?.InactiveGuest ?? 0)
-                    )
+                  : parseInt(countShortener(visitorStatistics?.Inactive ?? 0))
               }
               icon={<ClockedOutIcon />}
               subtitle="Inactive Guest"
