@@ -49,12 +49,15 @@ export interface VisitorData {
   Picture: string;
   UHF: string;
   Date: any;
-  DateFrom: Date;
-  DateTo: Date;
+  DateFrom: string;
+  DateTo: string;
   Room: string;
   PlateNo: string;
   Beverage?: string;
-  GuestType?: string;
+  GuestType?: {
+    id: string;
+    name: string;
+  };
   CardSurrendered?: boolean;
   type?:
     | "check-in"

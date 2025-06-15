@@ -84,10 +84,12 @@ function RouteComponent() {
     useGetVisitorsStatistics();
 
   useEffect(() => {
-    if (Array.isArray(visitorList?.data || Array.isArray(visitorList))) {
+    if (Array.isArray(visitorList?.data) || Array.isArray(visitorList)) {
       setData(visitorList);
-      setTotalPages(visitorList.pagination.totalPages ?? 10);
-      setTotalItems(visitorList.pagination.totalItems ?? 10);
+      if (visitorList?.pagination) {
+        setTotalPages(visitorList?.pagination?.totalPages ?? 10);
+        setTotalItems(visitorList?.pagination?.totalItems ?? 10);
+      }
     }
   }, [visitorList]);
 
@@ -96,7 +98,7 @@ function RouteComponent() {
       key: "ID",
       label: "ID",
       options: Array.from(
-        new Set(visitorList?.data?.map((item: VisitorData) => item.ID))
+        new Set(visitorList?.map((item: VisitorData) => item.ID))
       ).map((item) => ({
         label: item,
         value: item,
@@ -106,7 +108,7 @@ function RouteComponent() {
       key: "Name",
       label: "Name",
       options: Array.from(
-        new Set(visitorList?.data?.map((item: VisitorData) => item.Name))
+        new Set(visitorList?.map((item: VisitorData) => item.Name))
       ).map((item) => ({
         label: item,
         value: item,
@@ -116,17 +118,27 @@ function RouteComponent() {
       key: "GuestType",
       label: "Guest Type",
       options: Array.from(
-        new Set(visitorList?.data?.map((item: VisitorData) => item.GuestType))
-      ).map((item) => ({
-        label: (item as GuestType).name,
-        value: (item as GuestType).id,
-      })),
+        new Set(
+          visitorList?.map((item: VisitorData) =>
+            JSON.stringify({
+              id: item.GuestType?.id,
+              name: item.GuestType?.name,
+            })
+          )
+        )
+      ).map((item) => {
+        const parsed = JSON.parse(item as string);
+        return {
+          label: parsed.name,
+          value: parsed.id,
+        };
+      }),
     },
     {
       key: "Purpose",
       label: "Purpose",
       options: Array.from(
-        new Set(visitorList?.data?.map((item: VisitorData) => item.Purpose))
+        new Set(visitorList?.map((item: VisitorData) => item.Purpose))
       ).map((item) => ({
         label: item,
         value: item,
@@ -136,7 +148,7 @@ function RouteComponent() {
       key: "DateFrom",
       label: "From Date",
       options: Array.from(
-        new Set(visitorList?.data?.map((item: VisitorData) => item.DateFrom))
+        new Set(visitorList?.map((item: VisitorData) => item.DateFrom))
       ).map((item) => ({
         label: item,
         value: item,
@@ -146,7 +158,7 @@ function RouteComponent() {
       key: "DateTo",
       label: "To Date",
       options: Array.from(
-        new Set(visitorList?.data?.map((item: VisitorData) => item.DateTo))
+        new Set(visitorList?.map((item: VisitorData) => item.DateTo))
       ).map((item) => ({
         label: item,
         value: item,
