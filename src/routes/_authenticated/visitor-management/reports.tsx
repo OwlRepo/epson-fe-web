@@ -133,7 +133,7 @@ function ReportsDataTable() {
       options: Array.from(
         new Set(reportList?.data.map((item: VisitorReport) => item.CheckedIn))
       ).map((item) => ({
-        label: item,
+        label: dayjs(item as string).format("hh:mm:ss A"),
         value: item,
       })),
     },
@@ -143,7 +143,7 @@ function ReportsDataTable() {
       options: Array.from(
         new Set(reportList?.data.map((item: VisitorReport) => item.CheckedOut))
       ).map((item) => ({
-        label: item,
+        label: dayjs(item as string).format("hh:mm:ss A"),
         value: item,
       })),
     },
