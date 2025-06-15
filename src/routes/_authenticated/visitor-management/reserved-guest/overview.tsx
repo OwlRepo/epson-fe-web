@@ -101,10 +101,12 @@ function RouteComponent() {
     {
       key: "GuestType",
       label: "Guest Type",
-      options: visitorTypes?.map((item: any) => ({
-        label: item.name,
-        value: item.id,
-      })),
+      options: isVisitorTypesLoading
+        ? []
+        : visitorTypes?.map((item: any) => ({
+            label: item.name,
+            value: item.id,
+          })),
     },
   ];
 
