@@ -370,23 +370,21 @@ export const VisitorInformationDialog = ({
               <h2 className="text-2xl font-bold text-primary mt-1">
                 {visitor?.Name}
               </h2>
-              <h2 className="text-lg font-bold text-primary mt-1">
-                Contact No
-              </h2>
-              <p>{visitor?.ContactInformation}</p>
-
-              <h2 className="text-lg font-bold text-primary mt-1">
-                Host Person
-              </h2>
-              <p>{visitor?.HostPerson}</p>
-
-              <h2 className="text-lg font-bold text-primary mt-1">
-                Plate Number
-              </h2>
-              <p>{visitor?.PlateNo}</p>
-
-              <h2 className="text-lg font-bold text-primary mt-1">Purpose</h2>
-              <p>{visitor?.Purpose}</p>
+              <div className="grid grid-cols-2 gap-4">
+                <TextDisplay
+                  label="Contact No"
+                  value={visitor?.ContactInformation}
+                />
+                <TextDisplay label="Host Person" value={visitor?.HostPerson} />
+                <TextDisplay label="Company" value={visitor?.Company} />
+                <TextDisplay label="Plate Number" value={visitor?.PlateNo} />
+                <TextDisplay label="Room Reservation" value={visitor?.Room} />
+                <TextDisplay
+                  label="Beverage Request"
+                  value={visitor?.Beverage}
+                />
+                <TextDisplay label="Purpose" value={visitor?.Purpose} />
+              </div>
             </div>
           </div>
         )}
@@ -402,5 +400,19 @@ export const VisitorInformationDialog = ({
         )}
       </DialogContent>
     </Dialog>
+  );
+};
+
+interface TextDisplayProps {
+  label: string;
+  value?: string;
+}
+
+const TextDisplay = ({ label, value }: TextDisplayProps) => {
+  return (
+    <div>
+      <h2 className="text-lg font-bold text-primary mt-1">{label}</h2>
+      <p>{value}</p>
+    </div>
   );
 };
