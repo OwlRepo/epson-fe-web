@@ -17,4 +17,7 @@ export const getValidUserID = () =>
   getEnvVar("VITE_VALID_USER_CARD_ID").split("|") ?? [];
 export const getUHFDeviceID = () => getEnvVar("VITE_UHF_DEVICE_ID");
 export const getUHFProductID = () => getEnvVar("VITE_UHF_PRODUCT_ID");
+export const getUHFLength = ()=> parseInt(getEnvVar('VITE_UHF_LENGTH'));
+export const getMIFARELength = ()=>parseInt(getEnvVar('VITE_MIFARE_LENGTH'));
+export const getEMLength = ()=> parseInt(getEnvVar('VITE_EM_LENGTH'));
 // Add other env variable getters as needed

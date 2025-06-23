@@ -25,7 +25,7 @@ import Spinner from "./spinner";
 import { toast } from "sonner";
 import useToastStyleTheme from "@/hooks/useToastStyleTheme";
 import { readRFIDData } from "@/utils/rfidReaderCommand";
-import { getValidUserID } from "@/utils/env";
+import { getEMLength, getMIFARELength, getUHFLength, getValidUserID } from "@/utils/env";
 import type { EmployeeData } from "@/routes/_authenticated/attendance-monitoring/employees";
 import { useMutateEmployee } from "@/hooks/mutation/useMutateEmployee";
 import usePortStore from "@/store/usePortStore";
@@ -48,6 +48,9 @@ interface EmpInfoDialogProps {
 }
 
 const validUserID = getValidUserID();
+const UHFLength = getUHFLength();
+const MIFARELength = getMIFARELength();
+const EMLength = getEMLength();
 
 export default function EmpInfoDialog({
   employee,
@@ -99,7 +102,7 @@ export default function EmpInfoDialog({
       setIsUHFLinking(true);
       const data = await readRFIDData(newPort);
 
-      if (validUserID.includes(data?.userID ?? "")) {
+      if (UHFLength === data?.epc?.length) {
         setDeviceUHFValue(data?.epc ?? "");
         mutate({
           employeeID: employee?.EmployeeID,
@@ -150,11 +153,21 @@ export default function EmpInfoDialog({
         clearTimeout(timeout);
 
         if (e.key === "Enter") {
-          isEMLinking ? setDeviceEMValue(buffer) : setDeviceMIFAREValue(buffer);
-          mutate({
+          if(isEMLinking && EMLength === buffer.length){
+            setDeviceEMValue(buffer);
+            mutate({
             employeeID: employee?.EmployeeID,
-            payload: { [isEMLinking ? "EM" : "MIFARE"]: buffer },
+            payload: { EM: buffer },
           });
+        }
+          
+          if(isMIFARELinking && MIFARELength === buffer.length){
+            setDeviceMIFAREValue(buffer);
+             mutate({
+            employeeID: employee?.EmployeeID,
+            payload: { MIFARE: buffer },
+          });
+          }
           setIsMIFARELinking(false);
           setIsEMLinking(false);
           buffer = "";
