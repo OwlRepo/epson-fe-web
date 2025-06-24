@@ -16,8 +16,6 @@ import {
   CommandItem,
 } from "@/components/ui/command";
 import { Button } from "@/components/ui/button";
-import type { useForm } from "react-hook-form";
-import type { VisitorData } from ".";
 
 type Option = {
   label: string;
@@ -25,15 +23,15 @@ type Option = {
 };
 
 type AutoCompleteProps = {
-  name: keyof VisitorData;
+  name: any;
   id: string;
   label: string;
   readOnly?: boolean;
   required?: boolean;
-  setValue: ReturnType<typeof useForm<VisitorData>>["setValue"];
-  watch: ReturnType<typeof useForm<VisitorData>>["watch"];
-  register: ReturnType<typeof useForm<VisitorData>>["register"];
-  errors: ReturnType<typeof useForm<VisitorData>>["formState"]["errors"];
+  setValue: any;
+  watch: any;
+  register: any;
+  errors: any;
   queryHook: (search: string) => {
     data: Option[] | undefined;
     isLoading: boolean;
@@ -78,11 +76,12 @@ export const CustomAutoComplete = ({
             )}
             disabled={readOnly}
           >
-            {value ?? "Select..."}
+            {value || "Select..."}
             <ChevronsUpDown className="opacity-50" />
           </Button>
         </PopoverTrigger>
         <PopoverContent
+          forceMount
           align="start"
           className="w-[var(--radix-popover-trigger-width)] p-0"
         >
