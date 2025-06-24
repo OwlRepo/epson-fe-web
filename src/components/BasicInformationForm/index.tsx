@@ -530,7 +530,7 @@ const BasicInfoTextInput = ({
   );
 };
 
-const AutoComplete = ({
+export const AutoComplete = ({
   name,
   id,
   setValue,
@@ -542,15 +542,15 @@ const AutoComplete = ({
   errors,
   list,
 }: {
-  name: keyof VisitorData;
+  name: any;
   id: string;
-  setValue: ReturnType<typeof useForm<VisitorData>>["setValue"];
-  watch: ReturnType<typeof useForm<VisitorData>>["watch"];
-  register: ReturnType<typeof useForm<VisitorData>>["register"];
+  setValue: any;
+  watch: any;
+  register: any;
   readOnly?: boolean;
   required?: boolean;
   label: string;
-  errors: ReturnType<typeof useForm<VisitorData>>["formState"]["errors"];
+  errors: any;
   list: { value: string; label: string }[];
 }) => {
   const [open, setOpen] = useState(false);

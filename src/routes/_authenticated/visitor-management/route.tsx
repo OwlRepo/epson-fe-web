@@ -1,13 +1,21 @@
 import { VisitorManagementLayout } from "@/components/layouts/VisitorManagementLayout";
-import { createFileRoute, Outlet, redirect, useLoaderData } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Outlet,
+  redirect,
+  useLoaderData,
+} from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_authenticated/visitor-management")({
   component: RouteComponent,
   loader: async () => {
-    if (location.pathname === '/visitor-management' || location.pathname === '/visitor-management/dashboard') {
+    if (
+      location.pathname === "/visitor-management" ||
+      location.pathname === "/visitor-management/dashboard"
+    ) {
       throw redirect({
-        to: '/visitor-management/dashboard/overview',
-        replace: true
+        to: "/visitor-management/dashboard/overview",
+        replace: true,
       });
     }
     // TODO: Get user profile from API
