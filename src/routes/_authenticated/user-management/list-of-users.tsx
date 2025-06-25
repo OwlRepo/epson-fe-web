@@ -13,6 +13,7 @@ import {
   type Column,
   type Filter,
 } from "@/components/ui/dynamic-table";
+import { Input } from "@/components/ui/input";
 
 import Spinner from "@/components/ui/spinner";
 import { Switch } from "@/components/ui/switch";
@@ -29,10 +30,10 @@ import {
   useNavigate,
   useSearch,
 } from "@tanstack/react-router";
-import { Plus, X } from "lucide-react";
+import { Eye, EyeOff, Plus, X } from "lucide-react";
 
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 
 export const Route = createFileRoute(
   "/_authenticated/user-management/list-of-users"
@@ -49,6 +50,7 @@ export interface UserData {
   IsActive?: boolean;
   Role?: string;
   Email?: string;
+  Password?: string;
 }
 
 // Column definitions
@@ -324,18 +326,9 @@ const UserInfoDialog = ({ open, onOpenChange }: UserInfoDialogProps) => {
 const AddUserDialog = ({ open, onOpenChange }: DialogProps) => {
   const form = useForm<UserData>();
 
-  const [openPassword, setOpenPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
-  const {
-    register,
-    handleSubmit,
-    formState,
-    setValue,
-    watch,
-    control,
-    reset,
-    setError,
-  } = form;
+  const { register, handleSubmit, formState, setValue, watch, control } = form;
 
   return (
     <>
@@ -344,120 +337,245 @@ const AddUserDialog = ({ open, onOpenChange }: DialogProps) => {
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40" />
         )}
 
-        <DialogContent className="w-auto p-8 bg-white rounded-lg shadow-xl">
-          <DialogHeader className="flex flex-row justify-between items-center mb-6">
-            <DialogTitle className="text-xl font-semibold text-gray-800">
-              Add User
-            </DialogTitle>
-          </DialogHeader>
-          <div className="grid grid-cols-2 gap-8">
-            <div className="w-full  flex flex-col">
-              <h2 className="text-lg font-bold text-primary mt-1">User Info</h2>
-              <CustomAutoComplete
-                label="Employee"
-                name={"Name"}
-                id="employee"
-                setValue={setValue}
-                watch={watch}
-                register={register}
-                errors={formState?.errors}
-                readOnly={false}
-                queryHook={useGetHostPerson}
-              />
-            </div>
-            <div className="w-full  flex flex-col">
-              <h2 className="text-lg font-bold text-primary mt-1">Status:</h2>
-              <p className="text-sm">Enable or Disable User Access</p>
+        {!showPassword && (
+          <DialogContent className="w-auto p-8 bg-white rounded-lg shadow-xl">
+            <DialogHeader className="flex flex-row justify-between items-center mb-6">
+              <DialogTitle className="text-xl font-semibold text-gray-800">
+                Add User
+              </DialogTitle>
+            </DialogHeader>
+            <div className="grid grid-cols-2 gap-8">
+              <div className="w-full  flex flex-col">
+                <h2 className="text-lg font-bold text-primary mt-1">
+                  User Info
+                </h2>
+                <CustomAutoComplete
+                  required={false}
+                  withID
+                  label="Employee"
+                  name={"Name"}
+                  id="employee"
+                  setValue={setValue}
+                  watch={watch}
+                  register={register}
+                  errors={formState?.errors}
+                  readOnly={false}
+                  queryHook={useGetHostPerson}
+                />
+              </div>
+              <div className="w-full  flex flex-col">
+                <h2 className="text-lg font-bold text-primary mt-1">Status:</h2>
+                <p className="text-sm">Enable or Disable User Access</p>
 
-              <div className="mt-auto flex items-center gap-4">
-                <Switch
-                  checked={false}
-                  className={cn(
-                    "data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
+                <div className="mt-auto flex items-center gap-4">
+                  <Controller
+                    name="IsActive"
+                    control={control}
+                    render={({ field }) => (
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                        className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
+                      />
+                    )}
+                  />
+                  <p>Active user</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="border my-8" />
+
+            <div className="grid grid-cols-2 gap-8">
+              <div className="w-full  flex flex-col">
+                <h2 className="text-lg font-bold text-primary mt-1">
+                  User Role
+                </h2>
+                <AutoComplete
+                  required={false}
+                  label="Roles"
+                  name={"Roles"}
+                  id="roles"
+                  setValue={setValue}
+                  watch={watch}
+                  register={register}
+                  errors={formState?.errors}
+                  list={[{ label: "sample", value: "sampple" }]}
+                />
+              </div>
+              <div className="w-full  flex flex-col">
+                <h2 className="text-lg font-bold text-primary mt-1">
+                  Access to Modules:
+                </h2>
+                <p className="text-sm">Assign Modules Accessible to the User</p>
+
+                <Controller
+                  name="Access"
+                  control={control}
+                  render={({ field }) => (
+                    <ModuleSelection
+                      value={field?.value ?? []}
+                      onChange={field.onChange}
+                    />
                   )}
                 />
-                <p>Active user</p>
               </div>
             </div>
-          </div>
 
-          <div className="border my-8" />
+            <div className="border my-8" />
 
-          <div className="grid grid-cols-2 gap-8">
-            <div className="w-full  flex flex-col">
-              <h2 className="text-lg font-bold text-primary mt-1">User Role</h2>
-              <AutoComplete
-                label="Roles"
-                name={"Roles"}
-                id="roles"
-                setValue={setValue}
-                watch={watch}
-                register={register}
-                errors={formState?.errors}
-                list={[{ label: "sample", value: "sampple" }]}
-              />
+            <div className="flex justify-end gap-2">
+              <Button onClick={() => setShowPassword(true)}>
+                Set Password
+              </Button>
+              <Button onClick={handleSubmit((data) => console.log(data))}>
+                Save User
+              </Button>
             </div>
-            <div className="w-full  flex flex-col">
-              <h2 className="text-lg font-bold text-primary mt-1">
-                Access to Modules:
-              </h2>
-              <p className="text-sm">Assign Modules Accessible to the User</p>
-
-              <div className="mt-2 gap-1 flex flex-wrap">
-                {Object.keys(accessClassMap).map((access) => {
-                  const hasAccess = [""]?.includes(access);
-                  return (
-                    <Badge
-                      className={cn(
-                        "bg-slate-400 text-white  rounded-full ml-1",
-                        hasAccess
-                          ? `hover:${accessClassMap[access as keyof typeof accessClassMap] || ""} hover:${accessClassMap[access as keyof typeof accessClassMap] || ""} ${
-                              accessClassMap[
-                                access as keyof typeof accessClassMap
-                              ]
-                            }`
-                          : null
-                      )}
-                    >
-                      {access}{" "}
-                      {hasAccess ? (
-                        <X size={12} onClick={() => alert(access)} />
-                      ) : (
-                        <Plus size={12} onClick={() => alert(access)} />
-                      )}
-                    </Badge>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-
-          <div className="border my-8" />
-
-          <div className="flex justify-end">
-            <Button onClick={() => setOpenPassword(true)}>Set Password</Button>
-          </div>
-        </DialogContent>
-        {openPassword && (
-          <PasswordDialog open={openPassword} onOpenChange={setOpenPassword} />
+          </DialogContent>
+        )}
+        {showPassword && (
+          <PasswordDialogContent
+            onSetPassword={(data) => {
+              setValue("Password", data?.Password);
+              setShowPassword(false);
+            }}
+          />
         )}
       </Dialog>
     </>
   );
 };
 
-const PasswordDialog = ({ open, onOpenChange }: DialogProps) => {
+const PasswordDialogContent = ({
+  onSetPassword,
+}: {
+  onSetPassword: (data: any) => void;
+}) => {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const { register, handleSubmit, formState, watch } = useForm();
+
+  const password = watch("Password");
   return (
-    <Dialog open={open} onOpenChange={onOpenChange} modal={false}>
-      <DialogPortal>
-        <DialogContent className="sm:max-w-[500px] p-8 bg-white rounded-lg shadow-xl">
-          <DialogHeader className="flex flex-row justify-between items-center mb-6">
-            <DialogTitle className="text-xl font-semibold text-gray-800">
-              SetPassword
-            </DialogTitle>
-          </DialogHeader>
-        </DialogContent>
-      </DialogPortal>
-    </Dialog>
+    <DialogContent>
+      <DialogHeader className="flex flex-row justify-between items-center mb-6">
+        <DialogTitle className="text-xl font-semibold text-gray-800">
+          Password
+        </DialogTitle>
+      </DialogHeader>
+      <div>
+        <div className="relative">
+          <Input
+            {...register("Password", { required: "Password is required" })}
+            type={showPassword ? "text" : "password"}
+            id="password"
+            placeholder="Password"
+            className="h-[44px]"
+          />
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+            onClick={() => setShowPassword(!showPassword)}
+          >
+            {showPassword ? (
+              <EyeOff className="h-4 w-4 text-gray-500" />
+            ) : (
+              <Eye className="h-4 w-4 text-gray-500" />
+            )}
+          </Button>
+        </div>
+      </div>
+      <div className="relative">
+        <Input
+          {...register("ConfirmPassword", {
+            validate: (value) => value === password || "Passwords do not match",
+          })}
+          type={showConfirmPassword ? "text" : "password"}
+          id="password"
+          placeholder="Confirm Password"
+          className="h-[44px]"
+        />
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+        >
+          {showConfirmPassword ? (
+            <EyeOff className="h-4 w-4 text-gray-500" />
+          ) : (
+            <Eye className="h-4 w-4 text-gray-500" />
+          )}
+        </Button>
+      </div>
+      {formState.errors.Password && (
+        <p className="text-xs text-red-600">
+          {String(formState?.errors.Password.message || "")}
+        </p>
+      )}
+
+      {formState.errors.ConfirmPassword && (
+        <p className="text-xs text-red-600">
+          {String(formState?.errors.ConfirmPassword.message || "")}
+        </p>
+      )}
+      <Button onClick={handleSubmit((data) => onSetPassword(data))}>
+        Set Password
+      </Button>
+    </DialogContent>
+  );
+};
+
+type ModuleSelectionProps = {
+  value: string[];
+  onChange: (value: string[]) => void;
+};
+
+const ModuleSelection = ({ value, onChange }: ModuleSelectionProps) => {
+  const toggleAccess = (access: string) => {
+    if (value.includes(access)) {
+      onChange(value.filter((item) => item !== access)); // remove
+    } else {
+      onChange([...value, access]); // add
+    }
+  };
+
+  return (
+    <div className="mt-2 gap-1 flex flex-wrap">
+      {Object.keys(accessClassMap).map((access) => {
+        const hasAccess = value.includes(access);
+        return (
+          <Badge
+            key={access}
+            className={cn(
+              "bg-slate-400 text-white rounded-full ml-1 cursor-pointer",
+              hasAccess &&
+                accessClassMap[access as keyof typeof accessClassMap],
+              hasAccess &&
+                `hover:${accessClassMap[access as keyof typeof accessClassMap]}`
+            )}
+          >
+            {access}
+            {hasAccess ? (
+              <X
+                size={12}
+                className="ml-1"
+                onClick={() => toggleAccess(access)}
+              />
+            ) : (
+              <Plus
+                size={12}
+                className="ml-1"
+                onClick={() => toggleAccess(access)}
+              />
+            )}
+          </Badge>
+        );
+      })}
+    </div>
   );
 };

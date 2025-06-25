@@ -6,9 +6,11 @@ const getHostPerson = async (hostPerson: string) => {
     const response = await api.get(
       `/api/vms/hostperson?HostPerson=${hostPerson}`
     );
+
     return response.data.data.map((item: any) => ({
       value: item.HOSTPERSON,
       label: item.HOSTPERSON,
+      id: item.EmployeeID,
     }));
   } catch (error) {
     console.error("Error fetching host person data:", error);
