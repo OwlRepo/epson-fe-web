@@ -29,13 +29,13 @@ export default function CardHeaderRight({
         <div className="flex flex-row space-x-10">
           {clockedIn && (
             <div className="flex flex-row space-x-2">
-              <p>Time In:</p>
+              <p>Incoming:</p>
               <b className="text-positive">{countShortener(clockedIn ?? 0)}</b>
             </div>
           )}
           {clockedOut && (
             <div className="flex flex-row space-x-2">
-              <p>Time Out:</p>
+              <p>Outgoing:</p>
               <b className="text-negative">{countShortener(clockedOut ?? 0)}</b>
             </div>
           )}

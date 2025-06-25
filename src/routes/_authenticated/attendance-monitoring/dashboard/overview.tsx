@@ -101,7 +101,7 @@ function RouteComponent() {
             <AttendanceCountCard
               count={countData?.in ? parseInt(countShortener(countData.in)) : 0}
               icon={<ClockedInIcon />}
-              subtitle="Time in"
+              subtitle="Incoming"
               variant="success"
             />
             <AttendanceCountCard
@@ -109,7 +109,7 @@ function RouteComponent() {
                 countData?.out ? parseInt(countShortener(countData.out)) : 0
               }
               icon={<ClockedOutIcon />}
-              subtitle="Time out"
+              subtitle="Outgoing"
               variant="error"
             />
           </div>
@@ -151,11 +151,11 @@ function RouteComponent() {
                   },
                   {
                     key: "clocked_in",
-                    label: "Time In",
+                    label: "Incoming",
                   },
                   {
                     key: "clocked_out",
-                    label: "Time Out",
+                    label: "Outgoing",
                   },
                 ]}
                 filters={[
@@ -191,7 +191,7 @@ function RouteComponent() {
                   },
                   {
                     key: "clocked_in",
-                    label: "Time In",
+                    label: "Incoming",
                     options: Array.from(
                       new Set(liveData.map((item) => item.clocked_in ?? "-"))
                     ).map((item) => ({
@@ -201,7 +201,7 @@ function RouteComponent() {
                   },
                   {
                     key: "clocked_out",
-                    label: "Time Out",
+                    label: "Outgoing",
                     options: Array.from(
                       new Set(liveData.map((item) => item.clocked_out ?? "-"))
                     ).map((item) => ({

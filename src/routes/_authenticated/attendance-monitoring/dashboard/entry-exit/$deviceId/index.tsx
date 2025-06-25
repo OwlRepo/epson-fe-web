@@ -124,11 +124,11 @@ function RouteComponent() {
               currentSelectedDeviceType === "Clocked In"
                 ? {
                     key: "clocked_in",
-                    label: "TIME IN",
+                    label: "Incoming",
                   }
                 : {
                     key: "clocked_out",
-                    label: "TIME OUT",
+                    label: "Outgoing",
                   },
             ]}
             filters={[
@@ -164,7 +164,7 @@ function RouteComponent() {
               },
               {
                 key: "clocked_in",
-                label: "Time In",
+                label: "Incoming",
                 options: Array.from(
                   new Set(data.map((item) => item.clocked_in ?? "-"))
                 ).map((item) => ({
@@ -174,7 +174,7 @@ function RouteComponent() {
               },
               {
                 key: "clocked_out",
-                label: "Time Out",
+                label: "Outgoing",
                 options: Array.from(
                   new Set(data.map((item) => item.clocked_out ?? "-"))
                 ).map((item) => ({

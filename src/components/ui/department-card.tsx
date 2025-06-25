@@ -17,21 +17,35 @@ export function DepartmentCard({
   onClick,
 }: DepartmentCardProps) {
   return (
-    <div className={cn("bg-blue-50 rounded p-6 flex flex-col h-full justify-betwee space-y-16", className)} onClick={onClick}>
+    <div
+      className={cn(
+        "bg-blue-50 rounded p-6 flex flex-col h-full justify-betwee space-y-16",
+        className
+      )}
+      onClick={onClick}
+    >
       <div className="flex flex-col space-y-2">
         <h3 className="font-bold mb-1 text-2xl">{title}</h3>
         {/* <p className="text-xs text-gray-500 mb-10">{title}</p> */}
       </div>
 
       <div className="flex justify-between">
-        {clockedIn !== undefined && <div className="flex flex-col">
-          <span className="text-2xl font-bold">{countShortener(clockedIn)}</span>
-          <span className="text-xs text-gray-600">Clocked In</span>
-        </div>}
-        {clockedOut !== undefined && <div className="flex flex-col">
-          <span className="text-2xl font-bold">{countShortener(clockedOut)}</span>
-          <span className="text-xs text-gray-600">Clocked Out</span>
-        </div>}
+        {clockedIn !== undefined && (
+          <div className="flex flex-col">
+            <span className="text-2xl font-bold">
+              {countShortener(clockedIn)}
+            </span>
+            <span className="text-xs text-gray-600">Incoming</span>
+          </div>
+        )}
+        {clockedOut !== undefined && (
+          <div className="flex flex-col">
+            <span className="text-2xl font-bold">
+              {countShortener(clockedOut)}
+            </span>
+            <span className="text-xs text-gray-600">Outgoing</span>
+          </div>
+        )}
       </div>
     </div>
   );
