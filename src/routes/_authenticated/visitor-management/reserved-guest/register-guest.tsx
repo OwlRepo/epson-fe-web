@@ -43,7 +43,8 @@ function RouteComponent() {
     <BasicInfromationForm
       type="register-vip"
       onSubmitData={(data) => {
-        checkInReservedGuest(data);
+        console.log(data);
+        // checkInReservedGuest(data);
       }}
     />
   );

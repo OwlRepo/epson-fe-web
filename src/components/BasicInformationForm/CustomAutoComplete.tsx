@@ -32,6 +32,7 @@ type AutoCompleteProps = {
   watch: any;
   register: any;
   errors: any;
+  withID?: boolean;
   queryHook: (search: string) => {
     data: Option[] | undefined;
     isLoading: boolean;
@@ -49,6 +50,7 @@ export const CustomAutoComplete = ({
   label,
   errors,
   queryHook,
+  withID = false,
 }: AutoCompleteProps) => {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
@@ -81,7 +83,6 @@ export const CustomAutoComplete = ({
           </Button>
         </PopoverTrigger>
         <PopoverContent
-          forceMount
           align="start"
           className="w-[var(--radix-popover-trigger-width)] p-0"
         >
@@ -101,12 +102,13 @@ export const CustomAutoComplete = ({
                 <CommandEmpty>No result found.</CommandEmpty>
               ) : (
                 <CommandGroup>
-                  {data?.map((item) => (
+                  {data?.map((item: any) => (
                     <CommandItem
                       key={item.value}
                       value={item.value}
                       onSelect={(val) => {
                         setValue(name, val === value ? "" : val);
+                        if (withID) setValue("ID", item.id);
                         setOpen(false);
                       }}
                     >
