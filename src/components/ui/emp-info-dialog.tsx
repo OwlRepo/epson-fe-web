@@ -25,7 +25,7 @@ import Spinner from "./spinner";
 import { toast } from "sonner";
 import useToastStyleTheme from "@/hooks/useToastStyleTheme";
 import { readRFIDData } from "@/utils/rfidReaderCommand";
-import { getValidUserID } from "@/utils/env";
+import { getEMLength, getMIFARELength, getUHFLength } from "@/utils/env";
 import type { EmployeeData } from "@/routes/_authenticated/attendance-monitoring/employees";
 import { useMutateEmployee } from "@/hooks/mutation/useMutateEmployee";
 import usePortStore from "@/store/usePortStore";
@@ -47,7 +47,10 @@ interface EmpInfoDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const validUserID = getValidUserID();
+
+const UHFLength = getUHFLength();
+const MIFARELength = getMIFARELength();
+const EMLength = getEMLength();
 
 export default function EmpInfoDialog({
   employee,
@@ -99,7 +102,7 @@ export default function EmpInfoDialog({
       setIsUHFLinking(true);
       const data = await readRFIDData(newPort);
 
-      if (validUserID.includes(data?.userID ?? "")) {
+      if (UHFLength === data?.epc?.length) {
         setDeviceUHFValue(data?.epc ?? "");
         mutate({
           employeeID: employee?.EmployeeID,
@@ -140,42 +143,82 @@ export default function EmpInfoDialog({
   }, [isError, isSuccess]);
 
   useEffect(() => {
-    if (!isOpen) return;
+  if (!isOpen) return;
 
-    let buffer = "";
-    let timeout: ReturnType<typeof setTimeout>;
+  let buffer = "";
+  let timeout: ReturnType<typeof setTimeout> | null = null;
 
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (isMIFARELinking || isEMLinking) {
-        clearTimeout(timeout);
+  const resetLinkingState = () => {
+    setIsMIFARELinking(false);
+    setIsEMLinking(false);
+    buffer = "";
+  };
 
-        if (e.key === "Enter") {
-          isEMLinking ? setDeviceEMValue(buffer) : setDeviceMIFAREValue(buffer);
-          mutate({
-            employeeID: employee?.EmployeeID,
-            payload: { [isEMLinking ? "EM" : "MIFARE"]: buffer },
-          });
-          setIsMIFARELinking(false);
-          setIsEMLinking(false);
-          buffer = "";
-        } else {
-          buffer += e.key;
+  const triggerMutation = (type: "MIFARE" | "EM", value: string) => {
+    if (!employee?.EmployeeID) return;
+    mutate({
+      employeeID: employee.EmployeeID,
+      payload: type === "MIFARE" ? { MIFARE: value } : { EM: value },
+    });
+  };
 
-          timeout = setTimeout(() => {
-            setDeviceMIFAREValue(buffer);
-            setIsMIFARELinking(false);
-            setIsEMLinking(false);
-            buffer = "";
-          }, 500);
-        }
-      }
-    };
+  const handleEnterPress = () => {
+  let showedError = false;
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [isOpen, isMIFARELinking, isEMLinking]);
+  if (isEMLinking) {
+    if (buffer.length === EMLength) {
+      setDeviceEMValue(buffer);
+      triggerMutation("EM", buffer);
+    } else {
+      showedError = true;
+    }
+  }
+
+  if (isMIFARELinking) {
+    if (buffer.length === MIFARELength) {
+      setDeviceMIFAREValue(buffer);
+      triggerMutation("MIFARE", buffer);
+    } else {
+      showedError = true;
+    }
+  }
+
+  if (showedError) {
+    toast.error("Oops! Card is not valid", {
+      description: "Please make sure your card is valid and try again.",
+      className: "bg-red-50 border-red-200 text-black",
+      style: errorStyle,
+    });
+  }
+
+  resetLinkingState();
+};
+
+
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (!isMIFARELinking && !isEMLinking) return;
+
+    if (timeout) clearTimeout(timeout);
+
+    if (e.key === "Enter") {
+      handleEnterPress();
+    } else {
+      buffer += e.key;
+
+      timeout = setTimeout(() => {
+        if (isMIFARELinking) setDeviceMIFAREValue(buffer);
+        resetLinkingState();
+      }, 500);
+    }
+  };
+
+  window.addEventListener("keydown", handleKeyDown);
+  return () => {
+    if (timeout) clearTimeout(timeout);
+    window.removeEventListener("keydown", handleKeyDown);
+  };
+}, [isOpen, isMIFARELinking, isEMLinking, EMLength, MIFARELength, employee]);
+
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
