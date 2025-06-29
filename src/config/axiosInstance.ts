@@ -65,17 +65,24 @@ api.interceptors.response.use(
     const errorMessage =
       error.response?.data?.message || error.response?.message || error.message || "An error occurred";
 
-    if (toastConfig) {
-      toast.error(toastConfig.title || "Request failed", {
-        description: toastConfig.message || errorMessage,
-        className: "bg-red-50 border-red-200 text-red-800",
-        style: JSON.parse(ToastType.ERROR_STYLE),
-      });
-    }
     
     if (error.response?.status === 401 && window.location.pathname !== "/") {
       localStorage.removeItem("token");
       window.location.href = "/";
+      if (toastConfig) {
+        toast.error(toastConfig.title || "Request failed", {
+          description: "Please login again",
+          className: "bg-red-50 border-red-200 text-red-800",
+          style: JSON.parse(ToastType.ERROR_STYLE),
+        });
+      }
+    }
+    else{
+      toast.error(toastConfig?.title || "Request failed", {
+        description: "Login failed. Please try again.",
+        className: "bg-red-50 border-red-200 text-red-800",
+        style: JSON.parse(ToastType.ERROR_STYLE),
+      });
     }
 
     return Promise.reject(error);
