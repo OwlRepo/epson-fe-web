@@ -2,7 +2,6 @@ import axios from "axios";
 import { toast } from "sonner";
 import { ToastType } from "@/hooks/useToastStyleTheme";
 import { getApiRESTBaseUrl } from "@/utils/env";
-import { useRouter } from "@tanstack/react-router";
 
 // Extend the AxiosRequestConfig type to include our custom properties
 declare module "axios" {
