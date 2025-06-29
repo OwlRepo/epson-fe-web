@@ -63,7 +63,7 @@ api.interceptors.response.use(
   (error) => {
     const toastConfig = error.config?.toastConfig?.error;
     const errorMessage =
-      error.response?.data?.message || error.message || "An error occurred";
+      error.response?.data?.message || error.response?.message || error.message || "An error occurred";
 
     if (toastConfig) {
       toast.error(toastConfig.title || "Request failed", {
