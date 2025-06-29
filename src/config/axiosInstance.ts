@@ -72,6 +72,7 @@ api.interceptors.response.use(
         style: JSON.parse(ToastType.ERROR_STYLE),
       });
     }
+    
     if (error.response?.status === 401) {
       localStorage.removeItem("token");
       window.location.href = "/";

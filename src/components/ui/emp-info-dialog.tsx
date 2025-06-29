@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, CircleX, UserX } from "lucide-react"; // Import UserX icon
+import { CheckCircle, UserX } from "lucide-react"; // Import UserX icon
 import {
   forwardRef,
   useEffect,
