@@ -71,7 +71,7 @@ api.interceptors.response.use(
       window.location.href = "/";
       if (toastConfig) {
         toast.error(toastConfig.title || "Request failed", {
-          description: "Please login again",
+          description: errorMessage || "Please login again",
           className: "bg-red-50 border-red-200 text-red-800",
           style: JSON.parse(ToastType.ERROR_STYLE),
         });
@@ -79,7 +79,7 @@ api.interceptors.response.use(
     }
     else{
       toast.error(toastConfig?.title || "Request failed", {
-        description: "Login failed. Please try again.",
+        description: errorMessage || "Login failed. Please try again.",
         className: "bg-red-50 border-red-200 text-red-800",
         style: JSON.parse(ToastType.ERROR_STYLE),
       });
