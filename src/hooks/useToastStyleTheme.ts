@@ -8,7 +8,7 @@ export default function useToastStyleTheme() {
     errorStyle: {
       background: "#fef2f2",
       border: "1px solid #fecaca",
-      color: "#000000",
+      color: "#991b1b",
     },
     infoStyle: {
       background: "#edf4fc",
