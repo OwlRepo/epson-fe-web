@@ -2,6 +2,7 @@ import axios from "axios";
 import { toast } from "sonner";
 import { ToastType } from "@/hooks/useToastStyleTheme";
 import { getApiRESTBaseUrl } from "@/utils/env";
+import { useRouter } from "@tanstack/react-router";
 
 // Extend the AxiosRequestConfig type to include our custom properties
 declare module "axios" {
@@ -38,7 +39,7 @@ api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+      config.headers.Authorization = `Bearer ${token.includes("Bearer") ? token.split(" ")[1] : token}`;
     }
     return config;
   },
@@ -71,6 +72,10 @@ api.interceptors.response.use(
         className: "bg-red-50 border-red-200 text-red-800",
         style: JSON.parse(ToastType.ERROR_STYLE),
       });
+    }
+    if (error.response?.status === 401) {
+      localStorage.removeItem("token");
+      window.location.href = "/";
     }
 
     return Promise.reject(error);

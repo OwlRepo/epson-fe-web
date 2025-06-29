@@ -1,0 +1,49 @@
+import { toast } from "sonner";
+import { z } from "zod";
+import api from "@/config/axiosInstance";
+import { useMutation } from "@tanstack/react-query";
+import useToastStyleTheme from "../useToastStyleTheme";
+import { useRouter } from "@tanstack/react-router";
+
+const loginSchema = z.object({
+    email: z.string().email("Invalid email address").min(1, "Email is required"),
+    password: z.string().min(1, "Password is required"),
+  });
+  
+  type LoginFormData = z.infer<typeof loginSchema>;
+  
+const loginUser = async (data: LoginFormData) => {
+    const response = await api.post("/loginUser", {
+      email: data.email,
+      password: data.password,
+    });
+    return response.data;
+  };
+
+export default function useLoginUser() {
+    const router = useRouter();
+  const { successStyle, errorStyle } = useToastStyleTheme()
+    const loginResponse = useMutation({
+        mutationFn: loginUser,
+        onSuccess: (data) => {
+          toast.success("Login successful!", {
+            description: "Welcome back! You've successfully signed in.",
+            className: "bg-green-50 border-green-200 text-black",
+            style: successStyle,
+          });
+          localStorage.setItem("token", data.token);
+          router.navigate({ to: "/modules" });
+        },
+        onError: (error: any) => {
+          toast.error("Login failed", {
+            description:
+              error.response?.data?.error,
+            className: "bg-red-50 border-red-200 text-black",
+            style: errorStyle,
+          });
+        },
+      });
+  return {
+    ...loginResponse,
+  };
+}

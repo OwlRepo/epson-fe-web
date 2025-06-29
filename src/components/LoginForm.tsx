@@ -1,32 +1,21 @@
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
-import axios from "axios";
-import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import Spinner from "./ui/spinner";
 import { VerifyiColoredLogo } from "@/assets/svgs";
-import { useRouter } from "@tanstack/react-router";
-import useToastStyleTheme from "@/hooks/useToastStyleTheme";
+import useLoginUser from "@/hooks/mutation/useLoginUser";
 
 const loginSchema = z.object({
-  employeeId: z.string().min(1, "Employee ID is required"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  email: z.string().email("Invalid email address").min(1, "Email is required"),
+  password: z.string().min(1, "Password is required"),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
-const loginUser = async (data: LoginFormData) => {
-  const response = await axios.post("https://reqres.in/api/login", {
-    email: data.employeeId,
-    password: data.password,
-  });
-  return response.data;
-};
 
 export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -37,33 +26,7 @@ export function LoginForm() {
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
-
-  const router = useRouter();
-  const { successStyle, errorStyle } = useToastStyleTheme()
-
-  const { mutate: login, isPending } = useMutation({
-    mutationFn: loginUser,
-    onSuccess: (data) => {
-      toast.success("Login successful!", {
-        description: "Welcome back! You've successfully signed in.",
-        className: "bg-green-50 border-green-200 text-black",
-        style: successStyle,
-      });
-      // TODO: Handle successful login (e.g., store token, redirect)
-      console.log("Login successful:", data);
-      router.navigate({ to: "/modules" });
-    },
-    onError: (error: any) => {
-      toast.error("Login failed", {
-        description:
-          error.response?.data?.error ||
-          "Invalid credentials. Please try again.",
-        className: "bg-red-50 border-red-200 text-black",
-        style: errorStyle,
-      });
-    },
-  });
-
+  const { mutate: login, isPending } = useLoginUser();
   const onSubmit = async (data: LoginFormData) => {
     login(data);
   };
@@ -92,19 +55,19 @@ export function LoginForm() {
                   htmlFor="employeeId"
                   className="text-sm font-medium text-gray-700"
                 >
-                  Employee ID
+                  Email
                 </label>
                 <Input
-                  {...register("employeeId")}
+                  {...register("email")}
                   type="text"
-                  id="employeeId"
-                  placeholder="Enter your Employee ID"
+                  id="email"
+                  placeholder="Enter your email"
                   disabled={isPending}
                   className="h-[44px]"
                 />
-                {errors.employeeId && (
+                {errors.email && (
                   <p className="text-xs text-red-600">
-                    {errors.employeeId.message}
+                    {errors.email.message}
                   </p>
                 )}
               </div>
