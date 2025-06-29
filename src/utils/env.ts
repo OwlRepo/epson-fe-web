@@ -24,4 +24,7 @@ export const getUHFProductID = () => getEnvVar("VITE_UHF_PRODUCT_ID");
 export const getUHFLength = () => parseInt(getEnvVar("VITE_UHF_LENGTH"));
 export const getMIFARELength = () => parseInt(getEnvVar("VITE_MIFARE_LENGTH"));
 export const getEMLength = () => parseInt(getEnvVar("VITE_EM_LENGTH"));
+export const getIsSerialConnection = () =>
+  parseInt(getEnvVar("VITE_IS_SERIAL_CONNECTION"));
+
 // Add other env variable getters as needed
