@@ -13,7 +13,7 @@ const loginSchema = z.object({
   type LoginFormData = z.infer<typeof loginSchema>;
   
 const loginUser = async (data: LoginFormData) => {
-    const response = await api.post("/loginUser", {
+    const response = await api.post("/api/users/loginUser", {
       email: data.email,
       password: data.password,
     });
