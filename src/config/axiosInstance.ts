@@ -63,28 +63,28 @@ api.interceptors.response.use(
   (error) => {
     const toastConfig = error.config?.toastConfig?.error;
     const errorMessage =
-      error.response?.data?.message || error.response?.message || error.message || "An error occurred";
+      error.response?.data?.message ||
+      error.response?.message ||
+      error.message ||
+      "An error occurred";
 
-    
-    if (error.response?.status === 401 && window.location.pathname !== "/") {
-      localStorage.removeItem("token");
-      window.location.href = "/";
-      if (toastConfig) {
+    if (toastConfig) {
+      if (error.response?.status === 401 && window.location.pathname !== "/") {
+        localStorage.removeItem("token");
+        window.location.href = "/";
         toast.error(toastConfig.title || "Request failed", {
           description: errorMessage || "Please login again",
           className: "bg-red-50 border-red-200 text-red-800",
           style: JSON.parse(ToastType.ERROR_STYLE),
         });
+      } else {
+        toast.error(toastConfig?.title || "Request failed", {
+          description: errorMessage || "Login failed. Please try again.",
+          className: "bg-red-50 border-red-200 text-red-800",
+          style: JSON.parse(ToastType.ERROR_STYLE),
+        });
       }
     }
-    else{
-      toast.error(toastConfig?.title || "Request failed", {
-        description: errorMessage || "Login failed. Please try again.",
-        className: "bg-red-50 border-red-200 text-red-800",
-        style: JSON.parse(ToastType.ERROR_STYLE),
-      });
-    }
-
     return Promise.reject(error);
   }
 );
