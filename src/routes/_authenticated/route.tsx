@@ -1,13 +1,14 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_authenticated")({
   component: RouteComponent,
-  // TODO: Add authentication check here when Login API is ready
-  // beforeLoad: async ({ location }) => {
-  //   if (!localStorage.getItem("user")) {
-  //     throw redirect({ to: "/", search: { redirect: location.href } });
-  //   }
-  // },
+  beforeLoad: async ({}) => {
+    // beforeLoad: async ({ location }) => {
+    if (!localStorage.getItem("token")) {
+      // throw redirect({ to: "/", search: { redirect: location.href } });
+      throw redirect({ to: "/" });
+    }
+  },
 });
 
 function RouteComponent() {
