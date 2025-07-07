@@ -35,6 +35,7 @@ import type { EmployeeData } from "@/routes/_authenticated/attendance-monitoring
 import { useMutateEmployee } from "@/hooks/mutation/useMutateEmployee";
 import usePortStore from "@/store/usePortStore";
 import { useSocket } from "@/hooks";
+import { LinkCardInput } from "../inputs/LinkCardInput";
 
 //device filters
 // const filters = [
@@ -67,7 +68,6 @@ export default function EmpInfoDialog({
   onOpenChange,
 }: EmpInfoDialogProps) {
   const { infoStyle, errorStyle, successStyle } = useToastStyleTheme();
-  console.log(isSerialConnection);
   const [deviceUHFValue, setDeviceUHFValue] = useState("");
   const [deviceMIFAREValue, setDeviceMIFAREValue] = useState("");
   const [deviceEMValue, setDeviceEMValue] = useState("");
@@ -338,72 +338,3 @@ export default function EmpInfoDialog({
     </Dialog>
   );
 }
-
-interface LinkCardInputProps {
-  value?: string;
-  isLinking: boolean;
-  isDeviceConnected?: boolean;
-  label?: string;
-  onLinkCard?: () => void;
-  onClickConnect?: () => void;
-  onStopReading?: () => void;
-}
-
-export const LinkCardInput = forwardRef(
-  (
-    { label, value, isLinking, onLinkCard, onStopReading }: LinkCardInputProps,
-    ref
-  ) => {
-    return (
-      <div className="flex items-center gap-4 w-full">
-        <div className="flex-grow w-full">
-          <label
-            htmlFor="rfidCard"
-            className="text-xs text-gray-500 mb-1 block"
-          >
-            {label} {value && !isLinking && "Linked"}
-          </label>
-          <div className="relative">
-            <Input
-              ref={ref as ForwardedRef<HTMLInputElement>}
-              id="rfidCard"
-              type="text"
-              value={value}
-              readOnly
-              className="bg-gray-100 border-gray-300 rounded w-full"
-            />
-            {isLinking && <p className=" text-xs absolute">Reading...</p>}
-          </div>
-        </div>
-        {value && !isLinking && (
-          <Button
-            onClick={onLinkCard}
-            className="bg-green-500 text-white px-4 py-2 rounded text-sm font-semibold self-end w-32"
-          >
-            <CheckCircle className="h-4 w-4 mr-1 inline-block" />
-            Replace
-          </Button>
-        )}
-        {!value && !isLinking && (
-          <Button
-            onClick={onLinkCard}
-            className=" text-white px-4 py-2 rounded text-sm font-semibold self-end w-32"
-          >
-            Link a Card
-          </Button>
-        )}
-        {isLinking && (
-          <>
-            <Button
-              onClick={onStopReading}
-              className=" text-white px-4 py-2 rounded text-sm font-semibold self-end w-32"
-            >
-              <Spinner size={15} color="white" containerClassName="w-auto" />
-              Stop
-            </Button>
-          </>
-        )}
-      </div>
-    );
-  }
-);

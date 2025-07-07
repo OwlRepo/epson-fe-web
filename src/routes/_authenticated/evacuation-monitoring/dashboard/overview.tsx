@@ -24,6 +24,7 @@ import {
 import { useState } from "react";
 import matchesFilter from "@/utils/matchesFilter";
 import { Heart, HeartIcon } from "lucide-react";
+import AssignPersonnelDialog from "@/components/dialogs/AssignPersonnelDialog";
 
 export const Route = createFileRoute(
   "/_authenticated/evacuation-monitoring/dashboard/overview"
@@ -271,12 +272,7 @@ function RouteComponent() {
         </CardSection>
       </div>
       {isOpen && (
-        <EmpInfoDialog
-          employee={employee}
-          isLoading={isEmployeeLoading}
-          isOpen={isOpen}
-          onOpenChange={setIsOpen}
-        />
+        <AssignPersonnelDialog open={isOpen} onOpenChange={setIsOpen} />
       )}
     </>
   );

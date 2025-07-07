@@ -39,7 +39,7 @@ type AutoCompleteProps = {
   };
 };
 
-export const CustomAutoComplete = ({
+export const AsyncAutoComplete = ({
   name,
   id,
   setValue,
