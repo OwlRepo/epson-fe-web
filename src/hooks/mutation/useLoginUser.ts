@@ -31,7 +31,7 @@ export default function useLoginUser() {
         className: "bg-green-50 border-green-200 text-black",
         style: successStyle,
       });
-      localStorage.setItem("token", data.token);
+      localStorage.setItem("token", data.data.token);
       router.navigate({ to: "/modules" });
     },
     onError: (error: any) => {

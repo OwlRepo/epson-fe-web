@@ -1,18 +1,8 @@
 import { Button } from "@/components/ui/button";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import { Input } from "@/components/ui/input";
-import { PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { Popover } from "@radix-ui/react-popover";
-import { Check, ChevronsUpDown } from "lucide-react";
+
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { DatePickerWithRange } from "../ui/date-range-picker";
@@ -25,11 +15,14 @@ import { getValidUserID } from "@/utils/env";
 import { LinkCardInput } from "../ui/emp-info-dialog";
 import { addDays, isBefore, startOfDay } from "date-fns";
 import { useGetHostPerson } from "@/hooks/query/useGeHostPersonList";
-import { CustomAutoComplete } from "./CustomAutoComplete";
+
 import { useGetGuestTypeList } from "@/hooks/query/useGetGuestTypeList";
 import { Dialog, DialogTitle } from "@radix-ui/react-dialog";
 import { Calendar } from "../ui/calendar";
 import { DialogContent, DialogHeader } from "../ui/dialog";
+import { AutoComplete } from "../inputs/AutoComplete";
+import TextInput from "../inputs/TextInput";
+import { AsyncAutoComplete } from "../inputs/AsyncAutoComplete";
 
 interface BasicInformationFormProps {
   onSubmitData?: (data: any) => void;
@@ -218,7 +211,7 @@ const BasicInfromationForm = ({
 
           {/* form */}
           <div className="grid grid-cols-2 gap-4 mt-2">
-            <BasicInfoTextInput
+            <TextInput
               label={"Full Name"}
               id="name"
               name={"Name"}
@@ -228,7 +221,7 @@ const BasicInfromationForm = ({
               readOnly={isReadOnly}
             />
 
-            <CustomAutoComplete
+            <AsyncAutoComplete
               label="Host Person"
               name={"HostPerson"}
               id="host-person"
@@ -240,7 +233,7 @@ const BasicInfromationForm = ({
               queryHook={useGetHostPerson}
             />
 
-            <BasicInfoTextInput
+            <TextInput
               label={"Contact Information"}
               id="contact-information"
               name={"ContactInformation"}
@@ -251,7 +244,7 @@ const BasicInfromationForm = ({
               readOnly={isReadOnly}
             />
 
-            <BasicInfoTextInput
+            <TextInput
               label={"Company/Organization"}
               id="company"
               name={"Company"}
@@ -334,7 +327,7 @@ const BasicInfromationForm = ({
               </>
             )}
 
-            <BasicInfoTextInput
+            <TextInput
               label={"Plate Number"}
               id="plate-number"
               name={"PlateNo"}
@@ -344,7 +337,7 @@ const BasicInfromationForm = ({
               readOnly={isReadOnly}
             />
 
-            <BasicInfoTextInput
+            <TextInput
               label={"Room Reservation"}
               id="room-reservation"
               name={"Room"}
@@ -355,7 +348,7 @@ const BasicInfromationForm = ({
               readOnly={isReadOnly}
             />
 
-            <BasicInfoTextInput
+            <TextInput
               label={"Beverage Request"}
               id="beverage-request"
               name={"Beverage"}
@@ -476,163 +469,3 @@ const BasicInfromationForm = ({
 };
 
 export default BasicInfromationForm;
-
-interface BasicInfoTextInputProps {
-  label: string;
-  id: string;
-  name: keyof VisitorData;
-  placeholder?: string;
-  register: ReturnType<typeof useForm<VisitorData>>["register"];
-  errors: ReturnType<typeof useForm<VisitorData>>["formState"]["errors"];
-  required?: boolean;
-  readOnly?: boolean;
-}
-
-const BasicInfoTextInput = ({
-  label,
-  id,
-  name,
-  placeholder,
-  register,
-  errors,
-  required = true,
-  readOnly = false,
-}: BasicInfoTextInputProps) => {
-  return (
-    <div className="space-y-1 w-full">
-      <div className="flex justify-between">
-        <label htmlFor={id} className="text-sm  font-normal text-gray-700">
-          {label}
-        </label>
-        {!required && (
-          <label htmlFor={id} className="text-sm  font-normal text-gray-700">
-            Optional
-          </label>
-        )}
-      </div>
-      <Input
-        type="text"
-        id={id}
-        placeholder={placeholder}
-        className="h-[44px]"
-        {...register(
-          name,
-          required ? { required: `${label} is required` } : {}
-        )}
-        readOnly={readOnly}
-      />
-      {errors[name] && (
-        <p className="text-sm text-red-500 w-full">
-          {errors[name]?.message as string}
-        </p>
-      )}
-    </div>
-  );
-};
-
-export const AutoComplete = ({
-  name,
-  id,
-  setValue,
-  watch,
-  register,
-  readOnly = false,
-  required = true,
-  label,
-  errors,
-  list,
-}: {
-  name: any;
-  id: string;
-  setValue: any;
-  watch: any;
-  register: any;
-  readOnly?: boolean;
-  required?: boolean;
-  label: string;
-  errors: any;
-  list: { value: string; label: string }[];
-}) => {
-  const [open, setOpen] = useState(false);
-  const value = watch(name, "");
-  return (
-    <div className="space-y-1">
-      <label
-        htmlFor="host-person"
-        className="text-sm font-normal text-gray-700"
-      >
-        {label}
-      </label>
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            id={id}
-            variant="outline"
-            role="combobox"
-            aria-expanded={open}
-            className={cn(
-              "w-full h-[44px] justify-between font-normal",
-              value ? null : " text-gray-500"
-            )}
-            disabled={readOnly}
-          >
-            {value
-              ? list?.find((framework) => framework.value === value)?.label
-              : "Select..."}
-            <ChevronsUpDown className="opacity-50" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent
-          align="start"
-          className="w-[var(--radix-popover-trigger-width)] p-0"
-        >
-          <Command className="w-full">
-            <CommandInput
-              placeholder="Search person..."
-              className="w-full text-slate-400"
-            />
-            <CommandList className="w-full">
-              <CommandEmpty>No person found.</CommandEmpty>
-              <CommandGroup>
-                {list?.map((framework) => (
-                  <CommandItem
-                    key={framework.label}
-                    value={framework.label}
-                    onSelect={() => {
-                      setValue(
-                        name,
-                        framework.value === value ? "" : framework.value
-                      );
-                      setOpen(false);
-                    }}
-                  >
-                    {framework.label}
-                    <Check
-                      className={cn(
-                        "ml-auto",
-                        value === framework.label ? "opacity-100" : "opacity-0"
-                      )}
-                    />
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            </CommandList>
-          </Command>
-        </PopoverContent>
-        <input
-          type="hidden"
-          id={id}
-          {...register(
-            name,
-            required ? { required: `${label || name} is required` } : {}
-          )}
-        />
-      </Popover>
-      {errors?.[name] && (
-        <p className="text-sm text-red-500">
-          {errors[name]?.message as string}
-        </p>
-      )}
-    </div>
-  );
-};
