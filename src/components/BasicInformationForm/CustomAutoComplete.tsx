@@ -16,8 +16,6 @@ import {
   CommandItem,
 } from "@/components/ui/command";
 import { Button } from "@/components/ui/button";
-import type { useForm } from "react-hook-form";
-import type { VisitorData } from ".";
 
 type Option = {
   label: string;
@@ -25,15 +23,16 @@ type Option = {
 };
 
 type AutoCompleteProps = {
-  name: keyof VisitorData;
+  name: any;
   id: string;
   label: string;
   readOnly?: boolean;
   required?: boolean;
-  setValue: ReturnType<typeof useForm<VisitorData>>["setValue"];
-  watch: ReturnType<typeof useForm<VisitorData>>["watch"];
-  register: ReturnType<typeof useForm<VisitorData>>["register"];
-  errors: ReturnType<typeof useForm<VisitorData>>["formState"]["errors"];
+  setValue: any;
+  watch: any;
+  register: any;
+  errors: any;
+  withID?: boolean;
   queryHook: (search: string) => {
     data: Option[] | undefined;
     isLoading: boolean;
@@ -51,6 +50,7 @@ export const CustomAutoComplete = ({
   label,
   errors,
   queryHook,
+  withID = false,
 }: AutoCompleteProps) => {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
@@ -78,7 +78,7 @@ export const CustomAutoComplete = ({
             )}
             disabled={readOnly}
           >
-            {value ?? "Select..."}
+            {value || "Select..."}
             <ChevronsUpDown className="opacity-50" />
           </Button>
         </PopoverTrigger>
@@ -102,12 +102,13 @@ export const CustomAutoComplete = ({
                 <CommandEmpty>No result found.</CommandEmpty>
               ) : (
                 <CommandGroup>
-                  {data?.map((item) => (
+                  {data?.map((item: any) => (
                     <CommandItem
                       key={item.value}
                       value={item.value}
                       onSelect={(val) => {
                         setValue(name, val === value ? "" : val);
+                        if (withID) setValue("ID", item.id);
                         setOpen(false);
                       }}
                     >
