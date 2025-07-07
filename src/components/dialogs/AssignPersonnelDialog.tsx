@@ -13,6 +13,7 @@ import usePortStore from "@/store/usePortStore";
 import { useCardLinkingListener } from "@/hooks/useCardLinkingListener";
 import { getEMLength, getMIFARELength, getUHFLength } from "@/utils/env";
 import { useMutateEmployee } from "@/hooks/mutation/useMutateEmployee";
+import { Button } from "../ui/button";
 
 interface AssignPersonnelDialogProps extends DialogProps {
   assignedPersonnel?: any;
@@ -193,6 +194,17 @@ const AssignPersonnelDialog = ({
               isLinking={isLinking === "EM"}
               onStopReading={() => setIsLinking(null)}
             />
+          </div>
+
+          <Divider />
+          <div className="flex justify-end items-center mt-6 gap-4">
+            <Button variant={"outline"}>Clear Data</Button>
+            <Button
+              variant={"evacuation"}
+              className=" text-white px-4 py-2 rounded text-sm font-semibold"
+            >
+              Assign Personnel
+            </Button>
           </div>
         </div>
       </DialogContent>
