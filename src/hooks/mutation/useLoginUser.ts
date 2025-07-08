@@ -26,7 +26,7 @@ export default function useLoginUser() {
   const loginResponse = useMutation({
     mutationFn: loginUser,
     onSuccess: (data) => {
-      const { token, user } = data;
+      const { token, user } = data.data;
       toast.success("Login successful!", {
         description: "Welcome back! You've successfully signed in.",
         className: "bg-green-50 border-green-200 text-black",
