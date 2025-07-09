@@ -48,7 +48,7 @@ export function Breadcrumbs({ className }: BreadcrumbsProps) {
                     <Link
                         to={segment.path}
                         className={cn(
-                            "text-sm font-normal capitalize hover:text-gray-700 hover:cursor-pointer",
+                            "text-[16px]/[20px] font-normal capitalize hover:text-gray-700 hover:cursor-pointer",
                             segment.isActive && "font-medium text-gray-700"
                         )}
                     >

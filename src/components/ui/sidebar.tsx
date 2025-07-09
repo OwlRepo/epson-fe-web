@@ -68,7 +68,9 @@ const NavItem = ({
 
   // Check if current path matches this nav item or any of its subitems
   const isExactMatch = href === currentPath;
-  const isParentOfActive = subItems?.some((item) => item.href === currentPath);
+  const isParentOfActive = subItems?.some((item) =>
+    currentPath.startsWith(item.href)
+  );
   const isActiveItem = isExactMatch || isParentOfActive;
 
   const [isExpanded, setIsExpanded] = React.useState(isParentOfActive);
@@ -222,7 +224,7 @@ const NavItem = ({
       {hasSubItems && !collapsed && isExpanded && (
         <div className="pl-2 space-y-1 border-l border-white/20 ml-6">
           {subItems.map((item, idx) => {
-            const isSubItemActive = currentPath.includes(item.href);
+            const isSubItemActive = currentPath.startsWith(item.href);
             return (
               <Button
                 key={idx}
@@ -263,7 +265,7 @@ const NavItem = ({
         >
           <div className="space-y-1 overflow-y-auto px-1">
             {subItems.map((item, idx) => {
-              const isSubItemActive = currentPath.includes(item.href);
+              const isSubItemActive = currentPath.startsWith(item.href);
               return (
                 <Button
                   key={idx}
