@@ -27,16 +27,16 @@ export default function CardHeaderRight({
         <p className="text-muted-foreground text-sm">{subtitle}</p>
       ) : (
         <div className="flex flex-row space-x-10">
-          {clockedIn && (
+          {clockedIn !== undefined && (
             <div className="flex flex-row space-x-2">
               <p>Incoming:</p>
-              <b className="text-positive">{countShortener(clockedIn ?? 0)}</b>
+              <b className="text-positive">{countShortener(clockedIn)}</b>
             </div>
           )}
-          {clockedOut && (
+          {clockedOut !== undefined && (
             <div className="flex flex-row space-x-2">
               <p>Outgoing:</p>
-              <b className="text-negative">{countShortener(clockedOut ?? 0)}</b>
+              <b className="text-negative">{countShortener(clockedOut)}</b>
             </div>
           )}
         </div>
