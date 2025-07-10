@@ -1,4 +1,3 @@
-import React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import type { DialogProps } from "@radix-ui/react-dialog";
 import { Badge } from "../ui/badge";

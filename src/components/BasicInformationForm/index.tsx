@@ -12,7 +12,6 @@ import { toast } from "sonner";
 import useToastStyleTheme from "@/hooks/useToastStyleTheme";
 import { readRFIDData } from "@/utils/rfidReaderCommand";
 import { getValidUserID } from "@/utils/env";
-import { LinkCardInput } from "../ui/emp-info-dialog";
 import { addDays, isBefore, startOfDay } from "date-fns";
 import { useGetHostPerson } from "@/hooks/query/useGeHostPersonList";
 
@@ -23,6 +22,7 @@ import { DialogContent, DialogHeader } from "../ui/dialog";
 import { AutoComplete } from "../inputs/AutoComplete";
 import TextInput from "../inputs/TextInput";
 import { AsyncAutoComplete } from "../inputs/AsyncAutoComplete";
+import { LinkCardInput } from "../inputs/LinkCardInput";
 
 interface BasicInformationFormProps {
   onSubmitData?: (data: any) => void;

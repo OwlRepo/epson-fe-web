@@ -4,16 +4,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { CheckCircle, UserX } from "lucide-react"; // Import UserX icon
-import {
-  forwardRef,
-  useEffect,
-  useRef,
-  useState,
-  type ForwardedRef,
-} from "react";
+
+import { UserX } from "lucide-react"; // Import UserX icon
+import { useEffect, useRef, useState } from "react";
 
 // Extend the Navigator type to include the serial property
 declare global {

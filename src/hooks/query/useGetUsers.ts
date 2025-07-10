@@ -1,5 +1,4 @@
 import api from "@/config/axiosInstance";
-import type { EmployeeData } from "@/routes/_authenticated/attendance-monitoring/employees";
 import { useQuery } from "@tanstack/react-query";
 
 interface EmployeeParams {
@@ -8,17 +7,9 @@ interface EmployeeParams {
 
 const getUsers = async (params: EmployeeParams) => {
   try {
-    const response = await api.get(`/api/employees/getAll?${params}`);
+    const response = await api.get(`/api/users/getAllUsers?${params}`);
 
-    const data = response.data.data.map((item: EmployeeData) => ({
-      ...item,
-      Name: item.FirstName,
-      Access:
-        item.DepartmentName === "GAD"
-          ? ["VMS", "AMS", "Dashboard"]
-          : ["VMS", "AMS"],
-      IsActive: true,
-    }));
+    const data = response.data.data;
 
     return { ...response.data, data };
   } catch (error) {
@@ -29,7 +20,7 @@ const getUsers = async (params: EmployeeParams) => {
 
 export const useGetUsers = (params: EmployeeParams) =>
   useQuery({
-    queryKey: ["employees"],
+    queryKey: ["users"],
     queryFn: () => getUsers(params),
     refetchOnWindowFocus: false,
   });
