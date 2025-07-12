@@ -58,7 +58,7 @@ const AddUserDialog = ({ open, onOpenChange }: DialogProps) => {
         )}
 
         {!showPassword && (
-          <DialogContent className="w-auto p-8 bg-white rounded-lg shadow-xl">
+          <DialogContent className="min-w-[700px] p-8 bg-white rounded-lg shadow-xl">
             <DialogHeader className="flex flex-row justify-between items-center mb-6">
               <DialogTitle className="text-xl font-semibold text-gray-800">
                 Add User

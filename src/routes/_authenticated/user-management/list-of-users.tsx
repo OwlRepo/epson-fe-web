@@ -15,14 +15,13 @@ import {
 import { Switch } from "@/components/ui/switch";
 
 import { useGetDepartmentList } from "@/hooks/query/useGetDepartmentList";
-import { useGetRoles } from "@/hooks/query/useGetRoles";
+
 import { useGetUserbyId } from "@/hooks/query/useGetUserById";
 
 import { useGetUsers } from "@/hooks/query/useGetUsers";
-import useToastStyleTheme from "@/hooks/useToastStyleTheme";
+
 import { cn } from "@/lib/utils";
 import { objToParams } from "@/utils/objToParams";
-import { Dialog, type DialogProps } from "@radix-ui/react-dialog";
 
 import {
   createFileRoute,
@@ -30,11 +29,7 @@ import {
   useSearch,
 } from "@tanstack/react-router";
 
-import { Eye, EyeOff, Plus, X } from "lucide-react";
-
 import { useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { toast } from "sonner";
 
 export const Route = createFileRoute(
   "/_authenticated/user-management/list-of-users"
@@ -100,6 +95,7 @@ function RouteComponent() {
         ...item,
         Access: item.Access?.map((access) => (
           <Badge
+            key={access + item.ID}
             className={cn(
               "bg-slate-400 text-white  rounded-full ml-1",
               accessClassMap[access as keyof typeof accessClassMap] || "",
@@ -123,15 +119,6 @@ function RouteComponent() {
       setTotalItems(userList.pagination.totalItems ?? 10);
     }
   }, [userList]);
-
-  const filters: Filter[] = [
-    {
-      key: "Department",
-      label: "Department",
-      options: departments ?? [],
-      singleSelect: true,
-    },
-  ];
 
   useEffect(() => {
     refetch();
@@ -200,7 +187,6 @@ function RouteComponent() {
           <DynamicTable
             columns={columns}
             data={data}
-            filters={filters}
             pagination={{
               currentPage,
               pageSize,

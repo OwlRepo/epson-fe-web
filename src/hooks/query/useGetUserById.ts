@@ -5,11 +5,7 @@ const getUserbyId = async (userId: string) => {
   try {
     const response = await api.get(`api/users/getUserByID/${userId}`);
 
-    const data = response.data;
-    return {
-      ...data,
-      Access: JSON.parse(data.Access) as string[],
-    };
+    return response.data;
   } catch (error) {
     console.error("Error fetching visitor data:", error);
   }

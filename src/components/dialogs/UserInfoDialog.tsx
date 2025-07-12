@@ -49,13 +49,19 @@ const UserInfoDialog = ({
     password;
 
   const handleUpdateUser = () => {
-    updateUser({
-      employeeID: user?.EmployeeID || "",
-      payload: {
+    const payload: { IsActive: boolean; Access: string[]; Password?: string } =
+      {
         IsActive: isActive,
         Access: access,
-        Password: password,
-      },
+      };
+
+    if (password) {
+      payload.Password = password;
+    }
+
+    updateUser({
+      employeeID: user?.EmployeeID || "",
+      payload,
     });
   };
 
@@ -152,7 +158,7 @@ const UserInfoDialog = ({
       {openPasswordDialog && (
         <PasswordDialogContent
           onSetPassword={(data) => {
-            setPassword(data);
+            setPassword(data.Password);
             setOpenPasswordDialog(false);
           }}
         />
