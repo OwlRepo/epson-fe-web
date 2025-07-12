@@ -6,15 +6,9 @@ import CardSection from "@/components/layouts/CardSection";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
-import {
-  DynamicTable,
-  type Column,
-  type Filter,
-} from "@/components/ui/dynamic-table";
+import { DynamicTable, type Column } from "@/components/ui/dynamic-table";
 
 import { Switch } from "@/components/ui/switch";
-
-import { useGetDepartmentList } from "@/hooks/query/useGetDepartmentList";
 
 import { useGetUserbyId } from "@/hooks/query/useGetUserById";
 
@@ -65,7 +59,6 @@ function RouteComponent() {
     from: "/user-management/list-of-users",
   });
   const [data, setData] = useState<UserData[]>([]);
-
   const [totalPages, setTotalPages] = useState(10);
   const [totalItems, setTotalItems] = useState(10);
 
@@ -85,9 +78,6 @@ function RouteComponent() {
     isLoading: isuserListLoading,
     refetch,
   } = useGetUsers(objToParams(search) as any);
-
-  //deparment list
-  const { data: departments } = useGetDepartmentList();
 
   useEffect(() => {
     if (Array.isArray(userList?.data)) {
