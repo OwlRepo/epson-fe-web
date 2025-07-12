@@ -277,7 +277,7 @@ function RouteComponent() {
         <EmpInfoDialog
           employee={employee}
           isLoading={isEmployeeLoading}
-          isOpen={isOpen}
+          isOpen={true}
           onOpenChange={setIsOpen}
         />
       )}

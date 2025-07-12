@@ -8,6 +8,7 @@ import {
   FileText,
   Settings,
   HelpCircle,
+  ShieldPlus,
 } from "lucide-react";
 import { EpsonLogoWhite } from "@/assets/svgs";
 
@@ -54,6 +55,11 @@ export function EvacuationMonitoringLayout({
           href: "/evacuation-monitoring/dashboard/entry-exit",
         },
       ],
+    },
+    {
+      icon: <ShieldPlus />,
+      label: "CDEPRO",
+      href: "/evacuation-monitoring/cdepro",
     },
     {
       icon: <FileText />,

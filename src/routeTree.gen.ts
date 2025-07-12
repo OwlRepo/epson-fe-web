@@ -26,6 +26,7 @@ import { Route as AuthenticatedEvacuationMonitoringReportsImport } from './route
 import { Route as AuthenticatedAttendanceMonitoringSettingsImport } from './routes/_authenticated/attendance-monitoring/settings'
 import { Route as AuthenticatedAttendanceMonitoringReportsImport } from './routes/_authenticated/attendance-monitoring/reports'
 import { Route as AuthenticatedAttendanceMonitoringEmployeesImport } from './routes/_authenticated/attendance-monitoring/employees'
+import { Route as AuthenticatedEvacuationMonitoringCdeproIndexImport } from './routes/_authenticated/evacuation-monitoring/cdepro/index'
 import { Route as AuthenticatedVisitorManagementReservedGuestRegisterGuestImport } from './routes/_authenticated/visitor-management/reserved-guest/register-guest'
 import { Route as AuthenticatedVisitorManagementReservedGuestOverviewImport } from './routes/_authenticated/visitor-management/reserved-guest/overview'
 import { Route as AuthenticatedVisitorManagementDashboardOverviewImport } from './routes/_authenticated/visitor-management/dashboard/overview'
@@ -34,6 +35,7 @@ import { Route as AuthenticatedEvacuationMonitoringDashboardOverviewImport } fro
 import { Route as AuthenticatedAttendanceMonitoringDashboardOverviewImport } from './routes/_authenticated/attendance-monitoring/dashboard/overview'
 import { Route as AuthenticatedEvacuationMonitoringDashboardEntryExitIndexImport } from './routes/_authenticated/evacuation-monitoring/dashboard/entry-exit/index'
 import { Route as AuthenticatedEvacuationMonitoringDashboardDivisionsIndexImport } from './routes/_authenticated/evacuation-monitoring/dashboard/divisions/index'
+import { Route as AuthenticatedEvacuationMonitoringCdeproControllerIdIndexImport } from './routes/_authenticated/evacuation-monitoring/cdepro/$controllerId/index'
 import { Route as AuthenticatedAttendanceMonitoringDashboardEntryExitIndexImport } from './routes/_authenticated/attendance-monitoring/dashboard/entry-exit/index'
 import { Route as AuthenticatedAttendanceMonitoringDashboardDivisionsIndexImport } from './routes/_authenticated/attendance-monitoring/dashboard/divisions/index'
 import { Route as AuthenticatedEvacuationMonitoringDashboardEntryExitDeviceIdIndexImport } from './routes/_authenticated/evacuation-monitoring/dashboard/entry-exit/$deviceId/index'
@@ -146,6 +148,13 @@ const AuthenticatedAttendanceMonitoringEmployeesRoute =
     getParentRoute: () => AuthenticatedAttendanceMonitoringRouteRoute,
   } as any)
 
+const AuthenticatedEvacuationMonitoringCdeproIndexRoute =
+  AuthenticatedEvacuationMonitoringCdeproIndexImport.update({
+    id: '/cdepro/',
+    path: '/cdepro/',
+    getParentRoute: () => AuthenticatedEvacuationMonitoringRouteRoute,
+  } as any)
+
 const AuthenticatedVisitorManagementReservedGuestRegisterGuestRoute =
   AuthenticatedVisitorManagementReservedGuestRegisterGuestImport.update({
     id: '/reserved-guest/register-guest',
@@ -199,6 +208,13 @@ const AuthenticatedEvacuationMonitoringDashboardDivisionsIndexRoute =
   AuthenticatedEvacuationMonitoringDashboardDivisionsIndexImport.update({
     id: '/dashboard/divisions/',
     path: '/dashboard/divisions/',
+    getParentRoute: () => AuthenticatedEvacuationMonitoringRouteRoute,
+  } as any)
+
+const AuthenticatedEvacuationMonitoringCdeproControllerIdIndexRoute =
+  AuthenticatedEvacuationMonitoringCdeproControllerIdIndexImport.update({
+    id: '/cdepro/$controllerId/',
+    path: '/cdepro/$controllerId/',
     getParentRoute: () => AuthenticatedEvacuationMonitoringRouteRoute,
   } as any)
 
@@ -439,6 +455,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedVisitorManagementReservedGuestRegisterGuestImport
       parentRoute: typeof AuthenticatedVisitorManagementRouteImport
     }
+    '/_authenticated/evacuation-monitoring/cdepro/': {
+      id: '/_authenticated/evacuation-monitoring/cdepro/'
+      path: '/cdepro'
+      fullPath: '/evacuation-monitoring/cdepro'
+      preLoaderRoute: typeof AuthenticatedEvacuationMonitoringCdeproIndexImport
+      parentRoute: typeof AuthenticatedEvacuationMonitoringRouteImport
+    }
     '/_authenticated/attendance-monitoring/dashboard/divisions/': {
       id: '/_authenticated/attendance-monitoring/dashboard/divisions/'
       path: '/dashboard/divisions'
@@ -452,6 +475,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/attendance-monitoring/dashboard/entry-exit'
       preLoaderRoute: typeof AuthenticatedAttendanceMonitoringDashboardEntryExitIndexImport
       parentRoute: typeof AuthenticatedAttendanceMonitoringRouteImport
+    }
+    '/_authenticated/evacuation-monitoring/cdepro/$controllerId/': {
+      id: '/_authenticated/evacuation-monitoring/cdepro/$controllerId/'
+      path: '/cdepro/$controllerId'
+      fullPath: '/evacuation-monitoring/cdepro/$controllerId'
+      preLoaderRoute: typeof AuthenticatedEvacuationMonitoringCdeproControllerIdIndexImport
+      parentRoute: typeof AuthenticatedEvacuationMonitoringRouteImport
     }
     '/_authenticated/evacuation-monitoring/dashboard/divisions/': {
       id: '/_authenticated/evacuation-monitoring/dashboard/divisions/'
@@ -573,6 +603,8 @@ const AuthenticatedAttendanceMonitoringRouteRouteWithChildren =
 interface AuthenticatedEvacuationMonitoringRouteRouteChildren {
   AuthenticatedEvacuationMonitoringReportsRoute: typeof AuthenticatedEvacuationMonitoringReportsRoute
   AuthenticatedEvacuationMonitoringDashboardOverviewRoute: typeof AuthenticatedEvacuationMonitoringDashboardOverviewRoute
+  AuthenticatedEvacuationMonitoringCdeproIndexRoute: typeof AuthenticatedEvacuationMonitoringCdeproIndexRoute
+  AuthenticatedEvacuationMonitoringCdeproControllerIdIndexRoute: typeof AuthenticatedEvacuationMonitoringCdeproControllerIdIndexRoute
   AuthenticatedEvacuationMonitoringDashboardDivisionsIndexRoute: typeof AuthenticatedEvacuationMonitoringDashboardDivisionsIndexRoute
   AuthenticatedEvacuationMonitoringDashboardEntryExitIndexRoute: typeof AuthenticatedEvacuationMonitoringDashboardEntryExitIndexRoute
   AuthenticatedEvacuationMonitoringDashboardDivisionsDivisionIdIndexRoute: typeof AuthenticatedEvacuationMonitoringDashboardDivisionsDivisionIdIndexRoute
@@ -587,6 +619,10 @@ const AuthenticatedEvacuationMonitoringRouteRouteChildren: AuthenticatedEvacuati
       AuthenticatedEvacuationMonitoringReportsRoute,
     AuthenticatedEvacuationMonitoringDashboardOverviewRoute:
       AuthenticatedEvacuationMonitoringDashboardOverviewRoute,
+    AuthenticatedEvacuationMonitoringCdeproIndexRoute:
+      AuthenticatedEvacuationMonitoringCdeproIndexRoute,
+    AuthenticatedEvacuationMonitoringCdeproControllerIdIndexRoute:
+      AuthenticatedEvacuationMonitoringCdeproControllerIdIndexRoute,
     AuthenticatedEvacuationMonitoringDashboardDivisionsIndexRoute:
       AuthenticatedEvacuationMonitoringDashboardDivisionsIndexRoute,
     AuthenticatedEvacuationMonitoringDashboardEntryExitIndexRoute:
@@ -695,8 +731,10 @@ export interface FileRoutesByFullPath {
   '/visitor-management/dashboard/overview': typeof AuthenticatedVisitorManagementDashboardOverviewRoute
   '/visitor-management/reserved-guest/overview': typeof AuthenticatedVisitorManagementReservedGuestOverviewRoute
   '/visitor-management/reserved-guest/register-guest': typeof AuthenticatedVisitorManagementReservedGuestRegisterGuestRoute
+  '/evacuation-monitoring/cdepro': typeof AuthenticatedEvacuationMonitoringCdeproIndexRoute
   '/attendance-monitoring/dashboard/divisions': typeof AuthenticatedAttendanceMonitoringDashboardDivisionsIndexRoute
   '/attendance-monitoring/dashboard/entry-exit': typeof AuthenticatedAttendanceMonitoringDashboardEntryExitIndexRoute
+  '/evacuation-monitoring/cdepro/$controllerId': typeof AuthenticatedEvacuationMonitoringCdeproControllerIdIndexRoute
   '/evacuation-monitoring/dashboard/divisions': typeof AuthenticatedEvacuationMonitoringDashboardDivisionsIndexRoute
   '/evacuation-monitoring/dashboard/entry-exit': typeof AuthenticatedEvacuationMonitoringDashboardEntryExitIndexRoute
   '/attendance-monitoring/dashboard/divisions/$divisionId': typeof AuthenticatedAttendanceMonitoringDashboardDivisionsDivisionIdIndexRoute
@@ -731,8 +769,10 @@ export interface FileRoutesByTo {
   '/visitor-management/dashboard/overview': typeof AuthenticatedVisitorManagementDashboardOverviewRoute
   '/visitor-management/reserved-guest/overview': typeof AuthenticatedVisitorManagementReservedGuestOverviewRoute
   '/visitor-management/reserved-guest/register-guest': typeof AuthenticatedVisitorManagementReservedGuestRegisterGuestRoute
+  '/evacuation-monitoring/cdepro': typeof AuthenticatedEvacuationMonitoringCdeproIndexRoute
   '/attendance-monitoring/dashboard/divisions': typeof AuthenticatedAttendanceMonitoringDashboardDivisionsIndexRoute
   '/attendance-monitoring/dashboard/entry-exit': typeof AuthenticatedAttendanceMonitoringDashboardEntryExitIndexRoute
+  '/evacuation-monitoring/cdepro/$controllerId': typeof AuthenticatedEvacuationMonitoringCdeproControllerIdIndexRoute
   '/evacuation-monitoring/dashboard/divisions': typeof AuthenticatedEvacuationMonitoringDashboardDivisionsIndexRoute
   '/evacuation-monitoring/dashboard/entry-exit': typeof AuthenticatedEvacuationMonitoringDashboardEntryExitIndexRoute
   '/attendance-monitoring/dashboard/divisions/$divisionId': typeof AuthenticatedAttendanceMonitoringDashboardDivisionsDivisionIdIndexRoute
@@ -768,8 +808,10 @@ export interface FileRoutesById {
   '/_authenticated/visitor-management/dashboard/overview': typeof AuthenticatedVisitorManagementDashboardOverviewRoute
   '/_authenticated/visitor-management/reserved-guest/overview': typeof AuthenticatedVisitorManagementReservedGuestOverviewRoute
   '/_authenticated/visitor-management/reserved-guest/register-guest': typeof AuthenticatedVisitorManagementReservedGuestRegisterGuestRoute
+  '/_authenticated/evacuation-monitoring/cdepro/': typeof AuthenticatedEvacuationMonitoringCdeproIndexRoute
   '/_authenticated/attendance-monitoring/dashboard/divisions/': typeof AuthenticatedAttendanceMonitoringDashboardDivisionsIndexRoute
   '/_authenticated/attendance-monitoring/dashboard/entry-exit/': typeof AuthenticatedAttendanceMonitoringDashboardEntryExitIndexRoute
+  '/_authenticated/evacuation-monitoring/cdepro/$controllerId/': typeof AuthenticatedEvacuationMonitoringCdeproControllerIdIndexRoute
   '/_authenticated/evacuation-monitoring/dashboard/divisions/': typeof AuthenticatedEvacuationMonitoringDashboardDivisionsIndexRoute
   '/_authenticated/evacuation-monitoring/dashboard/entry-exit/': typeof AuthenticatedEvacuationMonitoringDashboardEntryExitIndexRoute
   '/_authenticated/attendance-monitoring/dashboard/divisions/$divisionId/': typeof AuthenticatedAttendanceMonitoringDashboardDivisionsDivisionIdIndexRoute
@@ -806,8 +848,10 @@ export interface FileRouteTypes {
     | '/visitor-management/dashboard/overview'
     | '/visitor-management/reserved-guest/overview'
     | '/visitor-management/reserved-guest/register-guest'
+    | '/evacuation-monitoring/cdepro'
     | '/attendance-monitoring/dashboard/divisions'
     | '/attendance-monitoring/dashboard/entry-exit'
+    | '/evacuation-monitoring/cdepro/$controllerId'
     | '/evacuation-monitoring/dashboard/divisions'
     | '/evacuation-monitoring/dashboard/entry-exit'
     | '/attendance-monitoring/dashboard/divisions/$divisionId'
@@ -841,8 +885,10 @@ export interface FileRouteTypes {
     | '/visitor-management/dashboard/overview'
     | '/visitor-management/reserved-guest/overview'
     | '/visitor-management/reserved-guest/register-guest'
+    | '/evacuation-monitoring/cdepro'
     | '/attendance-monitoring/dashboard/divisions'
     | '/attendance-monitoring/dashboard/entry-exit'
+    | '/evacuation-monitoring/cdepro/$controllerId'
     | '/evacuation-monitoring/dashboard/divisions'
     | '/evacuation-monitoring/dashboard/entry-exit'
     | '/attendance-monitoring/dashboard/divisions/$divisionId'
@@ -876,8 +922,10 @@ export interface FileRouteTypes {
     | '/_authenticated/visitor-management/dashboard/overview'
     | '/_authenticated/visitor-management/reserved-guest/overview'
     | '/_authenticated/visitor-management/reserved-guest/register-guest'
+    | '/_authenticated/evacuation-monitoring/cdepro/'
     | '/_authenticated/attendance-monitoring/dashboard/divisions/'
     | '/_authenticated/attendance-monitoring/dashboard/entry-exit/'
+    | '/_authenticated/evacuation-monitoring/cdepro/$controllerId/'
     | '/_authenticated/evacuation-monitoring/dashboard/divisions/'
     | '/_authenticated/evacuation-monitoring/dashboard/entry-exit/'
     | '/_authenticated/attendance-monitoring/dashboard/divisions/$divisionId/'
@@ -957,6 +1005,8 @@ export const routeTree = rootRoute
       "children": [
         "/_authenticated/evacuation-monitoring/reports",
         "/_authenticated/evacuation-monitoring/dashboard/overview",
+        "/_authenticated/evacuation-monitoring/cdepro/",
+        "/_authenticated/evacuation-monitoring/cdepro/$controllerId/",
         "/_authenticated/evacuation-monitoring/dashboard/divisions/",
         "/_authenticated/evacuation-monitoring/dashboard/entry-exit/",
         "/_authenticated/evacuation-monitoring/dashboard/divisions/$divisionId/",
@@ -1039,6 +1089,10 @@ export const routeTree = rootRoute
       "filePath": "_authenticated/visitor-management/reserved-guest/register-guest.tsx",
       "parent": "/_authenticated/visitor-management"
     },
+    "/_authenticated/evacuation-monitoring/cdepro/": {
+      "filePath": "_authenticated/evacuation-monitoring/cdepro/index.tsx",
+      "parent": "/_authenticated/evacuation-monitoring"
+    },
     "/_authenticated/attendance-monitoring/dashboard/divisions/": {
       "filePath": "_authenticated/attendance-monitoring/dashboard/divisions/index.tsx",
       "parent": "/_authenticated/attendance-monitoring"
@@ -1046,6 +1100,10 @@ export const routeTree = rootRoute
     "/_authenticated/attendance-monitoring/dashboard/entry-exit/": {
       "filePath": "_authenticated/attendance-monitoring/dashboard/entry-exit/index.tsx",
       "parent": "/_authenticated/attendance-monitoring"
+    },
+    "/_authenticated/evacuation-monitoring/cdepro/$controllerId/": {
+      "filePath": "_authenticated/evacuation-monitoring/cdepro/$controllerId/index.tsx",
+      "parent": "/_authenticated/evacuation-monitoring"
     },
     "/_authenticated/evacuation-monitoring/dashboard/divisions/": {
       "filePath": "_authenticated/evacuation-monitoring/dashboard/divisions/index.tsx",
