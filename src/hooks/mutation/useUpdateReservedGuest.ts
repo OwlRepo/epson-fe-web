@@ -33,6 +33,9 @@ export const useUpdateReservedGuest = () => {
       queryClient.invalidateQueries({
         queryKey: ["visitor"],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["visitors"],
+      });
 
       console.log("saved successfully:", data);
     },

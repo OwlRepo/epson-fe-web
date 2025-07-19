@@ -17,6 +17,7 @@ import { useGetVisitorsStatistics } from "@/hooks/query/useGetVisitorsStatistics
 import { useGetVisitorTypes } from "@/hooks/query/useGetVisitorTypes";
 import countShortener from "@/utils/count-shortener";
 import { objToParams } from "@/utils/objToParams";
+import { visitationDateChecker } from "@/utils/visitationDateChecker";
 
 import {
   createFileRoute,
@@ -51,6 +52,7 @@ const columns: Column[] = [
   { key: "Purpose", label: "Purpose" },
   { key: "DateFrom", label: "From Date" },
   { key: "DateTo", label: "To Date" },
+  { key: "Status", label: "Status" },
 ];
 
 function RouteComponent() {
@@ -89,7 +91,21 @@ function RouteComponent() {
 
   useEffect(() => {
     if (Array.isArray(visitorList?.data) || Array.isArray(visitorList)) {
-      setData(visitorList?.data);
+      const visitorListData = visitorList?.data.map((item: VisitorData) => {
+        const { isExpired, expireSoon } = visitationDateChecker(item.DateTo);
+
+        return {
+          ...item,
+          Status: isExpired ? (
+            <p className="text-red-500">Expired</p>
+          ) : expireSoon ? (
+            <p className="text-[#A8A830]">Will Expire Soon</p>
+          ) : (
+            ""
+          ),
+        };
+      });
+      setData(visitorListData || []);
       if (visitorList?.pagination) {
         setTotalPages(visitorList?.pagination?.totalPages ?? 10);
         setTotalItems(visitorList?.pagination?.totalItems ?? 10);

@@ -23,6 +23,7 @@ import { AutoComplete } from "../inputs/AutoComplete";
 import TextInput from "../inputs/TextInput";
 import { AsyncAutoComplete } from "../inputs/AsyncAutoComplete";
 import { LinkCardInput } from "../inputs/LinkCardInput";
+import { visitationDateChecker } from "@/utils/visitationDateChecker";
 
 interface BasicInformationFormProps {
   onSubmitData?: (data: any) => void;
@@ -62,7 +63,6 @@ export interface VisitorData {
 }
 
 const validUserID = getValidUserID();
-const daysBeforeExpiration = 3; // days before expiration to show warning
 
 const BasicInfromationForm = ({
   initialData,
@@ -159,13 +159,7 @@ const BasicInfromationForm = ({
   //date range validation
   const dateRange = watch("Date") || {};
 
-  const expireSoon =
-    dateRange.to &&
-    new Date(dateRange.to).getTime() - new Date().getTime() <=
-      daysBeforeExpiration * 24 * 60 * 60 * 1000;
-  const isExpired =
-    dateRange.to &&
-    isBefore(startOfDay(new Date(dateRange.to)), startOfDay(new Date()));
+  const { expireSoon, isExpired } = visitationDateChecker(dateRange.to);
 
   useEffect(() => {
     const isVIP = type === "register-vip";
