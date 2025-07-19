@@ -2,14 +2,7 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 import { Sidebar } from "@/components/ui/sidebar";
 import { Header } from "@/components/ui/header";
-import {
-  LayoutDashboard,
-  Users,
-  FileText,
-  Settings,
-  HelpCircle,
-  ShieldPlus,
-} from "lucide-react";
+import { LayoutDashboard, FileText, ShieldPlus } from "lucide-react";
 import { EpsonLogoWhite } from "@/assets/svgs";
 
 interface EvacuationMonitoringLayoutProps {

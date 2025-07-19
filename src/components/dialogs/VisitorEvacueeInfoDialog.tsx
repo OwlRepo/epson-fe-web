@@ -1,4 +1,3 @@
-import React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import type { DialogProps } from "@radix-ui/react-dialog";
 import { Badge } from "../ui/badge";
@@ -19,13 +18,8 @@ const VisitorEvacueeInfoDialog = ({
   const form = useForm();
   const {
     register,
-    handleSubmit,
+
     formState,
-    setValue,
-    watch,
-    control,
-    reset,
-    setError,
   } = form;
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

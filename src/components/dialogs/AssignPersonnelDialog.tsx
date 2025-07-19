@@ -32,24 +32,21 @@ const AssignPersonnelDialog = ({
   const form = useForm();
   const {
     register,
-    handleSubmit,
+
     formState,
     setValue,
     watch,
-    control,
-    reset,
-    setError,
   } = form;
 
-  const { infoStyle, errorStyle, successStyle } = useToastStyleTheme();
+  const { errorStyle } = useToastStyleTheme();
   const [deviceUHFValue, setDeviceUHFValue] = useState("");
   const [deviceMIFAREValue, setDeviceMIFAREValue] = useState("");
   const [deviceEMValue, setDeviceEMValue] = useState("");
   const [isUHFLinking, setIsUHFLinking] = useState(false);
   const [isLinking, setIsLinking] = useState<CardType>(null);
-  const { port, setPort } = usePortStore((store) => store);
+  const { port } = usePortStore((store) => store);
 
-  const { mutate, isError, error, isSuccess } = useMutateEmployee();
+  const { mutate } = useMutateEmployee();
 
   const mifareRef = useRef<HTMLInputElement>(null);
   const emRef = useRef<HTMLInputElement>(null);

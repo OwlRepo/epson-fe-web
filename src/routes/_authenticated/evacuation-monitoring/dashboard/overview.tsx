@@ -1,19 +1,11 @@
-import {
-  ClockedInIcon,
-  ClockedOutIcon,
-  EpsonEvsFlame,
-  EpsonFlame,
-  EvacuatedIcon,
-  InPremisesEvsIcon,
-  InPremisesIcon,
-} from "@/assets/svgs";
+import { EpsonEvsFlame, EvacuatedIcon, InPremisesEvsIcon } from "@/assets/svgs";
 import CardSection from "@/components/layouts/CardSection";
 import AttendanceCountCard from "@/components/ui/attendance-count-card";
 import CardHeaderLeft from "@/components/ui/card-header-left";
-import EmpInfoDialog from "@/components/ui/emp-info-dialog";
+
 import { LiveDataTable } from "@/components/ui/live-data-table";
 import Spinner from "@/components/ui/spinner";
-import { useGetEmployeeByNo } from "@/hooks/query/useGetEmployeeById";
+
 import { useOverviewCountData } from "@/hooks/useOverviewCountData";
 import countShortener from "@/utils/count-shortener";
 import {
@@ -23,7 +15,7 @@ import {
 } from "@tanstack/react-router";
 import { useState } from "react";
 import matchesFilter from "@/utils/matchesFilter";
-import { Heart, HeartIcon } from "lucide-react";
+
 import AssignPersonnelDialog from "@/components/dialogs/AssignPersonnelDialog";
 
 export const Route = createFileRoute(
@@ -42,9 +34,7 @@ function RouteComponent() {
 
   //employee data
   const [isOpen, setIsOpen] = useState(false);
-  const [employeeID, setEmployeeID] = useState("");
-  const { data: employee, isLoading: isEmployeeLoading } =
-    useGetEmployeeByNo(employeeID);
+  const [, setEmployeeID] = useState("");
 
   // Add handler for page size changes
   const handlePageSizeChange = (newPageSize: number) => {
