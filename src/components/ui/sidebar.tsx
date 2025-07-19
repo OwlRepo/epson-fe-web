@@ -397,7 +397,14 @@ export function Sidebar({
           className="flex items-center gap-2 px-4 py-6 mb-3 w-full bg-white rounded-lg text-primary hover:bg-white/80"
           asChild
         >
-          <Link to="/modules">
+          <Link
+            to="/modules"
+            className={cn(
+              router.state.location.pathname.includes("evacuation-monitoring")
+                ? "text-primary-evs"
+                : "text-primary"
+            )}
+          >
             <ChevronLeft size={20} className="text-primary" />
             {!collapsed ? (
               <span className="text-sm font-medium capitalize">
