@@ -1,4 +1,5 @@
 import BasicInfromationForm from "@/components/BasicInformationForm";
+import { useSocket } from "@/hooks";
 import { useMutateReservedGuest } from "@/hooks/mutation/useMutateReservedGuest";
 import useToastStyleTheme from "@/hooks/useToastStyleTheme";
 import { createFileRoute } from "@tanstack/react-router";
@@ -18,6 +19,7 @@ function RouteComponent() {
     error,
     isSuccess,
   } = useMutateReservedGuest();
+  const { emitData } = useSocket({ room: "updates" });
 
   const { errorStyle, successStyle } = useToastStyleTheme();
 
@@ -36,6 +38,7 @@ function RouteComponent() {
         description: "The guest has checked in successfully.",
         style: successStyle,
       });
+      emitData("users");
     }
   }, [isError, isSuccess]);
 
