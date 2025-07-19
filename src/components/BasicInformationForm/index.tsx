@@ -432,7 +432,7 @@ const BasicInfromationForm = ({
                 })}
                 className="disabled:bg-slate-400"
               >
-                Check In
+                {type === "check-in" ? "Check In" : "Register"}
               </Button>
             </>
           )}
