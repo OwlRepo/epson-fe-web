@@ -74,6 +74,7 @@ function RouteComponent() {
     isLoading: isLiveDataLoading,
     isConnected: isLiveDataConnected,
     countData,
+    clearData
   } = useOverviewCountData({
     room: "AMS",
     dataType: "live",
@@ -118,6 +119,7 @@ function RouteComponent() {
           {isLiveDataConnected && !isLiveDataLoading ? (
             <div className="flex">
               <LiveDataTable
+                clearSocketData={clearData}
                 pageSize={Number(search.pageSize) || 10}
                 onPageSizeChange={handlePageSizeChange}
                 onRowClick={(row) => {
