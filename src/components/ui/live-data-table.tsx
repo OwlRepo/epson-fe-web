@@ -16,6 +16,7 @@ interface LiveDataTableProps {
   onSearch?: (searchTerm: string) => void;
   tableId?: string;
   onRowClick?: (row: any) => void;
+  clearSocketData: () => void; // Function to clear the socket data
 }
 
 export function LiveDataTable({
@@ -24,9 +25,15 @@ export function LiveDataTable({
   onPageSizeChange,
   routeSearch,
   onRowClick,
+  clearSocketData,
   ...props
 }: LiveDataTableProps) {
   const navigate = useNavigate();
+
+  // Internal function to handle clearing table data
+  const handleClearTable = () => {
+    clearSocketData();
+  };
 
   const handlePageSizeChange = (newPageSize: number) => {
     // Update URL params
@@ -58,6 +65,7 @@ export function LiveDataTable({
     <DynamicTable
       {...props}
       onRowClick={onRowClick}
+      onClearTable={handleClearTable}
       data={slicedData}
       isLiveData={true}
       pagination={paginationConfig}

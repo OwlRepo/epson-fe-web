@@ -12,7 +12,7 @@ import { useNavigate } from "@tanstack/react-router";
 import Spinner from "./spinner";
 import { Button } from "./button";
 import { Checkbox } from "./checkbox";
-import { ChevronDown, Search, Filter, CalendarIcon, Clock } from "lucide-react";
+import { ChevronDown, Search, Filter, CalendarIcon, Clock, Trash2 } from "lucide-react";
 import { Input } from "./input";
 import {
   Sheet,
@@ -127,6 +127,7 @@ interface DynamicTableProps {
   rowIdField?: string; // Field to use as row ID for selection
   onRowSelectionChange?: (selectedRows: Record<string, any>) => void; // Callback when selection changes
   exportTableData?: ExportTableData; // Optional export options
+  onClearTable?: () => void; // Optional clear table function
 }
 
 export function DynamicTable({
@@ -150,6 +151,7 @@ export function DynamicTable({
   rowIdField = "id",
   onRowSelectionChange,
   exportTableData,
+  onClearTable,
 }: DynamicTableProps) {
   const navigate = useNavigate();
   const [filterSearches, setFilterSearches] = React.useState<
@@ -549,6 +551,7 @@ export function DynamicTable({
                 <Button
                   variant="default"
                   className="flex items-center shadow-none bg-[#F4F4F4] hover:bg-gray-300 text-black"
+                  disabled={isLoading || data.length === 0}
                 >
                   Filters
                   {Object.keys(filters).reduce(
@@ -799,6 +802,15 @@ export function DynamicTable({
                 </div>
               </SheetContent>
             </Sheet>
+                      )}
+          {onClearTable && (
+            <Button
+              variant="destructive"
+              onClick={onClearTable}
+              disabled={isLoading || data.length === 0}
+            >
+               <Trash2/> Clear
+            </Button>
           )}
           {exportTableData?.exportOptions && (
             <div className="relative flex items-center justify-end flex-1">
