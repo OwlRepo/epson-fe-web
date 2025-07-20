@@ -567,7 +567,7 @@ export function DynamicTable({
                   <ChevronDown />
                 </Button>
               </SheetTrigger>
-              <SheetContent className="w-full sm:max-w-md">
+              <SheetContent className="w-full sm:max-w-md overflow-y-auto">
                 <SheetHeader>
                   <SheetTitle>Filters</SheetTitle>
                   <SheetDescription>
@@ -575,7 +575,7 @@ export function DynamicTable({
                   </SheetDescription>
                 </SheetHeader>
                 <div className="mt-8 space-y-4">
-                  {filters.map((filter) => (
+                {filters.map((filter) => (
                     <Collapsible
                       key={filter.key}
                       className="overflow-hidden rounded-lg border border-[#e5e7eb] data-[state=open]:border-0"

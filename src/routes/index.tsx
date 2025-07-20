@@ -7,8 +7,7 @@ export const Route = createFileRoute("/")({
     const token = localStorage.getItem("token");
     const user = localStorage.getItem("user");
     if (token && user) {
-      redirect({ to: "/modules" });
-      return { isLoggedIn: true, user: JSON.parse(user) };
+      throw redirect({ to: "/modules" });
     }
     return { isLoggedIn: false, user: null };
   },

@@ -9,21 +9,7 @@ import {
 } from "@/assets/svgs";
 import { EPSON_LOGO_NORMAL } from "@/assets/images";
 import { ModuleCard } from "@/components/ui/module-card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { ChevronDown, LogOut } from "lucide-react";
-import { useEffect, useState } from "react";
-
-// Helper function to truncate text
-function truncateText(text: string, maxLength: number) {
-  if (text.length <= maxLength) return text;
-  return text.slice(0, maxLength - 1) + ".";
-}
+import UserProfile from "@/components/ui/user-profile";
 
 export const Route = createFileRoute("/_authenticated/modules")({
   component: RouteComponent,
@@ -69,23 +55,25 @@ const moduleRoutes = [
 
 function RouteComponent() {
   const navigate = useNavigate();
-  const userName = "Kindred Ino.";
-  const userRole = "HR Manager";
-  const truncatedName = truncateText(userName, 12);
+  const userName = localStorage.getItem("user")
+    ? JSON.parse(localStorage.getItem("user")!).EmailAddress
+    : "";
+  const userRole = localStorage.getItem("user")
+    ? JSON.parse(localStorage.getItem("user")!).Role
+    : "";
 
-  const [modules, setModules] = useState(moduleRoutes);
+  const modules = moduleRoutes.filter((module) => {
+    const user = localStorage.getItem("user")
+      ? JSON.parse(localStorage.getItem("user")!)
+      : null;
+    return user?.Access?.includes(module.key);
+  });
 
-  const user = localStorage.getItem("user")
-    ? JSON.parse(localStorage.getItem("user")!)
-    : null;
-
-  useEffect(() => {
-    const filteredModules = moduleRoutes.filter((module) =>
-      user?.Access?.includes(module.key)
-    );
-    setModules(filteredModules);
-  }, [user]);
-
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate({ to: "/" });
+  };
   return (
     <div className="relative min-h-screen w-full bg-gray-50 px-6 py-4">
       {/* Background */}
@@ -95,39 +83,11 @@ function RouteComponent() {
       <div className="relative z-10 mb-8 flex items-center justify-between p-5">
         <img src={EPSON_LOGO_NORMAL} alt="Epson Logo" className="h-8" />
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              className="flex h-auto items-center gap-3 rounded-lg px-3 py-2 hover:bg-transparent shadow-none"
-            >
-              <div className="h-10 w-10 overflow-hidden rounded-lg bg-gray-200" />
-              <div className="text-left">
-                <div className="font-medium" title={userName}>
-                  {truncatedName}
-                </div>
-                <div className="text-sm text-gray-500">{userRole}</div>
-              </div>
-              <ChevronDown className="h-5 w-5 text-gray-400" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            align="end"
-            className="mt-1 w-[180px] rounded-xl bg-white p-2 shadow-[0_2px_8px_rgba(0,0,0,0.08)]"
-          >
-            <DropdownMenuItem
-              onClick={() => {
-                navigate({
-                  to: "/",
-                });
-              }}
-              className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-[#FF4D4D] focus:bg-gray-50 focus:text-[#FF4D4D]"
-            >
-              <LogOut className="h-5 w-5" />
-              Logout
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <UserProfile
+          userName={userName}
+          userRole={userRole}
+          onLogout={handleLogout}
+        />
       </div>
 
       {/* Main Content Card */}

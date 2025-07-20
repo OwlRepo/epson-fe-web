@@ -1,6 +1,19 @@
 import { cn } from "@/lib/utils";
-import { useRouterState } from "@tanstack/react-router";
+import { useRouterState, useNavigate } from "@tanstack/react-router";
 import { Breadcrumbs } from "./breadcrumbs";
+import UserProfile from "./user-profile";
+import { useEffect } from "react";
+
+// Module mapping for proper display names
+const moduleMap: Record<string, string> = {
+  "attendance-monitoring": "AMS",
+  "visitor-management": "VMS",
+  "evacuation-monitoring": "EVS", 
+  "user-management": "UMS",
+  "device-management": "DMG",
+  "modules": "Smart Management Modules",
+  "home": "Home",
+};
 
 interface HeaderProps {
   userProfile?: {
@@ -13,6 +26,20 @@ interface HeaderProps {
 
 export function Header({ userProfile, className }: HeaderProps) {
   const { location } = useRouterState();
+  const navigate = useNavigate();
+
+  const userName = localStorage.getItem("user")
+    ? JSON.parse(localStorage.getItem("user")!).EmailAddress
+    : "";
+  const userRole = localStorage.getItem("user")
+    ? JSON.parse(localStorage.getItem("user")!).Role
+    : "";
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate({ to: "/" });
+  };
 
   // Get page title from the last segment of the URL
   const pathSegments = location.pathname.split("/").filter(Boolean);
@@ -23,6 +50,46 @@ export function Header({ userProfile, className }: HeaderProps) {
           .join(" ")
           .replace(/-/g, " ")
       : "";
+
+  // Set document title based on current route
+  useEffect(() => {
+    const pathSegments = location.pathname.split("/").filter(Boolean);
+
+    // Get the module name (first segment after authenticated routes)
+    let moduleName = "";
+    if (pathSegments.length > 0) {
+      const moduleKey = pathSegments[0];
+      moduleName = moduleMap[moduleKey] || "";
+    }
+
+    // Get the last path segment and format it
+    const lastSegment = pathSegments.length > 0
+      ? pathSegments[pathSegments.length - 1]
+          .split("_")
+          .join(" ")
+          .replace(/-/g, " ")
+          .replace(/%20/g, " ")
+          .split("%2")
+          .join(" ")
+      : "";
+
+    // Format the last segment as title case
+    const formattedLastSegment = lastSegment
+      .split(" ")
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" ");
+
+    // Set the document title
+    if (moduleName && formattedLastSegment) {
+      document.title = `${moduleName} - ${formattedLastSegment}`;
+    } else if (moduleName) {
+      document.title = moduleName;
+    } else if (formattedLastSegment) {
+      document.title = formattedLastSegment;
+    } else {
+      document.title = "Epson System"; // Default fallback
+    }
+  }, [location.pathname]);
 
   return (
     <header className={cn("bg-white px-6 py-4", className)}>
@@ -44,32 +111,11 @@ export function Header({ userProfile, className }: HeaderProps) {
 
           {/* User profile area */}
           {userProfile && (
-            <div className="flex items-center gap-3">
-              <div className="flex flex-col items-end">
-                <span className="font-medium">{userProfile.name}</span>
-                <span className="text-xs text-gray-500">
-                  {userProfile.role}
-                </span>
-              </div>
-              <div className="h-8 w-8 rounded bg-gray-200 overflow-hidden flex-shrink-0">
-                {userProfile.image ? (
-                  <img
-                    src={userProfile.image}
-                    alt={userProfile.name}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <div className="h-full w-full flex items-center justify-center bg-blue-100 text-blue-800 font-medium text-sm">
-                    {userProfile.name
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")
-                      .toUpperCase()
-                      .substring(0, 2)}
-                  </div>
-                )}
-              </div>
-            </div>
+            <UserProfile
+              userName={userName}
+              userRole={userRole}
+              onLogout={handleLogout}
+            />
           )}
         </div>
       </div>
