@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, LogOut } from "lucide-react";
+import { useEffect, useState } from "react";
 
 // Helper function to truncate text
 function truncateText(text: string, maxLength: number) {
@@ -28,43 +29,63 @@ export const Route = createFileRoute("/_authenticated/modules")({
   component: RouteComponent,
 });
 
+const moduleRoutes = [
+  {
+    path: "/attendance-monitoring/dashboard/overview",
+    title: "Attendance",
+    icon: AttendanceMonitoring,
+    subtitle: "Monitoring",
+    key: "AMS",
+  },
+  {
+    path: "/visitor-management",
+    title: "Visitor",
+    icon: VisitorManagement,
+    subtitle: "Management",
+    key: "VMS",
+  },
+  {
+    path: "/evacuation-monitoring",
+    title: "Evacuation",
+    icon: EvacuationMonitoring,
+    subtitle: "Monitoring",
+    key: "EVS",
+  },
+  {
+    path: "/user-management",
+    title: "User",
+    icon: UserManagement,
+    subtitle: "Management",
+    key: "UMS",
+  },
+  {
+    path: "/device-management",
+    title: "Device",
+    icon: DeviceManagement,
+    subtitle: "Management",
+    key: "DMG",
+  },
+];
+
 function RouteComponent() {
   const navigate = useNavigate();
   const userName = "Kindred Ino.";
   const userRole = "HR Manager";
   const truncatedName = truncateText(userName, 12);
-  const moduleRoutes = [
-    {
-      path: "/attendance-monitoring/dashboard/overview",
-      title: "Attendance",
-      icon: AttendanceMonitoring,
-      subtitle: "Monitoring",
-    },
-    {
-      path: "/visitor-management",
-      title: "Visitor",
-      icon: VisitorManagement,
-      subtitle: "Management",
-    },
-    {
-      path: "/evacuation-monitoring",
-      title: "Evacuation",
-      icon: EvacuationMonitoring,
-      subtitle: "Monitoring",
-    },
-    {
-      path: "/user-management",
-      title: "User",
-      icon: UserManagement,
-      subtitle: "Management",
-    },
-    {
-      path: "/device-management",
-      title: "Device",
-      icon: DeviceManagement,
-      subtitle: "Management",
-    },
-  ];
+
+  const [modules, setModules] = useState(moduleRoutes);
+
+  const user = localStorage.getItem("user")
+    ? JSON.parse(localStorage.getItem("user")!)
+    : null;
+
+  useEffect(() => {
+    const filteredModules = moduleRoutes.filter((module) =>
+      user?.Access?.includes(module.key)
+    );
+    setModules(filteredModules);
+  }, [user]);
+
   return (
     <div className="relative min-h-screen w-full bg-gray-50 px-6 py-4">
       {/* Background */}
@@ -117,33 +138,17 @@ function RouteComponent() {
         </h1>
 
         {/* Modules Grid */}
-        <div className="flex flex-col justify-center gap-20 min-h-[500px]">
-          {/* First row - 3 modules */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10 lg:gap-12 place-items-center">
-            {moduleRoutes.slice(0, 3).map((module) => (
-              <ModuleCard
-                key={module.path}
-                icon={module.icon}
-                title={module.title}
-                subtitle={module.subtitle}
-                href={module.path}
-                className="w-full lg:w-[320px] border border-gray-200 rounded-2xl hover:border-gray-300 transition-colors"
-              />
-            ))}
-          </div>
-          {/* Second row - 2 modules centered */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 sm:gap-10 lg:gap-12 lg:w-2/3 mx-auto place-items-center">
-            {moduleRoutes.slice(3).map((module) => (
-              <ModuleCard
-                key={module.path}
-                icon={module.icon}
-                title={module.title}
-                subtitle={module.subtitle}
-                href={module.path}
-                className="w-full lg:w-[320px] border border-gray-200 rounded-2xl hover:border-gray-300 transition-colors"
-              />
-            ))}
-          </div>
+        <div className="flex flex-row flex-wrap justify-center items-center gap-20 min-h-[500px] min-w-[600px]">
+          {modules.map((module) => (
+            <ModuleCard
+              key={module.path}
+              icon={module.icon}
+              title={module.title}
+              subtitle={module.subtitle}
+              href={module.path}
+              className="w-full lg:w-[320px] border border-gray-200 rounded-2xl hover:border-gray-300 transition-colors"
+            />
+          ))}
         </div>
       </div>
 
