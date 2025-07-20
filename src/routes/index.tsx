@@ -1,6 +1,8 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { LoginForm } from "../components/LoginForm";
 import { LoginBackground } from "../assets/svgs";
+import { useEffect } from "react";
+
 export const Route = createFileRoute("/")({
   component: App,
   beforeLoad: async () => {
@@ -14,6 +16,11 @@ export const Route = createFileRoute("/")({
 });
 
 function App() {
+  // Set document title for login page
+  useEffect(() => {
+    document.title = "Epson System - Login";
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#F7FAFF]">
       <LoginBackground className="absolute bottom-20 right-10 w-[1369px] h-[645px]" />

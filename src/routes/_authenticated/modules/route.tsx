@@ -10,6 +10,7 @@ import {
 import { EPSON_LOGO_NORMAL } from "@/assets/images";
 import { ModuleCard } from "@/components/ui/module-card";
 import UserProfile from "@/components/ui/user-profile";
+import { useEffect } from "react";
 
 export const Route = createFileRoute("/_authenticated/modules")({
   component: RouteComponent,
@@ -74,6 +75,12 @@ function RouteComponent() {
     localStorage.removeItem("user");
     navigate({ to: "/" });
   };
+
+  // Set document title for modules page
+  useEffect(() => {
+    document.title = "Smart Management Modules";
+  }, []);
+
   return (
     <div className="relative min-h-screen w-full bg-gray-50 px-6 py-4">
       {/* Background */}
