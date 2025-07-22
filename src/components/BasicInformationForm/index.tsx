@@ -24,6 +24,7 @@ import TextInput from "../inputs/TextInput";
 import { AsyncAutoComplete } from "../inputs/AsyncAutoComplete";
 import { LinkCardInput } from "../inputs/LinkCardInput";
 import { visitationDateChecker } from "@/utils/visitationDateChecker";
+import { faker } from "@faker-js/faker";
 
 interface BasicInformationFormProps {
   onSubmitData?: (data: any) => void;
@@ -242,7 +243,7 @@ const BasicInfromationForm = ({
               label={"Company/Organization"}
               id="company"
               name={"Company"}
-              placeholder="value"
+              placeholder={`ex. ${faker.company.name()}`}
               register={register}
               errors={formState.errors}
               readOnly={isReadOnly}
