@@ -103,6 +103,15 @@ function RouteComponent() {
         <CardSection headerLeft={<CardHeaderLeft />}>
           <div className="flex flex-col lg:flex-row justify-between gap-4">
             <AttendanceCountCard
+              count={
+                countData?.inside
+                  ? parseInt(countShortener(countData.inside))
+                  : 0
+              }
+              icon={<InPremisesIcon />}
+              subtitle="Inside premises"
+            />
+            <AttendanceCountCard
               count={countData?.in ? parseInt(countShortener(countData.in)) : 0}
               icon={<ClockedInIcon />}
               subtitle="Checked in"
@@ -115,15 +124,6 @@ function RouteComponent() {
               icon={<ClockedOutIcon />}
               subtitle="Check out"
               variant="error"
-            />
-            <AttendanceCountCard
-              count={
-                countData?.inside
-                  ? parseInt(countShortener(countData.inside))
-                  : 0
-              }
-              icon={<InPremisesIcon />}
-              subtitle="Total Visitors"
             />
           </div>
         </CardSection>
