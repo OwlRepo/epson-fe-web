@@ -6,7 +6,6 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
-import { Computer } from "lucide-react";
 import { createFileRoute } from "@tanstack/react-router";
 import {
   DndContext,
@@ -79,12 +78,9 @@ function DraggableText({
   relocatingId,
   setRelocatingId,
   confirmPopoverId,
-  setConfirmPopoverId,
   onConfirm,
   onCancel,
-  originalPosition,
   activeId,
-  interactionDisabled,
 }: {
   id: string;
   percentPosition: PercentPosition;

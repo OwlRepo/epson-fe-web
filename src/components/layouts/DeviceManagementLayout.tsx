@@ -2,7 +2,7 @@ import { EpsonLogoWhite } from "@/assets/svgs";
 import { Header } from "@/components/ui/header";
 import { Sidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Star } from "lucide-react";
+import { LayoutDashboard } from "lucide-react";
 import * as React from "react";
 
 interface DeviceManagementLayoutProps {

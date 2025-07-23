@@ -39,6 +39,7 @@ function RouteComponent() {
         description: "The guest has checked in successfully.",
         style: successStyle,
       });
+      //@ts-ignore
       emitData("users");
     }
   }, [isError, isSuccess]);
