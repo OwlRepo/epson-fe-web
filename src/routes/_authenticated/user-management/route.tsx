@@ -9,7 +9,7 @@ import {
 
 export const Route = createFileRoute("/_authenticated/user-management")({
   component: RouteComponent,
-  beforeLoad: withModuleAccess(["UMS"], {
+  beforeLoad: withModuleAccess(["UMG"], {
     fallbackError: new Error("You do not have access to this module."),
   }),
   loader: async () => {
