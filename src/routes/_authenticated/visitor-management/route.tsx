@@ -1,4 +1,5 @@
 import { VisitorManagementLayout } from "@/components/layouts/VisitorManagementLayout";
+import { withModuleAccess } from "@/utils/guardRoute";
 import {
   createFileRoute,
   Outlet,
@@ -8,6 +9,9 @@ import {
 
 export const Route = createFileRoute("/_authenticated/visitor-management")({
   component: RouteComponent,
+  beforeLoad: withModuleAccess(["VMS"], {
+    fallbackError: new Error("You do not have access to this module."),
+  }),
   loader: async () => {
     if (
       location.pathname === "/visitor-management" ||

@@ -1,4 +1,5 @@
 import { UserManagementLayout } from "@/components/layouts/UserManagementLayout";
+import { withModuleAccess } from "@/utils/guardRoute";
 import {
   createFileRoute,
   Outlet,
@@ -8,6 +9,9 @@ import {
 
 export const Route = createFileRoute("/_authenticated/user-management")({
   component: RouteComponent,
+  beforeLoad: withModuleAccess(["UMS"], {
+    fallbackError: new Error("You do not have access to this module."),
+  }),
   loader: async () => {
     if (location.pathname === "/user-management") {
       throw redirect({
