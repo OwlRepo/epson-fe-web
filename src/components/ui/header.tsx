@@ -8,11 +8,11 @@ import { useEffect } from "react";
 const moduleMap: Record<string, string> = {
   "attendance-monitoring": "AMS",
   "visitor-management": "VMS",
-  "evacuation-monitoring": "EVS", 
+  "evacuation-monitoring": "EVS",
   "user-management": "UMS",
   "device-management": "DMG",
-  "modules": "Smart Management Modules",
-  "home": "Home",
+  modules: "Smart Management Modules",
+  home: "Home",
 };
 
 interface HeaderProps {
@@ -28,9 +28,13 @@ export function Header({ userProfile, className }: HeaderProps) {
   const { location } = useRouterState();
   const navigate = useNavigate();
 
-  const userName = localStorage.getItem("user")
-    ? JSON.parse(localStorage.getItem("user")!).EmailAddress
-    : "";
+  const userName =
+    JSON.parse(localStorage.getItem("user")!).Name ??
+    JSON.parse(localStorage.getItem("user")!).EmailAddress;
+
+  const userInitials =
+    JSON.parse(localStorage.getItem("user")!).Initials ?? "-";
+
   const userRole = localStorage.getItem("user")
     ? JSON.parse(localStorage.getItem("user")!).Role
     : "";
@@ -63,20 +67,21 @@ export function Header({ userProfile, className }: HeaderProps) {
     }
 
     // Get the last path segment and format it
-    const lastSegment = pathSegments.length > 0
-      ? pathSegments[pathSegments.length - 1]
-          .split("_")
-          .join(" ")
-          .replace(/-/g, " ")
-          .replace(/%20/g, " ")
-          .split("%2")
-          .join(" ")
-      : "";
+    const lastSegment =
+      pathSegments.length > 0
+        ? pathSegments[pathSegments.length - 1]
+            .split("_")
+            .join(" ")
+            .replace(/-/g, " ")
+            .replace(/%20/g, " ")
+            .split("%2")
+            .join(" ")
+        : "";
 
     // Format the last segment as title case
     const formattedLastSegment = lastSegment
       .split(" ")
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join(" ");
 
     // Set the document title
@@ -113,6 +118,7 @@ export function Header({ userProfile, className }: HeaderProps) {
           {userProfile && (
             <UserProfile
               userName={userName}
+              userInitials={userInitials}
               userRole={userRole}
               onLogout={handleLogout}
             />

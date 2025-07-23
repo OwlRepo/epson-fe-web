@@ -14,7 +14,7 @@ export interface SummaryData extends DeviceData {
 export interface SummaryCountData {
   in: number; // Total Count
   out: number; // Total Count
-  inside?: number; // Optional, only for summary data
+  total?: number; // Optional, only for summary data
 }
 
 export interface DeviceData {
@@ -183,22 +183,26 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
           }
         });
       } else if (dataType === "live") {
-        // For live data, add to array or update if employee_id already exists
+        // For live data, check if record exists with same employee_id AND clocked_in
         setData((prevData) => {
-          const employeeExists = prevData.some(
-            (item) =>
-              (item as LiveData).employee_id ===
-              (newData as LiveData).employee_id
-          );
+          const newLiveData = newData as LiveData;
 
-          if (employeeExists) {
-            return prevData.map((item) =>
-              (item as LiveData).employee_id ===
-              (newData as LiveData).employee_id
-                ? { ...item, ...newData }
-                : item
+          // Find existing record with same employee_id AND clocked_in
+          const existingRecordIndex = prevData.findIndex((item) => {
+            const liveItem = item as LiveData;
+            return (
+              liveItem.employee_id === newLiveData.employee_id &&
+              liveItem.clocked_in === newLiveData.clocked_in
+            );
+          });
+
+          if (existingRecordIndex !== -1) {
+            // Update existing record with same employee_id and clocked_in
+            return prevData.map((item, index) =>
+              index === existingRecordIndex ? { ...item, ...newData } : item
             );
           } else {
+            // Insert as new record (either new employee or same employee with different clocked_in)
             return [...prevData, newData as T];
           }
         });

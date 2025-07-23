@@ -106,9 +106,7 @@ function RouteComponent() {
             />
             <AttendanceCountCard
               count={
-                countData?.inside
-                  ? parseInt(countShortener(countData.inside))
-                  : 0
+                countData?.total ? parseInt(countShortener(countData.total)) : 0
               }
               icon={<InPremisesIcon />}
               subtitle="Total Employees"

@@ -56,9 +56,11 @@ const moduleRoutes = [
 
 function RouteComponent() {
   const navigate = useNavigate();
-  const userName = localStorage.getItem("user")
-    ? JSON.parse(localStorage.getItem("user")!).EmailAddress
-    : "";
+  const userName =
+    JSON.parse(localStorage.getItem("user")!).Name ??
+    JSON.parse(localStorage.getItem("user")!).EmailAddress;
+  const userInitials =
+    JSON.parse(localStorage.getItem("user")!).Initials ?? "-";
   const userRole = localStorage.getItem("user")
     ? JSON.parse(localStorage.getItem("user")!).Role
     : "";
@@ -92,6 +94,7 @@ function RouteComponent() {
 
         <UserProfile
           userName={userName}
+          userInitials={userInitials}
           userRole={userRole}
           onLogout={handleLogout}
         />

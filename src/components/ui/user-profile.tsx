@@ -6,6 +6,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, LogOut } from "lucide-react";
+import { Avatar, AvatarFallback } from "./avatar";
 
 // Helper function to truncate text
 function truncateText(text: string, maxLength: number) {
@@ -15,18 +16,20 @@ function truncateText(text: string, maxLength: number) {
 
 interface UserProfileProps {
   userName: string;
+  userInitials: string;
   userRole: string;
   onLogout: () => void;
   maxNameLength?: number;
   className?: string;
 }
 
-export default function UserProfile({ 
-  userName, 
-  userRole, 
-  onLogout, 
+export default function UserProfile({
+  userName,
+  userInitials,
+  userRole,
+  onLogout,
   maxNameLength = 12,
-  className = ""
+  className = "",
 }: UserProfileProps) {
   const truncatedName = truncateText(userName, maxNameLength);
 
@@ -37,7 +40,11 @@ export default function UserProfile({
           variant="ghost"
           className={`flex h-auto items-center gap-3 rounded-lg px-3 py-2 hover:bg-transparent shadow-none ${className}`}
         >
-          <div className="h-10 w-10 overflow-hidden rounded-lg bg-gray-200" />
+          <Avatar>
+            <AvatarFallback className="bg-primary text-white font-bold">
+              {userInitials}
+            </AvatarFallback>
+          </Avatar>
           <div className="text-left">
             <div className="font-medium" title={userName}>
               {truncatedName}

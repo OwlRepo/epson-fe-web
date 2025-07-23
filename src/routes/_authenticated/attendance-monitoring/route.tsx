@@ -10,11 +10,11 @@ import {
 export const Route = createFileRoute("/_authenticated/attendance-monitoring")({
   component: DashboardPage,
   beforeLoad: ({ location }) => {
-    const accessCheck = withModuleAccess(["AMS"], {
-      fallbackError: new Error("You do not have access to this module."),
-    });
+    // const accessCheck = withModuleAccess(["AMS"], {
+    //   fallbackError: new Error("You do not have access to this module."),
+    // });
 
-    accessCheck(); // Run the access guard
+    // accessCheck(); // Run the access guard
     if (
       location.pathname === "/attendance-monitoring" ||
       location.pathname === "/attendance-monitoring/dashboard"
