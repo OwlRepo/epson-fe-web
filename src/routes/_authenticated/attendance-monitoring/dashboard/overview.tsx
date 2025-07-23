@@ -80,6 +80,7 @@ function RouteComponent() {
     isConnected: isLiveDataConnected,
     countData,
     clearData,
+    emitData,
   } = useOverviewCountData({
     room: "AMS",
     dataType: "live",
@@ -91,23 +92,19 @@ function RouteComponent() {
         <CardSection headerLeft={<CardHeaderLeft />}>
           <div className="flex flex-col lg:flex-row justify-between gap-4">
             <AttendanceCountCard
-              count={countData?.in ? parseInt(countShortener(countData.in)) : 0}
+              count={countData?.in ? countShortener(countData.in) : 0}
               icon={<ClockedInIcon />}
               subtitle="Incoming"
               variant="success"
             />
             <AttendanceCountCard
-              count={
-                countData?.out ? parseInt(countShortener(countData.out)) : 0
-              }
+              count={countData?.out ? countShortener(countData.out) : 0}
               icon={<ClockedOutIcon />}
               subtitle="Outgoing"
               variant="error"
             />
             <AttendanceCountCard
-              count={
-                countData?.total ? parseInt(countShortener(countData.total)) : 0
-              }
+              count={countData?.total ? countShortener(countData.total) : 0}
               icon={<InPremisesIcon />}
               subtitle="Total Employees"
             />
@@ -132,6 +129,7 @@ function RouteComponent() {
                 pageSize={Number(search.pageSize) || 10}
                 onPageSizeChange={handlePageSizeChange}
                 clearSocketData={clearData}
+                emitSocketData={emitData}
                 onRowClick={(row) => {
                   setEmployeeID(row.employee_id);
                   setIsOpen(true);

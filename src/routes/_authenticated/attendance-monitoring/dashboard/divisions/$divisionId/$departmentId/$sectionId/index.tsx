@@ -24,7 +24,8 @@ function RouteComponent() {
     isLoading,
     isConnected,
     countData: totalLogs,
-    clearData
+    clearData,
+    emitData,
   } = useEmployeeData();
 
   const navigate = useNavigate({
@@ -90,6 +91,7 @@ function RouteComponent() {
         <div className="flex">
           <LiveDataTable
             clearSocketData={clearData}
+            emitSocketData={emitData}
             pageSize={Number(search.pageSize) || 10}
             onPageSizeChange={handlePageSizeChange}
             columns={[

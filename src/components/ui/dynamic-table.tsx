@@ -12,7 +12,14 @@ import { useNavigate } from "@tanstack/react-router";
 import Spinner from "./spinner";
 import { Button } from "./button";
 import { Checkbox } from "./checkbox";
-import { ChevronDown, Search, Filter, CalendarIcon, Clock, Trash2 } from "lucide-react";
+import {
+  ChevronDown,
+  Search,
+  Filter,
+  CalendarIcon,
+  Clock,
+  Trash2,
+} from "lucide-react";
 import { Input } from "./input";
 import {
   Sheet,
@@ -128,6 +135,7 @@ interface DynamicTableProps {
   onRowSelectionChange?: (selectedRows: Record<string, any>) => void; // Callback when selection changes
   exportTableData?: ExportTableData; // Optional export options
   onClearTable?: () => void; // Optional clear table function
+  clearButtonLabel?: string; // Optional clear button label
 }
 
 export function DynamicTable({
@@ -152,6 +160,7 @@ export function DynamicTable({
   onRowSelectionChange,
   exportTableData,
   onClearTable,
+  clearButtonLabel,
 }: DynamicTableProps) {
   const navigate = useNavigate();
   const [filterSearches, setFilterSearches] = React.useState<
@@ -578,7 +587,7 @@ export function DynamicTable({
                   </SheetDescription>
                 </SheetHeader>
                 <div className="mt-8 space-y-4">
-                {filters.map((filter) => (
+                  {filters.map((filter) => (
                     <Collapsible
                       key={filter.key}
                       className="overflow-hidden rounded-lg border border-[#e5e7eb] data-[state=open]:border-0"
@@ -802,14 +811,14 @@ export function DynamicTable({
                 </div>
               </SheetContent>
             </Sheet>
-                      )}
+          )}
           {onClearTable && (
             <Button
               variant="destructive"
               onClick={onClearTable}
               disabled={isLoading || data.length === 0}
             >
-               <Trash2/> Clear
+              <Trash2 /> {clearButtonLabel || "Clear"}
             </Button>
           )}
           {exportTableData?.exportOptions && (

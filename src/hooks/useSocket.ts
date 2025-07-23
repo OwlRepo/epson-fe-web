@@ -15,6 +15,7 @@ export interface SummaryCountData {
   in: number; // Total Count
   out: number; // Total Count
   total?: number; // Optional, only for summary data
+  inside?: number; // Optional, only for summary data
 }
 
 export interface DeviceData {
@@ -74,7 +75,13 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
 
   // Connect to socket and join room
   useEffect(() => {
+    console.log("🚀 Initializing socket connection...");
+    console.log("🏠 Target room:", room);
+    console.log("📡 Socket URL:", SOCKET_URL);
+    console.log("📝 Data type:", dataType);
+
     if (!room) {
+      console.error("❌ Room name is required but not provided");
       setError("Room name is required");
       setIsLoading(false);
       return;
@@ -83,6 +90,7 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
     let socketInstance: Socket;
 
     try {
+      console.log("🔧 Creating socket instance with config...");
       socketInstance = io(SOCKET_URL, {
         extraHeaders: {
           "ngrok-skip-browser-warning": "true",
@@ -93,48 +101,64 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
         reconnectionDelay: 1000,
         timeout: 10000,
       });
+      console.log("✅ Socket instance created successfully");
     } catch (err) {
-      setError(
-        `Failed to initialize socket: ${err instanceof Error ? err.message : String(err)}`
-      );
+      const errorMessage = `Failed to initialize socket: ${err instanceof Error ? err.message : String(err)}`;
+      console.error("🔴 Socket initialization failed:", errorMessage);
+      console.error("🔍 Error details:", err);
+      setError(errorMessage);
       setIsLoading(false);
       return;
     }
 
     // Set loading state
+    console.log("⏳ Setting loading state...");
     setIsLoading(true);
 
     socketInstance.on("connect", () => {
+      console.log("🟢 Socket connected to server successfully!");
+      console.log("🔗 Connection ID:", socketInstance.id);
       setIsConnected(true);
       setError(null);
 
       // Join the specified room
+      console.log(`🚪 Attempting to join room: "${room}"`);
       socketInstance.emit("join", room);
-      console.log(`Joined room: ${room}`);
+      console.log(`✅ Successfully joined socket room: "${room}"`);
     });
 
     socketInstance.on("connect_error", (err) => {
       setIsConnected(false);
       setError(`Connection error: ${err.message}`);
       setIsLoading(false);
-      console.error("Socket connection error:", err);
+      console.error("🔴 Socket connection error:", err.message);
+      console.error("🔍 Error details:", err);
     });
 
     socketInstance.on("disconnect", () => {
       setIsConnected(false);
-      console.log("Socket disconnected");
+      console.log("🔌 Socket disconnected from server");
     });
 
     // Listen for preload data when joining room
     socketInstance.on("preload", (preloadData) => {
-      console.log("Preload data received:", preloadData);
+      console.log("📦 Preload data received for room:", room);
+      console.log("📊 Data type:", typeof preloadData);
+      console.log(
+        "📈 Records count:",
+        Array.isArray(preloadData) ? preloadData.length : "N/A"
+      );
+      console.log("🗂️ Preload data:", preloadData);
+
       if (Array.isArray(preloadData)) {
         setData(preloadData as T[]);
+        console.log("✅ Preload data successfully set in state");
       } else {
         console.error(
-          "Expected array for preload data but got:",
+          "❌ Expected array for preload data but got:",
           typeof preloadData
         );
+        console.error("🔍 Received data:", preloadData);
         setData([]);
       }
       setIsLoading(false);
@@ -142,7 +166,9 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
 
     // Listen for updates
     socketInstance.on("data", (newData) => {
-      console.log("New data received:", newData);
+      console.log("🔄 New live data received for room:", room);
+      console.log("🆕 Data type mode:", dataType);
+      console.log("📋 New data payload:", newData);
       if (dataType === "summary") {
         // For summary data, update the matching item in array
         setData((prevData) => {
@@ -211,14 +237,25 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
 
     // Listen for summary count data
     socketInstance.on("count", (countData) => {
-      console.log("Count data received:", countData);
+      console.log("📊 Count data received for room:", room);
+      console.log("🔢 Count details:", {
+        in: countData.in,
+        out: countData.out,
+        total: countData.total,
+        inside: countData.inside,
+      });
+      console.log("📈 Raw count data:", countData);
+
       setCountData((prevData) => {
-        return {
+        const updatedData = {
           ...prevData,
           in: countData.in,
           out: countData.out,
+          total: countData.total,
           inside: countData.inside,
         };
+        console.log("✅ Count data updated in state:", updatedData);
+        return updatedData;
       });
     });
 
@@ -226,40 +263,57 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
 
     // Clean up function
     return () => {
+      console.log("🧹 Cleaning up socket connections...");
       socketInstance.off("connect");
       socketInstance.off("disconnect");
       socketInstance.off("connect_error");
       socketInstance.off("preload");
       socketInstance.off("data");
+      socketInstance.off("count");
       socketInstance.disconnect();
-      console.log(`Left room: ${room}`);
+      console.log(`👋 Left socket room: "${room}"`);
+      console.log("✨ Socket cleanup completed");
     };
   }, [room, dataType]);
 
   // Function to manually leave current room and join a new one
   const joinRoom = useCallback(
     (newRoom: string) => {
-      if (!socket) return;
+      if (!socket) {
+        console.log("❌ Cannot join room - socket not available");
+        return;
+      }
 
+      console.log(`🔄 Switching rooms: "${room}" → "${newRoom}"`);
       setIsLoading(true);
       socket.emit("room", newRoom);
-      console.log(`Joined new room: ${newRoom}`);
+      console.log(`✅ Successfully joined new room: "${newRoom}"`);
+
       // Reset data when changing rooms
+      console.log("🗑️ Clearing data for room switch...");
       setData([]);
     },
-    [socket]
+    [socket, room]
   );
 
   // Clear all data
   const clearData = useCallback(() => {
+    console.log("🧹 Clearing all socket data manually");
     setData([]);
+    console.log("✅ Socket data cleared successfully");
   }, []);
 
   //emit
   const emitData = useCallback(
-    (payload: any) => {
-      if (!socket) return;
-      socket.emit(room, payload);
+    (targetRoom: string, payload: any) => {
+      if (!socket) {
+        console.log("❌ Socket not available for emission");
+        return;
+      }
+      console.log("🚀 Socket emitting to room:", targetRoom);
+      console.log("📦 Socket payload:", payload);
+      socket.emit(targetRoom, payload);
+      console.log("✨ Socket emission sent successfully");
     },
     [socket]
   );

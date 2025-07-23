@@ -29,7 +29,7 @@ function RouteComponent() {
     isLoading,
     isConnected,
     countData: totalLogs,
-    clearData
+    // clearData,
   } = useEntryExitPointsData({
     room: "VIEW_CONTROLLER" + params.deviceId,
     dataType: "live",
@@ -107,7 +107,7 @@ function RouteComponent() {
       {isConnected && !isLoading ? (
         <div className="flex">
           <LiveDataTable
-            clearSocketData={clearData}
+            // clearSocketData={clearData}
             pageSize={Number(search.pageSize) || 10}
             onPageSizeChange={handlePageSizeChange}
             columns={[

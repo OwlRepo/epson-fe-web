@@ -92,6 +92,7 @@ function RouteComponent() {
     isConnected: isLiveDataConnected,
     countData,
     clearData,
+    emitData,
   } = useOverviewCountData({
     room: "VMS",
     dataType: "live",
@@ -146,6 +147,7 @@ function RouteComponent() {
                 pageSize={Number(search.pageSize) || 10}
                 onPageSizeChange={handlePageSizeChange}
                 clearSocketData={clearData}
+                emitSocketData={emitData}
                 onRowClick={(row) => {
                   setVisitorID(row.ID);
                   setIsOpen(true);
