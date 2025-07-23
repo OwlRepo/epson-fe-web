@@ -166,42 +166,39 @@ function DraggableText({
         <PopoverContent
           align="center"
           sideOffset={24}
-          className="w-[420px] p-8 rounded-3xl shadow-xl border border-gray-100 bg-[#f7f9fc] flex flex-col items-center gap-4 z-50"
+          className="w-fit p-8 rounded-3xl shadow-xl border border-gray-100 bg-[#f7f9fc] flex flex-col items-center gap-4 z-50"
           style={{ left: 0, top: 0 }}
         >
-          <div className="-mt-16 mb-2 bg-white rounded-full shadow-lg p-3 border-4 border-white">
-            <Computer className="w-16 h-16 text-primary" />
-          </div>
           <div className="w-full text-left">
-            <div className="text-3xl font-extrabold text-primary mb-1">
-              {device?.name}
-            </div>
-            <div className="text-2xl text-gray-400 font-medium mb-6">
+            <div className="text-2xl font-extrabold mb-1">{device?.name}</div>
+            <div className="text-md text-gray-400 font-medium mb-6">
               Drag me to the area that fits your layout.
             </div>
           </div>
-          <div className="flex w-full gap-4 mt-2">
+          <div className="flex w-full gap-4 mt-2 justify-between">
             <Button
               variant="outline"
-              className="flex-1 border-2 border-blue-900 text-blue-900 font-bold text-lg hover:bg-blue-50 py-5 rounded-2xl"
+              className="flex-1 border-2 border-blue-900 text-blue-900 font-bold hover:bg-blue-50 py-5"
             >
               Select Floor & Area
             </Button>
-            <Button
-              type="button"
-              variant="destructive"
-              className="flex-1 bg-red-600 text-white font-bold text-lg hover:bg-red-700 py-5 rounded-2xl"
-              onClick={onCancel}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="button"
-              className="flex-1 bg-blue-900 text-white font-bold text-lg hover:bg-blue-800 py-5 rounded-2xl"
-              onClick={onConfirm}
-            >
-              Confirm
-            </Button>
+            <div className=" flex">
+              <Button
+                type="button"
+                variant="destructive"
+                className="flex-1 bg-red-600 text-white font-bold hover:bg-red-700 py-5"
+                onClick={onCancel}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                className="flex-1 bg-blue-900 text-white font-bold hover:bg-blue-800 py-5"
+                onClick={onConfirm}
+              >
+                Confirm
+              </Button>
+            </div>
           </div>
         </PopoverContent>
       </Popover>
@@ -245,7 +242,7 @@ function DraggableText({
         <PopoverContent
           align="center"
           sideOffset={8}
-          className="w-80 p-6 rounded-2xl shadow-xl border border-gray-100 bg-[#f7f9fc] flex flex-col gap-4 z-50"
+          className="w-80 p-6 shadow-xl border border-gray-100 bg-[#f7f9fc] flex flex-col gap-4 z-50"
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >

@@ -18,11 +18,8 @@ import { Route as AuthenticatedVisitorManagementRouteImport } from './routes/_au
 import { Route as AuthenticatedUserManagementRouteImport } from './routes/_authenticated/user-management/route'
 import { Route as AuthenticatedModulesRouteImport } from './routes/_authenticated/modules/route'
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home/route'
-<<<<<<< HEAD
 import { Route as AuthenticatedEvacuationMonitoringRouteImport } from './routes/_authenticated/evacuation-monitoring/route'
-=======
 import { Route as AuthenticatedDeviceManagementRouteImport } from './routes/_authenticated/device-management/route'
->>>>>>> 303e8f9 (feat: add device management layout and routing for enhanced user experience)
 import { Route as AuthenticatedAttendanceMonitoringRouteImport } from './routes/_authenticated/attendance-monitoring/route'
 import { Route as AuthenticatedVisitorManagementReportsImport } from './routes/_authenticated/visitor-management/reports'
 import { Route as AuthenticatedUserManagementListOfUsersImport } from './routes/_authenticated/user-management/list-of-users'
@@ -35,11 +32,9 @@ import { Route as AuthenticatedVisitorManagementReservedGuestRegisterGuestImport
 import { Route as AuthenticatedVisitorManagementReservedGuestOverviewImport } from './routes/_authenticated/visitor-management/reserved-guest/overview'
 import { Route as AuthenticatedVisitorManagementDashboardOverviewImport } from './routes/_authenticated/visitor-management/dashboard/overview'
 import { Route as AuthenticatedVisitorManagementDashboardCheckInVisitorImport } from './routes/_authenticated/visitor-management/dashboard/check-in-visitor'
-<<<<<<< HEAD
 import { Route as AuthenticatedEvacuationMonitoringDashboardOverviewImport } from './routes/_authenticated/evacuation-monitoring/dashboard/overview'
-=======
+import { Route as AuthenticatedDeviceManagementDashboardOverviewImport } from './routes/_authenticated/device-management/dashboard/overview'
 import { Route as AuthenticatedDeviceManagementDashboardMappingImport } from './routes/_authenticated/device-management/dashboard/mapping'
->>>>>>> 303e8f9 (feat: add device management layout and routing for enhanced user experience)
 import { Route as AuthenticatedAttendanceMonitoringDashboardOverviewImport } from './routes/_authenticated/attendance-monitoring/dashboard/overview'
 import { Route as AuthenticatedEvacuationMonitoringDashboardEntryExitIndexImport } from './routes/_authenticated/evacuation-monitoring/dashboard/entry-exit/index'
 import { Route as AuthenticatedEvacuationMonitoringDashboardDivisionsIndexImport } from './routes/_authenticated/evacuation-monitoring/dashboard/divisions/index'
@@ -100,17 +95,17 @@ const AuthenticatedHomeRouteRoute = AuthenticatedHomeRouteImport.update({
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 
-<<<<<<< HEAD
 const AuthenticatedEvacuationMonitoringRouteRoute =
   AuthenticatedEvacuationMonitoringRouteImport.update({
     id: '/evacuation-monitoring',
     path: '/evacuation-monitoring',
-=======
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+
 const AuthenticatedDeviceManagementRouteRoute =
   AuthenticatedDeviceManagementRouteImport.update({
     id: '/device-management',
     path: '/device-management',
->>>>>>> 303e8f9 (feat: add device management layout and routing for enhanced user experience)
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
@@ -198,19 +193,25 @@ const AuthenticatedVisitorManagementDashboardCheckInVisitorRoute =
     getParentRoute: () => AuthenticatedVisitorManagementRouteRoute,
   } as any)
 
-<<<<<<< HEAD
 const AuthenticatedEvacuationMonitoringDashboardOverviewRoute =
   AuthenticatedEvacuationMonitoringDashboardOverviewImport.update({
     id: '/dashboard/overview',
     path: '/dashboard/overview',
     getParentRoute: () => AuthenticatedEvacuationMonitoringRouteRoute,
-=======
+  } as any)
+
+const AuthenticatedDeviceManagementDashboardOverviewRoute =
+  AuthenticatedDeviceManagementDashboardOverviewImport.update({
+    id: '/dashboard/overview',
+    path: '/dashboard/overview',
+    getParentRoute: () => AuthenticatedDeviceManagementRouteRoute,
+  } as any)
+
 const AuthenticatedDeviceManagementDashboardMappingRoute =
   AuthenticatedDeviceManagementDashboardMappingImport.update({
     id: '/dashboard/mapping',
     path: '/dashboard/mapping',
     getParentRoute: () => AuthenticatedDeviceManagementRouteRoute,
->>>>>>> 303e8f9 (feat: add device management layout and routing for enhanced user experience)
   } as any)
 
 const AuthenticatedAttendanceMonitoringDashboardOverviewRoute =
@@ -359,19 +360,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAttendanceMonitoringRouteImport
       parentRoute: typeof AuthenticatedRouteImport
     }
-<<<<<<< HEAD
-    '/_authenticated/evacuation-monitoring': {
-      id: '/_authenticated/evacuation-monitoring'
-      path: '/evacuation-monitoring'
-      fullPath: '/evacuation-monitoring'
-      preLoaderRoute: typeof AuthenticatedEvacuationMonitoringRouteImport
-=======
     '/_authenticated/device-management': {
       id: '/_authenticated/device-management'
       path: '/device-management'
       fullPath: '/device-management'
       preLoaderRoute: typeof AuthenticatedDeviceManagementRouteImport
->>>>>>> 303e8f9 (feat: add device management layout and routing for enhanced user experience)
+      parentRoute: typeof AuthenticatedRouteImport
+    }
+    '/_authenticated/evacuation-monitoring': {
+      id: '/_authenticated/evacuation-monitoring'
+      path: '/evacuation-monitoring'
+      fullPath: '/evacuation-monitoring'
+      preLoaderRoute: typeof AuthenticatedEvacuationMonitoringRouteImport
       parentRoute: typeof AuthenticatedRouteImport
     }
     '/_authenticated/home': {
@@ -451,21 +451,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAttendanceMonitoringDashboardOverviewImport
       parentRoute: typeof AuthenticatedAttendanceMonitoringRouteImport
     }
-<<<<<<< HEAD
-    '/_authenticated/evacuation-monitoring/dashboard/overview': {
-      id: '/_authenticated/evacuation-monitoring/dashboard/overview'
-      path: '/dashboard/overview'
-      fullPath: '/evacuation-monitoring/dashboard/overview'
-      preLoaderRoute: typeof AuthenticatedEvacuationMonitoringDashboardOverviewImport
-      parentRoute: typeof AuthenticatedEvacuationMonitoringRouteImport
-=======
     '/_authenticated/device-management/dashboard/mapping': {
       id: '/_authenticated/device-management/dashboard/mapping'
       path: '/dashboard/mapping'
       fullPath: '/device-management/dashboard/mapping'
       preLoaderRoute: typeof AuthenticatedDeviceManagementDashboardMappingImport
       parentRoute: typeof AuthenticatedDeviceManagementRouteImport
->>>>>>> 303e8f9 (feat: add device management layout and routing for enhanced user experience)
+    }
+    '/_authenticated/device-management/dashboard/overview': {
+      id: '/_authenticated/device-management/dashboard/overview'
+      path: '/dashboard/overview'
+      fullPath: '/device-management/dashboard/overview'
+      preLoaderRoute: typeof AuthenticatedDeviceManagementDashboardOverviewImport
+      parentRoute: typeof AuthenticatedDeviceManagementRouteImport
+    }
+    '/_authenticated/evacuation-monitoring/dashboard/overview': {
+      id: '/_authenticated/evacuation-monitoring/dashboard/overview'
+      path: '/dashboard/overview'
+      fullPath: '/evacuation-monitoring/dashboard/overview'
+      preLoaderRoute: typeof AuthenticatedEvacuationMonitoringDashboardOverviewImport
+      parentRoute: typeof AuthenticatedEvacuationMonitoringRouteImport
     }
     '/_authenticated/visitor-management/dashboard/check-in-visitor': {
       id: '/_authenticated/visitor-management/dashboard/check-in-visitor'
@@ -640,7 +645,24 @@ const AuthenticatedAttendanceMonitoringRouteRouteWithChildren =
     AuthenticatedAttendanceMonitoringRouteRouteChildren,
   )
 
-<<<<<<< HEAD
+interface AuthenticatedDeviceManagementRouteRouteChildren {
+  AuthenticatedDeviceManagementDashboardMappingRoute: typeof AuthenticatedDeviceManagementDashboardMappingRoute
+  AuthenticatedDeviceManagementDashboardOverviewRoute: typeof AuthenticatedDeviceManagementDashboardOverviewRoute
+}
+
+const AuthenticatedDeviceManagementRouteRouteChildren: AuthenticatedDeviceManagementRouteRouteChildren =
+  {
+    AuthenticatedDeviceManagementDashboardMappingRoute:
+      AuthenticatedDeviceManagementDashboardMappingRoute,
+    AuthenticatedDeviceManagementDashboardOverviewRoute:
+      AuthenticatedDeviceManagementDashboardOverviewRoute,
+  }
+
+const AuthenticatedDeviceManagementRouteRouteWithChildren =
+  AuthenticatedDeviceManagementRouteRoute._addFileChildren(
+    AuthenticatedDeviceManagementRouteRouteChildren,
+  )
+
 interface AuthenticatedEvacuationMonitoringRouteRouteChildren {
   AuthenticatedEvacuationMonitoringReportsRoute: typeof AuthenticatedEvacuationMonitoringReportsRoute
   AuthenticatedEvacuationMonitoringDashboardOverviewRoute: typeof AuthenticatedEvacuationMonitoringDashboardOverviewRoute
@@ -696,21 +718,6 @@ const AuthenticatedUserManagementRouteRouteChildren: AuthenticatedUserManagement
 const AuthenticatedUserManagementRouteRouteWithChildren =
   AuthenticatedUserManagementRouteRoute._addFileChildren(
     AuthenticatedUserManagementRouteRouteChildren,
-=======
-interface AuthenticatedDeviceManagementRouteRouteChildren {
-  AuthenticatedDeviceManagementDashboardMappingRoute: typeof AuthenticatedDeviceManagementDashboardMappingRoute
-}
-
-const AuthenticatedDeviceManagementRouteRouteChildren: AuthenticatedDeviceManagementRouteRouteChildren =
-  {
-    AuthenticatedDeviceManagementDashboardMappingRoute:
-      AuthenticatedDeviceManagementDashboardMappingRoute,
-  }
-
-const AuthenticatedDeviceManagementRouteRouteWithChildren =
-  AuthenticatedDeviceManagementRouteRoute._addFileChildren(
-    AuthenticatedDeviceManagementRouteRouteChildren,
->>>>>>> 303e8f9 (feat: add device management layout and routing for enhanced user experience)
   )
 
 interface AuthenticatedVisitorManagementRouteRouteChildren {
@@ -742,11 +749,8 @@ const AuthenticatedVisitorManagementRouteRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAttendanceMonitoringRouteRoute: typeof AuthenticatedAttendanceMonitoringRouteRouteWithChildren
-<<<<<<< HEAD
-  AuthenticatedEvacuationMonitoringRouteRoute: typeof AuthenticatedEvacuationMonitoringRouteRouteWithChildren
-=======
   AuthenticatedDeviceManagementRouteRoute: typeof AuthenticatedDeviceManagementRouteRouteWithChildren
->>>>>>> 303e8f9 (feat: add device management layout and routing for enhanced user experience)
+  AuthenticatedEvacuationMonitoringRouteRoute: typeof AuthenticatedEvacuationMonitoringRouteRouteWithChildren
   AuthenticatedHomeRouteRoute: typeof AuthenticatedHomeRouteRoute
   AuthenticatedModulesRouteRoute: typeof AuthenticatedModulesRouteRoute
   AuthenticatedUserManagementRouteRoute: typeof AuthenticatedUserManagementRouteRouteWithChildren
@@ -756,13 +760,10 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAttendanceMonitoringRouteRoute:
     AuthenticatedAttendanceMonitoringRouteRouteWithChildren,
-<<<<<<< HEAD
-  AuthenticatedEvacuationMonitoringRouteRoute:
-    AuthenticatedEvacuationMonitoringRouteRouteWithChildren,
-=======
   AuthenticatedDeviceManagementRouteRoute:
     AuthenticatedDeviceManagementRouteRouteWithChildren,
->>>>>>> 303e8f9 (feat: add device management layout and routing for enhanced user experience)
+  AuthenticatedEvacuationMonitoringRouteRoute:
+    AuthenticatedEvacuationMonitoringRouteRouteWithChildren,
   AuthenticatedHomeRouteRoute: AuthenticatedHomeRouteRoute,
   AuthenticatedModulesRouteRoute: AuthenticatedModulesRouteRoute,
   AuthenticatedUserManagementRouteRoute:
@@ -779,11 +780,8 @@ export interface FileRoutesByFullPath {
   '': typeof AuthenticatedRouteRouteWithChildren
   '/components': typeof ComponentsRoute
   '/attendance-monitoring': typeof AuthenticatedAttendanceMonitoringRouteRouteWithChildren
-<<<<<<< HEAD
-  '/evacuation-monitoring': typeof AuthenticatedEvacuationMonitoringRouteRouteWithChildren
-=======
   '/device-management': typeof AuthenticatedDeviceManagementRouteRouteWithChildren
->>>>>>> 303e8f9 (feat: add device management layout and routing for enhanced user experience)
+  '/evacuation-monitoring': typeof AuthenticatedEvacuationMonitoringRouteRouteWithChildren
   '/home': typeof AuthenticatedHomeRouteRoute
   '/modules': typeof AuthenticatedModulesRouteRoute
   '/user-management': typeof AuthenticatedUserManagementRouteRouteWithChildren
@@ -795,11 +793,9 @@ export interface FileRoutesByFullPath {
   '/user-management/list-of-users': typeof AuthenticatedUserManagementListOfUsersRoute
   '/visitor-management/reports': typeof AuthenticatedVisitorManagementReportsRoute
   '/attendance-monitoring/dashboard/overview': typeof AuthenticatedAttendanceMonitoringDashboardOverviewRoute
-<<<<<<< HEAD
-  '/evacuation-monitoring/dashboard/overview': typeof AuthenticatedEvacuationMonitoringDashboardOverviewRoute
-=======
   '/device-management/dashboard/mapping': typeof AuthenticatedDeviceManagementDashboardMappingRoute
->>>>>>> 303e8f9 (feat: add device management layout and routing for enhanced user experience)
+  '/device-management/dashboard/overview': typeof AuthenticatedDeviceManagementDashboardOverviewRoute
+  '/evacuation-monitoring/dashboard/overview': typeof AuthenticatedEvacuationMonitoringDashboardOverviewRoute
   '/visitor-management/dashboard/check-in-visitor': typeof AuthenticatedVisitorManagementDashboardCheckInVisitorRoute
   '/visitor-management/dashboard/overview': typeof AuthenticatedVisitorManagementDashboardOverviewRoute
   '/visitor-management/reserved-guest/overview': typeof AuthenticatedVisitorManagementReservedGuestOverviewRoute
@@ -825,11 +821,8 @@ export interface FileRoutesByTo {
   '': typeof AuthenticatedRouteRouteWithChildren
   '/components': typeof ComponentsRoute
   '/attendance-monitoring': typeof AuthenticatedAttendanceMonitoringRouteRouteWithChildren
-<<<<<<< HEAD
-  '/evacuation-monitoring': typeof AuthenticatedEvacuationMonitoringRouteRouteWithChildren
-=======
   '/device-management': typeof AuthenticatedDeviceManagementRouteRouteWithChildren
->>>>>>> 303e8f9 (feat: add device management layout and routing for enhanced user experience)
+  '/evacuation-monitoring': typeof AuthenticatedEvacuationMonitoringRouteRouteWithChildren
   '/home': typeof AuthenticatedHomeRouteRoute
   '/modules': typeof AuthenticatedModulesRouteRoute
   '/user-management': typeof AuthenticatedUserManagementRouteRouteWithChildren
@@ -841,11 +834,9 @@ export interface FileRoutesByTo {
   '/user-management/list-of-users': typeof AuthenticatedUserManagementListOfUsersRoute
   '/visitor-management/reports': typeof AuthenticatedVisitorManagementReportsRoute
   '/attendance-monitoring/dashboard/overview': typeof AuthenticatedAttendanceMonitoringDashboardOverviewRoute
-<<<<<<< HEAD
-  '/evacuation-monitoring/dashboard/overview': typeof AuthenticatedEvacuationMonitoringDashboardOverviewRoute
-=======
   '/device-management/dashboard/mapping': typeof AuthenticatedDeviceManagementDashboardMappingRoute
->>>>>>> 303e8f9 (feat: add device management layout and routing for enhanced user experience)
+  '/device-management/dashboard/overview': typeof AuthenticatedDeviceManagementDashboardOverviewRoute
+  '/evacuation-monitoring/dashboard/overview': typeof AuthenticatedEvacuationMonitoringDashboardOverviewRoute
   '/visitor-management/dashboard/check-in-visitor': typeof AuthenticatedVisitorManagementDashboardCheckInVisitorRoute
   '/visitor-management/dashboard/overview': typeof AuthenticatedVisitorManagementDashboardOverviewRoute
   '/visitor-management/reserved-guest/overview': typeof AuthenticatedVisitorManagementReservedGuestOverviewRoute
@@ -872,11 +863,8 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/components': typeof ComponentsRoute
   '/_authenticated/attendance-monitoring': typeof AuthenticatedAttendanceMonitoringRouteRouteWithChildren
-<<<<<<< HEAD
-  '/_authenticated/evacuation-monitoring': typeof AuthenticatedEvacuationMonitoringRouteRouteWithChildren
-=======
   '/_authenticated/device-management': typeof AuthenticatedDeviceManagementRouteRouteWithChildren
->>>>>>> 303e8f9 (feat: add device management layout and routing for enhanced user experience)
+  '/_authenticated/evacuation-monitoring': typeof AuthenticatedEvacuationMonitoringRouteRouteWithChildren
   '/_authenticated/home': typeof AuthenticatedHomeRouteRoute
   '/_authenticated/modules': typeof AuthenticatedModulesRouteRoute
   '/_authenticated/user-management': typeof AuthenticatedUserManagementRouteRouteWithChildren
@@ -888,11 +876,9 @@ export interface FileRoutesById {
   '/_authenticated/user-management/list-of-users': typeof AuthenticatedUserManagementListOfUsersRoute
   '/_authenticated/visitor-management/reports': typeof AuthenticatedVisitorManagementReportsRoute
   '/_authenticated/attendance-monitoring/dashboard/overview': typeof AuthenticatedAttendanceMonitoringDashboardOverviewRoute
-<<<<<<< HEAD
-  '/_authenticated/evacuation-monitoring/dashboard/overview': typeof AuthenticatedEvacuationMonitoringDashboardOverviewRoute
-=======
   '/_authenticated/device-management/dashboard/mapping': typeof AuthenticatedDeviceManagementDashboardMappingRoute
->>>>>>> 303e8f9 (feat: add device management layout and routing for enhanced user experience)
+  '/_authenticated/device-management/dashboard/overview': typeof AuthenticatedDeviceManagementDashboardOverviewRoute
+  '/_authenticated/evacuation-monitoring/dashboard/overview': typeof AuthenticatedEvacuationMonitoringDashboardOverviewRoute
   '/_authenticated/visitor-management/dashboard/check-in-visitor': typeof AuthenticatedVisitorManagementDashboardCheckInVisitorRoute
   '/_authenticated/visitor-management/dashboard/overview': typeof AuthenticatedVisitorManagementDashboardOverviewRoute
   '/_authenticated/visitor-management/reserved-guest/overview': typeof AuthenticatedVisitorManagementReservedGuestOverviewRoute
@@ -920,11 +906,8 @@ export interface FileRouteTypes {
     | ''
     | '/components'
     | '/attendance-monitoring'
-<<<<<<< HEAD
-    | '/evacuation-monitoring'
-=======
     | '/device-management'
->>>>>>> 303e8f9 (feat: add device management layout and routing for enhanced user experience)
+    | '/evacuation-monitoring'
     | '/home'
     | '/modules'
     | '/user-management'
@@ -936,11 +919,9 @@ export interface FileRouteTypes {
     | '/user-management/list-of-users'
     | '/visitor-management/reports'
     | '/attendance-monitoring/dashboard/overview'
-<<<<<<< HEAD
-    | '/evacuation-monitoring/dashboard/overview'
-=======
     | '/device-management/dashboard/mapping'
->>>>>>> 303e8f9 (feat: add device management layout and routing for enhanced user experience)
+    | '/device-management/dashboard/overview'
+    | '/evacuation-monitoring/dashboard/overview'
     | '/visitor-management/dashboard/check-in-visitor'
     | '/visitor-management/dashboard/overview'
     | '/visitor-management/reserved-guest/overview'
@@ -965,11 +946,8 @@ export interface FileRouteTypes {
     | ''
     | '/components'
     | '/attendance-monitoring'
-<<<<<<< HEAD
-    | '/evacuation-monitoring'
-=======
     | '/device-management'
->>>>>>> 303e8f9 (feat: add device management layout and routing for enhanced user experience)
+    | '/evacuation-monitoring'
     | '/home'
     | '/modules'
     | '/user-management'
@@ -981,11 +959,9 @@ export interface FileRouteTypes {
     | '/user-management/list-of-users'
     | '/visitor-management/reports'
     | '/attendance-monitoring/dashboard/overview'
-<<<<<<< HEAD
-    | '/evacuation-monitoring/dashboard/overview'
-=======
     | '/device-management/dashboard/mapping'
->>>>>>> 303e8f9 (feat: add device management layout and routing for enhanced user experience)
+    | '/device-management/dashboard/overview'
+    | '/evacuation-monitoring/dashboard/overview'
     | '/visitor-management/dashboard/check-in-visitor'
     | '/visitor-management/dashboard/overview'
     | '/visitor-management/reserved-guest/overview'
@@ -1010,11 +986,8 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/components'
     | '/_authenticated/attendance-monitoring'
-<<<<<<< HEAD
-    | '/_authenticated/evacuation-monitoring'
-=======
     | '/_authenticated/device-management'
->>>>>>> 303e8f9 (feat: add device management layout and routing for enhanced user experience)
+    | '/_authenticated/evacuation-monitoring'
     | '/_authenticated/home'
     | '/_authenticated/modules'
     | '/_authenticated/user-management'
@@ -1026,11 +999,9 @@ export interface FileRouteTypes {
     | '/_authenticated/user-management/list-of-users'
     | '/_authenticated/visitor-management/reports'
     | '/_authenticated/attendance-monitoring/dashboard/overview'
-<<<<<<< HEAD
-    | '/_authenticated/evacuation-monitoring/dashboard/overview'
-=======
     | '/_authenticated/device-management/dashboard/mapping'
->>>>>>> 303e8f9 (feat: add device management layout and routing for enhanced user experience)
+    | '/_authenticated/device-management/dashboard/overview'
+    | '/_authenticated/evacuation-monitoring/dashboard/overview'
     | '/_authenticated/visitor-management/dashboard/check-in-visitor'
     | '/_authenticated/visitor-management/dashboard/overview'
     | '/_authenticated/visitor-management/reserved-guest/overview'
@@ -1086,11 +1057,8 @@ export const routeTree = rootRoute
       "filePath": "_authenticated/route.tsx",
       "children": [
         "/_authenticated/attendance-monitoring",
-<<<<<<< HEAD
-        "/_authenticated/evacuation-monitoring",
-=======
         "/_authenticated/device-management",
->>>>>>> 303e8f9 (feat: add device management layout and routing for enhanced user experience)
+        "/_authenticated/evacuation-monitoring",
         "/_authenticated/home",
         "/_authenticated/modules",
         "/_authenticated/user-management",
@@ -1116,7 +1084,14 @@ export const routeTree = rootRoute
         "/_authenticated/attendance-monitoring/dashboard/divisions/$divisionId/$departmentId/$sectionId/"
       ]
     },
-<<<<<<< HEAD
+    "/_authenticated/device-management": {
+      "filePath": "_authenticated/device-management/route.tsx",
+      "parent": "/_authenticated",
+      "children": [
+        "/_authenticated/device-management/dashboard/mapping",
+        "/_authenticated/device-management/dashboard/overview"
+      ]
+    },
     "/_authenticated/evacuation-monitoring": {
       "filePath": "_authenticated/evacuation-monitoring/route.tsx",
       "parent": "/_authenticated",
@@ -1131,13 +1106,6 @@ export const routeTree = rootRoute
         "/_authenticated/evacuation-monitoring/dashboard/entry-exit/$deviceId/",
         "/_authenticated/evacuation-monitoring/dashboard/divisions/$divisionId/$departmentId/",
         "/_authenticated/evacuation-monitoring/dashboard/divisions/$divisionId/$departmentId/$sectionId/"
-=======
-    "/_authenticated/device-management": {
-      "filePath": "_authenticated/device-management/route.tsx",
-      "parent": "/_authenticated",
-      "children": [
-        "/_authenticated/device-management/dashboard/mapping"
->>>>>>> 303e8f9 (feat: add device management layout and routing for enhanced user experience)
       ]
     },
     "/_authenticated/home": {
@@ -1194,15 +1162,17 @@ export const routeTree = rootRoute
       "filePath": "_authenticated/attendance-monitoring/dashboard/overview.tsx",
       "parent": "/_authenticated/attendance-monitoring"
     },
-<<<<<<< HEAD
-    "/_authenticated/evacuation-monitoring/dashboard/overview": {
-      "filePath": "_authenticated/evacuation-monitoring/dashboard/overview.tsx",
-      "parent": "/_authenticated/evacuation-monitoring"
-=======
     "/_authenticated/device-management/dashboard/mapping": {
       "filePath": "_authenticated/device-management/dashboard/mapping.tsx",
       "parent": "/_authenticated/device-management"
->>>>>>> 303e8f9 (feat: add device management layout and routing for enhanced user experience)
+    },
+    "/_authenticated/device-management/dashboard/overview": {
+      "filePath": "_authenticated/device-management/dashboard/overview.tsx",
+      "parent": "/_authenticated/device-management"
+    },
+    "/_authenticated/evacuation-monitoring/dashboard/overview": {
+      "filePath": "_authenticated/evacuation-monitoring/dashboard/overview.tsx",
+      "parent": "/_authenticated/evacuation-monitoring"
     },
     "/_authenticated/visitor-management/dashboard/check-in-visitor": {
       "filePath": "_authenticated/visitor-management/dashboard/check-in-visitor.tsx",
