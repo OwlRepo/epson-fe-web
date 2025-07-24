@@ -66,6 +66,7 @@ export interface VisitorData {
 }
 
 const validUserID = getValidUserID();
+const companyNamePlaceholder = faker.company.name();
 
 const BasicInfromationForm = forwardRef(
   (
@@ -264,7 +265,7 @@ const BasicInfromationForm = forwardRef(
                 label={"Company/Organization"}
                 id="company"
                 name={"Company"}
-                placeholder={`ex. ${faker.company.name()}`}
+                placeholder={`ex. ${companyNamePlaceholder}`}
                 register={register}
                 errors={formState.errors}
                 readOnly={isReadOnly}
