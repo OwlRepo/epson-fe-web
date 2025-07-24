@@ -11,7 +11,7 @@ import usePortStore from "@/store/usePortStore";
 import { toast } from "sonner";
 import useToastStyleTheme from "@/hooks/useToastStyleTheme";
 import { readRFIDData } from "@/utils/rfidReaderCommand";
-import { getValidUserID } from "@/utils/env";
+import { getUHFLength, getValidUserID } from "@/utils/env";
 import { addDays } from "date-fns";
 import { useGetHostPerson } from "@/hooks/query/useGeHostPersonList";
 
@@ -65,8 +65,9 @@ export interface VisitorData {
     | undefined;
 }
 
-const validUserID = getValidUserID();
+//env configs
 const companyNamePlaceholder = faker.company.name();
+const UHFLength = getUHFLength();
 
 const BasicInfromationForm = forwardRef(
   (
@@ -149,7 +150,7 @@ const BasicInfromationForm = forwardRef(
         setIsLinking(true);
         const data = await readRFIDData(newPort);
 
-        if (validUserID.includes(data?.userID ?? "")) {
+        if (UHFLength === data?.epc?.length) {
           if (isReadOnly) {
             linkNewCard(data?.epc ?? "");
           } else {
