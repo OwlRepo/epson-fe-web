@@ -35,7 +35,16 @@ export const Route = createRootRoute({
         <Outlet />
       </main>
       <TanStackRouterDevtools />
-      <Toaster />
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          classNames: {
+            title: "text-xl font-semibold text-primary",
+            description: "text-lg text-muted-foreground",
+            toast: "w-[200px]",
+          },
+        }}
+      />
     </>
   ),
 });
