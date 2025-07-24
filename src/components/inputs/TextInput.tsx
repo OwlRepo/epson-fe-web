@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { Input } from "../ui/input";
 import type {
   FieldErrors,
@@ -33,7 +34,7 @@ const TextInput = <T extends FieldValues>({
         <label htmlFor={id} className="text-sm font-normal text-gray-700">
           {label}
         </label>
-        {!required && (
+        {!required && !readOnly && (
           <label htmlFor={id} className="text-sm font-normal text-gray-700">
             Optional
           </label>
@@ -43,7 +44,10 @@ const TextInput = <T extends FieldValues>({
         type="text"
         id={id}
         placeholder={placeholder}
-        className="h-[44px]"
+        className={cn(
+          "h-[44px] last",
+          readOnly && "cursor-not-allowed text-gray-500"
+        )}
         {...register(
           name,
           required ? { required: `${label} is required` } : {}

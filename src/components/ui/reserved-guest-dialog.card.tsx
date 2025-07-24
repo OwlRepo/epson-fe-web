@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogHeader } from "./dialog";
 import BasicInfromationForm from "../BasicInformationForm";
 import { useUpdateReservedGuest } from "@/hooks/mutation/useUpdateReservedGuest";
 import Spinner from "./spinner";
+import { format } from "date-fns";
 
 interface ReservedGuestInfoDialogProps extends DialogProps {
   visitor?: VisitorData;
@@ -35,10 +36,11 @@ export const ReservedGuestInfoDialog = ({
       case "extend-visit":
         // Handle extend logic here
         console.log("Check-In Data:", data);
+
         updateReservedGuest({
           visitorID: visitor?.ID,
           payload: {
-            DateTo: data.Date.to?.toISOString(),
+            DateTo: format(data.Date.to, "yyyy-MM-dd"),
           },
         });
         break;
