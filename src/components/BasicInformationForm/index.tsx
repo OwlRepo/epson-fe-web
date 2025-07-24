@@ -11,7 +11,7 @@ import usePortStore from "@/store/usePortStore";
 import { toast } from "sonner";
 import useToastStyleTheme from "@/hooks/useToastStyleTheme";
 import { readRFIDData } from "@/utils/rfidReaderCommand";
-import { getUHFLength, getValidUserID } from "@/utils/env";
+import { getUHFLength } from "@/utils/env";
 import { addDays } from "date-fns";
 import { useGetHostPerson } from "@/hooks/query/useGeHostPersonList";
 

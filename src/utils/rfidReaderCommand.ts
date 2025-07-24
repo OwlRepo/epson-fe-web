@@ -124,82 +124,82 @@ export const readEPC = async (port: any) => {
   }
 };
 
-const getUFHData = async (port: any, epc: any) => {
-  try {
-    const readCmd = buildReadCommand(epc);
+// const getUFHData = async (port: any, epc: any) => {
+//   try {
+//     const readCmd = buildReadCommand(epc);
 
-    const writer = port.writable.getWriter();
-    await writer.write(readCmd);
-    writer.releaseLock();
+//     const writer = port.writable.getWriter();
+//     await writer.write(readCmd);
+//     writer.releaseLock();
 
-    if (!port.readable) {
-      console.error("Port is not readable.");
-      return;
-    }
+//     if (!port.readable) {
+//       console.error("Port is not readable.");
+//       return;
+//     }
 
-    if (reader) {
-      try {
-        await reader.cancel();
-      } catch (cancelErr) {
-        console.warn("Error cancelling previous reader:", cancelErr);
-      }
-      try {
-        reader.releaseLock();
-      } catch (releaseErr) {
-        console.warn("Error releasing previous reader:", releaseErr);
-      }
-      reader = null;
-    }
+//     if (reader) {
+//       try {
+//         await reader.cancel();
+//       } catch (cancelErr) {
+//         console.warn("Error cancelling previous reader:", cancelErr);
+//       }
+//       try {
+//         reader.releaseLock();
+//       } catch (releaseErr) {
+//         console.warn("Error releasing previous reader:", releaseErr);
+//       }
+//       reader = null;
+//     }
 
-    await new Promise((res) => setTimeout(res, 100)); // 100ms delay
+//     await new Promise((res) => setTimeout(res, 100)); // 100ms delay
 
-    reader = port.readable.getReader();
+//     reader = port.readable.getReader();
 
-    const timeout = 1000;
-    const startTime = Date.now();
+//     const timeout = 1000;
+//     const startTime = Date.now();
 
-    let buffer: number[] = [];
+//     let buffer: number[] = [];
 
-    while (Date.now() - startTime < timeout) {
-      const { value, done } = await reader.read();
-      if (done) break;
-      if (value) buffer.push(...value);
+//     while (Date.now() - startTime < timeout) {
+//       const { value, done } = await reader.read();
+//       if (done) break;
+//       if (value) buffer.push(...value);
 
-      if (buffer.length >= 10) {
-        const reCmd = buffer[2];
-        const status = buffer[3];
+//       if (buffer.length >= 10) {
+//         const reCmd = buffer[2];
+//         const status = buffer[3];
 
-        console.log("Raw:", buffer.map((b) => b.toString(16)).join(""));
+//         console.log("Raw:", buffer.map((b) => b.toString(16)).join(""));
 
-        if (reCmd !== 0x02 || status !== 0x00) {
-          console.error("Error or not a read response");
-          return;
-        }
+//         if (reCmd !== 0x02 || status !== 0x00) {
+//           console.error("Error or not a read response");
+//           return;
+//         }
 
-        const dataBytes = buffer.slice(4, -2);
-        const hexString = dataBytes
-          .map((b) => b.toString(16).padStart(2, "0"))
-          .join("")
-          .toUpperCase();
+//         const dataBytes = buffer.slice(4, -2);
+//         const hexString = dataBytes
+//           .map((b) => b.toString(16).padStart(2, "0"))
+//           .join("")
+//           .toUpperCase();
 
-        return hexString;
-      }
-    }
+//         return hexString;
+//       }
+//     }
 
-    console.error("Timeout: No valid response received.");
-  } catch (e) {
-    console.error("Port or read error", e);
-  } finally {
-    if (reader) {
-      try {
-        reader.releaseLock();
-      } catch (e) {
-        console.warn("Error releasing reader in finally block:", e);
-      }
-      reader = null;
-    }
-  }
-};
+//     console.error("Timeout: No valid response received.");
+//   } catch (e) {
+//     console.error("Port or read error", e);
+//   } finally {
+//     if (reader) {
+//       try {
+//         reader.releaseLock();
+//       } catch (e) {
+//         console.warn("Error releasing reader in finally block:", e);
+//       }
+//       reader = null;
+//     }
+//   }
+// };
 
 export const readRFIDData = async (port: any) => {
   try {
