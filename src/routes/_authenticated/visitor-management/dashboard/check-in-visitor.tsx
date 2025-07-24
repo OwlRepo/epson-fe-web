@@ -3,7 +3,7 @@ import { useSocket } from "@/hooks";
 import { useMutateDayPassVisitor } from "@/hooks/mutation/useMutateDayPassVisitor";
 import useToastStyleTheme from "@/hooks/useToastStyleTheme";
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute(
@@ -20,11 +20,13 @@ function RouteComponent() {
     error,
   } = useMutateDayPassVisitor();
 
-  const { emitData } = useSocket({ room: "updates" });
+  const { emitData } = useSocket({ room: "visitor_reader" });
 
   const { errorStyle, successStyle } = useToastStyleTheme();
 
   const formRef = useRef<{ resetForm: () => void }>(null);
+
+  const [socketData, setSocketData] = useState({});
 
   const handleReset = () => {
     formRef.current?.resetForm();
@@ -46,7 +48,7 @@ function RouteComponent() {
         style: successStyle,
       });
       handleReset();
-      emitData("users");
+      emitData("visitor_room", socketData);
     }
   }, [isError, isSuccess]);
 
@@ -56,6 +58,11 @@ function RouteComponent() {
       type="check-in"
       onSubmitData={(data) => {
         checkInVisitor(data);
+        setSocketData({
+          data: data.UHF,
+          device_id: 0,
+          date_receive: new Date(),
+        });
       }}
     />
   );
