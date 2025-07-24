@@ -43,7 +43,7 @@ const moduleRoutes = [
     title: "User",
     icon: UserManagement,
     subtitle: "Management",
-    key: "UMS",
+    key: "UMG",
   },
   {
     path: "/device-management",
