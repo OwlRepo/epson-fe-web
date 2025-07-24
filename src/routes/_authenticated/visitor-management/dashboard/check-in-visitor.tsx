@@ -3,7 +3,7 @@ import { useSocket } from "@/hooks";
 import { useMutateDayPassVisitor } from "@/hooks/mutation/useMutateDayPassVisitor";
 import useToastStyleTheme from "@/hooks/useToastStyleTheme";
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute(
@@ -24,6 +24,12 @@ function RouteComponent() {
 
   const { errorStyle, successStyle } = useToastStyleTheme();
 
+  const formRef = useRef<{ resetForm: () => void }>(null);
+
+  const handleReset = () => {
+    formRef.current?.resetForm();
+  };
+
   useEffect(() => {
     if (isError) {
       toast.error("Visitor Check-In Unsuccessful", {
@@ -39,12 +45,14 @@ function RouteComponent() {
         description: "The guest has checked in successfully.",
         style: successStyle,
       });
+      handleReset();
       emitData("users");
     }
   }, [isError, isSuccess]);
 
   return (
     <BasicInfromationForm
+      ref={formRef}
       type="check-in"
       onSubmitData={(data) => {
         checkInVisitor(data);
