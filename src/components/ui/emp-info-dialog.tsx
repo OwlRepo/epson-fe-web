@@ -144,7 +144,6 @@ export default function EmpInfoDialog({
         description: "Your RFID card has been linked. You're all set!",
         style: successStyle,
       });
-      //@ts-ignore
       emitData("users");
     }
   }, [isError, isSuccess]);

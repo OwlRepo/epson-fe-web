@@ -305,14 +305,21 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
 
   //emit
   const emitData = useCallback(
-    (targetRoom: string, payload: any) => {
+    (targetRoom: string, payload?: any) => {
       if (!socket) {
         console.log("❌ Socket not available for emission");
         return;
       }
       console.log("🚀 Socket emitting to room:", targetRoom);
       console.log("📦 Socket payload:", payload);
-      socket.emit(targetRoom, payload);
+      switch (targetRoom) {
+        case "users":
+          socket.emit(room, "users");
+          break;
+        default:
+          socket.emit(targetRoom, payload);
+          break;
+      }
       console.log("✨ Socket emission sent successfully");
     },
     [socket]

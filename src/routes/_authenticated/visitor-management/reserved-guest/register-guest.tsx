@@ -45,7 +45,6 @@ function RouteComponent() {
         style: successStyle,
       });
       handleReset();
-      //@ts-ignore
       emitData("users");
     }
   }, [isError, isSuccess]);
