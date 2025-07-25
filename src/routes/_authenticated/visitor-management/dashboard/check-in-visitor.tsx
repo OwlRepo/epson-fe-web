@@ -48,7 +48,7 @@ function RouteComponent() {
         style: successStyle,
       });
       handleReset();
-      emitData("visitor_room", socketData);
+      emitData("visitor_reader", socketData);
     }
   }, [isError, isSuccess]);
 
