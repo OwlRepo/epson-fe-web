@@ -29,7 +29,10 @@ function RouteComponent() {
     isLoading,
     isConnected,
     countData: totalLogs,
-    clearData
+    clearData,
+    searchData,
+    clearSearch,
+    searchTerm,
   } = useEntryExitPointsData({
     room: "VIEW_CONTROLLER" + params.deviceId,
     dataType: "live",
@@ -53,15 +56,9 @@ function RouteComponent() {
     });
   };
 
-  // Handle search
+  // Handle search using socket functionality
   const handleSearch = (searchTerm: string) => {
-    navigate({
-      search: (prev) => ({
-        ...prev,
-        search: searchTerm,
-      }),
-      replace: true,
-    });
+    searchData(searchTerm);
   };
 
   // Add handler for page size changes
@@ -108,6 +105,8 @@ function RouteComponent() {
         <div className="flex">
           <LiveDataTable
             clearSocketData={clearData}
+            searchTerm={searchTerm}
+            onClearSearch={clearSearch}
             pageSize={Number(search.pageSize) || 10}
             onPageSizeChange={handlePageSizeChange}
             columns={[

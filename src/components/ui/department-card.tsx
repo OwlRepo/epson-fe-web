@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import countShortener from "@/utils/count-shortener";
+import formatCountWithCommas from "@/utils/count-shortener";
 
 interface DepartmentCardProps {
   title: string;
@@ -33,7 +33,7 @@ export function DepartmentCard({
         {clockedIn !== undefined && (
           <div className="flex flex-col">
             <span className="text-2xl font-bold">
-              {countShortener(clockedIn)}
+              {formatCountWithCommas(clockedIn)}
             </span>
             <span className="text-xs text-gray-600">Incoming</span>
           </div>
@@ -41,7 +41,7 @@ export function DepartmentCard({
         {clockedOut !== undefined && (
           <div className="flex flex-col">
             <span className="text-2xl font-bold">
-              {countShortener(clockedOut)}
+              {formatCountWithCommas(clockedOut)}
             </span>
             <span className="text-xs text-gray-600">Outgoing</span>
           </div>

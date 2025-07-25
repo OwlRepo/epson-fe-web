@@ -1,4 +1,4 @@
-import countShortener from "@/utils/count-shortener";
+import formatCountWithCommas from "@/utils/count-shortener";
 import React from "react";
 
 interface CardHeaderRightProps {
@@ -30,13 +30,17 @@ export default function CardHeaderRight({
           {clockedIn !== undefined && (
             <div className="flex flex-row space-x-2">
               <p>Incoming:</p>
-              <b className="text-positive">{countShortener(clockedIn)}</b>
+              <b className="text-positive">
+                {formatCountWithCommas(clockedIn)}
+              </b>
             </div>
           )}
           {clockedOut !== undefined && (
             <div className="flex flex-row space-x-2">
               <p>Outgoing:</p>
-              <b className="text-negative">{countShortener(clockedOut)}</b>
+              <b className="text-negative">
+                {formatCountWithCommas(clockedOut)}
+              </b>
             </div>
           )}
         </div>

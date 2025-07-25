@@ -23,7 +23,7 @@ import { useGetVisitorById } from "@/hooks/query/useGetVisitorById";
 import { useOverviewCountData } from "@/hooks/useOverviewCountData";
 import useToastStyleTheme from "@/hooks/useToastStyleTheme";
 import usePortStore from "@/store/usePortStore";
-import countShortener from "@/utils/count-shortener";
+import formatCountWithCommas from "@/utils/count-shortener";
 import { readRFIDData } from "@/utils/rfidReaderCommand";
 import { Dialog, type DialogProps } from "@radix-ui/react-dialog";
 import {
@@ -75,15 +75,9 @@ function RouteComponent() {
     });
   };
 
-  // Handle search
+  // Handle search using socket functionality
   const handleSearch = (searchTerm: string) => {
-    navigate({
-      search: (prev) => ({
-        ...prev,
-        search: searchTerm,
-      }),
-      replace: true,
-    });
+    searchData(searchTerm);
   };
 
   const {
@@ -93,6 +87,9 @@ function RouteComponent() {
     countData,
     clearData,
     emitData,
+    searchData,
+    clearSearch,
+    searchTerm,
   } = useOverviewCountData({
     room: "VMS",
     dataType: "live",
@@ -106,21 +103,27 @@ function RouteComponent() {
             <AttendanceCountCard
               count={
                 countData?.inside
-                  ? parseInt(countShortener(countData.inside))
+                  ? parseInt(formatCountWithCommas(countData.inside))
                   : 0
               }
               icon={<InPremisesIcon />}
               subtitle="Inside premises"
             />
             <AttendanceCountCard
-              count={countData?.in ? parseInt(countShortener(countData.in)) : 0}
+              count={
+                countData?.in
+                  ? parseInt(formatCountWithCommas(countData.in))
+                  : 0
+              }
               icon={<ClockedInIcon />}
               subtitle="Checked in"
               variant="success"
             />
             <AttendanceCountCard
               count={
-                countData?.out ? parseInt(countShortener(countData.out)) : 0
+                countData?.out
+                  ? parseInt(formatCountWithCommas(countData.out))
+                  : 0
               }
               icon={<ClockedOutIcon />}
               subtitle="Check out"
@@ -148,6 +151,8 @@ function RouteComponent() {
                 onPageSizeChange={handlePageSizeChange}
                 clearSocketData={clearData}
                 emitSocketData={emitData}
+                searchTerm={searchTerm}
+                onClearSearch={clearSearch}
                 onRowClick={(row) => {
                   setVisitorID(row.ID);
                   setIsOpen(true);

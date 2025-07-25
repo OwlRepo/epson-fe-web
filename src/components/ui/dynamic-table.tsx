@@ -128,6 +128,8 @@ interface DynamicTableProps {
   searchKey?: string; // Optional key to namespace search params for the specific table
   isLoading?: boolean; // Optional loading state
   onSearch?: (searchTerm: string) => void; // Optional search handler
+  searchTerm?: string; // External search term for socket-based search
+  onClearSearch?: () => void; // Function to clear search
   // Multi-select features
   enableRowSelection?: boolean; // Enable row selection with checkboxes
   tableId?: string; // Unique ID for the table when multiple selection tables are used
@@ -152,6 +154,8 @@ export function DynamicTable({
   isLoading = false,
   isLiveData = false,
   onSearch,
+  searchTerm: externalSearchTerm,
+  onClearSearch,
   onRowClick,
   // Multi-select props
   enableRowSelection = false,
@@ -198,13 +202,24 @@ export function DynamicTable({
     getSelectedCount,
   } = useTableSelectionStore();
 
-  // Get initial search term from URL if it exists
+  // Get initial search term from external prop or URL if it exists
   React.useEffect(() => {
-    const urlSearchTerm = routeSearch?.[getSearchKey("search")];
-    if (urlSearchTerm) {
-      setSearchTerm(urlSearchTerm);
+    if (externalSearchTerm !== undefined) {
+      setSearchTerm(externalSearchTerm);
+    } else {
+      const urlSearchTerm = routeSearch?.[getSearchKey("search")];
+      if (urlSearchTerm) {
+        setSearchTerm(urlSearchTerm);
+      }
     }
-  }, []);
+  }, [externalSearchTerm]);
+
+  // Update search term when external search term changes
+  React.useEffect(() => {
+    if (externalSearchTerm !== undefined) {
+      setSearchTerm(externalSearchTerm);
+    }
+  }, [externalSearchTerm]);
 
   // Initialize filters from URL parameters when component mounts
   React.useEffect(() => {
@@ -370,7 +385,10 @@ export function DynamicTable({
 
     // Set new timeout
     searchTimeoutRef.current = setTimeout(() => {
-      updateUrlParams({ search: value || null });
+      // Only update URL params if not using external search
+      if (externalSearchTerm === undefined) {
+        updateUrlParams({ search: value || null });
+      }
       onSearch?.(value);
     }, 1000);
   };
@@ -542,7 +560,7 @@ export function DynamicTable({
             "justify-start space-x-5 items-center"
           )}
         >
-          {routeSearch && (
+          {(routeSearch || externalSearchTerm !== undefined) && (
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -552,6 +570,18 @@ export function DynamicTable({
                 onChange={handleSearchInput}
                 className="w--full pl-9 ml-1 mt-1 bg-background shadow-[0_0_0_1px_rgba(0,0,0,0.08)] hover:shadow-[0_0_0_1px_rgba(0,0,0,0.12)] focus-visible:shadow-[0_0_0_1px_rgba(0,0,0,0.12)] border-0 rounded-md"
               />
+              {onClearSearch && searchTerm && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchTerm("");
+                    onClearSearch();
+                  }}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground hover:text-foreground cursor-pointer"
+                >
+                  ✕
+                </button>
+              )}
             </div>
           )}
           {filters.length > 0 && (

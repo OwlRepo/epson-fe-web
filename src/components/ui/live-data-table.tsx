@@ -44,6 +44,8 @@ interface LiveDataTableProps {
   searchKey?: string;
   isLoading?: boolean;
   onSearch?: (searchTerm: string) => void;
+  searchTerm?: string; // External search term for socket-based search
+  onClearSearch?: () => void; // Function to clear search
   tableId?: string;
   onRowClick?: (row: any) => void;
   clearSocketData?: () => void; // Function to clear the socket data
@@ -58,6 +60,8 @@ export function LiveDataTable({
   onRowClick,
   clearSocketData,
   emitSocketData,
+  searchTerm,
+  onClearSearch,
   ...props
 }: LiveDataTableProps) {
   const navigate = useNavigate();
@@ -149,6 +153,8 @@ export function LiveDataTable({
       onRowClick={onRowClick}
       onClearTable={clearButtonConfig ? handleClearTable : undefined}
       clearButtonLabel={clearButtonConfig?.label}
+      searchTerm={searchTerm}
+      onClearSearch={onClearSearch}
       data={slicedData}
       isLiveData={true}
       pagination={paginationConfig}

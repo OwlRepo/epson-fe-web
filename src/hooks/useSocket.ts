@@ -1,5 +1,5 @@
 import { getApiSocketBaseUrl } from "@/utils/env";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { io, Socket } from "socket.io-client";
 
 // Define types for our data
@@ -72,6 +72,7 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
   const [error, setError] = useState<string | null>(null);
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
   // Connect to socket and join room
   useEffect(() => {
@@ -289,6 +290,40 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
     };
   }, [room, dataType]);
 
+  // Function to search through data
+  const searchData = useCallback((term: string) => {
+    console.log("🔍 Searching data with term:", term);
+    setSearchTerm(term);
+  }, []);
+
+  // Function to clear search
+  const clearSearch = useCallback(() => {
+    console.log("🧹 Clearing search term");
+    setSearchTerm("");
+  }, []);
+
+  // Compute filtered data based on search term
+  const filteredData = useMemo(() => {
+    if (!searchTerm.trim()) {
+      return data;
+    }
+
+    const lowerSearchTerm = searchTerm.toLowerCase().trim();
+
+    return data.filter((item) => {
+      // Search through all string and number properties of the item
+      return Object.values(item).some((value) => {
+        if (value === null || value === undefined) {
+          return false;
+        }
+
+        // Convert value to string and search case-insensitively
+        const stringValue = String(value).toLowerCase();
+        return stringValue.includes(lowerSearchTerm);
+      });
+    });
+  }, [data, searchTerm]);
+
   // Function to manually leave current room and join a new one
   const joinRoom = useCallback(
     (newRoom: string) => {
@@ -339,11 +374,15 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
   );
 
   return {
-    data,
+    data: filteredData, // Return filtered data instead of raw data
+    originalData: data, // Provide access to original unfiltered data
     countData,
     isConnected,
     error,
     isLoading,
+    searchTerm,
+    searchData,
+    clearSearch,
     joinRoom,
     clearData,
     emitData,

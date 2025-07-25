@@ -15,7 +15,7 @@ import { useGetVisitorById } from "@/hooks/query/useGetVisitorById";
 import { useGetVisitors } from "@/hooks/query/useGetVisitors";
 import { useGetVisitorsStatistics } from "@/hooks/query/useGetVisitorsStatistics";
 import { useGetVisitorTypes } from "@/hooks/query/useGetVisitorTypes";
-import countShortener from "@/utils/count-shortener";
+import formatCountWithCommas from "@/utils/count-shortener";
 import { objToParams } from "@/utils/objToParams";
 import { visitationDateChecker } from "@/utils/visitationDateChecker";
 
@@ -189,7 +189,9 @@ function RouteComponent() {
               count={
                 isVisitorStatisticsLoading
                   ? 0
-                  : parseInt(countShortener(visitorStatistics?.Registered ?? 0))
+                  : parseInt(
+                      formatCountWithCommas(visitorStatistics?.Registered ?? 0)
+                    )
               }
               icon={<InPremisesIcon />}
               subtitle="Registered Guest"
@@ -198,7 +200,9 @@ function RouteComponent() {
               count={
                 isVisitorStatisticsLoading
                   ? 0
-                  : parseInt(countShortener(visitorStatistics?.Active ?? 0))
+                  : parseInt(
+                      formatCountWithCommas(visitorStatistics?.Active ?? 0)
+                    )
               }
               icon={<ClockedInIcon />}
               subtitle="Active Guest"
@@ -208,7 +212,9 @@ function RouteComponent() {
               count={
                 isVisitorStatisticsLoading
                   ? 0
-                  : parseInt(countShortener(visitorStatistics?.Inactive ?? 0))
+                  : parseInt(
+                      formatCountWithCommas(visitorStatistics?.Inactive ?? 0)
+                    )
               }
               icon={<ClockedOutIcon />}
               subtitle="Inactive Guest"

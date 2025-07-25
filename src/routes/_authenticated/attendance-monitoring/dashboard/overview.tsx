@@ -12,7 +12,7 @@ import { LiveDataTable } from "@/components/ui/live-data-table";
 import Spinner from "@/components/ui/spinner";
 import { useGetEmployeeByNo } from "@/hooks/query/useGetEmployeeById";
 import { useOverviewCountData } from "@/hooks/useOverviewCountData";
-import countShortener from "@/utils/count-shortener";
+import formatCountWithCommas from "@/utils/count-shortener";
 import {
   createFileRoute,
   useNavigate,
@@ -63,15 +63,9 @@ function RouteComponent() {
     });
   };
 
-  // Handle search
+  // Handle search using socket functionality
   const handleSearch = (searchTerm: string) => {
-    navigate({
-      search: (prev) => ({
-        ...prev,
-        search: searchTerm,
-      }),
-      replace: true,
-    });
+    searchData(searchTerm);
   };
 
   const {
@@ -81,6 +75,9 @@ function RouteComponent() {
     countData,
     clearData,
     emitData,
+    searchData,
+    clearSearch,
+    searchTerm,
   } = useOverviewCountData({
     room: "AMS",
     dataType: "live",
@@ -92,19 +89,21 @@ function RouteComponent() {
         <CardSection headerLeft={<CardHeaderLeft />}>
           <div className="flex flex-col lg:flex-row justify-between gap-4">
             <AttendanceCountCard
-              count={countData?.in ? countShortener(countData.in) : 0}
+              count={countData?.in ? formatCountWithCommas(countData.in) : 0}
               icon={<ClockedInIcon />}
               subtitle="Incoming"
               variant="success"
             />
             <AttendanceCountCard
-              count={countData?.out ? countShortener(countData.out) : 0}
+              count={countData?.out ? formatCountWithCommas(countData.out) : 0}
               icon={<ClockedOutIcon />}
               subtitle="Outgoing"
               variant="error"
             />
             <AttendanceCountCard
-              count={countData?.total ? countShortener(countData.total) : 0}
+              count={
+                countData?.total ? formatCountWithCommas(countData.total) : 0
+              }
               icon={<InPremisesIcon />}
               subtitle="Total Employees"
             />
@@ -130,6 +129,8 @@ function RouteComponent() {
                 onPageSizeChange={handlePageSizeChange}
                 clearSocketData={clearData}
                 emitSocketData={emitData}
+                searchTerm={searchTerm}
+                onClearSearch={clearSearch}
                 onRowClick={(row) => {
                   setEmployeeID(row.employee_id);
                   setIsOpen(true);

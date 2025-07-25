@@ -1,14 +1,17 @@
-export default function countShortener(count: string | number) {
-    const countNumber = typeof count === 'string' ? parseInt(count, 10) : count;
+export default function formatCountWithCommas(count: string | number) {
+  let numericCount: number;
 
-    if (isNaN(countNumber)) {
-        return '0';
+  // Convert string to number if necessary
+  if (typeof count === "string") {
+    numericCount = parseFloat(count);
+    // Handle cases where the string might not be a valid number
+    if (isNaN(numericCount)) {
+      return "Invalid Number"; // Or throw an error, depending on desired behavior
     }
+  } else {
+    numericCount = count;
+  }
 
-    if (countNumber >= 10000) {
-        const thousands = Math.floor(countNumber / 1000);
-        return `${thousands}K+`;
-    }
-
-    return countNumber.toString();
-};
+  // Use toLocaleString for comma formatting
+  return numericCount.toLocaleString();
+}

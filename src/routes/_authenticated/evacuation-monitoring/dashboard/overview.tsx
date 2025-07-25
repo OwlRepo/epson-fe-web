@@ -7,7 +7,7 @@ import { LiveDataTable } from "@/components/ui/live-data-table";
 import Spinner from "@/components/ui/spinner";
 
 import { useOverviewCountData } from "@/hooks/useOverviewCountData";
-import countShortener from "@/utils/count-shortener";
+import formatCountWithCommas from "@/utils/count-shortener";
 import {
   createFileRoute,
   useNavigate,
@@ -58,15 +58,9 @@ function RouteComponent() {
     });
   };
 
-  // Handle search
+  // Handle search using socket functionality
   const handleSearch = (searchTerm: string) => {
-    navigate({
-      search: (prev) => ({
-        ...prev,
-        search: searchTerm,
-      }),
-      replace: true,
-    });
+    searchData(searchTerm);
   };
 
   const {
@@ -74,7 +68,10 @@ function RouteComponent() {
     isLoading: isLiveDataLoading,
     isConnected: isLiveDataConnected,
     countData,
-    clearData
+    clearData,
+    searchData,
+    clearSearch,
+    searchTerm,
   } = useOverviewCountData({
     room: "AMS",
     dataType: "live",
@@ -88,7 +85,7 @@ function RouteComponent() {
             <AttendanceCountCard
               count={
                 countData?.inside
-                  ? parseInt(countShortener(countData.inside))
+                  ? parseInt(formatCountWithCommas(countData.inside))
                   : 0
               }
               icon={<InPremisesEvsIcon />}
@@ -96,7 +93,11 @@ function RouteComponent() {
               variant="error"
             />
             <AttendanceCountCard
-              count={countData?.in ? parseInt(countShortener(countData.in)) : 0}
+              count={
+                countData?.in
+                  ? parseInt(formatCountWithCommas(countData.in))
+                  : 0
+              }
               icon={<EvacuatedIcon />}
               subtitle="Evacuated"
               variant="success"
@@ -120,6 +121,8 @@ function RouteComponent() {
             <div className="flex">
               <LiveDataTable
                 clearSocketData={clearData}
+                searchTerm={searchTerm}
+                onClearSearch={clearSearch}
                 pageSize={Number(search.pageSize) || 10}
                 onPageSizeChange={handlePageSizeChange}
                 onRowClick={(row) => {

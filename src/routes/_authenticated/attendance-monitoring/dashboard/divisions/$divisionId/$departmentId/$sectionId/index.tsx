@@ -26,6 +26,9 @@ function RouteComponent() {
     countData: totalLogs,
     clearData,
     emitData,
+    searchData,
+    clearSearch,
+    searchTerm,
   } = useEmployeeData();
 
   const navigate = useNavigate({
@@ -46,15 +49,9 @@ function RouteComponent() {
     });
   };
 
-  // Handle search
+  // Handle search using socket functionality
   const handleSearch = (searchTerm: string) => {
-    navigate({
-      search: (prev) => ({
-        ...prev,
-        search: searchTerm,
-      }),
-      replace: true,
-    });
+    searchData(searchTerm);
   };
 
   // Add handler for page size changes
@@ -92,6 +89,8 @@ function RouteComponent() {
           <LiveDataTable
             clearSocketData={clearData}
             emitSocketData={emitData}
+            searchTerm={searchTerm}
+            onClearSearch={clearSearch}
             pageSize={Number(search.pageSize) || 10}
             onPageSizeChange={handlePageSizeChange}
             columns={[
