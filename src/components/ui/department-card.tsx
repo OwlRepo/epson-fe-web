@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import formatCountWithCommas from "@/utils/count-shortener";
+import formatCountWithCommas from "@/utils/formatCountWithCommas";
 
 interface DepartmentCardProps {
   title: string;

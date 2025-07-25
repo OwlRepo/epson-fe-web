@@ -23,7 +23,7 @@ import { useGetVisitorById } from "@/hooks/query/useGetVisitorById";
 import { useOverviewCountData } from "@/hooks/useOverviewCountData";
 import useToastStyleTheme from "@/hooks/useToastStyleTheme";
 import usePortStore from "@/store/usePortStore";
-import formatCountWithCommas from "@/utils/count-shortener";
+import formatCountWithCommas from "@/utils/formatCountWithCommas";
 import { readRFIDData } from "@/utils/rfidReaderCommand";
 import { Dialog, type DialogProps } from "@radix-ui/react-dialog";
 import {

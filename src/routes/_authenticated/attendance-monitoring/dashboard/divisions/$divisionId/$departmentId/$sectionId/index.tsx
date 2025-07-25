@@ -197,14 +197,12 @@ function RouteComponent() {
                   item.name ?? "",
                   search.filter_name
                 );
-                const matchesTimeIn = matchesFilter(
-                  item.clocked_in ?? "",
-                  search.filter_clocked_in
-                );
-                const matchesTimeOut = matchesFilter(
-                  item.clocked_out ?? "",
-                  search.filter_clocked_out
-                );
+                const matchesTimeIn =
+                  !search.filter_clocked_in ||
+                  item.clocked_in === search.filter_clocked_in;
+                const matchesTimeOut =
+                  !search.filter_clocked_out ||
+                  item.clocked_out === search.filter_clocked_out;
 
                 return (
                   matchesSection &&

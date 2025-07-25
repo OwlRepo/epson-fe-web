@@ -1,4 +1,4 @@
-import formatCountWithCommas from "@/utils/count-shortener";
+import formatCountWithCommas from "@/utils/formatCountWithCommas";
 import React from "react";
 
 interface CardHeaderRightProps {

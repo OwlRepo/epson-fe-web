@@ -15,7 +15,7 @@ import { useGetVisitorById } from "@/hooks/query/useGetVisitorById";
 import { useGetVisitors } from "@/hooks/query/useGetVisitors";
 import { useGetVisitorsStatistics } from "@/hooks/query/useGetVisitorsStatistics";
 import { useGetVisitorTypes } from "@/hooks/query/useGetVisitorTypes";
-import formatCountWithCommas from "@/utils/count-shortener";
+import formatCountWithCommas from "@/utils/formatCountWithCommas";
 import { objToParams } from "@/utils/objToParams";
 import { visitationDateChecker } from "@/utils/visitationDateChecker";
 

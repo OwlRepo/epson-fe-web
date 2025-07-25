@@ -7,7 +7,7 @@ import { LiveDataTable } from "@/components/ui/live-data-table";
 import Spinner from "@/components/ui/spinner";
 
 import { useOverviewCountData } from "@/hooks/useOverviewCountData";
-import formatCountWithCommas from "@/utils/count-shortener";
+import formatCountWithCommas from "@/utils/formatCountWithCommas";
 import {
   createFileRoute,
   useNavigate,
