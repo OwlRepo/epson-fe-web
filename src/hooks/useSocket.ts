@@ -212,16 +212,29 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
         // For live data, check if record exists with same employee_id AND clocked_in
         setData((prevData) => {
           const newLiveData = newData as LiveData;
-
           // Find existing record with same employee_id AND clocked_in
           const existingRecordIndex = prevData.findIndex((item) => {
             const liveItem = item as LiveData;
-            return (
-              liveItem.employee_id === newLiveData.employee_id &&
-              liveItem.clocked_in === newLiveData.clocked_in
-            );
-          });
 
+            if (!newLiveData.employee_id) {
+              return (
+                liveItem.ID === newLiveData.ID &&
+                liveItem.clocked_in === newLiveData.clocked_in
+              );
+            } else {
+              return (
+                liveItem.employee_id === newLiveData.employee_id &&
+                liveItem.clocked_in === newLiveData.clocked_in
+              );
+            }
+
+            // return (
+            //   (liveItem.employee_id === newLiveData.employee_id &&
+            //     liveItem.clocked_in === newLiveData.clocked_in) ||
+            //   (liveItem.ID === newLiveData.ID &&
+            //     liveItem.clocked_in === newLiveData.clocked_in)
+            // );
+          });
           if (existingRecordIndex !== -1) {
             // Update existing record with same employee_id and clocked_in
             return prevData.map((item, index) =>
