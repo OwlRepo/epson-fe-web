@@ -20,7 +20,7 @@ function RouteComponent() {
     error,
   } = useMutateDayPassVisitor();
 
-  const { emitData } = useSocket({ room: "visitor_reader" });
+  const { emitData } = useSocket({ room: "updates" });
 
   const { errorStyle, successStyle } = useToastStyleTheme();
 
@@ -49,6 +49,7 @@ function RouteComponent() {
       });
       handleReset();
       emitData("visitor_reader", socketData);
+      emitData("updates");
     }
   }, [isError, isSuccess]);
 

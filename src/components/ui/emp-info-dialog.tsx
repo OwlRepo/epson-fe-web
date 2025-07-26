@@ -4,9 +4,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-
-import { UserX } from "lucide-react"; // Import UserX icon
-import { useEffect, useRef, useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { CheckCircle, UserX } from "lucide-react"; // Import UserX icon
+import {
+  forwardRef,
+  useEffect,
+  useRef,
+  useState,
+  type ForwardedRef,
+} from "react";
 
 // Extend the Navigator type to include the serial property
 declare global {
@@ -18,17 +25,11 @@ import Spinner from "./spinner";
 import { toast } from "sonner";
 import useToastStyleTheme from "@/hooks/useToastStyleTheme";
 import { readRFIDData } from "@/utils/rfidReaderCommand";
-import {
-  getEMLength,
-  getIsSerialConnection,
-  getMIFARELength,
-  getUHFLength,
-} from "@/utils/env";
+import { getValidUserID } from "@/utils/env";
 import type { EmployeeData } from "@/routes/_authenticated/attendance-monitoring/employees";
 import { useMutateEmployee } from "@/hooks/mutation/useMutateEmployee";
 import usePortStore from "@/store/usePortStore";
 import { useSocket } from "@/hooks";
-import { LinkCardInput } from "../inputs/LinkCardInput";
 
 //device filters
 // const filters = [
@@ -46,13 +47,7 @@ interface EmpInfoDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-type CardType = "UHF" | "MIFARE" | "EM" | null;
-
-//env configs
-const UHFLength = getUHFLength();
-const MIFARELength = getMIFARELength();
-const EMLength = getEMLength();
-const isSerialConnection = Boolean(getIsSerialConnection());
+const validUserID = getValidUserID();
 
 export default function EmpInfoDialog({
   employee,
@@ -61,17 +56,18 @@ export default function EmpInfoDialog({
   onOpenChange,
 }: EmpInfoDialogProps) {
   const { infoStyle, errorStyle, successStyle } = useToastStyleTheme();
+
   const [deviceUHFValue, setDeviceUHFValue] = useState("");
   const [deviceMIFAREValue, setDeviceMIFAREValue] = useState("");
   const [deviceEMValue, setDeviceEMValue] = useState("");
   const [isUHFLinking, setIsUHFLinking] = useState(false);
-  const [isLinking, setIsLinking] = useState<CardType>(null);
+  const [isMIFARELinking, setIsMIFARELinking] = useState(false);
+  const [isEMLinking, setIsEMLinking] = useState(false);
   const { port, setPort } = usePortStore((store) => store);
 
-  const { mutate, isError, error, isSuccess } = useMutateEmployee();
+  const { mutate, isError, error, isSuccess, isPending } = useMutateEmployee();
   const { emitData } = useSocket({ room: "updates" });
 
-  const uhfRef = useRef<HTMLInputElement>(null);
   const mifareRef = useRef<HTMLInputElement>(null);
   const emRef = useRef<HTMLInputElement>(null);
 
@@ -103,7 +99,7 @@ export default function EmpInfoDialog({
       setIsUHFLinking(true);
       const data = await readRFIDData(newPort);
 
-      if (UHFLength === data?.epc?.length) {
+      if (validUserID.includes(data?.userID ?? "")) {
         setDeviceUHFValue(data?.epc ?? "");
         mutate({
           employeeID: employee?.EmployeeID,
@@ -132,12 +128,7 @@ export default function EmpInfoDialog({
         className: "bg-red-50 border-red-200 text-black",
         style: errorStyle,
       });
-      if ((error as any)?.response?.data?.message?.includes("EM"))
-        setDeviceEMValue("");
-      if ((error as any)?.response?.data?.message?.includes("UHF"))
-        setDeviceUHFValue("");
-      if ((error as any)?.response?.data?.message?.includes("MIFARE"))
-        setDeviceMIFAREValue("");
+      setDeviceUHFValue("");
     }
     if (isSuccess) {
       toast.success("RFID Card Linked Successfully!", {
@@ -152,92 +143,39 @@ export default function EmpInfoDialog({
     if (!isOpen) return;
 
     let buffer = "";
-    let timeout: ReturnType<typeof setTimeout> | null = null;
-
-    const resetLinkingState = () => {
-      setIsLinking(null);
-      buffer = "";
-    };
-
-    const triggerMutation = (type: Exclude<CardType, null>, value: string) => {
-      if (!employee?.EmployeeID) return;
-      mutate({
-        employeeID: employee.EmployeeID,
-        payload: { [type as string]: value },
-      });
-    };
-
-    const handleLastKeyPress = () => {
-      let showedError = false;
-
-      switch (isLinking) {
-        case "UHF": {
-          if (buffer.length === UHFLength) {
-            setDeviceUHFValue(buffer);
-            triggerMutation("UHF", buffer);
-          } else {
-            showedError = true;
-          }
-          break;
-        }
-
-        case "EM": {
-          if (buffer.length === EMLength) {
-            setDeviceEMValue(buffer);
-            triggerMutation("EM", buffer);
-          } else {
-            showedError = true;
-          }
-          break;
-        }
-        case "MIFARE": {
-          if (buffer.length === MIFARELength) {
-            setDeviceMIFAREValue(buffer);
-            triggerMutation("MIFARE", buffer);
-          } else {
-            showedError = true;
-          }
-          break;
-        }
-      }
-
-      if (showedError) {
-        toast.error("Oops! Card is not valid", {
-          description: "Please make sure your card is valid and try again.",
-          className: "bg-red-50 border-red-200 text-black",
-          style: errorStyle,
-        });
-      }
-
-      resetLinkingState();
-    };
+    let timeout: ReturnType<typeof setTimeout>;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (!isLinking) return;
+      if (isMIFARELinking || isEMLinking) {
+        clearTimeout(timeout);
 
-      if (timeout) clearTimeout(timeout);
-
-      if (e.key.length > 1 && e.key !== "Enter") return;
-
-      if (e.key === "Enter") {
-        handleLastKeyPress();
-        resetLinkingState();
-        buffer = "";
-      } else {
-        buffer += e.key;
-        timeout = setTimeout(() => {
-          handleLastKeyPress();
-          resetLinkingState();
+        if (e.key === "Enter") {
+          isEMLinking ? setDeviceEMValue(buffer) : setDeviceMIFAREValue(buffer);
+          mutate({
+            employeeID: employee?.EmployeeID,
+            payload: { [isEMLinking ? "EM" : "MIFARE"]: buffer },
+          });
+          setIsMIFARELinking(false);
+          setIsEMLinking(false);
           buffer = "";
-        }, 500);
+        } else {
+          buffer += e.key;
+
+          timeout = setTimeout(() => {
+            setDeviceMIFAREValue(buffer);
+            setIsMIFARELinking(false);
+            setIsEMLinking(false);
+            buffer = "";
+          }, 500);
+        }
       }
     };
+
     window.addEventListener("keydown", handleKeyDown);
     return () => {
-      if (timeout) clearTimeout(timeout);
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isOpen, isLinking, UHFLength, EMLength, MIFARELength, employee]);
+  }, [isOpen, isMIFARELinking, isEMLinking]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -277,51 +215,32 @@ export default function EmpInfoDialog({
                 Assigned RFID Card
               </h3>
               <div className="flex flex-col gap-4">
-                {isSerialConnection && (
-                  <LinkCardInput
-                    label="UHF Card"
-                    value={employee.UHF || deviceUHFValue}
-                    isLinking={isUHFLinking}
-                    isDeviceConnected={!!port}
-                    onLinkCard={handleLinkCard}
-                    onStopReading={() => setIsUHFLinking(false)}
-                  />
-                )}
-                {!isSerialConnection && (
-                  <LinkCardInput
-                    ref={uhfRef}
-                    label="UHF"
-                    value={employee.UHF || deviceUHFValue}
-                    onLinkCard={() => {
-                      setIsLinking("UHF");
-                      uhfRef.current?.focus();
-                    }}
-                    isLinking={isLinking === "UHF"}
-                    onStopReading={() => setIsLinking(null)}
-                  />
-                )}
-
+                <LinkCardInput
+                  label="UHF Card"
+                  value={employee.UHF || deviceUHFValue}
+                  isLinking={isUHFLinking || isPending}
+                  isDeviceConnected={!!port}
+                  onLinkCard={handleLinkCard}
+                />
                 <LinkCardInput
                   ref={mifareRef}
                   label="MIFARE Card"
                   value={employee.MIFARE || deviceMIFAREValue}
                   onLinkCard={() => {
-                    setIsLinking("MIFARE");
+                    setIsMIFARELinking(true);
                     mifareRef.current?.focus();
                   }}
-                  isLinking={isLinking === "MIFARE"}
-                  onStopReading={() => setIsLinking(null)}
+                  isLinking={isMIFARELinking}
                 />
                 <LinkCardInput
                   ref={emRef}
                   label="EM Card"
                   value={employee.EM || deviceEMValue}
+                  isLinking={isEMLinking}
                   onLinkCard={() => {
-                    setIsLinking("EM");
+                    setIsEMLinking(true);
                     emRef.current?.focus();
                   }}
-                  isLinking={isLinking === "EM"}
-                  onStopReading={() => setIsLinking(null)}
                 />
               </div>
             </div>
@@ -331,3 +250,60 @@ export default function EmpInfoDialog({
     </Dialog>
   );
 }
+
+interface LinkCardInputProps {
+  value: string;
+  isLinking: boolean;
+  isDeviceConnected?: boolean;
+  label: string;
+  onLinkCard?: () => void;
+  onClickConnect?: () => void;
+}
+
+const LinkCardInput = forwardRef(
+  ({ label, value, isLinking, onLinkCard }: LinkCardInputProps, ref) => {
+    return (
+      <div className="flex items-center gap-4">
+        <div className="flex-grow">
+          <label
+            htmlFor="rfidCard"
+            className="text-xs text-gray-500 mb-1 block"
+          >
+            {label} {value && !isLinking && "Linked"}
+          </label>
+          <Input
+            ref={ref as ForwardedRef<HTMLInputElement>}
+            id="rfidCard"
+            type="text"
+            value={value}
+            readOnly
+            className="bg-gray-100 border-gray-300 rounded"
+          />
+        </div>
+        {value && !isLinking && (
+          <Button
+            onClick={onLinkCard}
+            className="bg-green-500 text-white px-4 py-2 rounded text-sm font-semibold self-end w-32"
+          >
+            <CheckCircle className="h-4 w-4 mr-1 inline-block" />
+            Replace
+          </Button>
+        )}
+        {!value && !isLinking && (
+          <Button
+            onClick={onLinkCard}
+            className=" text-white px-4 py-2 rounded text-sm font-semibold self-end w-32"
+          >
+            Link a Card
+          </Button>
+        )}
+        {isLinking && (
+          <Button className=" text-white px-4 py-2 rounded text-sm font-semibold self-end w-32">
+            <Spinner size={15} color="white" />
+            Reading
+          </Button>
+        )}
+      </div>
+    );
+  }
+);
