@@ -846,7 +846,12 @@ export function DynamicTable({
             <Button
               variant="destructive"
               onClick={onClearTable}
-              disabled={isLoading || data.length === 0}
+              disabled={
+                isLoading ||
+                data.length === 0 ||
+                !!routeSearch ||
+                !!externalSearchTerm
+              }
             >
               <Trash2 /> {clearButtonLabel || "Clear"}
             </Button>
