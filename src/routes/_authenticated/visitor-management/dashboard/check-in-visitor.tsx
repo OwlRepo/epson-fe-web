@@ -47,7 +47,6 @@ function RouteComponent() {
         description: "The guest has checked in successfully.",
         style: successStyle,
       });
-      emitData("updates");
       emitData("visitor_reader", socketData);
       handleReset();
     }
