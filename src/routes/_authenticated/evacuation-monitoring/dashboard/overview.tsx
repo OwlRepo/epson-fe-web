@@ -1,4 +1,10 @@
-import { EpsonEvsFlame, EvacuatedIcon, InPremisesEvsIcon } from "@/assets/svgs";
+import {
+  EpsonEvsFlame,
+  EvacuatedIcon,
+  HomeIcon,
+  InjuredIcon,
+  InPremisesEvsIcon,
+} from "@/assets/svgs";
 import CardSection from "@/components/layouts/CardSection";
 import AttendanceCountCard from "@/components/ui/attendance-count-card";
 import CardHeaderLeft from "@/components/ui/card-header-left";
@@ -17,6 +23,7 @@ import { useState } from "react";
 import matchesFilter from "@/utils/matchesFilter";
 
 import AssignPersonnelDialog from "@/components/dialogs/AssignPersonnelDialog";
+import EVSCounts from "@/components/ui/evs-counts";
 
 export const Route = createFileRoute(
   "/_authenticated/evacuation-monitoring/dashboard/overview"
@@ -80,30 +87,7 @@ function RouteComponent() {
   return (
     <>
       <div className="space-y-8">
-        <CardSection headerLeft={<CardHeaderLeft />}>
-          <div className="flex flex-col lg:flex-row justify-between gap-4">
-            <AttendanceCountCard
-              count={
-                countData?.inside
-                  ? parseInt(formatCountWithCommas(countData.inside))
-                  : 0
-              }
-              icon={<InPremisesEvsIcon />}
-              subtitle="Inside premises"
-              variant="error"
-            />
-            <AttendanceCountCard
-              count={
-                countData?.in
-                  ? parseInt(formatCountWithCommas(countData.in))
-                  : 0
-              }
-              icon={<EvacuatedIcon />}
-              subtitle="Evacuated"
-              variant="success"
-            />
-          </div>
-        </CardSection>
+        <EVSCounts />
         <CardSection
           headerLeft={
             <CardHeaderLeft
@@ -256,6 +240,24 @@ function RouteComponent() {
                 routeSearch={search}
                 isLoading={false}
                 tableId="divisions-departments-sections-table"
+                exportTableData={{
+                  type: "EVS",
+                  exportBtnLabel: "Evacuated",
+                  exportOptions: [
+                    {
+                      label: "Evacuated",
+                      onClick: () => {
+                        console.log(liveData);
+                      },
+                    },
+                    {
+                      label: "Inside Premises(Missing)",
+                      onClick: () => {
+                        console.log(Object.values(liveData));
+                      },
+                    },
+                  ],
+                }}
               />
             </div>
           ) : (

@@ -5,6 +5,7 @@ import { DepartmentCard } from "@/components/ui/department-card";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useDivisionData } from "@/hooks";
 import Spinner from "@/components/ui/spinner";
+import EVSCounts from "@/components/ui/evs-counts";
 
 export const Route = createFileRoute(
   "/_authenticated/evacuation-monitoring/dashboard/divisions/"
@@ -23,12 +24,7 @@ function RouteComponent() {
   return (
     <CardSection
       headerLeft={<CardHeaderLeft />}
-      headerRight={
-        <CardHeaderRight
-          clockedOut={totalLogs?.out}
-          clockedIn={totalLogs?.in}
-        />
-      }
+      headerRight={<EVSCounts type="compact" />}
     >
       <h2 className="text-2xl font-bold my-5">Divisions</h2>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-8">

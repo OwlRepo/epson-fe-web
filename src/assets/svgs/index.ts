@@ -15,3 +15,5 @@ export { default as EpsonFlame } from "./epson-flame.svg?react";
 export { default as EvacuatedIcon } from "./evacuated_icon.svg?react";
 export { default as InPremisesEvsIcon } from "./in-premises-evs-icon.svg?react";
 export { default as EpsonEvsFlame } from "./epson-evs-flame.svg?react";
+export { default as HomeIcon } from "./home-icon.svg?react";
+export { default as InjuredIcon } from "./injured-icon.svg?react";

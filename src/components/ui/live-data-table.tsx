@@ -1,5 +1,5 @@
 import { DynamicTable } from "./dynamic-table";
-import type { Column, Filter } from "./dynamic-table";
+import type { Column, ExportTableData, Filter } from "./dynamic-table";
 import { useNavigate, useParams, useLocation } from "@tanstack/react-router";
 
 // Clear button configuration interface
@@ -50,6 +50,7 @@ interface LiveDataTableProps {
   onRowClick?: (row: any) => void;
   clearSocketData?: () => void; // Function to clear the socket data
   emitSocketData?: (room: string, data: any) => void; // Function to emit socket data
+  exportTableData?: ExportTableData;
 }
 
 export function LiveDataTable({
@@ -62,6 +63,7 @@ export function LiveDataTable({
   emitSocketData,
   searchTerm,
   onClearSearch,
+  exportTableData,
   ...props
 }: LiveDataTableProps) {
   const navigate = useNavigate();
@@ -159,6 +161,7 @@ export function LiveDataTable({
       isLiveData={true}
       pagination={paginationConfig}
       onPageSizeChange={handlePageSizeChange}
+      exportTableData={exportTableData}
     />
   );
 }

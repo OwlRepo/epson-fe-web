@@ -111,6 +111,8 @@ export interface ExportOptions {
 
 export interface ExportTableData {
   exportOptions?: ExportOptions[];
+  exportBtnLabel?: string;
+  type?: "default" | "EVS";
 }
 
 interface DynamicTableProps {
@@ -860,8 +862,15 @@ export function DynamicTable({
             <div className="relative flex items-center justify-end flex-1">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button className="h-9">
-                    Export Records <ChevronDown />
+                  <Button
+                    className={cn(
+                      "h-9",
+                      exportTableData.type === "EVS" &&
+                        "bg-primary-evs text-white"
+                    )}
+                  >
+                    {exportTableData.exportBtnLabel || "Export Records"}{" "}
+                    <ChevronDown />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
