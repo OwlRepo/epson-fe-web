@@ -210,7 +210,7 @@ const BasicInfromationForm = forwardRef(
         setValue("Picture", data);
       }
     };
-
+    console.log("watch", watch("Picture"));
     return (
       <>
         <div className="grid grid-cols-4 gap-2 grid-rows-[auto_1fr] h-full">

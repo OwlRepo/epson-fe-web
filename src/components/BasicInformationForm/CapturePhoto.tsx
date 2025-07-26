@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "../ui/button";
 import useToastStyleTheme from "@/hooks/useToastStyleTheme";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface CapturePhotoProps {
   onCapture?: (photo: string) => void;
@@ -14,6 +15,12 @@ const CapturePhoto: React.FC<CapturePhotoProps> = ({ onCapture, value }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [isActivating, setIsActivating] = useState(false);
+
+  useEffect(() => {
+    if (!value) {
+      setIsCameraActive(false);
+    }
+  }, [value]);
 
   const { errorStyle, successStyle } = useToastStyleTheme();
 
@@ -107,7 +114,10 @@ const CapturePhoto: React.FC<CapturePhotoProps> = ({ onCapture, value }) => {
           ref={videoRef}
           autoPlay
           playsInline
-          className="w-full h-full object-cover max-w-[500px] rounded-2xl"
+          className={cn(
+            "w-full h-full object-cover max-w-[500px] rounded-2xl",
+            isCameraActive ? "" : "hidden"
+          )}
         />
       </div>
 

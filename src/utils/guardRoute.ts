@@ -10,7 +10,6 @@ export function withModuleAccess(
       ? JSON.parse(localStorage.getItem("user")!).Access
       : "";
 
-    console.log("access", access);
     const hasAccess =
       access && permissionModules.some((m) => access?.includes(m));
 

@@ -18,6 +18,7 @@ import {
 
 import { LiveDataTable } from "@/components/ui/live-data-table";
 import Spinner from "@/components/ui/spinner";
+import { useSocket } from "@/hooks";
 import { useCheckoutVisitor } from "@/hooks/mutation/useCheckoutVisitor";
 import { useGetVisitorById } from "@/hooks/query/useGetVisitorById";
 import { useOverviewCountData } from "@/hooks/useOverviewCountData";
@@ -31,7 +32,7 @@ import {
   useNavigate,
   useSearch,
 } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute(
@@ -305,10 +306,12 @@ export const VisitorInformationDialog = ({
   isLoading,
 }: VisitorInfoDialogProps) => {
   const { port, setPort } = usePortStore((store) => store);
+  const { emitData } = useSocket({ room: "updates" });
 
-  const { mutate: checkoutVisitor } = useCheckoutVisitor();
+  const { mutate: checkoutVisitor, isSuccess } = useCheckoutVisitor();
   const { infoStyle, errorStyle } = useToastStyleTheme();
   const [isLinking, setIsLinking] = useState(false);
+  const [socketData, setSocketData] = useState({});
   const handleLinkCard = async () => {
     try {
       let portToUse = port;
@@ -326,6 +329,12 @@ export const VisitorInformationDialog = ({
     }
   };
 
+  useEffect(() => {
+    if (isSuccess) {
+      emitData("visitor_reader");
+    }
+  }, [isSuccess]);
+
   const linkCard = async (newPort: any) => {
     if (!newPort) return;
     toast.info("Almost here - Tap your card", {
@@ -341,9 +350,14 @@ export const VisitorInformationDialog = ({
         checkoutVisitor({
           VisitorID: visitor?.ID ?? "",
         });
+        setSocketData({
+          data: data?.epc,
+          device_id: 0,
+          date_receive: new Date(),
+        });
       } else {
         toast.error("Oops! Card not matched", {
-          description: "Please make sure your card is matached and try again.",
+          description: "Please make sure your card is matched and try again.",
           className: "bg-red-50 border-red-200 text-black",
           style: errorStyle,
         });
