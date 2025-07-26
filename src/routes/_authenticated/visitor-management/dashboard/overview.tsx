@@ -331,7 +331,7 @@ export const VisitorInformationDialog = ({
 
   useEffect(() => {
     if (isSuccess) {
-      emitData("visitor_reader");
+      emitData("visitor_reader", socketData);
     }
   }, [isSuccess]);
 
