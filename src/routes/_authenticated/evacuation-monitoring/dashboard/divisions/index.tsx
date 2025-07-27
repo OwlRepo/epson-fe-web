@@ -1,6 +1,5 @@
 import CardSection from "@/components/layouts/CardSection";
 import CardHeaderLeft from "@/components/ui/card-header-left";
-import CardHeaderRight from "@/components/ui/card-header-right";
 import { DepartmentCard } from "@/components/ui/department-card";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useDivisionData } from "@/hooks";
@@ -24,7 +23,7 @@ function RouteComponent() {
   return (
     <CardSection
       headerLeft={<CardHeaderLeft />}
-      headerRight={<EVSCounts type="compact" />}
+      headerRight={<EVSCounts type="compact" countData={totalLogs} />}
     >
       <h2 className="text-2xl font-bold my-5">Divisions</h2>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-8">

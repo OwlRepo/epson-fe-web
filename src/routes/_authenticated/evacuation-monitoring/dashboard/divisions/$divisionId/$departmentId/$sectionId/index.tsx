@@ -11,6 +11,7 @@ import Spinner from "@/components/ui/spinner";
 import { LiveDataTable } from "@/components/ui/live-data-table";
 import CardHeaderRight from "@/components/ui/card-header-right";
 import matchesFilter from "@/utils/matchesFilter";
+import EVSCounts from "@/components/ui/evs-counts";
 
 export const Route = createFileRoute(
   "/_authenticated/evacuation-monitoring/dashboard/divisions/$divisionId/$departmentId/$sectionId/"
@@ -28,7 +29,10 @@ function RouteComponent() {
     searchData,
     clearSearch,
     searchTerm,
-  } = useEmployeeData();
+  } = useEmployeeData({
+    useSearchFrom:
+      "/_authenticated/evacuation-monitoring/dashboard/divisions/$divisionId/$departmentId/$sectionId/",
+  });
 
   const navigate = useNavigate({
     from: "/evacuation-monitoring/dashboard/divisions/$divisionId/$departmentId/$sectionId",
@@ -66,12 +70,7 @@ function RouteComponent() {
 
   return (
     <CardSection
-      headerRight={
-        <CardHeaderRight
-          clockedOut={totalLogs?.out}
-          clockedIn={totalLogs?.in}
-        />
-      }
+      headerRight={<EVSCounts type="compact" countData={totalLogs} />}
       headerLeft={
         <CardHeaderLeft
           title={
