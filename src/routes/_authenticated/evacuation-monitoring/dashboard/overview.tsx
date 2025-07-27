@@ -80,14 +80,14 @@ function RouteComponent() {
     clearSearch,
     searchTerm,
   } = useOverviewCountData({
-    room: "AMS",
+    room: "evs",
     dataType: "live",
   });
 
   return (
     <>
       <div className="space-y-8">
-        <EVSCounts />
+        <EVSCounts countData={countData} />
         <CardSection
           headerLeft={
             <CardHeaderLeft

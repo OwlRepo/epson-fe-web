@@ -1,6 +1,11 @@
 import formatCountWithCommas from "@/utils/formatCountWithCommas";
-import { EvacuatedIcon, InjuredIcon, InPremisesEvsIcon } from "@/assets/svgs";
-import { HomeIcon, Users } from "lucide-react";
+import {
+  EvacuatedIcon,
+  InjuredIcon,
+  InPremisesEvsIcon,
+  HomeIcon,
+} from "@/assets/svgs";
+import { Users } from "lucide-react";
 import AttendanceCountCard from "./attendance-count-card";
 import CardSection from "../layouts/CardSection";
 import CardHeaderLeft from "./card-header-left";
@@ -21,8 +26,8 @@ export default function EVSCounts(props: EVSCountsProps) {
           <Users className="w-3.5 h-3.5 text-white bg-gray-500 rounded-full p-[2px]" />
         ),
         label: "Overall",
-        count: countData?.in
-          ? parseInt(formatCountWithCommas(countData.in))
+        count: countData?.overall
+          ? parseInt(formatCountWithCommas(countData.overall))
           : 0,
         bgColor: "bg-gray-50",
         textColor: "text-gray-700",
@@ -31,8 +36,8 @@ export default function EVSCounts(props: EVSCountsProps) {
       {
         icon: <EvacuatedIcon className="w-3.5 h-3.5" />,
         label: "Safe",
-        count: countData?.in
-          ? parseInt(formatCountWithCommas(countData.in))
+        count: countData?.safe
+          ? parseInt(formatCountWithCommas(countData.safe))
           : 0,
         bgColor: "bg-green-50",
         textColor: "text-green-700",
@@ -41,8 +46,8 @@ export default function EVSCounts(props: EVSCountsProps) {
       {
         icon: <InjuredIcon className="w-3.5 h-3.5" />,
         label: "Injured",
-        count: countData?.in
-          ? parseInt(formatCountWithCommas(countData.in))
+        count: countData?.injured
+          ? parseInt(formatCountWithCommas(countData.injured))
           : 0,
         bgColor: "bg-amber-50",
         textColor: "text-amber-700",
@@ -51,8 +56,8 @@ export default function EVSCounts(props: EVSCountsProps) {
       {
         icon: <HomeIcon className="w-3.5 h-3.5" />,
         label: "Home",
-        count: countData?.in
-          ? parseInt(formatCountWithCommas(countData.in))
+        count: countData?.home
+          ? parseInt(formatCountWithCommas(countData.home))
           : 0,
         bgColor: "bg-blue-50",
         textColor: "text-blue-700",
@@ -61,8 +66,8 @@ export default function EVSCounts(props: EVSCountsProps) {
       {
         icon: <InPremisesEvsIcon className="w-3.5 h-3.5" />,
         label: "Missing",
-        count: countData?.inside
-          ? parseInt(formatCountWithCommas(countData.inside))
+        count: countData?.missing
+          ? parseInt(formatCountWithCommas(countData.missing))
           : 0,
         bgColor: "bg-red-50",
         textColor: "text-red-700",

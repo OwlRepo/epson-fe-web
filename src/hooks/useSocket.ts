@@ -16,6 +16,10 @@ export interface SummaryCountData {
   out: number; // Total Count
   total?: number; // Optional, only for summary data
   inside?: number; // Optional, only for summary data
+  safe?: number;
+  injured?: number;
+  home?: number;
+  missing?: number;
 }
 
 export interface DeviceData {
@@ -257,6 +261,10 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
         out: countData.out,
         total: countData.total,
         inside: countData.inside,
+        safe: countData.safe,
+        injured: countData.injured,
+        home: countData.home,
+        missing: countData.missing,
       });
       console.log("📈 Raw count data:", countData);
 
@@ -267,6 +275,10 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
           out: countData.out,
           total: countData.total,
           inside: countData.inside,
+          safe: countData.safe,
+          injured: countData.injured,
+          home: countData.home,
+          missing: countData.missing,
         };
         console.log("✅ Count data updated in state:", updatedData);
         return updatedData;
