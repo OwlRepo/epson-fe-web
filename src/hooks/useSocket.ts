@@ -55,6 +55,10 @@ export interface LiveData extends DeviceData, VisitorData {
   date_time: string;
   status_in: string;
   status_out: string;
+  user_type: string;
+  eva_status: string;
+  status: string;
+  evacuation_time: string;
 }
 
 type DataType = "summary" | "live";

@@ -385,9 +385,29 @@ export function Sidebar({
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             {collapsed ? (
-              <ArrowRight size={18} className="text-blue-900" />
+              <ArrowRight
+                size={18}
+                className={cn(
+                  "text-blue-900",
+                  router.state.location.pathname.includes(
+                    "evacuation-monitoring"
+                  )
+                    ? "text-primary-evs"
+                    : "text-primary"
+                )}
+              />
             ) : (
-              <ArrowLeft size={18} className="text-blue-900" />
+              <ArrowLeft
+                size={18}
+                className={cn(
+                  "text-blue-900",
+                  router.state.location.pathname.includes(
+                    "evacuation-monitoring"
+                  )
+                    ? "text-primary-evs"
+                    : "text-primary"
+                )}
+              />
             )}
           </Button>
         </div>
@@ -405,7 +425,15 @@ export function Sidebar({
                 : "text-primary"
             )}
           >
-            <ChevronLeft size={20} className="text-primary" />
+            <ChevronLeft
+              size={20}
+              className={cn(
+                "text-primary",
+                router.state.location.pathname.includes("evacuation-monitoring")
+                  ? "text-primary-evs"
+                  : "text-primary"
+              )}
+            />
             {!collapsed ? (
               <span className="text-sm font-medium capitalize">
                 {currentPath.split("/")[1].split("-").join(" ")}

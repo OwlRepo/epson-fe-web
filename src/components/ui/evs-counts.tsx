@@ -55,7 +55,7 @@ export default function EVSCounts(props: EVSCountsProps) {
       },
       {
         icon: <HomeIcon className="w-3.5 h-3.5" />,
-        label: "Home",
+        label: "Go Home",
         count: countData?.home
           ? parseInt(formatCountWithCommas(countData.home))
           : 0,

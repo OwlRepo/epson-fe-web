@@ -111,20 +111,20 @@ function RouteComponent() {
                     label: "ID",
                   },
                   {
-                    key: "section",
-                    label: "Section",
+                    key: "type",
+                    label: "Type",
                   },
                   {
                     key: "name",
                     label: "Name",
                   },
                   {
-                    key: "clocked_in",
-                    label: "Time In",
+                    key: "status",
+                    label: "Status",
                   },
                   {
-                    key: "clocked_out",
-                    label: "Time Out",
+                    key: "date_time",
+                    label: "Date",
                   },
                 ]}
                 filters={[
@@ -133,16 +133,6 @@ function RouteComponent() {
                     label: "ID",
                     options: Array.from(
                       new Set(liveData.map((item) => item.employee_id))
-                    ).map((item) => ({
-                      label: item,
-                      value: item,
-                    })),
-                  },
-                  {
-                    key: "section",
-                    label: "Section",
-                    options: Array.from(
-                      new Set(liveData.map((item) => item.section))
                     ).map((item) => ({
                       label: item,
                       value: item,
@@ -159,20 +149,30 @@ function RouteComponent() {
                     })),
                   },
                   {
-                    key: "clocked_in",
-                    label: "Time In",
+                    key: "type",
+                    label: "Type",
                     options: Array.from(
-                      new Set(liveData.map((item) => item.clocked_in ?? "-"))
+                      new Set(liveData.map((item) => item.user_type))
                     ).map((item) => ({
                       label: item,
                       value: item,
                     })),
                   },
                   {
-                    key: "clocked_out",
-                    label: "Time Out",
+                    key: "status",
+                    label: "Status",
+                    options: ["Safe", "Injured", "Go Home", "Missing"].map(
+                      (item) => ({
+                        label: item,
+                        value: item,
+                      })
+                    ),
+                  },
+                  {
+                    key: "date_time",
+                    label: "Date",
                     options: Array.from(
-                      new Set(liveData.map((item) => item.clocked_out ?? "-"))
+                      new Set(liveData.map((item) => item.date_time ?? "-"))
                     ).map((item) => ({
                       label: item,
                       value: item,
@@ -183,47 +183,49 @@ function RouteComponent() {
                   .map((employeeData) => {
                     const {
                       employee_id,
-                      section,
-                      clocked_in,
-                      clocked_out,
                       full_name,
+                      user_type,
+                      eva_status,
+                      evacuation_time,
                     } = employeeData;
                     return {
                       employee_id: employee_id,
-                      section: section,
                       name: full_name,
-                      clocked_in: clocked_in,
-                      clocked_out: clocked_out,
+                      type: user_type,
+                      date_time: evacuation_time,
+                      status: eva_status,
                     };
                   })
                   .filter((item) => {
-                    const matchesSection = matchesFilter(
-                      item.section ?? "",
-                      search.filter_section
-                    );
-                    const matchesId = matchesFilter(
-                      item.employee_id ?? "",
-                      search.filter_employee_id
-                    );
+                    const matchesId = !search.filter_employee_id
+                      ? true
+                      : matchesFilter(
+                          item.employee_id.toString() ?? "",
+                          search.filter_employee_id
+                        );
+                    const matchesType = !search.filter_type
+                      ? true
+                      : matchesFilter(item.type ?? "", search.filter_type);
                     const matchesName = matchesFilter(
                       item.name ?? "",
                       search.filter_name
                     );
-                    const matchesTimeIn = matchesFilter(
-                      item.clocked_in ?? "",
-                      search.filter_clocked_in
-                    );
-                    const matchesTimeOut = matchesFilter(
-                      item.clocked_out ?? "",
-                      search.filter_clocked_out
-                    );
+                    const matchesDate = !search.filter_date_time
+                      ? true
+                      : matchesFilter(
+                          item.date_time ?? "",
+                          search.filter_date_time
+                        );
+                    const matchesStatus = !search.filter_status
+                      ? true
+                      : matchesFilter(item.status ?? "", search.filter_status);
 
                     return (
-                      matchesSection &&
                       matchesId &&
+                      matchesType &&
                       matchesName &&
-                      matchesTimeIn &&
-                      matchesTimeOut
+                      matchesDate &&
+                      matchesStatus
                     );
                   })
                   .reverse()}
@@ -231,7 +233,7 @@ function RouteComponent() {
                 onSearch={handleSearch}
                 routeSearch={search}
                 isLoading={false}
-                tableId="divisions-departments-sections-table"
+                tableId="evs-table"
                 exportTableData={{
                   type: "EVS",
                   exportBtnLabel: "Evacuated",
