@@ -15,6 +15,7 @@ export const getEnvVar = (key: string): string => {
 };
 
 // Create specific getters for each env variable
+export const getIsEVS = () => getEnvVar("VITE_IS_EVS") === "true";
 export const getApiSocketBaseUrl = () =>
   `${getEnvVar("VITE_IS_EVS") === "true" ? getEnvVar("VITE_API_SOCKET_EVS_URL") : getEnvVar("VITE_API_SOCKET_URL")}`;
 export const getApiRESTBaseUrl = () => `${getEnvVar("VITE_API_REST_URL")}`;
