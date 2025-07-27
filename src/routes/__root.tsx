@@ -41,6 +41,7 @@ export const Route = createRootRoute({
           classNames: {
             title: "text-xl font-bold text-primary",
             description: "text-lg !text-white !font-[Poppins]",
+            toast: "min-w-[400px]",
           },
         }}
       />

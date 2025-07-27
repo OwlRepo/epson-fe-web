@@ -92,7 +92,7 @@ const BasicInfromationForm = forwardRef(
       setError,
     } = form;
 
-    const { infoStyle, errorStyle } = useToastStyleTheme();
+    const { infoStyle, errorStyle, successStyle } = useToastStyleTheme();
     const [isLinking, setIsLinking] = useState(false);
     const { port, setPort } = usePortStore((store) => store);
     const [openExtendDialog, setOpenExtendDialog] = useState(false);
@@ -155,6 +155,11 @@ const BasicInfromationForm = forwardRef(
             linkNewCard(data?.epc ?? "");
           } else {
             setValue("UHF", data?.epc ?? "");
+
+            toast.success("RFID card was read successfully.", {
+              description: "Please tap your card on the reader.",
+              style: successStyle,
+            });
           }
         } else {
           toast.error("Oops! Card is not valid", {
