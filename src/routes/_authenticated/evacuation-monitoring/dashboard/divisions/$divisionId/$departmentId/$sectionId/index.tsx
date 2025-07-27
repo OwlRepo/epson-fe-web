@@ -9,7 +9,6 @@ import { useEmployeeData } from "@/hooks";
 import { EpsonFlame } from "@/assets/svgs";
 import Spinner from "@/components/ui/spinner";
 import { LiveDataTable } from "@/components/ui/live-data-table";
-import CardHeaderRight from "@/components/ui/card-header-right";
 import matchesFilter from "@/utils/matchesFilter";
 import EVSCounts from "@/components/ui/evs-counts";
 

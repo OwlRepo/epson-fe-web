@@ -1,19 +1,11 @@
-import {
-  EpsonEvsFlame,
-  EvacuatedIcon,
-  HomeIcon,
-  InjuredIcon,
-  InPremisesEvsIcon,
-} from "@/assets/svgs";
+import { EpsonEvsFlame } from "@/assets/svgs";
 import CardSection from "@/components/layouts/CardSection";
-import AttendanceCountCard from "@/components/ui/attendance-count-card";
 import CardHeaderLeft from "@/components/ui/card-header-left";
 
 import { LiveDataTable } from "@/components/ui/live-data-table";
 import Spinner from "@/components/ui/spinner";
 
 import { useOverviewCountData } from "@/hooks/useOverviewCountData";
-import formatCountWithCommas from "@/utils/formatCountWithCommas";
 import {
   createFileRoute,
   useNavigate,
