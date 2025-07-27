@@ -1,19 +1,19 @@
 export default function useToastStyleTheme() {
   const toastVariant = {
     successStyle: {
-      background: "#f0fdf4",
-      border: "1px solid #bbf7d0",
-      color: "#166534",
+      background: "#3EC765",
+      border: "1px solid #3EC765",
+      color: "#F7FAFF",
     },
     errorStyle: {
-      background: "#fef2f2",
-      border: "1px solid #fecaca",
-      color: "#991b1b",
+      background: "#C73E3E",
+      border: "1px solid #C73E3E",
+      color: "#F7FAFF",
     },
     infoStyle: {
-      background: "#edf4fc",
-      border: "1px solid #004099",
-      color: "#004099",
+      background: "#003F98",
+      border: "1px solid #003F98",
+      color: "#F7FAFF",
     },
     warningStyle: {
       background: "#fffbeb",

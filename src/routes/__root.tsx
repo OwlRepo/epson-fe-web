@@ -39,9 +39,8 @@ export const Route = createRootRoute({
         position="top-center"
         toastOptions={{
           classNames: {
-            title: "text-xl font-semibold text-primary",
-            description: "text-lg text-muted-foreground",
-            toast: "w-[200px]",
+            title: "text-xl font-bold text-primary",
+            description: "text-lg !text-white !font-[Poppins]",
           },
         }}
       />
