@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import {
   LoginBackground,
   AttendanceMonitoring,
@@ -11,9 +11,15 @@ import { EPSON_LOGO_NORMAL } from "@/assets/images";
 import { ModuleCard } from "@/components/ui/module-card";
 import UserProfile from "@/components/ui/user-profile";
 import { useEffect } from "react";
+import { getIsEVS } from "@/utils/env";
 
 export const Route = createFileRoute("/_authenticated/modules")({
   component: RouteComponent,
+  beforeLoad: () => {
+    if (getIsEVS()) {
+      throw redirect({ to: "/evacuation-monitoring" });
+    }
+  },
 });
 
 const moduleRoutes = [

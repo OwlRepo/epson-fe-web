@@ -1,3 +1,5 @@
+import { getEnvVar } from "./env";
+
 export function withModuleAccess(
   permissionModules: string[],
   options: {
@@ -13,7 +15,11 @@ export function withModuleAccess(
     const hasAccess =
       access && permissionModules.some((m) => access?.includes(m));
 
-    if (!hasAccess) {
+    if (
+      !hasAccess ||
+      (!location.pathname.includes("evacuation-monitoring") &&
+        getEnvVar("VITE_IS_EVS") === "true")
+    ) {
       if (options.onFailRedirectTo) {
         throw {
           redirect: options.onFailRedirectTo,

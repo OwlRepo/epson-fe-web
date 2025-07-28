@@ -16,6 +16,7 @@ import { Link, useRouter } from "@tanstack/react-router";
 import { useCurrentPath } from "@/hooks/useCurrentPath";
 import { EPSON_LOGO_WHITE } from "@/assets/images";
 import { VerifyiLogoLight, VerifyiVLogo } from "@/assets/svgs";
+import { getIsEVS } from "@/utils/env";
 
 interface SubItem {
   label: string;
@@ -412,47 +413,51 @@ export function Sidebar({
           </Button>
         </div>
 
-        <Button
-          variant="default"
-          className="flex items-center gap-2 px-4 py-6 mb-3 w-full bg-white rounded-lg text-primary hover:bg-white/80"
-          asChild
-        >
-          <Link
-            to="/modules"
-            className={cn(
-              router.state.location.pathname.includes("evacuation-monitoring")
-                ? "text-primary-evs"
-                : "text-primary"
-            )}
+        {!getIsEVS() && (
+          <Button
+            variant="default"
+            className="flex items-center gap-2 px-4 py-6 mb-3 w-full bg-white rounded-lg text-primary hover:bg-white/80"
+            asChild
           >
-            <ChevronLeft
-              size={20}
+            <Link
+              to="/modules"
               className={cn(
-                "text-primary",
                 router.state.location.pathname.includes("evacuation-monitoring")
                   ? "text-primary-evs"
                   : "text-primary"
               )}
-            />
-            {!collapsed ? (
-              <span className="text-sm font-medium capitalize">
-                {currentPath.split("/")[1].split("-").join(" ")}
-              </span>
-            ) : (
-              <span className="text-sm font-medium uppercase">
-                {currentPath.split("/")[1]
-                  ? currentPath
-                      .split("/")[1]
-                      .split("-")
-                      .reduce(
-                        (acc, part) => acc + (part ? part[0] || "" : ""),
-                        ""
-                      ) + "S"
-                  : "S"}
-              </span>
-            )}
-          </Link>
-        </Button>
+            >
+              <ChevronLeft
+                size={20}
+                className={cn(
+                  "text-primary",
+                  router.state.location.pathname.includes(
+                    "evacuation-monitoring"
+                  )
+                    ? "text-primary-evs"
+                    : "text-primary"
+                )}
+              />
+              {!collapsed ? (
+                <span className="text-sm font-medium capitalize">
+                  {currentPath.split("/")[1].split("-").join(" ")}
+                </span>
+              ) : (
+                <span className="text-sm font-medium uppercase">
+                  {currentPath.split("/")[1]
+                    ? currentPath
+                        .split("/")[1]
+                        .split("-")
+                        .reduce(
+                          (acc, part) => acc + (part ? part[0] || "" : ""),
+                          ""
+                        ) + "S"
+                    : "S"}
+                </span>
+              )}
+            </Link>
+          </Button>
+        )}
       </div>
 
       {/* Navigation links */}
