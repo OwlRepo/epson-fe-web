@@ -15,6 +15,8 @@ export interface LinkCardInputProps {
   onClickConnect?: () => void;
   onStopReading?: () => void;
   variant?: ButtonProps["variant"];
+  errors?: any;
+  name?: any;
 }
 
 export const LinkCardInput = forwardRef(
@@ -26,6 +28,8 @@ export const LinkCardInput = forwardRef(
       onLinkCard,
       onStopReading,
       variant,
+      errors,
+      name,
     }: LinkCardInputProps,
     ref
   ) => {
@@ -48,6 +52,11 @@ export const LinkCardInput = forwardRef(
               className="bg-gray-100 border-gray-300 rounded w-full"
             />
             {isLinking && <p className=" text-xs absolute">Reading...</p>}
+            {errors?.[name as any] && !isLinking && (
+              <p className="text-sm text-red-500 w-full absolute">
+                {errors[name as any]?.message as string}
+              </p>
+            )}
           </div>
         </div>
         {value && !isLinking && (

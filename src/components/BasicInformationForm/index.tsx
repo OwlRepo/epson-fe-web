@@ -154,7 +154,7 @@ const BasicInfromationForm = forwardRef(
           if (isReadOnly) {
             linkNewCard(data?.epc ?? "");
           } else {
-            setValue("UHF", data?.epc ?? "");
+            setValue("UHF", data?.epc ?? "", { shouldValidate: true });
 
             toast.success("RFID card was read successfully.", {
               description: "Please tap your card on the reader.",
@@ -215,7 +215,7 @@ const BasicInfromationForm = forwardRef(
         setValue("Picture", data);
       }
     };
-    console.log("watch", watch("Picture"));
+
     return (
       <>
         <div className="grid grid-cols-4 gap-2 grid-rows-[auto_1fr] h-full">
@@ -414,13 +414,17 @@ const BasicInfromationForm = forwardRef(
               </p>
 
               <div className="space-y-1">
-                <div className="flex gap-4">
+                <div className="flex gap-4 mb-4">
                   <LinkCardInput
                     isLinking={isLinking}
                     onLinkCard={handleLinkCard}
                     onStopReading={() => setIsLinking(false)}
                     value={watch("UHF") || ""}
-                    {...register("UHF")}
+                    errors={formState.errors}
+                    {...register("UHF", {
+                      required:
+                        type === "check-in" ? "UHF is required" : undefined,
+                    })}
                   />
                 </div>
               </div>
@@ -480,7 +484,6 @@ const BasicInfromationForm = forwardRef(
                 className="w-full"
                 defaultMonth={new Date(dateRange.to) ?? new Date()}
                 onSelect={(val: any) => {
-                  console.log("Selected date:", val);
                   setValue("Date", { ...dateRange, to: val });
                 }}
               />
