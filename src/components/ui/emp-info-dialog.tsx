@@ -72,6 +72,7 @@ export default function EmpInfoDialog({
   const [deviceEMValue, setDeviceEMValue] = useState("");
   const [isUHFLinking, setIsUHFLinking] = useState(false);
   const [isLinking, setIsLinking] = useState<CardType>(null);
+  const [isUnlinking, setIsUnlinking] = useState(false);
   const { port, setPort } = usePortStore((store) => store);
 
   const { mutate, isError, error, isSuccess } = useMutateEmployee();
@@ -106,7 +107,7 @@ export default function EmpInfoDialog({
     });
     try {
       console.log("card is linking");
-      setIsUHFLinking(true);
+      setIsLinking("UHF");
       const data = await readRFIDData(newPort);
 
       if (UHFLength === data?.epc?.length) {
@@ -124,33 +125,69 @@ export default function EmpInfoDialog({
       }
     } catch (error) {
       console.error("Error reading RFID data:", error);
-    } finally {
-      setIsUHFLinking(false);
     }
+  };
+
+  const handleUnlinkCard = (type: CardType) => {
+    setIsUnlinking(true);
+    setIsLinking(type);
+    mutate({
+      employeeID: employee?.EmployeeID,
+      payload: { [type as keyof CardType]: "" },
+    });
   };
 
   useEffect(() => {
     if (isError) {
-      toast.error("Oops! Card saving error!", {
+      toast.error("Oops! Saving error!", {
         description:
           (error as any)?.response?.data?.message ??
           "An unknown error occurred",
         className: "bg-red-50 border-red-200 text-black",
         style: errorStyle,
       });
-      if ((error as any)?.response?.data?.message?.includes("EM"))
-        setDeviceEMValue("");
-      if ((error as any)?.response?.data?.message?.includes("UHF"))
-        setDeviceUHFValue("");
-      if ((error as any)?.response?.data?.message?.includes("MIFARE"))
-        setDeviceMIFAREValue("");
+
+      switch (isLinking) {
+        case "UHF":
+          setDeviceUHFValue("");
+          break;
+        case "EM":
+          setDeviceEMValue("");
+          break;
+        case "MIFARE":
+          setDeviceMIFAREValue("");
+          break;
+      }
+      setIsLinking(null);
+      setIsUnlinking(false);
     }
     if (isSuccess) {
-      toast.success("RFID Card Linked Successfully!", {
-        description: "Your RFID card has been linked. You're all set!",
-        style: successStyle,
-      });
+      if (isUnlinking) {
+        toast.success("RFID Card Unlinked Successfully!", {
+          description: "Your RFID card has been unlinked. You're all set!",
+          style: successStyle,
+        });
+      } else {
+        toast.success("RFID Card Linked Successfully!", {
+          description: "Your RFID card has been linked. You're all set!",
+          style: successStyle,
+        });
+      }
+
       emitData("users");
+      switch (isLinking) {
+        case "UHF":
+          setDeviceUHFValue("");
+          break;
+        case "EM":
+          setDeviceEMValue("");
+          break;
+        case "MIFARE":
+          setDeviceMIFAREValue("");
+          break;
+      }
+      setIsLinking(null);
+      setIsUnlinking(false);
     }
   }, [isError, isSuccess]);
 
@@ -161,7 +198,7 @@ export default function EmpInfoDialog({
     let timeout: ReturnType<typeof setTimeout> | null = null;
 
     const resetLinkingState = () => {
-      setIsLinking(null);
+      // setIsLinking(null);
       buffer = "";
     };
 
@@ -245,8 +282,6 @@ export default function EmpInfoDialog({
     };
   }, [isOpen, isLinking, UHFLength, EMLength, MIFARELength, employee]);
 
-  console.log(employee);
-
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] p-8 bg-white rounded-lg shadow-xl">
@@ -276,15 +311,15 @@ export default function EmpInfoDialog({
                 <Breadcrumb>
                   <BreadcrumbList>
                     <BreadcrumbItem>
-                      {employee?.DivisionName ?? "UNKNOWN"}
+                      {employee?.DivisionName || "UNKNOWN"}
                     </BreadcrumbItem>
                     <BreadcrumbSeparator />
                     <BreadcrumbItem>
-                      {employee?.DepartmentName ?? "UNKNOWN"}
+                      {employee?.DepartmentName || "UNKNOWN"}
                     </BreadcrumbItem>
                     <BreadcrumbSeparator />
                     <BreadcrumbItem>
-                      {employee?.SectionName ?? "UNKOWN"}
+                      {employee?.SectionName || "UNKOWN"}
                     </BreadcrumbItem>
                   </BreadcrumbList>
                 </Breadcrumb>
@@ -304,6 +339,7 @@ export default function EmpInfoDialog({
                     isLinking={isUHFLinking}
                     isDeviceConnected={!!port}
                     onLinkCard={handleLinkCard}
+                    onUnlinkCard={() => handleUnlinkCard("UHF")}
                     onStopReading={() => setIsUHFLinking(false)}
                   />
                 )}
@@ -316,6 +352,7 @@ export default function EmpInfoDialog({
                       setIsLinking("UHF");
                       uhfRef.current?.focus();
                     }}
+                    onUnlinkCard={() => handleUnlinkCard("UHF")}
                     isLinking={isLinking === "UHF"}
                     onStopReading={() => setIsLinking(null)}
                   />
@@ -330,6 +367,7 @@ export default function EmpInfoDialog({
                     mifareRef.current?.focus();
                   }}
                   isLinking={isLinking === "MIFARE"}
+                  onUnlinkCard={() => handleUnlinkCard("MIFARE")}
                   onStopReading={() => setIsLinking(null)}
                 />
                 <LinkCardInput
@@ -340,6 +378,7 @@ export default function EmpInfoDialog({
                     setIsLinking("EM");
                     emRef.current?.focus();
                   }}
+                  onUnlinkCard={() => handleUnlinkCard("EM")}
                   isLinking={isLinking === "EM"}
                   onStopReading={() => setIsLinking(null)}
                 />

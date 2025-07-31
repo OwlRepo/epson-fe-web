@@ -22,12 +22,12 @@ export const useMutateEmployee = () => {
 
   return useMutation({
     mutationFn: saveEmployeeData,
-    onSuccess: (data) => {
+    onSuccess: (data, payload) => {
       queryClient.invalidateQueries({
         queryKey: ["employees"],
       });
       queryClient.invalidateQueries({
-        queryKey: ["employee"],
+        queryKey: ["employee", payload.employeeID],
       });
       console.log("Employee data saved successfully:", data);
     },

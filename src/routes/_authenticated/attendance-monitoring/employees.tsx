@@ -61,7 +61,7 @@ const columns: Column[] = [
   { key: "EmployeeNo", label: "ID" },
   { key: "FullName", label: "Name" },
   { key: "DepartmentName", label: "Department" },
-  { key: "sampleData", label: "Status" },
+  { key: "Status", label: "Status" },
 ];
 
 function RouteComponent() {

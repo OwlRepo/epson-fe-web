@@ -1,8 +1,13 @@
 import { forwardRef, type ForwardedRef } from "react";
 import { Input } from "../ui/input";
 import { Button, type ButtonProps } from "../ui/button";
-import { CheckCircle } from "lucide-react";
 import Spinner from "../ui/spinner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 
 export type CardType = "UHF" | "MIFARE" | "EM" | null;
 
@@ -12,6 +17,7 @@ export interface LinkCardInputProps {
   isDeviceConnected?: boolean;
   label?: string;
   onLinkCard?: () => void;
+  onUnlinkCard?: () => void;
   onClickConnect?: () => void;
   onStopReading?: () => void;
   variant?: ButtonProps["variant"];
@@ -26,6 +32,7 @@ export const LinkCardInput = forwardRef(
       value,
       isLinking,
       onLinkCard,
+      onUnlinkCard,
       onStopReading,
       variant,
       errors,
@@ -60,14 +67,20 @@ export const LinkCardInput = forwardRef(
           </div>
         </div>
         {value && !isLinking && (
-          <Button
-            variant={variant}
-            onClick={onLinkCard}
-            className="bg-green-500 text-white px-4 py-2 rounded text-sm font-semibold self-end w-32"
-          >
-            <CheckCircle className="h-4 w-4 mr-1 inline-block" />
-            Replace
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant={variant}
+                className=" text-white px-4 py-2 rounded text-sm font-semibold self-end w-32"
+              >
+                Action
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              <DropdownMenuItem onClick={onLinkCard}>Replace</DropdownMenuItem>
+              <DropdownMenuItem onClick={onUnlinkCard}>Unlink</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         )}
         {!value && !isLinking && (
           <Button
