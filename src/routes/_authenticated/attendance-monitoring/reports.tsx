@@ -59,10 +59,10 @@ function ReportsDataTable() {
       const data = reportList?.data.map((item: EmployeeReport) => ({
         ...item,
         ClockedIN: item.ClockedIN
-          ? dayjs(item.ClockedIN).format("hh:mm:ss A")
+          ? dayjs(item.ClockedIN).format("YYYY-MM-DD hh:mm:ss A")
           : null,
         ClockedOUT: item.ClockedOUT
-          ? dayjs(item.ClockedOUT).format("hh:mm:ss A")
+          ? dayjs(item.ClockedOUT).format("YYYY-MM-DD hh:mm:ss A")
           : null,
       }));
       setData(data);

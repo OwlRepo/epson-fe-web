@@ -53,10 +53,10 @@ function ReportsDataTable() {
       const data = reportList?.data.map((item: VisitorReport) => ({
         ...item,
         CheckedIn: item.CheckedIn
-          ? dayjs(item.CheckedIn).format("hh:mm:ss A")
+          ? dayjs(item.CheckedIn).format("YYYY-MM-DD hh:mm:ss A")
           : null,
         CheckedOut: item.CheckedOut
-          ? dayjs(item.CheckedOut).format("hh:mm:ss A")
+          ? dayjs(item.CheckedOut).format("YYYY-MM-DD hh:mm:ss A")
           : null,
       }));
       setData(data);
@@ -91,7 +91,6 @@ function ReportsDataTable() {
   const columns = [
     { key: "VisitorID", label: "ID" },
     { key: "Name", label: "Name" },
-    { key: "Purpose", label: "Purpose" },
     { key: "CheckedIn", label: "Checked In" },
     { key: "CheckedOut", label: "Checked Out" },
   ];
@@ -117,16 +116,7 @@ function ReportsDataTable() {
         value: item,
       })),
     },
-    {
-      key: "Purpose",
-      label: "Purpose",
-      options: Array.from(
-        new Set(reportList?.data.map((item: VisitorReport) => item.Purpose))
-      ).map((item) => ({
-        label: item,
-        value: item,
-      })),
-    },
+
     {
       key: "CheckedIn",
       label: "Checked In",
