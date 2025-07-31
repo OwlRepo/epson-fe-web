@@ -58,7 +58,7 @@ export interface EmployeeData {
 // Column definitions
 const columns: Column[] = [
   { key: "AC", label: "AC" },
-  { key: "EmployeeID", label: "ID" },
+  { key: "EmployeeNo", label: "ID" },
   { key: "FullName", label: "Name" },
   { key: "DepartmentName", label: "Department" },
   { key: "sampleData", label: "Status" },
