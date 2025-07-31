@@ -29,6 +29,12 @@ import { useMutateEmployee } from "@/hooks/mutation/useMutateEmployee";
 import usePortStore from "@/store/usePortStore";
 import { useSocket } from "@/hooks";
 import { LinkCardInput } from "../inputs/LinkCardInput";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from "./breadcrumb";
 
 //device filters
 // const filters = [
@@ -239,6 +245,8 @@ export default function EmpInfoDialog({
     };
   }, [isOpen, isLinking, UHFLength, EMLength, MIFARELength, employee]);
 
+  console.log(employee);
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] p-8 bg-white rounded-lg shadow-xl">
@@ -265,9 +273,21 @@ export default function EmpInfoDialog({
                 <h2 className="text-2xl font-bold text-primary mt-1">
                   {`${employee.FirstName} ${employee.LastName}`}
                 </h2>
-                <p className="text-sm text-gray-600 mt-1">
-                  {employee.DepartmentName}
-                </p>
+                <Breadcrumb>
+                  <BreadcrumbList>
+                    <BreadcrumbItem>
+                      {employee?.DivisionName ?? "UNKNOWN"}
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                      {employee?.DepartmentName ?? "UNKNOWN"}
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                      {employee?.SectionName ?? "UNKOWN"}
+                    </BreadcrumbItem>
+                  </BreadcrumbList>
+                </Breadcrumb>
               </div>
             </div>
             <div className="border-t border-gray-200 mt-6" />
