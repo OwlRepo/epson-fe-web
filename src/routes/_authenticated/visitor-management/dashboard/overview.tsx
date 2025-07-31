@@ -202,16 +202,6 @@ function RouteComponent() {
                     })),
                   },
                   {
-                    key: "Purpose",
-                    label: "Purpose",
-                    options: Array.from(
-                      new Set(liveData.map((item) => item.Purpose))
-                    ).map((item) => ({
-                      label: item,
-                      value: item,
-                    })),
-                  },
-                  {
                     key: "clocked_in",
                     label: "Checked In",
                     options: Array.from(
