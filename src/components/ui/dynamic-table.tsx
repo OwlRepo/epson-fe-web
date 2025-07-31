@@ -88,6 +88,7 @@ export interface Filter {
   options?: { label: string | unknown; value: string | unknown }[];
   singleSelect?: boolean; // If true, only one option can be selected at a time
   isDateTimePicker?: boolean; // If true, this filter will be a date-time picker
+  isDateRangePicker?: boolean; // If true, this filter will be a date range picker with "from" and "to" dates
 }
 
 export interface PaginationConfig {
@@ -231,7 +232,18 @@ export function DynamicTable({
     const tempFilterValues: Record<string, string[]> = {};
 
     filters.forEach((filter) => {
-      // Check for both filter_key and the key name directly (in case of different formats)
+      // Handle date range picker with separate from_date and to_date params
+      if (filter.isDateRangePicker) {
+        const fromDate = routeSearch[`from_${filter.key}`];
+        const toDate = routeSearch[`to_${filter.key}`];
+
+        if (fromDate || toDate) {
+          tempFilterValues[filter.key] = [fromDate || "", toDate || ""];
+        }
+        return; // Skip traditional filter processing for date range pickers
+      }
+
+      // Handle traditional filters (non-date-range)
       const filterKey = `filter_${filter.key}`;
       let filterValue = routeSearch[filterKey];
 
@@ -293,7 +305,18 @@ export function DynamicTable({
       const tempFilterValues: Record<string, string[]> = {};
 
       filters.forEach((filter) => {
-        // Check for both filter_key and the key name directly (in case of different formats)
+        // Handle date range picker with separate from_date and to_date params
+        if (filter.isDateRangePicker) {
+          const fromDate = routeSearch[`from_${filter.key}`];
+          const toDate = routeSearch[`to_${filter.key}`];
+
+          if (fromDate || toDate) {
+            tempFilterValues[filter.key] = [fromDate || "", toDate || ""];
+          }
+          return; // Skip traditional filter processing for date range pickers
+        }
+
+        // Handle traditional filters (non-date-range)
         const filterKey = `filter_${filter.key}`;
         let filterValue = routeSearch[filterKey];
 
@@ -406,6 +429,14 @@ export function DynamicTable({
 
   // Get active filters from URL
   const getActiveFilters = (filterKey: string) => {
+    const filter = filters.find((f) => f.key === filterKey);
+
+    if (filter?.isDateRangePicker) {
+      const fromDate = routeSearch?.[`from_${filterKey}`];
+      const toDate = routeSearch?.[`to_${filterKey}`];
+      return [fromDate, toDate].filter(Boolean);
+    }
+
     const value = routeSearch?.[getSearchKey(`filter_${filterKey}`)];
     return value ? value.split(",") : [];
   };
@@ -427,14 +458,37 @@ export function DynamicTable({
   const handleApplyFilter = (key: string) => {
     const filter = filters.find((f) => f.key === key);
     const newValues = tempFilters[key] || [];
-    // For single select, ensure we only have one value
-    const finalValues = filter?.singleSelect
-      ? newValues.slice(0, 1)
-      : newValues;
-    updateUrlParams({
-      [`filter_${key}`]: finalValues.length > 0 ? finalValues.join(",") : null,
-    });
-    onFilter?.(key, finalValues.join(","));
+
+    // Handle date range picker with separate parameters
+    if (filter?.isDateRangePicker) {
+      const [fromDate, toDate] = newValues;
+
+      // Update URL params using TanStack Router's navigate function
+      navigate({
+        //@ts-ignore
+        search: (prev) => ({
+          ...prev,
+          [`from_${key}`]:
+            fromDate && fromDate.trim() ? fromDate.trim() : undefined,
+          [`to_${key}`]: toDate && toDate.trim() ? toDate.trim() : undefined,
+        }),
+        replace: true,
+      });
+
+      // Don't call onFilter for date range pickers since we handle URL params directly
+      return;
+    } else {
+      // For other filters, use the existing logic
+      const finalValues = filter?.singleSelect
+        ? newValues.slice(0, 1)
+        : newValues;
+
+      updateUrlParams({
+        [`filter_${key}`]:
+          finalValues.length > 0 ? finalValues.join(",") : null,
+      });
+      onFilter?.(key, finalValues.join(","));
+    }
   };
 
   // Reset temporary filters
@@ -455,6 +509,23 @@ export function DynamicTable({
         hour: 12,
         minute: 0,
         period: "AM",
+      });
+    }
+
+    // Clear URL params for date range picker
+    if (filter?.isDateRangePicker) {
+      navigate({
+        //@ts-ignore
+        search: (prev) => ({
+          ...prev,
+          [`from_${key}`]: undefined,
+          [`to_${key}`]: undefined,
+        }),
+        replace: true,
+      });
+    } else {
+      updateUrlParams({
+        [`filter_${key}`]: null,
       });
     }
   };
@@ -531,7 +602,7 @@ export function DynamicTable({
   // Filter options based on search input
   const getFilteredOptions = (filter: Filter, searchTerm: string) => {
     // Don't show options for date picker filters
-    if (filter.isDateTimePicker) {
+    if (filter.isDateTimePicker || filter.isDateRangePicker) {
       return [];
     }
 
@@ -642,23 +713,24 @@ export function DynamicTable({
                       <CollapsibleContent className="overflow-hidden transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
                         <div className="p-4 pt-5 bg-white border-x border-b rounded-b-lg">
                           <div className="space-y-4">
-                            {!filter.isDateTimePicker && (
-                              <div className="relative w-full">
-                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                <Input
-                                  type="text"
-                                  placeholder="Search..."
-                                  value={filterSearches[filter.key] || ""}
-                                  onChange={(e) =>
-                                    setFilterSearches((prev) => ({
-                                      ...prev,
-                                      [filter.key]: e.target.value,
-                                    }))
-                                  }
-                                  className="w-full pl-9 bg-background shadow-[0_0_0_1px_rgba(0,0,0,0.08)] hover:shadow-[0_0_0_1px_rgba(0,0,0,0.12)] focus-visible:shadow-[0_0_0_1px_rgba(0,0,0,0.12)] border-0 rounded-md"
-                                />
-                              </div>
-                            )}
+                            {!filter.isDateTimePicker &&
+                              !filter.isDateRangePicker && (
+                                <div className="relative w-full">
+                                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                  <Input
+                                    type="text"
+                                    placeholder="Search..."
+                                    value={filterSearches[filter.key] || ""}
+                                    onChange={(e) =>
+                                      setFilterSearches((prev) => ({
+                                        ...prev,
+                                        [filter.key]: e.target.value,
+                                      }))
+                                    }
+                                    className="w-full pl-9 bg-background shadow-[0_0_0_1px_rgba(0,0,0,0.08)] hover:shadow-[0_0_0_1px_rgba(0,0,0,0.12)] focus-visible:shadow-[0_0_0_1px_rgba(0,0,0,0.12)] border-0 rounded-md"
+                                  />
+                                </div>
+                              )}
                             <div className="space-y-3 max-h-[200px] overflow-y-auto">
                               {filter.isDateTimePicker ? (
                                 <div className="py-2">
@@ -765,6 +837,164 @@ export function DynamicTable({
                                           : "Select time"}
                                       </Button>
                                     )}
+                                </div>
+                              ) : filter.isDateRangePicker ? (
+                                <div className="py-2 space-y-3">
+                                  {/* From Date */}
+                                  <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                      From Date
+                                    </label>
+                                    <Popover>
+                                      <PopoverTrigger asChild>
+                                        <Button
+                                          variant="outline"
+                                          className="w-full justify-start text-left font-normal"
+                                        >
+                                          <CalendarIcon className="mr-2 h-4 w-4" />
+                                          {tempFilters[filter.key]?.[0]
+                                            ? dayjs(
+                                                tempFilters[filter.key][0]
+                                              ).format("MMM D, YYYY")
+                                            : "Pick from date"}
+                                        </Button>
+                                      </PopoverTrigger>
+                                      <PopoverContent className="w-auto p-0 z-50">
+                                        <div className="relative z-50 bg-background pointer-events-auto">
+                                          <Calendar
+                                            mode="single"
+                                            selected={
+                                              tempFilters[filter.key]?.[0]
+                                                ? new Date(
+                                                    tempFilters[filter.key][0]
+                                                  )
+                                                : undefined
+                                            }
+                                            onSelect={(date) => {
+                                              if (date) {
+                                                // Prevent event propagation
+                                                event?.stopPropagation();
+                                                event?.preventDefault();
+
+                                                const year = date.getFullYear();
+                                                const month = String(
+                                                  date.getMonth() + 1
+                                                ).padStart(2, "0");
+                                                const day = String(
+                                                  date.getDate()
+                                                ).padStart(2, "0");
+                                                const dateStr = `${year}-${month}-${day}`;
+
+                                                setTempFilters((prev) => ({
+                                                  ...prev,
+                                                  [filter.key]: [
+                                                    dateStr,
+                                                    prev[filter.key]?.[1] || "",
+                                                  ],
+                                                }));
+                                              } else {
+                                                // Clear from date
+                                                setTempFilters((prev) => ({
+                                                  ...prev,
+                                                  [filter.key]: [
+                                                    "",
+                                                    prev[filter.key]?.[1] || "",
+                                                  ],
+                                                }));
+                                              }
+                                            }}
+                                            initialFocus
+                                            className="pointer-events-auto"
+                                          />
+                                        </div>
+                                      </PopoverContent>
+                                    </Popover>
+                                  </div>
+
+                                  {/* To Date */}
+                                  <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                      To Date
+                                    </label>
+                                    <Popover>
+                                      <PopoverTrigger asChild>
+                                        <Button
+                                          variant="outline"
+                                          className="w-full justify-start text-left font-normal"
+                                        >
+                                          <CalendarIcon className="mr-2 h-4 w-4" />
+                                          {tempFilters[filter.key]?.[1]
+                                            ? dayjs(
+                                                tempFilters[filter.key][1]
+                                              ).format("MMM D, YYYY")
+                                            : "Pick to date"}
+                                        </Button>
+                                      </PopoverTrigger>
+                                      <PopoverContent className="w-auto p-0 z-50">
+                                        <div className="relative z-50 bg-background pointer-events-auto">
+                                          <Calendar
+                                            mode="single"
+                                            selected={
+                                              tempFilters[filter.key]?.[1]
+                                                ? new Date(
+                                                    tempFilters[filter.key][1]
+                                                  )
+                                                : undefined
+                                            }
+                                            onSelect={(date) => {
+                                              if (date) {
+                                                // Prevent event propagation
+                                                event?.stopPropagation();
+                                                event?.preventDefault();
+
+                                                const year = date.getFullYear();
+                                                const month = String(
+                                                  date.getMonth() + 1
+                                                ).padStart(2, "0");
+                                                const day = String(
+                                                  date.getDate()
+                                                ).padStart(2, "0");
+                                                const dateStr = `${year}-${month}-${day}`;
+
+                                                setTempFilters((prev) => ({
+                                                  ...prev,
+                                                  [filter.key]: [
+                                                    prev[filter.key]?.[0] || "",
+                                                    dateStr,
+                                                  ],
+                                                }));
+                                              } else {
+                                                // Clear to date
+                                                setTempFilters((prev) => ({
+                                                  ...prev,
+                                                  [filter.key]: [
+                                                    prev[filter.key]?.[0] || "",
+                                                    "",
+                                                  ],
+                                                }));
+                                              }
+                                            }}
+                                            initialFocus
+                                            disabled={(date) => {
+                                              // Disable dates before the "from" date
+                                              if (
+                                                tempFilters[filter.key]?.[0]
+                                              ) {
+                                                return (
+                                                  date <
+                                                  new Date(
+                                                    tempFilters[filter.key][0]
+                                                  )
+                                                );
+                                              }
+                                              return false;
+                                            }}
+                                            className="pointer-events-auto"
+                                          />
+                                        </div>
+                                      </PopoverContent>
+                                    </Popover>
+                                  </div>
                                 </div>
                               ) : getFilteredOptions(
                                   filter,

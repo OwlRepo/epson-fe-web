@@ -116,34 +116,10 @@ function ReportsDataTable() {
         value: item,
       })),
     },
-
     {
-      key: "CheckedIn",
-      label: "Checked In",
-      options: Array.from(
-        new Set(
-          reportList?.data
-            .map((item: VisitorReport) => item.CheckedIn)
-            .filter((item: any) => item !== null)
-        )
-      ).map((item) => ({
-        label: dayjs(item as string).format("hh:mm:ss A"),
-        value: item,
-      })),
-    },
-    {
-      key: "CheckedOut",
-      label: "Checked Out",
-      options: Array.from(
-        new Set(
-          reportList?.data
-            .map((item: VisitorReport) => item.CheckedOut)
-            .filter((item: any) => item !== null)
-        )
-      ).map((item) => ({
-        label: dayjs(item as string).format("hh:mm:ss A"),
-        value: item,
-      })),
+      key: "vms-reports-date",
+      label: "Date",
+      isDateRangePicker: true,
     },
   ];
 
