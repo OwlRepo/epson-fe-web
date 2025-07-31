@@ -23,6 +23,7 @@ export interface EmployeeReport {
   ClockedIN: string | null;
   ClockedOUT: string | null;
   FullName: string;
+  ID?: string;
 }
 
 export const Route = createFileRoute(
@@ -72,7 +73,6 @@ function ReportsDataTable() {
     }
   }, [reportList]);
 
-  console.log(data);
   useEffect(() => {
     refetch();
   }, [search]);
@@ -109,6 +109,31 @@ function ReportsDataTable() {
       key: "Department",
       label: "Department",
       options: departments ?? [],
+    },
+    {
+      key: "VisitorID",
+      label: "ID",
+      options: Array.from(
+        new Set(reportList?.data.map((item: EmployeeReport) => item.EmployeeNo))
+      ).map((item) => ({
+        label: item,
+        value: item,
+      })),
+    },
+    {
+      key: "Name",
+      label: "Name",
+      options: Array.from(
+        new Set(reportList?.data.map((item: EmployeeReport) => item.Name))
+      ).map((item) => ({
+        label: item,
+        value: item,
+      })),
+    },
+    {
+      key: "ams-reports-date",
+      label: "Date",
+      isDateRangePicker: true,
     },
   ];
 
