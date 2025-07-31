@@ -212,6 +212,7 @@ function ReportsDataTable() {
               onClick: () => {
                 handleExport(Object.values(selectedRows));
               },
+              disabled: Object.values(selectedRows).length === 0,
             },
           ],
         }}

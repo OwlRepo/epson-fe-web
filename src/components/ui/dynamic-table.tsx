@@ -108,6 +108,7 @@ export interface BaseSearchParams {
 export interface ExportOptions {
   label: string;
   onClick: () => void; // Function to handle export logic
+  disabled?: boolean; // Optional disabled state
 }
 
 export interface ExportTableData {
@@ -1110,6 +1111,7 @@ export function DynamicTable({
                     <DropdownMenuItem
                       onClick={option.onClick}
                       key={option.label}
+                      disabled={option.disabled || false}
                     >
                       {option.label}
                     </DropdownMenuItem>
