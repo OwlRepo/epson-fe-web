@@ -58,6 +58,7 @@ function ReportsDataTable() {
     if (Array.isArray(reportList?.data)) {
       const data = reportList?.data.map((item: EmployeeReport) => ({
         ...item,
+        Department: item?.Department || "UNKNOWN",
         ClockedIN: item.ClockedIN
           ? dayjs(item.ClockedIN).format("YYYY-MM-DD hh:mm:ss A")
           : null,
@@ -71,6 +72,7 @@ function ReportsDataTable() {
     }
   }, [reportList]);
 
+  console.log(data);
   useEffect(() => {
     refetch();
   }, [search]);
