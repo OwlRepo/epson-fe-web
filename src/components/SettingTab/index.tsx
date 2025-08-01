@@ -5,8 +5,8 @@ import {
   type Filter,
 } from "@/components/ui/dynamic-table";
 import { useNavigate, useSearch } from "@tanstack/react-router";
-import { Moon, RefreshCw, SunMedium } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Moon, RefreshCw, SunMedium, Upload } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import SyncTimeInput from "./SyncTimeInput";
 import TimePickerModal from "./TimePickerModal";
 import { useMutateSyncEmployees } from "@/hooks/mutation/useMutateSyncEmployees";
@@ -18,6 +18,8 @@ import dayjs from "dayjs";
 import Spinner from "../ui/spinner";
 import { useMutateSyncSchedule } from "@/hooks/mutation/useMutateSyncSchedule";
 import { useGetSyncingSchedule } from "@/hooks/query/useGetSyncingSchedule";
+import { Input } from "../ui/input";
+import { useUploadCards } from "@/hooks/mutation/useUploadCards";
 
 interface SyncActivity {
   ID: number;
@@ -54,6 +56,13 @@ const SettingTab = () => {
     isPending: isPendingSched,
   } = useMutateSyncSchedule();
 
+  const {
+    mutate: uploadCards,
+    isPending: isUploading,
+    isSuccess: isUploadSuccess,
+    isError: isUploadError,
+  } = useUploadCards();
+
   // Get pagination values from URL params
   const [totalPages, setTotalPages] = useState(10);
   const [totalItems, setTotalItems] = useState(10);
@@ -62,6 +71,16 @@ const SettingTab = () => {
   const pageSize = parseInt(search.pageSize || "10");
 
   const { data: syncSched } = useGetSyncingSchedule();
+
+  const [fileName, setFileName] = useState<File>();
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setFileName(file);
+    }
+  };
 
   useEffect(() => {
     if (syncSched) {
@@ -137,6 +156,35 @@ const SettingTab = () => {
       });
     }
   }, [isErrorSched, isSuccessSched, isPendingSched]);
+
+  useEffect(() => {
+    if (isUploadError) {
+      toast.error("Error saving uploading cards", {
+        description: "Please try again later.",
+        style: errorStyle,
+      });
+      setFileName(undefined);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+    if (isUploadSuccess) {
+      toast.success("Success saving uploading cards", {
+        description: "Your uploading cards  has been saved. You're all set!",
+        style: successStyle,
+      });
+      setFileName(undefined);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+    if (isUploading) {
+      toast.info("Uploading Cards", {
+        description: "Please Wait.",
+        style: infoStyle,
+      });
+    }
+  }, [isUploadError, isUploadSuccess, isUploading]);
 
   const columns: Column[] = [
     { key: "Activity", label: "Activity" },
@@ -214,38 +262,80 @@ const SettingTab = () => {
     <>
       <div className="grid grid-cols-3 gap-2 grid-rows-[auto_1fr] h-full">
         {/* First Column (Auto Height) */}
-        <div className="bg-white p-4 rounded-lg shadow-md self-start">
-          <p className="font-bold flex gap-2">
-            <RefreshCw />
-            Scheduled Syncing
-          </p>
-          <SyncTimeInput
-            icon={<SunMedium />}
-            onEdit={() => handleOpenModal("am")}
-            time={syncTime.am}
-          />
-          <SyncTimeInput
-            icon={<Moon />}
-            onEdit={() => handleOpenModal("pm")}
-            time={syncTime.pm}
-          />
+        <div>
+          <div className="bg-white p-4 rounded-lg shadow-md self-start">
+            <p className="font-bold flex gap-2">
+              <RefreshCw />
+              Scheduled Syncing
+            </p>
+            <SyncTimeInput
+              icon={<SunMedium />}
+              onEdit={() => handleOpenModal("am")}
+              time={syncTime.am}
+            />
+            <SyncTimeInput
+              icon={<Moon />}
+              onEdit={() => handleOpenModal("pm")}
+              time={syncTime.pm}
+            />
 
-          <p className="mt-4 font-bold text-center">or</p>
-          {!isPending && (
-            <Button className="w-full mt-4" onClick={() => mutate()}>
-              Sync Now
-            </Button>
-          )}
-          {isPending && (
-            <Button
-              className="w-full mt-4  gap-2"
-              onClick={() => mutate()}
-              disabled
-            >
-              <Spinner size={15} color="white" containerClassName="w-6" />
-              Syncing Now
-            </Button>
-          )}
+            <p className="mt-4 font-bold text-center">or</p>
+            {!isPending && (
+              <Button className="w-full mt-4" onClick={() => mutate()}>
+                Sync Now
+              </Button>
+            )}
+            {isPending && (
+              <Button
+                className="w-full mt-4  gap-2"
+                onClick={() => mutate()}
+                disabled
+              >
+                <Spinner size={15} color="white" containerClassName="w-6" />
+                Syncing Now
+              </Button>
+            )}
+          </div>
+
+          <div className="bg-white p-4 rounded-lg shadow-md self-start mt-4 ">
+            <p className="font-bold flex gap-2">
+              <Upload />
+              Upload Bulk Enrolment File
+            </p>
+            <div className="grid gap-2 mt-6">
+              <Input
+                id="file"
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                className="cursor-pointer"
+              />
+              {!isUploading && (
+                <Button
+                  className="w-full mt-4"
+                  onClick={() => {
+                    if (fileName) {
+                      uploadCards(fileName);
+                    }
+                  }}
+                  disabled={!Boolean(fileName)}
+                >
+                  Upload Now
+                </Button>
+              )}
+
+              {isUploading && (
+                <Button
+                  className="w-full mt-4  gap-2"
+                  onClick={() => mutate()}
+                  disabled
+                >
+                  <Spinner size={15} color="white" containerClassName="w-6" />
+                  Uploading Now
+                </Button>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Second Column (Expands Fully) */}
