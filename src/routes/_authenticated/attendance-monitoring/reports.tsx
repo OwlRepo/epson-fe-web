@@ -111,7 +111,7 @@ function ReportsDataTable() {
       options: departments ?? [],
     },
     {
-      key: "VisitorID",
+      key: "EmployeeNo",
       label: "ID",
       options: Array.from(
         new Set(reportList?.data.map((item: EmployeeReport) => item.EmployeeNo))
