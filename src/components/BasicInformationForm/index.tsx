@@ -418,6 +418,9 @@ const BasicInfromationForm = forwardRef(
                   <LinkCardInput
                     isLinking={isLinking}
                     onLinkCard={handleLinkCard}
+                    onUnlinkCard={() =>
+                      setValue("UHF", "", { shouldValidate: true })
+                    }
                     onStopReading={() => setIsLinking(false)}
                     value={watch("UHF") || ""}
                     errors={formState.errors}
