@@ -258,6 +258,12 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
       }
     });
 
+    //Listen for removed data
+    socketInstance.on("remove_data", (epc) => {
+      console.log("remove from evs", epc);
+      setData((prev) => prev.filter((item: any) => item?.epc !== epc));
+    });
+
     // Listen for summary count data
     socketInstance.on("count", (countData) => {
       console.log("📊 Count data received for room:", room);
