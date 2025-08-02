@@ -101,7 +101,9 @@ export default function EVSCounts(props: EVSCountsProps) {
         <div className="flex flex-col lg:flex-row justify-between gap-4">
           <AttendanceCountCard
             count={
-              countData?.in ? parseInt(formatCountWithCommas(countData.in)) : 0
+              countData?.safe
+                ? parseInt(formatCountWithCommas(countData.safe))
+                : 0
             }
             icon={<EvacuatedIcon />}
             subtitle="Safe"
@@ -110,7 +112,9 @@ export default function EVSCounts(props: EVSCountsProps) {
 
           <AttendanceCountCard
             count={
-              countData?.in ? parseInt(formatCountWithCommas(countData.in)) : 0
+              countData?.injured
+                ? parseInt(formatCountWithCommas(countData.injured))
+                : 0
             }
             icon={<InjuredIcon />}
             subtitle="Injured"
@@ -119,7 +123,9 @@ export default function EVSCounts(props: EVSCountsProps) {
 
           <AttendanceCountCard
             count={
-              countData?.in ? parseInt(formatCountWithCommas(countData.in)) : 0
+              countData?.injured
+                ? parseInt(formatCountWithCommas(countData.home))
+                : 0
             }
             icon={<HomeIcon />}
             subtitle="Home"
@@ -127,8 +133,8 @@ export default function EVSCounts(props: EVSCountsProps) {
           />
           <AttendanceCountCard
             count={
-              countData?.inside
-                ? parseInt(formatCountWithCommas(countData.inside))
+              countData?.missing
+                ? parseInt(formatCountWithCommas(countData.missing))
                 : 0
             }
             icon={<InPremisesEvsIcon />}
