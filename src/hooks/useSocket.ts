@@ -41,6 +41,7 @@ export interface LiveData extends DeviceData, VisitorData {
   device_id: string;
   name: string;
   employee_id: string;
+  employeeNo:string;
   full_name: string;
   department: string;
   division: string;
