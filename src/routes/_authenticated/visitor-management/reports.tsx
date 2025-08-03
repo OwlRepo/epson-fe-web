@@ -117,7 +117,7 @@ function ReportsDataTable() {
       })),
     },
     {
-      key: "vms-reports-date",
+      key: "vms_reports_date",
       label: "Date",
       isDateRangePicker: true,
     },
