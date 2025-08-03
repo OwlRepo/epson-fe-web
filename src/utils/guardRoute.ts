@@ -1,3 +1,4 @@
+import { redirect } from "@tanstack/react-router";
 import { getEnvVar } from "./env";
 
 export function withModuleAccess(
@@ -20,12 +21,9 @@ export function withModuleAccess(
       (!location.pathname.includes("evacuation-monitoring") &&
         getEnvVar("VITE_IS_EVS") === "true")
     ) {
-      if (options.onFailRedirectTo) {
-        throw {
-          redirect: options.onFailRedirectTo,
-        };
-      }
-      throw options.fallbackError ?? new Error("unauthorized");
+      throw redirect({
+        to: "/403",
+      });
     }
   };
 }

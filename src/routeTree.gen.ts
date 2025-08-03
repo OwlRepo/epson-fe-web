@@ -12,6 +12,8 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as ComponentsImport } from './routes/components'
+import { Route as R404Import } from './routes/404'
+import { Route as R403Import } from './routes/403'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated/route'
 import { Route as IndexImport } from './routes/index'
 import { Route as AuthenticatedVisitorManagementRouteImport } from './routes/_authenticated/visitor-management/route'
@@ -55,6 +57,18 @@ import { Route as AuthenticatedAttendanceMonitoringDashboardDivisionsDivisionIdD
 const ComponentsRoute = ComponentsImport.update({
   id: '/components',
   path: '/components',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const R404Route = R404Import.update({
+  id: '/404',
+  path: '/404',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const R403Route = R403Import.update({
+  id: '/403',
+  path: '/403',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -344,6 +358,20 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: ''
       preLoaderRoute: typeof AuthenticatedRouteImport
+      parentRoute: typeof rootRoute
+    }
+    '/403': {
+      id: '/403'
+      path: '/403'
+      fullPath: '/403'
+      preLoaderRoute: typeof R403Import
+      parentRoute: typeof rootRoute
+    }
+    '/404': {
+      id: '/404'
+      path: '/404'
+      fullPath: '/404'
+      preLoaderRoute: typeof R404Import
       parentRoute: typeof rootRoute
     }
     '/components': {
@@ -778,6 +806,8 @@ const AuthenticatedRouteRouteWithChildren =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '': typeof AuthenticatedRouteRouteWithChildren
+  '/403': typeof R403Route
+  '/404': typeof R404Route
   '/components': typeof ComponentsRoute
   '/attendance-monitoring': typeof AuthenticatedAttendanceMonitoringRouteRouteWithChildren
   '/device-management': typeof AuthenticatedDeviceManagementRouteRouteWithChildren
@@ -819,6 +849,8 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '': typeof AuthenticatedRouteRouteWithChildren
+  '/403': typeof R403Route
+  '/404': typeof R404Route
   '/components': typeof ComponentsRoute
   '/attendance-monitoring': typeof AuthenticatedAttendanceMonitoringRouteRouteWithChildren
   '/device-management': typeof AuthenticatedDeviceManagementRouteRouteWithChildren
@@ -861,6 +893,8 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/403': typeof R403Route
+  '/404': typeof R404Route
   '/components': typeof ComponentsRoute
   '/_authenticated/attendance-monitoring': typeof AuthenticatedAttendanceMonitoringRouteRouteWithChildren
   '/_authenticated/device-management': typeof AuthenticatedDeviceManagementRouteRouteWithChildren
@@ -904,6 +938,8 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | ''
+    | '/403'
+    | '/404'
     | '/components'
     | '/attendance-monitoring'
     | '/device-management'
@@ -944,6 +980,8 @@ export interface FileRouteTypes {
   to:
     | '/'
     | ''
+    | '/403'
+    | '/404'
     | '/components'
     | '/attendance-monitoring'
     | '/device-management'
@@ -984,6 +1022,8 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/403'
+    | '/404'
     | '/components'
     | '/_authenticated/attendance-monitoring'
     | '/_authenticated/device-management'
@@ -1026,12 +1066,16 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  R403Route: typeof R403Route
+  R404Route: typeof R404Route
   ComponentsRoute: typeof ComponentsRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  R403Route: R403Route,
+  R404Route: R404Route,
   ComponentsRoute: ComponentsRoute,
 }
 
@@ -1047,6 +1091,8 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/_authenticated",
+        "/403",
+        "/404",
         "/components"
       ]
     },
@@ -1064,6 +1110,12 @@ export const routeTree = rootRoute
         "/_authenticated/user-management",
         "/_authenticated/visitor-management"
       ]
+    },
+    "/403": {
+      "filePath": "403.tsx"
+    },
+    "/404": {
+      "filePath": "404.tsx"
     },
     "/components": {
       "filePath": "components.tsx"
