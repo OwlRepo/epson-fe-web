@@ -108,11 +108,11 @@ function RouteComponent() {
               },
               {
                 key: "clocked_in",
-                label: "Incoming",
+                label: "Time In",
               },
               {
                 key: "clocked_out",
-                label: "Outgoing",
+                label: "Time Out",
               },
             ]}
             filters={[
@@ -148,7 +148,7 @@ function RouteComponent() {
               },
               {
                 key: "clocked_in",
-                label: "Incoming",
+                label: "Time In",
                 options: Array.from(
                   new Set(data.map((item) => item.clocked_in ?? "-"))
                 ).map((item) => ({
@@ -158,7 +158,7 @@ function RouteComponent() {
               },
               {
                 key: "clocked_out",
-                label: "Outgoing",
+                label: "Time Out",
                 options: Array.from(
                   new Set(data.map((item) => item.clocked_out ?? "-"))
                 ).map((item) => ({

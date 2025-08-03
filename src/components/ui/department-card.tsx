@@ -35,7 +35,7 @@ export function DepartmentCard({
             <span className="text-2xl font-bold">
               {formatCountWithCommas(clockedIn)}
             </span>
-            <span className="text-xs text-gray-600">Incoming</span>
+            <span className="text-xs text-gray-600">Time In</span>
           </div>
         )}
         {clockedOut !== undefined && (
@@ -43,7 +43,7 @@ export function DepartmentCard({
             <span className="text-2xl font-bold">
               {formatCountWithCommas(clockedOut)}
             </span>
-            <span className="text-xs text-gray-600">Outgoing</span>
+            <span className="text-xs text-gray-600">Time Out</span>
           </div>
         )}
       </div>

@@ -91,13 +91,13 @@ function RouteComponent() {
             <AttendanceCountCard
               count={countData?.in ? formatCountWithCommas(countData.in) : 0}
               icon={<ClockedInIcon />}
-              subtitle="Incoming"
+              subtitle="Time In"
               variant="success"
             />
             <AttendanceCountCard
               count={countData?.out ? formatCountWithCommas(countData.out) : 0}
               icon={<ClockedOutIcon />}
-              subtitle="Outgoing"
+              subtitle="Time Out"
               variant="error"
             />
             <AttendanceCountCard
@@ -150,11 +150,11 @@ function RouteComponent() {
                   },
                   {
                     key: "clocked_in",
-                    label: "Incoming",
+                    label: "Time In",
                   },
                   {
                     key: "clocked_out",
-                    label: "Outgoing",
+                    label: "Time Out",
                   },
                 ]}
                 filters={[
@@ -190,7 +190,7 @@ function RouteComponent() {
                   },
                   {
                     key: "clocked_in",
-                    label: "Incoming",
+                    label: "Time In",
                     options: Array.from(
                       new Set(liveData.map((item) => item.clocked_in ?? "-"))
                     ).map((item) => ({
@@ -200,7 +200,7 @@ function RouteComponent() {
                   },
                   {
                     key: "clocked_out",
-                    label: "Outgoing",
+                    label: "Time Out",
                     options: Array.from(
                       new Set(liveData.map((item) => item.clocked_out ?? "-"))
                     ).map((item) => ({

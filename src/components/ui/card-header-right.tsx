@@ -29,7 +29,7 @@ export default function CardHeaderRight({
         <div className="flex flex-row space-x-10">
           {clockedIn !== undefined && (
             <div className="flex flex-row space-x-2">
-              <p>Incoming:</p>
+              <p>Time In:</p>
               <b className="text-positive">
                 {formatCountWithCommas(clockedIn)}
               </b>
@@ -37,7 +37,7 @@ export default function CardHeaderRight({
           )}
           {clockedOut !== undefined && (
             <div className="flex flex-row space-x-2">
-              <p>Outgoing:</p>
+              <p>Time Out:</p>
               <b className="text-negative">
                 {formatCountWithCommas(clockedOut)}
               </b>
