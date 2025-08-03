@@ -3,7 +3,8 @@ import { getEnvVar } from "./env";
 
 export function withModuleAccess(
   permissionModules: string[],
-  options: {
+  //@ts-ignore
+  options?: {
     onFailRedirectTo?: string;
     fallbackError?: Error;
   }

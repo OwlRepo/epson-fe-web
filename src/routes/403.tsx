@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
+import { createFileRoute, useRouter } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/403')({
   component: RouteComponent,
