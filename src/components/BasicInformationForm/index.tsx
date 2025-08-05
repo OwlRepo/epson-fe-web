@@ -55,6 +55,7 @@ export interface VisitorData {
     id: string;
     name: string;
   };
+  Status?: string;
   CardSurrendered?: boolean;
   type?:
     | "check-in"

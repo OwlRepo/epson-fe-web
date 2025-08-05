@@ -372,11 +372,21 @@ export const VisitorInformationDialog = ({
         ) : (
           <div className="flex gap-2">
             <div>
-              <img
-                src={`data:image/jpeg;base64,${visitor?.Picture}`}
-                alt="Captured"
-                className="w-24 h-24  object-cover rounded-xl"
-              />
+              {visitor?.Picture ? (
+                <img
+                  src={`data:image/jpeg;base64,${visitor?.Picture}`}
+                  alt="Captured"
+                  className="w-24 h-24  object-cover rounded-xl"
+                />
+              ) : (
+                <div className="w-24 h-24 flex items-center justify-center  rounded-xl bg-slate-400">
+                  <p className="text-2xl text-slate-200">
+                    {visitor?.Name?.split(" ")
+                      .map((word, index) => (index < 2 ? word[0] : ""))
+                      .join("")}
+                  </p>
+                </div>
+              )}
             </div>
             <div>
               <p>{`CARD ID: ${visitor?.UHF}`}</p>
@@ -397,6 +407,7 @@ export const VisitorInformationDialog = ({
                   value={visitor?.Beverage}
                 />
                 <TextDisplay label="Purpose" value={visitor?.Purpose} />
+                <TextDisplay label="Status" value={visitor?.Status} />
               </div>
             </div>
           </div>
