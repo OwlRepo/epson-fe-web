@@ -303,7 +303,7 @@ export default function EmpInfoDialog({
             <div className="grid grid-cols-3 gap-2">
               <div className="col-span-2">
                 <p className="text-sm text-gray-500">
-                  ID: {employee.EmployeeID}
+                  Employee No: {employee?.EmployeeNo}
                 </p>
                 <h2 className="text-2xl font-bold text-primary mt-1">
                   {`${employee.FirstName} ${employee.LastName}`}
