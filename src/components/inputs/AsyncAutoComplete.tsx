@@ -107,8 +107,13 @@ export const AsyncAutoComplete = ({
                       key={item.value}
                       value={item.value}
                       onSelect={(val) => {
-                        setValue(name, val === value ? "" : val);
-                        if (withID) setValue("ID", item.id);
+                        setValue(name, val === value ? "" : val, {
+                          shouldValidate: true,
+                        });
+                        if (withID)
+                          setValue("ID", item.id, {
+                            shouldValidate: true,
+                          });
                         setOpen(false);
                       }}
                     >

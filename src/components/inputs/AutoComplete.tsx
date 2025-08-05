@@ -83,7 +83,10 @@ export const AutoComplete = ({
                     onSelect={() => {
                       setValue(
                         name,
-                        framework.value === value ? "" : framework.value
+                        framework.value === value ? "" : framework.value,
+                        {
+                          shouldValidate: true,
+                        }
                       );
                       setOpen(false);
                     }}

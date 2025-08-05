@@ -90,6 +90,7 @@ const BasicInfromationForm = forwardRef(
       watch,
       control,
       reset,
+      trigger,
       setError,
     } = form;
 
@@ -106,21 +107,26 @@ const BasicInfromationForm = forwardRef(
           from: new Date(),
           to: addDays(new Date(), 5),
         },
+        Purpose: initialData?.Purpose ?? "",
         ...initialData,
       });
+      trigger(["Date"]);
     }, [initialData, reset]);
 
     // expose reset method to parent
     useImperativeHandle(ref, () => ({
       resetForm: () => {
         console.log("reset form");
-        reset({
-          Date: {
-            from: new Date(),
-            to: addDays(new Date(), 5),
+        reset(
+          {
+            Date: {
+              from: new Date(),
+              to: addDays(new Date(), 5),
+            },
+            ...initialData,
           },
-          ...initialData,
-        });
+          {}
+        );
       },
     }));
 
@@ -462,7 +468,7 @@ const BasicInfromationForm = forwardRef(
                   Clear Data
                 </Button>
                 <Button
-                  disabled={!formState.isDirty || isPending}
+                  disabled={!formState.isValid || isPending}
                   onClick={handleSubmit((data) => {
                     onSubmitData?.({ ...data, type: "check-in" });
                   })}
@@ -488,7 +494,11 @@ const BasicInfromationForm = forwardRef(
                 className="w-full"
                 defaultMonth={new Date(dateRange.to) ?? new Date()}
                 onSelect={(val: any) => {
-                  setValue("Date", { ...dateRange, to: val });
+                  setValue(
+                    "Date",
+                    { ...dateRange, to: val },
+                    { shouldValidate: true }
+                  );
                 }}
               />
             </div>
