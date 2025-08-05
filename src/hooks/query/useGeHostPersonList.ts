@@ -20,7 +20,7 @@ const getHostPerson = async (hostPerson: string) => {
 
 export const useGetHostPerson = (hostPerson: string) =>
   useQuery({
-    queryKey: ["host-person-list"],
+    queryKey: ["host-person-list", hostPerson],
     queryFn: () => getHostPerson(hostPerson),
     refetchOnWindowFocus: false,
     enabled: !!hostPerson,
