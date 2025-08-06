@@ -26,6 +26,12 @@ export const Route = createFileRoute(
 )({
   component: RouteComponent,
 });
+// table keys
+const EMPLOYEE_NO_TABLE_KEY = "employee_id";
+const EMPLOYEE_NAME_TABLE_KEY = "full_name";
+const EMPLOYEE_SECTION_TABLE_KEY = "section";
+const EMPLOYEE_CLOCKED_IN_TABLE_KEY = "clocked_in";
+const EMPLOYEE_CLOCKED_OUT_TABLE_KEY = "clocked_out";
 
 function RouteComponent() {
   const navigate = useNavigate({
@@ -137,29 +143,29 @@ function RouteComponent() {
                 }}
                 columns={[
                   {
-                    key: "employee_id",
+                    key: EMPLOYEE_NO_TABLE_KEY,
                     label: "Employee No.",
                   },
                   {
-                    key: "name",
+                    key: EMPLOYEE_NAME_TABLE_KEY,
                     label: "Name",
                   },
                   {
-                    key: "section",
+                    key: EMPLOYEE_SECTION_TABLE_KEY,
                     label: "Section",
                   },
                   {
-                    key: "clocked_in",
+                    key: EMPLOYEE_CLOCKED_IN_TABLE_KEY,
                     label: "Time In",
                   },
                   {
-                    key: "clocked_out",
+                    key: EMPLOYEE_CLOCKED_OUT_TABLE_KEY,
                     label: "Time Out",
                   },
                 ]}
                 filters={[
                   {
-                    key: "employee_id",
+                    key: EMPLOYEE_NO_TABLE_KEY,
                     label: "ID",
                     options: Array.from(
                       new Set(liveData.map((item) => item.employee_id))
@@ -169,7 +175,7 @@ function RouteComponent() {
                     })),
                   },
                   {
-                    key: "section",
+                    key: EMPLOYEE_SECTION_TABLE_KEY,
                     label: "Section",
                     options: Array.from(
                       new Set(liveData.map((item) => item.section))
@@ -179,7 +185,7 @@ function RouteComponent() {
                     })),
                   },
                   {
-                    key: "name",
+                    key: EMPLOYEE_NAME_TABLE_KEY,
                     label: "Name",
                     options: Array.from(
                       new Set(liveData.map((item) => item.full_name))
@@ -189,7 +195,7 @@ function RouteComponent() {
                     })),
                   },
                   {
-                    key: "clocked_in",
+                    key: EMPLOYEE_CLOCKED_IN_TABLE_KEY,
                     label: "Time In",
                     options: Array.from(
                       new Set(liveData.map((item) => item.clocked_in ?? "-"))
@@ -199,7 +205,7 @@ function RouteComponent() {
                     })),
                   },
                   {
-                    key: "clocked_out",
+                    key: EMPLOYEE_CLOCKED_OUT_TABLE_KEY,
                     label: "Time Out",
                     options: Array.from(
                       new Set(liveData.map((item) => item.clocked_out ?? "-"))
@@ -212,39 +218,41 @@ function RouteComponent() {
                 data={liveData
                   .map((employeeData) => {
                     const {
-                      employee_id,
-                      section,
-                      clocked_in,
-                      clocked_out,
-                      full_name,
+                      [EMPLOYEE_NO_TABLE_KEY]: employee_id,
+                      [EMPLOYEE_SECTION_TABLE_KEY]: section,
+                      [EMPLOYEE_CLOCKED_IN_TABLE_KEY]: clocked_in,
+                      [EMPLOYEE_CLOCKED_OUT_TABLE_KEY]: clocked_out,
+                      [EMPLOYEE_NAME_TABLE_KEY]: full_name,
                     } = employeeData;
                     return {
-                      employee_id: employee_id,
-                      section: section,
-                      name: full_name,
-                      clocked_in: clocked_in,
-                      clocked_out: clocked_out,
+                      [EMPLOYEE_NO_TABLE_KEY]: employee_id,
+                      [EMPLOYEE_SECTION_TABLE_KEY]: section,
+                      [EMPLOYEE_NAME_TABLE_KEY]: full_name,
+                      [EMPLOYEE_CLOCKED_IN_TABLE_KEY]: clocked_in,
+                      [EMPLOYEE_CLOCKED_OUT_TABLE_KEY]: clocked_out,
                     };
                   })
                   .filter((item) => {
                     const matchesSection = matchesFilter(
-                      item.section ?? "",
+                      item[EMPLOYEE_SECTION_TABLE_KEY] ?? "",
                       search.filter_section
                     );
                     const matchesId = matchesFilter(
-                      item.employee_id ?? "",
+                      item[EMPLOYEE_NO_TABLE_KEY] ?? "",
                       search.filter_employee_id
                     );
                     const matchesName = matchesFilter(
-                      item.name ?? "",
+                      item[EMPLOYEE_NAME_TABLE_KEY] ?? "",
                       search.filter_name
                     );
                     const matchesTimeIn =
                       !search.filter_clocked_in ||
-                      item.clocked_in === search.filter_clocked_in;
+                      item[EMPLOYEE_CLOCKED_IN_TABLE_KEY] ===
+                        search.filter_clocked_in;
                     const matchesTimeOut =
                       !search.filter_clocked_out ||
-                      item.clocked_out === search.filter_clocked_out;
+                      item[EMPLOYEE_CLOCKED_OUT_TABLE_KEY] ===
+                        search.filter_clocked_out;
 
                     return (
                       matchesSection &&
