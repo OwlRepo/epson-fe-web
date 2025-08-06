@@ -95,16 +95,16 @@ function RouteComponent() {
             onPageSizeChange={handlePageSizeChange}
             columns={[
               {
-                key: "employee_id",
+                key: "employee_no",
                 label: "EMPLOYEE NO.",
-              },
-              {
-                key: "section",
-                label: "SECTION",
               },
               {
                 key: "name",
                 label: "NAME",
+              },
+              {
+                key: "section",
+                label: "SECTION",
               },
               {
                 key: "clocked_in",
@@ -117,10 +117,10 @@ function RouteComponent() {
             ]}
             filters={[
               // {
-              //   key: "employee_id",
+              //   key: "employee_no",
               //   label: "ID",
               //   options: Array.from(
-              //     new Set(data.map((item) => item.employee_id))
+              //     new Set(data.map((item) => item.employee_no))
               //   ).map((item) => ({
               //     label: item,
               //     value: item,
@@ -170,14 +170,14 @@ function RouteComponent() {
             data={data
               .map((employeeData) => {
                 const {
-                  employee_id,
+                  employee_no,
                   section,
                   clocked_in,
                   clocked_out,
                   full_name,
                 } = employeeData;
                 return {
-                  employee_id: employee_id,
+                  employee_no: employee_no,
                   section: section,
                   name: full_name,
                   clocked_in: clocked_in,
@@ -190,8 +190,8 @@ function RouteComponent() {
                   search.filter_section
                 );
                 const matchesId = matchesFilter(
-                  item.employee_id ?? "",
-                  search.filter_employee_id
+                  item.employee_no ?? "",
+                  search.filter_employee_no
                 );
                 const matchesName = matchesFilter(
                   item.name ?? "",
