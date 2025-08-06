@@ -164,6 +164,7 @@ function RouteComponent() {
       search: (prev) => ({
         ...prev,
         search: searchTerm,
+        page: "1",
       }),
       replace: true,
     });
