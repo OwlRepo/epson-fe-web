@@ -95,7 +95,7 @@ function ReportsDataTable() {
 
   // Define columns
   const columns = [
-    { key: "EmployeeNo", label: "ID" },
+    { key: "EmployeeNo", label: "EMPLOYEE NO." },
     { key: "Name", label: "Name" },
     { key: "Department", label: "Department" },
     { key: "ClockedIN", label: "Clocked In" },
