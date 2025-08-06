@@ -213,7 +213,7 @@ function RouteComponent() {
           isLoading={isEmployeeListLoading}
           tableId={tableId}
           onRowClick={(row) => {
-            setEmployeeID(row.EmployeeID);
+            setEmployeeID(row.EmployeeNo);
             setIsOpen(true);
           }}
         />

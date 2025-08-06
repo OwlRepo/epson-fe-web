@@ -52,7 +52,7 @@ const columns: Column[] = [
   { key: "Purpose", label: "Purpose" },
   { key: "DateFrom", label: "From Date" },
   { key: "DateTo", label: "To Date" },
-  { key: "Status", label: "Status" },
+  { key: "CardStatus", label: "Status" },
 ];
 
 function RouteComponent() {
