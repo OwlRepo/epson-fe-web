@@ -137,16 +137,16 @@ function RouteComponent() {
                 }}
                 columns={[
                   {
-                    key: "employeeNo",
-                    label: "ID",
-                  },
-                  {
-                    key: "section",
-                    label: "Section",
+                    key: "employee_no",
+                    label: "Employee No.",
                   },
                   {
                     key: "name",
                     label: "Name",
+                  },
+                  {
+                    key: "section",
+                    label: "Section",
                   },
                   {
                     key: "clocked_in",
@@ -159,10 +159,10 @@ function RouteComponent() {
                 ]}
                 filters={[
                   {
-                    key: "employeeNo",
+                    key: "employee_no",
                     label: "ID",
                     options: Array.from(
-                      new Set(liveData.map((item) => item.employeeNo))
+                      new Set(liveData.map((item) => item.employee_no))
                     ).map((item) => ({
                       label: item,
                       value: item,
@@ -212,14 +212,14 @@ function RouteComponent() {
                 data={liveData
                   .map((employeeData) => {
                     const {
-                      employeeNo,
+                      employee_no,
                       section,
                       clocked_in,
                       clocked_out,
                       full_name,
                     } = employeeData;
                     return {
-                      employeeNo: employeeNo,
+                      employee_no: employee_no,
                       section: section,
                       name: full_name,
                       clocked_in: clocked_in,
@@ -232,8 +232,8 @@ function RouteComponent() {
                       search.filter_section
                     );
                     const matchesId = matchesFilter(
-                      item.employeeNo ?? "",
-                      search.filter_employeeNo
+                      item.employee_no ?? "",
+                      search.filter_employee_no
                     );
                     const matchesName = matchesFilter(
                       item.name ?? "",
