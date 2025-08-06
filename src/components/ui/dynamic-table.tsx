@@ -1201,7 +1201,15 @@ export function DynamicTable({
                       </TableCell>
                     )}
                     {columns.map((column) => (
-                      <TableCell key={`${rowIndex}-${column.key}`}>
+                      <TableCell
+                        key={`${rowIndex}-${column.key}`}
+                        className={cn(
+                          // Status checker for VMS > Dashboard > Overview
+                          row?.status?.toString()?.length > 0
+                            ? "text-red-400 font-bold"
+                            : ""
+                        )}
+                      >
                         {column.render ? column.render(row) : row[column.key]}
                       </TableCell>
                     ))}
