@@ -12,7 +12,7 @@ export interface ClearButtonConfig {
 // Route-based clear button configurations
 const clearButtonConfigs: Record<string, ClearButtonConfig> = {
   "/attendance-monitoring/dashboard/overview": {
-    label: "Clear Outgoings",
+    label: "Clear Timeouts",
     socketRoom: "clear_logs",
     emitData: () => ["ams", ""],
   },
@@ -23,7 +23,7 @@ const clearButtonConfigs: Record<string, ClearButtonConfig> = {
   },
   // Pattern for sections route - will be matched dynamically
   "attendance-monitoring-sections": {
-    label: "Clear Outgoings",
+    label: "Clear Timeouts",
     socketRoom: "clear_logs",
     emitData: (params) => [
       "ams_section",
