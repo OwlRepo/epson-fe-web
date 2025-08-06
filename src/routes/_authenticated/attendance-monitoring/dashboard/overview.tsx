@@ -132,7 +132,7 @@ function RouteComponent() {
                 searchTerm={searchTerm}
                 onClearSearch={clearSearch}
                 onRowClick={(row) => {
-                  setEmployeeID(row.employee_id);
+                  setEmployeeID(row.employee_no);
                   setIsOpen(true);
                 }}
                 columns={[
