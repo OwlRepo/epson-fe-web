@@ -18,6 +18,7 @@ import {
 
 import { LiveDataTable } from "@/components/ui/live-data-table";
 import Spinner from "@/components/ui/spinner";
+import { Switch } from "@/components/ui/switch";
 import { useSocket } from "@/hooks";
 import { useCheckoutVisitor } from "@/hooks/mutation/useCheckoutVisitor";
 import { useGetVisitorById } from "@/hooks/query/useGetVisitorById";
@@ -34,6 +35,7 @@ import {
 } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import useLiveDataTableStore from "@/store/vms/overview/useLiveDataTableStore";
 
 export const Route = createFileRoute(
   "/_authenticated/visitor-management/dashboard/overview"
@@ -81,6 +83,8 @@ function RouteComponent() {
     searchData(searchTerm);
   };
 
+  const { flaggedRecords, setFlaggedRecords } = useLiveDataTableStore();
+
   const {
     data: liveData,
     isLoading: isLiveDataLoading,
@@ -94,6 +98,7 @@ function RouteComponent() {
   } = useOverviewCountData({
     room: "VMS",
     dataType: "live",
+    statusFilter: flaggedRecords,
   });
 
   return (
@@ -133,6 +138,19 @@ function RouteComponent() {
           </div>
         </CardSection>
         <CardSection
+          headerRight={
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-muted-foreground">
+                Flagged Records
+              </span>
+              <Switch
+                id="airplane-mode"
+                className="data-[state=checked]:bg-primary-evs"
+                checked={flaggedRecords}
+                onCheckedChange={setFlaggedRecords}
+              />
+            </div>
+          }
           headerLeft={
             <CardHeaderLeft
               title={
@@ -224,14 +242,21 @@ function RouteComponent() {
                 ]}
                 data={liveData
                   .map((visitorData) => {
-                    const { ID, Name, clocked_in, clocked_out, Purpose } =
-                      visitorData;
+                    const {
+                      ID,
+                      Name,
+                      clocked_in,
+                      clocked_out,
+                      Purpose,
+                      status,
+                    } = visitorData;
                     return {
                       ID: ID,
                       Name: Name,
                       Purpose: Purpose,
                       clocked_in: clocked_in,
                       clocked_out: clocked_out,
+                      status: status,
                     };
                   })
                   .filter((item) => {

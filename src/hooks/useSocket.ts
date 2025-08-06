@@ -41,7 +41,7 @@ export interface LiveData extends DeviceData, VisitorData {
   device_id: string;
   name: string;
   employee_id: string;
-  employee_no:string;
+  employee_no: string;
   full_name: string;
   department: string;
   division: string;
@@ -68,6 +68,7 @@ type DataType = "summary" | "live";
 interface UseSocketProps {
   room: string;
   dataType?: DataType;
+  statusFilter?: boolean; // External status filter state
 }
 
 const SOCKET_URL = getApiSocketBaseUrl();
@@ -75,6 +76,7 @@ const SOCKET_URL = getApiSocketBaseUrl();
 export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
   room,
   dataType,
+  statusFilter = false,
 }: UseSocketProps) => {
   const [data, setData] = useState<T[]>([]);
   const [countData, setCountData] = useState<SummaryCountData | null>(null);
@@ -228,15 +230,15 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
           const existingRecordIndex = prevData.findIndex((item) => {
             const liveItem = item as LiveData;
 
-            if (!newLiveData.employee_id) {
+            if (!newLiveData?.employee_id) {
               return (
-                liveItem.ID === newLiveData.ID &&
-                liveItem.clocked_in === newLiveData.clocked_in
+                liveItem?.ID === newLiveData?.ID &&
+                liveItem?.clocked_in === newLiveData?.clocked_in
               );
             } else {
               return (
-                liveItem.employee_id === newLiveData.employee_id &&
-                liveItem.clocked_in === newLiveData.clocked_in
+                liveItem?.employee_id === newLiveData?.employee_id &&
+                liveItem?.clocked_in === newLiveData?.clocked_in
               );
             }
 
@@ -329,27 +331,38 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
     setSearchTerm("");
   }, []);
 
-  // Compute filtered data based on search term
+  // Compute filtered data based on search term and status filter
   const filteredData = useMemo(() => {
-    if (!searchTerm.trim()) {
-      return data;
+    let filteredBySearch = data;
+
+    // Apply search filter first
+    if (searchTerm.trim()) {
+      const lowerSearchTerm = searchTerm.toLowerCase().trim();
+
+      filteredBySearch = data.filter((item) => {
+        // Search through all string and number properties of the item
+        return Object.values(item).some((value) => {
+          if (value === null || value === undefined) {
+            return false;
+          }
+
+          // Convert value to string and search case-insensitively
+          const stringValue = String(value).toLowerCase();
+          return stringValue.includes(lowerSearchTerm);
+        });
+      });
     }
 
-    const lowerSearchTerm = searchTerm.toLowerCase().trim();
-
-    return data.filter((item) => {
-      // Search through all string and number properties of the item
-      return Object.values(item).some((value) => {
-        if (value === null || value === undefined) {
-          return false;
-        }
-
-        // Convert value to string and search case-insensitively
-        const stringValue = String(value).toLowerCase();
-        return stringValue.includes(lowerSearchTerm);
+    // Apply status filter
+    if (statusFilter) {
+      return filteredBySearch.filter((item: any) => {
+        // Filter for rows where status has content (same logic as line 1208 in dynamic-table.tsx)
+        return item?.status?.toString()?.length > 0;
       });
-    });
-  }, [data, searchTerm]);
+    }
+
+    return filteredBySearch;
+  }, [data, searchTerm, statusFilter]);
 
   // Function to manually leave current room and join a new one
   const joinRoom = useCallback(
