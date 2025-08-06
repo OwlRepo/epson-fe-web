@@ -139,17 +139,20 @@ function RouteComponent() {
         </CardSection>
         <CardSection
           headerRight={
-            <div className="flex items-center space-x-2">
-              <span className="text-sm text-muted-foreground">
-                Flagged Records
-              </span>
-              <Switch
-                id="airplane-mode"
-                className="data-[state=checked]:bg-primary-evs"
-                checked={flaggedRecords}
-                onCheckedChange={setFlaggedRecords}
-              />
-            </div>
+            isLiveDataConnected &&
+            !isLiveDataLoading && (
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-muted-foreground">
+                  Flagged Records
+                </span>
+                <Switch
+                  id="airplane-mode"
+                  className="data-[state=checked]:bg-primary-evs"
+                  checked={flaggedRecords}
+                  onCheckedChange={setFlaggedRecords}
+                />
+              </div>
+            )
           }
           headerLeft={
             <CardHeaderLeft
