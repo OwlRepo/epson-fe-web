@@ -131,7 +131,7 @@ function ReportsDataTable() {
     //   })),
     // },
     {
-      key: "ams-reports-date",
+      key: "ams_reports_date",
       label: "Date",
       isDateRangePicker: true,
     },
