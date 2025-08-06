@@ -6,6 +6,10 @@ import BasicInfromationForm from "../BasicInformationForm";
 import { useUpdateReservedGuest } from "@/hooks/mutation/useUpdateReservedGuest";
 import Spinner from "./spinner";
 import { format } from "date-fns";
+import { useEffect } from "react";
+import { toast } from "sonner";
+import useToastStyleTheme from "@/hooks/useToastStyleTheme";
+import { useSocket } from "@/hooks";
 
 interface ReservedGuestInfoDialogProps extends DialogProps {
   visitor?: VisitorData;
@@ -19,7 +23,15 @@ export const ReservedGuestInfoDialog = ({
   isLoading = false,
 }: ReservedGuestInfoDialogProps) => {
   const { mutate: checkoutVisitor } = useCheckoutVisitor();
-  const { mutate: updateReservedGuest } = useUpdateReservedGuest();
+  const {
+    mutate: updateReservedGuest,
+    isSuccess,
+    isError,
+    error,
+  } = useUpdateReservedGuest();
+
+  const { errorStyle, successStyle } = useToastStyleTheme();
+  const { emitData } = useSocket({ room: "updates" });
 
   const handleSubmit = (data: Partial<VisitorData>) => {
     switch (data.type) {
@@ -58,13 +70,48 @@ export const ReservedGuestInfoDialog = ({
           },
         });
         break;
+      case "update-data":
+        const { type, CardSurrendered, ID, Status, ...payload } = data;
+
+        const { Date, ...processedPayload } = {
+          ...payload,
+          DateFrom: payload.Date.from,
+          DateTo: payload.Date.to,
+          GuestType: payload?.GuestType?.toString(),
+        } as any;
+
+        updateReservedGuest({
+          visitorID: visitor?.ID,
+          payload: processedPayload as any,
+        });
+        break;
       default:
         console.error("Unknown form type");
     }
   };
 
+  useEffect(() => {
+    if (isError) {
+      toast.error("Oops! Saving error!", {
+        description:
+          (error as any)?.response?.data?.message ??
+          "An unknown error occurred",
+        className: "bg-red-50 border-red-200 text-black",
+        style: errorStyle,
+      });
+    }
+    if (isSuccess) {
+      toast.success("Save Successfully!", {
+        description: " You're all set!",
+        style: successStyle,
+      });
+
+      emitData("users");
+    }
+  }, [isError, isSuccess]);
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange} modal={false}>
       <DialogContent className="sm:max-w-[900px] p-8 bg-white rounded-lg shadow-xl">
         <DialogHeader className="flex flex-row justify-between items-center mb-6">
           <DialogTitle className="text-xl font-semibold text-gray-800">
@@ -74,7 +121,7 @@ export const ReservedGuestInfoDialog = ({
         {isLoading && <Spinner />}
         {!isLoading && (
           <BasicInfromationForm
-            isReadOnly
+            isDialog
             initialData={
               visitor && {
                 ...visitor,
@@ -86,6 +133,14 @@ export const ReservedGuestInfoDialog = ({
             }
             type="register-vip"
             onSubmitData={handleSubmit}
+            onUnlinkSubmit={() =>
+              updateReservedGuest({
+                visitorID: visitor?.ID,
+                payload: {
+                  UHF: "",
+                },
+              })
+            }
           />
         )}
       </DialogContent>

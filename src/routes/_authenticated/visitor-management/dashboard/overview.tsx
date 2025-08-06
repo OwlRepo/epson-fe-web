@@ -405,7 +405,7 @@ export const VisitorInformationDialog = ({
         ) : (
           <div className="flex gap-2">
             <div>
-              {visitor?.Picture ? (
+              {visitor?.Picture && visitor?.Picture !== "string" ? (
                 <img
                   src={`data:image/jpeg;base64,${visitor?.Picture}`}
                   alt="Captured"

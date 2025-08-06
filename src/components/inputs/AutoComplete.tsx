@@ -86,6 +86,7 @@ export const AutoComplete = ({
                         framework.value === value ? "" : framework.value,
                         {
                           shouldValidate: true,
+                          shouldDirty: true,
                         }
                       );
                       setOpen(false);

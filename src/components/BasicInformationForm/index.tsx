@@ -27,10 +27,12 @@ import { visitationDateChecker } from "@/utils/visitationDateChecker";
 import { faker } from "@faker-js/faker";
 
 interface BasicInformationFormProps {
+  onUnlinkSubmit?: () => void;
   onSubmitData?: (data: any) => void;
   onUpdate?: (data: any) => void;
   type?: "check-in" | "register-vip";
   isReadOnly?: boolean;
+  isDialog?: boolean;
   initialData?: VisitorData;
   isPending?: boolean;
   isSuccess?: boolean;
@@ -63,6 +65,7 @@ export interface VisitorData {
     | "check-out"
     | "link-new-card"
     | "save-new-photo"
+    | "update-data"
     | undefined;
 }
 
@@ -73,6 +76,8 @@ const UHFLength = getUHFLength();
 const BasicInfromationForm = forwardRef(
   (
     {
+      isDialog,
+      onUnlinkSubmit,
       initialData,
       onSubmitData,
       type = "check-in",
@@ -330,7 +335,7 @@ const BasicInfromationForm = forwardRef(
                             value={field.value}
                             onSelect={field.onChange}
                             className="w-full h-[44px] border-red-600"
-                            readOnly={isReadOnly}
+                            readOnly={isDialog}
                             isError={fieldState.error?.message?.includes(
                               "expired"
                             )}
@@ -425,9 +430,13 @@ const BasicInfromationForm = forwardRef(
                   <LinkCardInput
                     isLinking={isLinking}
                     onLinkCard={handleLinkCard}
-                    onUnlinkCard={() =>
-                      setValue("UHF", "", { shouldValidate: true })
-                    }
+                    onUnlinkCard={() => {
+                      setValue("UHF", "", {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                      });
+                      onUnlinkSubmit?.();
+                    }}
                     onStopReading={() => setIsLinking(false)}
                     value={watch("UHF") || ""}
                     errors={formState.errors}
@@ -440,8 +449,8 @@ const BasicInfromationForm = forwardRef(
               </div>
             </div>
           </div>
-          <div className="col-span-4 flex gap-2 justify-end">
-            {isReadOnly && (
+          <div className="col-span-4 flex gap-4 justify-end mt-4">
+            {isDialog && (
               <>
                 <Button
                   className="bg-red-600 hover:bg-red-400"
@@ -449,7 +458,7 @@ const BasicInfromationForm = forwardRef(
                     onSubmitData?.({ ...data, type: "check-out" })
                   )}
                 >
-                  Check Out
+                  Card Surrender
                 </Button>
                 <Button
                   className="disabled:bg-slate-400"
@@ -457,9 +466,19 @@ const BasicInfromationForm = forwardRef(
                 >
                   Extend Visit
                 </Button>
+
+                <Button
+                  disabled={!formState.isDirty}
+                  className="disabled:bg-slate-400"
+                  onClick={handleSubmit((data) =>
+                    onSubmitData?.({ ...data, type: "update-data" })
+                  )}
+                >
+                  Save Changes
+                </Button>
               </>
             )}
-            {!isReadOnly && (
+            {!isDialog && (
               <>
                 <Button
                   onClick={() => reset()}
@@ -497,16 +516,12 @@ const BasicInfromationForm = forwardRef(
                   setValue(
                     "Date",
                     { ...dateRange, to: val },
-                    { shouldValidate: true }
+                    { shouldValidate: true, shouldDirty: true }
                   );
                 }}
               />
             </div>
-            <Button
-              onClick={handleSubmit((data) =>
-                onSubmitData?.({ ...data, type: "extend-visit" })
-              )}
-            >
+            <Button onClick={() => setOpenExtendDialog(false)}>
               Extend Visit
             </Button>
           </DialogContent>
