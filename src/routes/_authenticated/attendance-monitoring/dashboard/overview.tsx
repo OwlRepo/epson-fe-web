@@ -132,12 +132,12 @@ function RouteComponent() {
                 searchTerm={searchTerm}
                 onClearSearch={clearSearch}
                 onRowClick={(row) => {
-                  setEmployeeID(row.employee_no);
+                  setEmployeeID(row.employee_id);
                   setIsOpen(true);
                 }}
                 columns={[
                   {
-                    key: "employee_no",
+                    key: "employee_id",
                     label: "Employee No.",
                   },
                   {
@@ -159,10 +159,10 @@ function RouteComponent() {
                 ]}
                 filters={[
                   {
-                    key: "employee_no",
+                    key: "employee_id",
                     label: "ID",
                     options: Array.from(
-                      new Set(liveData.map((item) => item.employee_no))
+                      new Set(liveData.map((item) => item.employee_id))
                     ).map((item) => ({
                       label: item,
                       value: item,
@@ -212,14 +212,14 @@ function RouteComponent() {
                 data={liveData
                   .map((employeeData) => {
                     const {
-                      employee_no,
+                      employee_id,
                       section,
                       clocked_in,
                       clocked_out,
                       full_name,
                     } = employeeData;
                     return {
-                      employee_no: employee_no,
+                      employee_id: employee_id,
                       section: section,
                       name: full_name,
                       clocked_in: clocked_in,
@@ -232,8 +232,8 @@ function RouteComponent() {
                       search.filter_section
                     );
                     const matchesId = matchesFilter(
-                      item.employee_no ?? "",
-                      search.filter_employee_no
+                      item.employee_id ?? "",
+                      search.filter_employee_id
                     );
                     const matchesName = matchesFilter(
                       item.name ?? "",
