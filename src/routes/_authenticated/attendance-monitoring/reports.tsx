@@ -110,26 +110,26 @@ function ReportsDataTable() {
       label: "Department",
       options: departments ?? [],
     },
-    {
-      key: "EmployeeNo",
-      label: "ID",
-      options: Array.from(
-        new Set(reportList?.data.map((item: EmployeeReport) => item.EmployeeNo))
-      ).map((item) => ({
-        label: item,
-        value: item,
-      })),
-    },
-    {
-      key: "Name",
-      label: "Name",
-      options: Array.from(
-        new Set(reportList?.data.map((item: EmployeeReport) => item.Name))
-      ).map((item) => ({
-        label: item,
-        value: item,
-      })),
-    },
+    // {
+    //   key: "EmployeeNo",
+    //   label: "ID",
+    //   options: Array.from(
+    //     new Set(reportList?.data.map((item: EmployeeReport) => item.EmployeeNo))
+    //   ).map((item) => ({
+    //     label: item,
+    //     value: item,
+    //   })),
+    // },
+    // {
+    //   key: "Name",
+    //   label: "Name",
+    //   options: Array.from(
+    //     new Set(reportList?.data.map((item: EmployeeReport) => item.Name))
+    //   ).map((item) => ({
+    //     label: item,
+    //     value: item,
+    //   })),
+    // },
     {
       key: "ams-reports-date",
       label: "Date",
@@ -209,6 +209,7 @@ function ReportsDataTable() {
       search: (prev) => ({
         ...prev,
         search: searchTerm,
+        page: "1",
       }),
       replace: true,
     });

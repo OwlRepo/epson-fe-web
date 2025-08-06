@@ -27,7 +27,7 @@ export const Route = createFileRoute(
   component: RouteComponent,
 });
 // table keys
-const EMPLOYEE_NO_TABLE_KEY = "employee_id";
+const EMPLOYEE_NO_TABLE_KEY = "employee_no";
 const EMPLOYEE_NAME_TABLE_KEY = "full_name";
 const EMPLOYEE_SECTION_TABLE_KEY = "section";
 const EMPLOYEE_CLOCKED_IN_TABLE_KEY = "clocked_in";
@@ -138,7 +138,7 @@ function RouteComponent() {
                 searchTerm={searchTerm}
                 onClearSearch={clearSearch}
                 onRowClick={(row) => {
-                  setEmployeeID(row.employee_id);
+                  setEmployeeID(row[EMPLOYEE_NO_TABLE_KEY]);
                   setIsOpen(true);
                 }}
                 columns={[
@@ -164,16 +164,16 @@ function RouteComponent() {
                   },
                 ]}
                 filters={[
-                  {
-                    key: EMPLOYEE_NO_TABLE_KEY,
-                    label: "ID",
-                    options: Array.from(
-                      new Set(liveData.map((item) => item.employee_id))
-                    ).map((item) => ({
-                      label: item,
-                      value: item,
-                    })),
-                  },
+                  // {
+                  //   key: EMPLOYEE_NO_TABLE_KEY,
+                  //   label: "ID",
+                  //   options: Array.from(
+                  //     new Set(liveData.map((item) => item.employee_id))
+                  //   ).map((item) => ({
+                  //     label: item,
+                  //     value: item,
+                  //   })),
+                  // },
                   {
                     key: EMPLOYEE_SECTION_TABLE_KEY,
                     label: "Section",
@@ -184,16 +184,16 @@ function RouteComponent() {
                       value: item,
                     })),
                   },
-                  {
-                    key: EMPLOYEE_NAME_TABLE_KEY,
-                    label: "Name",
-                    options: Array.from(
-                      new Set(liveData.map((item) => item.full_name))
-                    ).map((item) => ({
-                      label: item,
-                      value: item,
-                    })),
-                  },
+                  // {
+                  //   key: EMPLOYEE_NAME_TABLE_KEY,
+                  //   label: "Name",
+                  //   options: Array.from(
+                  //     new Set(liveData.map((item) => item.full_name))
+                  //   ).map((item) => ({
+                  //     label: item,
+                  //     value: item,
+                  //   })),
+                  // },
                   {
                     key: EMPLOYEE_CLOCKED_IN_TABLE_KEY,
                     label: "Time In",

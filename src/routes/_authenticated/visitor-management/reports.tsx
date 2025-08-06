@@ -96,26 +96,26 @@ function ReportsDataTable() {
   ];
 
   const filters = [
-    {
-      key: "VisitorID",
-      label: "ID",
-      options: Array.from(
-        new Set(reportList?.data.map((item: VisitorReport) => item.VisitorID))
-      ).map((item) => ({
-        label: item,
-        value: item,
-      })),
-    },
-    {
-      key: "Name",
-      label: "Name",
-      options: Array.from(
-        new Set(reportList?.data.map((item: VisitorReport) => item.Name))
-      ).map((item) => ({
-        label: item,
-        value: item,
-      })),
-    },
+    // {
+    //   key: "VisitorID",
+    //   label: "ID",
+    //   options: Array.from(
+    //     new Set(reportList?.data.map((item: VisitorReport) => item.VisitorID))
+    //   ).map((item) => ({
+    //     label: item,
+    //     value: item,
+    //   })),
+    // },
+    // {
+    //   key: "Name",
+    //   label: "Name",
+    //   options: Array.from(
+    //     new Set(reportList?.data.map((item: VisitorReport) => item.Name))
+    //   ).map((item) => ({
+    //     label: item,
+    //     value: item,
+    //   })),
+    // },
     {
       key: "vms_reports_date",
       label: "Date",
@@ -195,6 +195,7 @@ function ReportsDataTable() {
       search: (prev) => ({
         ...prev,
         search: searchTerm,
+        page: "1",
       }),
       replace: true,
     });

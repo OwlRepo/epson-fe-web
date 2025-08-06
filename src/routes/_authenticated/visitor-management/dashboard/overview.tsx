@@ -181,26 +181,26 @@ function RouteComponent() {
                   },
                 ]}
                 filters={[
-                  {
-                    key: "employee_id",
-                    label: "ID",
-                    options: Array.from(
-                      new Set(liveData.map((item) => item.ID))
-                    ).map((item) => ({
-                      label: item,
-                      value: item,
-                    })),
-                  },
-                  {
-                    key: "Name",
-                    label: "Name",
-                    options: Array.from(
-                      new Set(liveData.map((item) => item.Name))
-                    ).map((item) => ({
-                      label: item,
-                      value: item,
-                    })),
-                  },
+                  // {
+                  //   key: "employee_id",
+                  //   label: "ID",
+                  //   options: Array.from(
+                  //     new Set(liveData.map((item) => item.ID))
+                  //   ).map((item) => ({
+                  //     label: item,
+                  //     value: item,
+                  //   })),
+                  // },
+                  // {
+                  //   key: "Name",
+                  //   label: "Name",
+                  //   options: Array.from(
+                  //     new Set(liveData.map((item) => item.Name))
+                  //   ).map((item) => ({
+                  //     label: item,
+                  //     value: item,
+                  //   })),
+                  // },
                   {
                     key: "clocked_in",
                     label: "Checked In",

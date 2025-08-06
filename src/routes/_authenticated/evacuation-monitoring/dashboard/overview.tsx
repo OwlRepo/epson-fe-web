@@ -128,26 +128,26 @@ function RouteComponent() {
                   },
                 ]}
                 filters={[
-                  {
-                    key: "employee_id",
-                    label: "ID",
-                    options: Array.from(
-                      new Set(liveData.map((item) => item.employee_id))
-                    ).map((item) => ({
-                      label: item,
-                      value: item,
-                    })),
-                  },
-                  {
-                    key: "name",
-                    label: "Name",
-                    options: Array.from(
-                      new Set(liveData.map((item) => item.full_name))
-                    ).map((item) => ({
-                      label: item,
-                      value: item,
-                    })),
-                  },
+                  // {
+                  //   key: "employee_id",
+                  //   label: "ID",
+                  //   options: Array.from(
+                  //     new Set(liveData.map((item) => item.employee_id))
+                  //   ).map((item) => ({
+                  //     label: item,
+                  //     value: item,
+                  //   })),
+                  // },
+                  // {
+                  //   key: "name",
+                  //   label: "Name",
+                  //   options: Array.from(
+                  //     new Set(liveData.map((item) => item.full_name))
+                  //   ).map((item) => ({
+                  //     label: item,
+                  //     value: item,
+                  //   })),
+                  // },
                   {
                     key: "type",
                     label: "Type",

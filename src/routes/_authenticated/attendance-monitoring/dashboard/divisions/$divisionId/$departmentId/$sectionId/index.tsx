@@ -116,16 +116,16 @@ function RouteComponent() {
               },
             ]}
             filters={[
-              {
-                key: "employee_id",
-                label: "ID",
-                options: Array.from(
-                  new Set(data.map((item) => item.employee_id))
-                ).map((item) => ({
-                  label: item,
-                  value: item,
-                })),
-              },
+              // {
+              //   key: "employee_id",
+              //   label: "ID",
+              //   options: Array.from(
+              //     new Set(data.map((item) => item.employee_id))
+              //   ).map((item) => ({
+              //     label: item,
+              //     value: item,
+              //   })),
+              // },
               {
                 key: "section",
                 label: "Section",
@@ -136,16 +136,16 @@ function RouteComponent() {
                   value: item,
                 })),
               },
-              {
-                key: "name",
-                label: "Name",
-                options: Array.from(
-                  new Set(data.map((item) => item.full_name))
-                ).map((item) => ({
-                  label: item,
-                  value: item,
-                })),
-              },
+              // {
+              //   key: "name",
+              //   label: "Name",
+              //   options: Array.from(
+              //     new Set(data.map((item) => item.full_name))
+              //   ).map((item) => ({
+              //     label: item,
+              //     value: item,
+              //   })),
+              // },
               {
                 key: "clocked_in",
                 label: "Time In",
