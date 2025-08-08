@@ -18,7 +18,7 @@ import { useGetDepartmentList } from "@/hooks/query/useGetDepartmentList";
 export interface EmployeeReport {
   EmployeeNo: string;
   Name: string;
-  Department: string;
+  DepartmentName: string;
   LogDate: string | null;
   ClockedIN: string | null;
   ClockedOUT: string | null;
@@ -59,7 +59,7 @@ function ReportsDataTable() {
     if (Array.isArray(reportList?.data)) {
       const data = reportList?.data.map((item: EmployeeReport) => ({
         ...item,
-        Department: item?.Department || "UNKNOWN",
+        Department: item?.DepartmentName || "UNKNOWN",
         ClockedIN: item.ClockedIN
           ? dayjs(item.ClockedIN).format("YYYY-MM-DD hh:mm:ss A")
           : null,
