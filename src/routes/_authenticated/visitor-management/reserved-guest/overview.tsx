@@ -35,6 +35,32 @@ export const Route = createFileRoute(
 
 const tableId = "employee-table";
 
+// const mockVisitorData: VisitorData[] = [
+//   {
+//     ID: "V123456789",
+//     Name: "John Doe",
+//     HostPerson: "Jane Smith",
+//     ContactInformation: "+1-555-123-4567",
+//     Company: "Acme Corp",
+//     Purpose: "Business Meeting",
+//     Picture: "https://example.com/photos/johndoe.jpg",
+//     UHF: "UHF-ABCD1234",
+//     Date: new Date(),
+//     DateFrom: "2025-08-08T09:00:00Z",
+//     DateTo: "2025-08-08T17:00:00Z",
+//     Room: "Conference Room B",
+//     PlateNo: "XYZ-1234",
+//     Beverage: "Coffee",
+//     GuestType: {
+//       id: "guest-type-001",
+//       name: "Business Visitor",
+//     },
+//     CardStatus: "Expired",
+//     CardSurrendered: true,
+//     type: "check-in",
+//   },
+// ];
+
 export interface GuestType {
   id: number | string;
   name: string;
@@ -91,21 +117,7 @@ function RouteComponent() {
 
   useEffect(() => {
     if (Array.isArray(visitorList?.data) || Array.isArray(visitorList)) {
-      const visitorListData = visitorList?.data.map((item: VisitorData) => {
-        const { isExpired, expireSoon } = visitationDateChecker(item.DateTo);
-
-        return {
-          ...item,
-          Status: isExpired ? (
-            <p className="text-red-500">Expired</p>
-          ) : expireSoon ? (
-            <p className="text-[#A8A830]">Will Expire Soon</p>
-          ) : (
-            ""
-          ),
-        };
-      });
-      setData(visitorListData || []);
+      setData(visitorList.data || []);
       if (visitorList?.pagination) {
         setTotalPages(visitorList?.pagination?.totalPages ?? 10);
         setTotalItems(visitorList?.pagination?.totalItems ?? 10);

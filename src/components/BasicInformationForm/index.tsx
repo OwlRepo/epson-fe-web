@@ -38,6 +38,32 @@ interface BasicInformationFormProps {
   isSuccess?: boolean;
 }
 
+// const mockVisitorData: VisitorData = [
+//   {
+//     ID: "V123456789",
+//     Name: "John Doe",
+//     HostPerson: "Jane Smith",
+//     ContactInformation: "+1-555-123-4567",
+//     Company: "Acme Corp",
+//     Purpose: "Business Meeting",
+//     Picture: "https://example.com/photos/johndoe.jpg",
+//     UHF: "UHF-ABCD1234",
+//     Date: new Date(),
+//     DateFrom: "2025-08-08T09:00:00Z",
+//     DateTo: "2025-08-08T17:00:00Z",
+//     Room: "Conference Room B",
+//     PlateNo: "XYZ-1234",
+//     Beverage: "Coffee",
+//     GuestType: {
+//       id: "guest-type-001",
+//       name: "Business Visitor",
+//     },
+//     Status: "checked-in",
+//     CardSurrendered: true,
+//     type: "check-in",
+//   },
+// ];
+
 export interface VisitorData {
   ID?: string;
   Name: string;
@@ -57,6 +83,7 @@ export interface VisitorData {
     id: string;
     name: string;
   };
+  CardStatus?: string;
   Status?: string;
   CardSurrendered?: boolean;
   type?:
