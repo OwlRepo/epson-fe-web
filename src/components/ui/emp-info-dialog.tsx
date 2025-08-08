@@ -113,7 +113,7 @@ export default function EmpInfoDialog({
       if (UHFLength === data?.epc?.length) {
         setDeviceUHFValue(data?.epc ?? "");
         mutate({
-          employeeID: employee?.EmployeeID,
+          employeeNo: employee?.EmployeeNo,
           payload: { UHF: data?.epc },
         });
       } else {
@@ -132,7 +132,7 @@ export default function EmpInfoDialog({
     setIsUnlinking(true);
     setIsLinking(type);
     mutate({
-      employeeID: employee?.EmployeeID,
+      employeeNo: employee?.EmployeeNo,
       payload: { [type as keyof CardType]: "" },
     });
   };
@@ -205,7 +205,7 @@ export default function EmpInfoDialog({
     const triggerMutation = (type: Exclude<CardType, null>, value: string) => {
       if (!employee?.EmployeeID) return;
       mutate({
-        employeeID: employee.EmployeeID,
+        employeeNo: employee.EEmployeeNo,
         payload: { [type as string]: value },
       });
     };

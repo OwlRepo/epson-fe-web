@@ -2,14 +2,14 @@ import api from "@/config/axiosInstance";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 const saveEmployeeData = async ({
-  employeeID,
+  employeeNo,
   payload,
 }: {
-  employeeID?: string;
+  employeeNo?: string;
   payload: any;
 }) => {
   try {
-    const response = await api.put(`/api/employees/${employeeID}`, payload);
+    const response = await api.put(`/api/employees/${employeeNo}`, payload);
     return response.data;
   } catch (error) {
     console.error("Error saving employee data:", error);
@@ -27,7 +27,7 @@ export const useMutateEmployee = () => {
         queryKey: ["employees"],
       });
       queryClient.invalidateQueries({
-        queryKey: ["employee", payload.employeeID],
+        queryKey: ["employee", payload.employeeNo],
       });
       console.log("Employee data saved successfully:", data);
     },
