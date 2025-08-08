@@ -17,7 +17,6 @@ import { useGetVisitorsStatistics } from "@/hooks/query/useGetVisitorsStatistics
 import { useGetVisitorTypes } from "@/hooks/query/useGetVisitorTypes";
 import formatCountWithCommas from "@/utils/formatCountWithCommas";
 import { objToParams } from "@/utils/objToParams";
-import { visitationDateChecker } from "@/utils/visitationDateChecker";
 
 import {
   createFileRoute,
