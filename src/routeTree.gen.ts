@@ -31,7 +31,7 @@ import { Route as AuthenticatedAttendanceMonitoringReportsImport } from './route
 import { Route as AuthenticatedAttendanceMonitoringEmployeesImport } from './routes/_authenticated/attendance-monitoring/employees'
 import { Route as AuthenticatedEvacuationMonitoringCdeproIndexImport } from './routes/_authenticated/evacuation-monitoring/cdepro/index'
 import { Route as AuthenticatedVisitorManagementReservedGuestRegisterGuestImport } from './routes/_authenticated/visitor-management/reserved-guest/register-guest'
-import { Route as AuthenticatedVisitorManagementReservedGuestOverviewImport } from './routes/_authenticated/visitor-management/reserved-guest/overview'
+import { Route as AuthenticatedVisitorManagementReservedGuestGuestListImport } from './routes/_authenticated/visitor-management/reserved-guest/guest-list'
 import { Route as AuthenticatedVisitorManagementDashboardOverviewImport } from './routes/_authenticated/visitor-management/dashboard/overview'
 import { Route as AuthenticatedVisitorManagementDashboardCheckInVisitorImport } from './routes/_authenticated/visitor-management/dashboard/check-in-visitor'
 import { Route as AuthenticatedEvacuationMonitoringDashboardOverviewImport } from './routes/_authenticated/evacuation-monitoring/dashboard/overview'
@@ -186,10 +186,10 @@ const AuthenticatedVisitorManagementReservedGuestRegisterGuestRoute =
     getParentRoute: () => AuthenticatedVisitorManagementRouteRoute,
   } as any)
 
-const AuthenticatedVisitorManagementReservedGuestOverviewRoute =
-  AuthenticatedVisitorManagementReservedGuestOverviewImport.update({
-    id: '/reserved-guest/overview',
-    path: '/reserved-guest/overview',
+const AuthenticatedVisitorManagementReservedGuestGuestListRoute =
+  AuthenticatedVisitorManagementReservedGuestGuestListImport.update({
+    id: '/reserved-guest/guest-list',
+    path: '/reserved-guest/guest-list',
     getParentRoute: () => AuthenticatedVisitorManagementRouteRoute,
   } as any)
 
@@ -514,11 +514,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedVisitorManagementDashboardOverviewImport
       parentRoute: typeof AuthenticatedVisitorManagementRouteImport
     }
-    '/_authenticated/visitor-management/reserved-guest/overview': {
-      id: '/_authenticated/visitor-management/reserved-guest/overview'
-      path: '/reserved-guest/overview'
-      fullPath: '/visitor-management/reserved-guest/overview'
-      preLoaderRoute: typeof AuthenticatedVisitorManagementReservedGuestOverviewImport
+    '/_authenticated/visitor-management/reserved-guest/guest-list': {
+      id: '/_authenticated/visitor-management/reserved-guest/guest-list'
+      path: '/reserved-guest/guest-list'
+      fullPath: '/visitor-management/reserved-guest/guest-list'
+      preLoaderRoute: typeof AuthenticatedVisitorManagementReservedGuestGuestListImport
       parentRoute: typeof AuthenticatedVisitorManagementRouteImport
     }
     '/_authenticated/visitor-management/reserved-guest/register-guest': {
@@ -752,7 +752,7 @@ interface AuthenticatedVisitorManagementRouteRouteChildren {
   AuthenticatedVisitorManagementReportsRoute: typeof AuthenticatedVisitorManagementReportsRoute
   AuthenticatedVisitorManagementDashboardCheckInVisitorRoute: typeof AuthenticatedVisitorManagementDashboardCheckInVisitorRoute
   AuthenticatedVisitorManagementDashboardOverviewRoute: typeof AuthenticatedVisitorManagementDashboardOverviewRoute
-  AuthenticatedVisitorManagementReservedGuestOverviewRoute: typeof AuthenticatedVisitorManagementReservedGuestOverviewRoute
+  AuthenticatedVisitorManagementReservedGuestGuestListRoute: typeof AuthenticatedVisitorManagementReservedGuestGuestListRoute
   AuthenticatedVisitorManagementReservedGuestRegisterGuestRoute: typeof AuthenticatedVisitorManagementReservedGuestRegisterGuestRoute
 }
 
@@ -764,8 +764,8 @@ const AuthenticatedVisitorManagementRouteRouteChildren: AuthenticatedVisitorMana
       AuthenticatedVisitorManagementDashboardCheckInVisitorRoute,
     AuthenticatedVisitorManagementDashboardOverviewRoute:
       AuthenticatedVisitorManagementDashboardOverviewRoute,
-    AuthenticatedVisitorManagementReservedGuestOverviewRoute:
-      AuthenticatedVisitorManagementReservedGuestOverviewRoute,
+    AuthenticatedVisitorManagementReservedGuestGuestListRoute:
+      AuthenticatedVisitorManagementReservedGuestGuestListRoute,
     AuthenticatedVisitorManagementReservedGuestRegisterGuestRoute:
       AuthenticatedVisitorManagementReservedGuestRegisterGuestRoute,
   }
@@ -828,7 +828,7 @@ export interface FileRoutesByFullPath {
   '/evacuation-monitoring/dashboard/overview': typeof AuthenticatedEvacuationMonitoringDashboardOverviewRoute
   '/visitor-management/dashboard/check-in-visitor': typeof AuthenticatedVisitorManagementDashboardCheckInVisitorRoute
   '/visitor-management/dashboard/overview': typeof AuthenticatedVisitorManagementDashboardOverviewRoute
-  '/visitor-management/reserved-guest/overview': typeof AuthenticatedVisitorManagementReservedGuestOverviewRoute
+  '/visitor-management/reserved-guest/guest-list': typeof AuthenticatedVisitorManagementReservedGuestGuestListRoute
   '/visitor-management/reserved-guest/register-guest': typeof AuthenticatedVisitorManagementReservedGuestRegisterGuestRoute
   '/evacuation-monitoring/cdepro': typeof AuthenticatedEvacuationMonitoringCdeproIndexRoute
   '/attendance-monitoring/dashboard/divisions': typeof AuthenticatedAttendanceMonitoringDashboardDivisionsIndexRoute
@@ -871,7 +871,7 @@ export interface FileRoutesByTo {
   '/evacuation-monitoring/dashboard/overview': typeof AuthenticatedEvacuationMonitoringDashboardOverviewRoute
   '/visitor-management/dashboard/check-in-visitor': typeof AuthenticatedVisitorManagementDashboardCheckInVisitorRoute
   '/visitor-management/dashboard/overview': typeof AuthenticatedVisitorManagementDashboardOverviewRoute
-  '/visitor-management/reserved-guest/overview': typeof AuthenticatedVisitorManagementReservedGuestOverviewRoute
+  '/visitor-management/reserved-guest/guest-list': typeof AuthenticatedVisitorManagementReservedGuestGuestListRoute
   '/visitor-management/reserved-guest/register-guest': typeof AuthenticatedVisitorManagementReservedGuestRegisterGuestRoute
   '/evacuation-monitoring/cdepro': typeof AuthenticatedEvacuationMonitoringCdeproIndexRoute
   '/attendance-monitoring/dashboard/divisions': typeof AuthenticatedAttendanceMonitoringDashboardDivisionsIndexRoute
@@ -915,7 +915,7 @@ export interface FileRoutesById {
   '/_authenticated/evacuation-monitoring/dashboard/overview': typeof AuthenticatedEvacuationMonitoringDashboardOverviewRoute
   '/_authenticated/visitor-management/dashboard/check-in-visitor': typeof AuthenticatedVisitorManagementDashboardCheckInVisitorRoute
   '/_authenticated/visitor-management/dashboard/overview': typeof AuthenticatedVisitorManagementDashboardOverviewRoute
-  '/_authenticated/visitor-management/reserved-guest/overview': typeof AuthenticatedVisitorManagementReservedGuestOverviewRoute
+  '/_authenticated/visitor-management/reserved-guest/guest-list': typeof AuthenticatedVisitorManagementReservedGuestGuestListRoute
   '/_authenticated/visitor-management/reserved-guest/register-guest': typeof AuthenticatedVisitorManagementReservedGuestRegisterGuestRoute
   '/_authenticated/evacuation-monitoring/cdepro/': typeof AuthenticatedEvacuationMonitoringCdeproIndexRoute
   '/_authenticated/attendance-monitoring/dashboard/divisions/': typeof AuthenticatedAttendanceMonitoringDashboardDivisionsIndexRoute
@@ -960,7 +960,7 @@ export interface FileRouteTypes {
     | '/evacuation-monitoring/dashboard/overview'
     | '/visitor-management/dashboard/check-in-visitor'
     | '/visitor-management/dashboard/overview'
-    | '/visitor-management/reserved-guest/overview'
+    | '/visitor-management/reserved-guest/guest-list'
     | '/visitor-management/reserved-guest/register-guest'
     | '/evacuation-monitoring/cdepro'
     | '/attendance-monitoring/dashboard/divisions'
@@ -1002,7 +1002,7 @@ export interface FileRouteTypes {
     | '/evacuation-monitoring/dashboard/overview'
     | '/visitor-management/dashboard/check-in-visitor'
     | '/visitor-management/dashboard/overview'
-    | '/visitor-management/reserved-guest/overview'
+    | '/visitor-management/reserved-guest/guest-list'
     | '/visitor-management/reserved-guest/register-guest'
     | '/evacuation-monitoring/cdepro'
     | '/attendance-monitoring/dashboard/divisions'
@@ -1044,7 +1044,7 @@ export interface FileRouteTypes {
     | '/_authenticated/evacuation-monitoring/dashboard/overview'
     | '/_authenticated/visitor-management/dashboard/check-in-visitor'
     | '/_authenticated/visitor-management/dashboard/overview'
-    | '/_authenticated/visitor-management/reserved-guest/overview'
+    | '/_authenticated/visitor-management/reserved-guest/guest-list'
     | '/_authenticated/visitor-management/reserved-guest/register-guest'
     | '/_authenticated/evacuation-monitoring/cdepro/'
     | '/_authenticated/attendance-monitoring/dashboard/divisions/'
@@ -1182,7 +1182,7 @@ export const routeTree = rootRoute
         "/_authenticated/visitor-management/reports",
         "/_authenticated/visitor-management/dashboard/check-in-visitor",
         "/_authenticated/visitor-management/dashboard/overview",
-        "/_authenticated/visitor-management/reserved-guest/overview",
+        "/_authenticated/visitor-management/reserved-guest/guest-list",
         "/_authenticated/visitor-management/reserved-guest/register-guest"
       ]
     },
@@ -1234,8 +1234,8 @@ export const routeTree = rootRoute
       "filePath": "_authenticated/visitor-management/dashboard/overview.tsx",
       "parent": "/_authenticated/visitor-management"
     },
-    "/_authenticated/visitor-management/reserved-guest/overview": {
-      "filePath": "_authenticated/visitor-management/reserved-guest/overview.tsx",
+    "/_authenticated/visitor-management/reserved-guest/guest-list": {
+      "filePath": "_authenticated/visitor-management/reserved-guest/guest-list.tsx",
       "parent": "/_authenticated/visitor-management"
     },
     "/_authenticated/visitor-management/reserved-guest/register-guest": {

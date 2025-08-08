@@ -51,8 +51,8 @@ export function VisitorManagementLayout({
       href: "/visitor-management/reserved-guest",
       subItems: [
         {
-          label: "Overview",
-          href: "/visitor-management/reserved-guest/overview",
+          label: "Guest List",
+          href: "/visitor-management/reserved-guest/guest-list",
         },
         {
           label: "Register Guest",

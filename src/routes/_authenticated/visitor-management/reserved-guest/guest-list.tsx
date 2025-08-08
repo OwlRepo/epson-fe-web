@@ -27,7 +27,7 @@ import { Star } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export const Route = createFileRoute(
-  "/_authenticated/visitor-management/reserved-guest/overview"
+  "/_authenticated/visitor-management/reserved-guest/guest-list"
 )({
   component: RouteComponent,
 });
@@ -82,10 +82,10 @@ const columns: Column[] = [
 
 function RouteComponent() {
   const search = useSearch({
-    from: "/_authenticated/visitor-management/reserved-guest/overview",
+    from: "/_authenticated/visitor-management/reserved-guest/guest-list",
   });
   const navigate = useNavigate({
-    from: "/visitor-management/reserved-guest/overview",
+    from: "/visitor-management/reserved-guest/guest-list",
   });
   const [data, setData] = useState<VisitorData[]>([]);
   const [totalPages, setTotalPages] = useState(10);
