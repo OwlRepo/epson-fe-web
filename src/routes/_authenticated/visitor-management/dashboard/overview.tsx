@@ -150,11 +150,7 @@ function RouteComponent() {
                   className="data-[state=checked]:bg-primary-evs"
                   checked={flaggedRecords}
                   onCheckedChange={setFlaggedRecords}
-                  disabled={
-                    !isLiveDataConnected ||
-                    isLiveDataLoading ||
-                    !liveData.length
-                  }
+                  disabled={!isLiveDataConnected || isLiveDataLoading}
                 />
               </div>
             )
