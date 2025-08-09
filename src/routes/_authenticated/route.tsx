@@ -11,7 +11,6 @@ export const Route = createFileRoute("/_authenticated")({
       localStorage.clear();
       throw redirect({ to: "/", search: { redirect: location.href } });
     }
-    console.log("location.pathname", location.pathname);
   },
 });
 
