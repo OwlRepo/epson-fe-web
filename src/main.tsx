@@ -12,7 +12,7 @@ import reportWebVitals from "./reportWebVitals.ts";
 const router = createRouter({
   routeTree,
   context: {},
-  defaultPreload: "intent",
+  defaultPreload: false,
   scrollRestoration: true,
   defaultStructuralSharing: true,
   defaultPreloadStaleTime: 0,
