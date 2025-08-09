@@ -99,7 +99,7 @@ function ReportsDataTable() {
   const columns = [
     { key: "EmployeeNo", label: "EMPLOYEE NO." },
     { key: "Name", label: "Name" },
-    { key: "Department", label: "Department" },
+    { key: "DepartmentName", label: "Department" },
     { key: "ClockedIN", label: "Time In" },
     { key: "ClockedOUT", label: "Time Out" },
   ];
