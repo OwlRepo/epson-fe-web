@@ -52,12 +52,8 @@ function ReportsDataTable() {
     if (Array.isArray(reportList?.data)) {
       const data = reportList?.data.map((item: VisitorReport) => ({
         ...item,
-        CheckedIn: item.CheckedIn
-          ? dayjs(item.CheckedIn).format("YYYY-MM-DD hh:mm:ss A")
-          : null,
-        CheckedOut: item.CheckedOut
-          ? dayjs(item.CheckedOut).format("YYYY-MM-DD hh:mm:ss A")
-          : null,
+        CheckedIn: item.CheckedIn,
+        CheckedOut: item.CheckedOut,
       }));
       setData(data);
       setTotalPages(reportList?.pagination?.totalPages ?? 10);
