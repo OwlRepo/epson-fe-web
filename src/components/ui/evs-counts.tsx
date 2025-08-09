@@ -26,9 +26,7 @@ export default function EVSCounts(props: EVSCountsProps) {
           <Users className="w-3.5 h-3.5 text-white bg-gray-500 rounded-full p-[2px]" />
         ),
         label: "Overall",
-        count: countData?.all
-          ? parseInt(formatCountWithCommas(countData.all))
-          : 0,
+        count: countData?.all ? formatCountWithCommas(countData.all) : 0,
         bgColor: "bg-gray-50",
         textColor: "text-gray-700",
         borderColor: "border-gray-200",
@@ -47,7 +45,7 @@ export default function EVSCounts(props: EVSCountsProps) {
         icon: <InjuredIcon className="w-3.5 h-3.5" />,
         label: "Injured",
         count: countData?.injured
-          ? parseInt(formatCountWithCommas(countData.injured))
+          ? formatCountWithCommas(countData.injured)
           : 0,
         bgColor: "bg-amber-50",
         textColor: "text-amber-700",
@@ -56,9 +54,7 @@ export default function EVSCounts(props: EVSCountsProps) {
       {
         icon: <HomeIcon className="w-3.5 h-3.5" />,
         label: "Go Home",
-        count: countData?.home
-          ? parseInt(formatCountWithCommas(countData.home))
-          : 0,
+        count: countData?.home ? formatCountWithCommas(countData.home) : 0,
         bgColor: "bg-blue-50",
         textColor: "text-blue-700",
         borderColor: "border-blue-200",
@@ -67,7 +63,7 @@ export default function EVSCounts(props: EVSCountsProps) {
         icon: <InPremisesEvsIcon className="w-3.5 h-3.5" />,
         label: "Missing",
         count: countData?.missing
-          ? parseInt(formatCountWithCommas(countData.missing))
+          ? formatCountWithCommas(countData.missing)
           : 0,
         bgColor: "bg-red-50",
         textColor: "text-red-700",
@@ -100,11 +96,7 @@ export default function EVSCounts(props: EVSCountsProps) {
       <CardSection headerLeft={<CardHeaderLeft />}>
         <div className="flex flex-col lg:flex-row justify-between gap-4">
           <AttendanceCountCard
-            count={
-              countData?.safe
-                ? parseInt(formatCountWithCommas(countData.safe))
-                : 0
-            }
+            count={countData?.safe ? formatCountWithCommas(countData.safe) : 0}
             icon={<EvacuatedIcon />}
             subtitle="Safe"
             variant="success"
@@ -112,9 +104,7 @@ export default function EVSCounts(props: EVSCountsProps) {
 
           <AttendanceCountCard
             count={
-              countData?.injured
-                ? parseInt(formatCountWithCommas(countData.injured))
-                : 0
+              countData?.injured ? formatCountWithCommas(countData.injured) : 0
             }
             icon={<InjuredIcon />}
             subtitle="Injured"
@@ -122,20 +112,14 @@ export default function EVSCounts(props: EVSCountsProps) {
           />
 
           <AttendanceCountCard
-            count={
-              countData?.injured
-                ? parseInt(formatCountWithCommas(countData.home))
-                : 0
-            }
+            count={countData?.home ? formatCountWithCommas(countData.home) : 0}
             icon={<HomeIcon />}
             subtitle="Home"
             variant="info"
           />
           <AttendanceCountCard
             count={
-              countData?.missing
-                ? parseInt(formatCountWithCommas(countData.missing))
-                : 0
+              countData?.missing ? formatCountWithCommas(countData?.missing) : 0
             }
             icon={<InPremisesEvsIcon />}
             subtitle="Missing"

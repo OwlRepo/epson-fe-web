@@ -186,13 +186,13 @@ function RouteComponent() {
                       full_name,
                       user_type,
                       eva_status,
-                      evacuation_time,
+                      log_time,
                     } = employeeData;
                     return {
                       employee_id: employee_id,
                       name: full_name,
                       type: user_type,
-                      date_time: evacuation_time,
+                      date_time: log_time,
                       status: eva_status,
                     };
                   })
