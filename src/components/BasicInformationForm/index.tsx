@@ -25,6 +25,7 @@ import { AsyncAutoComplete } from "../inputs/AsyncAutoComplete";
 import { LinkCardInput } from "../inputs/LinkCardInput";
 import { visitationDateChecker } from "@/utils/visitationDateChecker";
 import { faker } from "@faker-js/faker";
+import { ConfirmationDialog } from "../dialogs/ConfirmationDialog";
 
 interface BasicInformationFormProps {
   onUnlinkSubmit?: () => void;
@@ -255,6 +256,14 @@ const BasicInfromationForm = forwardRef(
       }
     };
 
+    //confirmation dialog for surrendering card
+    const [openConfirmationDialog, setOpenConfirmationDialog] = useState(false);
+
+    const handleCardSurrender = () => {
+      handleSubmit((data) => onSubmitData?.({ ...data, type: "check-out" }))();
+      setOpenConfirmationDialog(false);
+    };
+
     return (
       <>
         <div className="grid grid-cols-4 gap-2 grid-rows-[auto_1fr] h-full">
@@ -481,9 +490,7 @@ const BasicInfromationForm = forwardRef(
               <>
                 <Button
                   className="bg-red-600 hover:bg-red-400"
-                  onClick={handleSubmit((data) =>
-                    onSubmitData?.({ ...data, type: "check-out" })
-                  )}
+                  onClick={() => setOpenConfirmationDialog(true)}
                 >
                   Card Surrender
                 </Button>
@@ -553,6 +560,13 @@ const BasicInfromationForm = forwardRef(
             </Button>
           </DialogContent>
         </Dialog>
+        <ConfirmationDialog
+          onConfirm={handleCardSurrender}
+          onOpenChange={setOpenConfirmationDialog}
+          open={openConfirmationDialog}
+          Title="Card Surrender"
+          Description="Are you sure you want to surrender this card? This action cannot be undone."
+        />
       </>
     );
   }
