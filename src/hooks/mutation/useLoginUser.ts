@@ -3,7 +3,7 @@ import { z } from "zod";
 import api from "@/config/axiosInstance";
 import { useMutation } from "@tanstack/react-query";
 import useToastStyleTheme from "../useToastStyleTheme";
-import { useRouter } from "@tanstack/react-router";
+import { useRouter, useSearch } from "@tanstack/react-router";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address").min(1, "Email is required"),
@@ -22,6 +22,7 @@ const loginUser = async (data: LoginFormData) => {
 
 export default function useLoginUser() {
   const router = useRouter();
+  const search = useSearch({ from: "/" });
   const { successStyle, errorStyle } = useToastStyleTheme();
   const loginResponse = useMutation({
     mutationFn: loginUser,
@@ -34,7 +35,7 @@ export default function useLoginUser() {
       });
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
-      router.navigate({ to: "/modules" });
+      router.navigate({ to: search.redirect || "/modules" });
     },
     onError: (error: any) => {
       const errorMessage =
