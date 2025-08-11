@@ -20,8 +20,19 @@ export interface ConfirmationDialogProps {
 export function ConfirmationDialog(props: ConfirmationDialogProps) {
   const { open, onOpenChange, onConfirm, Title, Description } = props;
 
+  const handleOpenChange = (openState: boolean) => {
+    onOpenChange(openState);
+
+    if (!openState) {
+      // dialog is closing — clean stuck pointer-events manually if needed
+      setTimeout(() => {
+        document.body.style.pointerEvents = "";
+      }, 200);
+    }
+  };
+
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
+    <AlertDialog open={open} onOpenChange={handleOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{Title}</AlertDialogTitle>
