@@ -272,7 +272,7 @@ const BasicInfromationForm = forwardRef(
             value={watch("Picture")}
           />
 
-          <div className="bg-white col-span-3 p-4 rounded-lg shadow-md overflow-hidden flex flex-col">
+          <div className="bg-white col-span-3 p-4 rounded-lg shadow-md overflow-auto flex flex-col">
             <p className="font-bold flex gap-2 text-[#1a2b4b]">
               Basic Information
             </p>
