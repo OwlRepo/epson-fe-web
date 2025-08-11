@@ -194,7 +194,10 @@ const BasicInfromationForm = forwardRef(
           if (isReadOnly) {
             linkNewCard(data?.epc ?? "");
           } else {
-            setValue("UHF", data?.epc ?? "", { shouldValidate: true });
+            setValue("UHF", data?.epc ?? "", {
+              shouldValidate: true,
+              shouldDirty: true,
+            });
 
             toast.success("RFID card was read successfully.", {
               description: "Please tap your card on the reader.",
