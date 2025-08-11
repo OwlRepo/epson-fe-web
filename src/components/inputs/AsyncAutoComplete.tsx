@@ -20,6 +20,8 @@ import { Button } from "@/components/ui/button";
 type Option = {
   label: string;
   value: string;
+  email: string;
+  id: string;
 };
 
 type AutoCompleteProps = {
@@ -119,7 +121,10 @@ export const AsyncAutoComplete = ({
                         setOpen(false);
                       }}
                     >
-                      {item.label}
+                      <div className="flex flex-col space-y-1">
+                        <p>{item.label}</p>
+                        <p className="text-xs text-gray-500">{item.email}</p>
+                      </div>
                       <Check
                         className={cn(
                           "ml-auto",

@@ -10,6 +10,7 @@ const getHostPerson = async (hostPerson: string) => {
     return response.data.data.map((item: any) => ({
       value: item.HOSTPERSON,
       label: item.HOSTPERSON,
+      email: item.EmailAddress,
       id: item.EmployeeID,
     }));
   } catch (error) {
