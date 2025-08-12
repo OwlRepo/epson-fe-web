@@ -35,6 +35,7 @@ type AutoCompleteProps = {
   register: any;
   errors: any;
   withID?: boolean;
+  withEmployeeNo?: boolean;
   queryHook: (search: string) => {
     data: Option[] | undefined;
     isLoading: boolean;
@@ -53,6 +54,7 @@ export const AsyncAutoComplete = ({
   errors,
   queryHook,
   withID = false,
+  withEmployeeNo = false,
 }: AutoCompleteProps) => {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
@@ -118,6 +120,12 @@ export const AsyncAutoComplete = ({
                             shouldValidate: true,
                             shouldDirty: true,
                           });
+                        if (withEmployeeNo) {
+                          setValue("EmployeeNo", item.employeeNo, {
+                            shouldValidate: true,
+                            shouldDirty: true,
+                          });
+                        }
                         setOpen(false);
                       }}
                     >

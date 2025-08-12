@@ -1,4 +1,4 @@
-import type { DialogProps } from "@radix-ui/react-dialog";
+import { DialogOverlay, type DialogProps } from "@radix-ui/react-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 
 import { useGetHostPerson } from "@/hooks/query/useGeHostPersonList";
@@ -8,12 +8,14 @@ import TextInput from "../inputs/TextInput";
 import { AutoComplete } from "../inputs/AutoComplete";
 import { LinkCardInput, type CardType } from "../inputs/LinkCardInput";
 import useToastStyleTheme from "@/hooks/useToastStyleTheme";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import usePortStore from "@/store/usePortStore";
-import { useCardLinkingListener } from "@/hooks/useCardLinkingListener";
 import { getEMLength, getMIFARELength, getUHFLength } from "@/utils/env";
-import { useMutateEmployee } from "@/hooks/mutation/useMutateEmployee";
 import { Button } from "../ui/button";
+import { toast } from "sonner";
+import { readRFIDData } from "@/utils/rfidReaderCommand";
+import { useGetDepartmentList } from "@/hooks/query/useGetDepartmentList";
+import { useGetEmployeeByNo } from "@/hooks/query/useGetEmployeeById";
 
 interface AssignPersonnelDialogProps extends DialogProps {
   assignedPersonnel?: any;
@@ -30,44 +32,162 @@ const AssignPersonnelDialog = ({
   assignedPersonnel,
 }: AssignPersonnelDialogProps) => {
   const form = useForm();
-  const {
-    register,
+  const { register, reset, formState, setValue, watch } = form;
 
-    formState,
-    setValue,
-    watch,
-  } = form;
+  const { errorStyle, infoStyle } = useToastStyleTheme();
 
-  const { errorStyle } = useToastStyleTheme();
-  const [deviceUHFValue, setDeviceUHFValue] = useState("");
-  const [deviceMIFAREValue, setDeviceMIFAREValue] = useState("");
-  const [deviceEMValue, setDeviceEMValue] = useState("");
   const [isUHFLinking, setIsUHFLinking] = useState(false);
   const [isLinking, setIsLinking] = useState<CardType>(null);
-  const { port } = usePortStore((store) => store);
+  const { port, setPort } = usePortStore((store) => store);
 
-  const { mutate } = useMutateEmployee();
+  const { data: departmentList } = useGetDepartmentList();
+
+  const { data: employee } = useGetEmployeeByNo(watch("EmployeeNo") ?? "");
+
+  useEffect(() => {
+    if (employee) {
+      setValue("FirstName", employee.FirstName);
+      setValue("LastName", employee.LastName);
+      setValue("EmailAddress", employee.EmailAddress);
+      setValue("ContactNo", employee.ContactNo);
+      setValue("Department", employee.DepartmentName);
+    }
+  }, [employee, setValue]);
 
   const mifareRef = useRef<HTMLInputElement>(null);
   const emRef = useRef<HTMLInputElement>(null);
 
-  useCardLinkingListener({
-    isOpen: open,
-    isLinking,
-    setIsLinking,
-    UHFLength,
-    EMLength,
-    MIFARELength,
-    employee: assignedPersonnel,
-    setDeviceUHFValue,
-    setDeviceEMValue,
-    setDeviceMIFAREValue,
-    mutate,
-    errorStyle,
-  });
+  const handleLinkCard = async () => {
+    try {
+      let portToUse = port;
+
+      if (!portToUse) {
+        const newPort = await navigator.serial.requestPort();
+        await newPort.open({ baudRate: 57600 });
+        setPort(newPort);
+        portToUse = newPort;
+      }
+
+      await linkCard(portToUse);
+    } catch (error) {
+      console.error("Failed to link card:", error);
+    }
+  };
+
+  const linkCard = async (newPort: any) => {
+    if (!newPort) return;
+    toast.info("Almost here - Tap your card", {
+      description: "Please tap your card on the reader.",
+      style: infoStyle,
+    });
+    try {
+      console.log("card is linking");
+      setIsLinking("UHF");
+      const data = await readRFIDData(newPort);
+
+      if (UHFLength === data?.epc?.length) {
+        setValue("UHF", data?.epc ?? "");
+      } else {
+        toast.error("Oops! Card is not valid", {
+          description: "Please make sure your card is valid and try again.",
+          className: "bg-red-50 border-red-200 text-black",
+          style: errorStyle,
+        });
+      }
+    } catch (error) {
+      console.error("Error reading RFID data:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (!open) return;
+
+    let buffer = "";
+    let timeout: ReturnType<typeof setTimeout> | null = null;
+
+    const resetLinkingState = () => {
+      setIsLinking(null);
+      buffer = "";
+    };
+
+    const handleLastKeyPress = () => {
+      let showedError = false;
+
+      switch (isLinking) {
+        case "UHF": {
+          if (buffer.length === UHFLength) {
+            setValue("UHF", buffer);
+            setIsLinking(null);
+          } else {
+            showedError = true;
+          }
+          break;
+        }
+
+        case "EM": {
+          if (buffer.length === EMLength) {
+            setValue("EM", buffer);
+            setIsLinking(null);
+          } else {
+            showedError = true;
+          }
+          break;
+        }
+        case "MIFARE": {
+          if (buffer.length === MIFARELength) {
+            setValue("MIFARE", buffer);
+            setIsLinking(null);
+          } else {
+            showedError = true;
+          }
+          break;
+        }
+      }
+
+      if (showedError) {
+        toast.error("Oops! Card is not valid", {
+          description: "Please make sure your card is valid and try again.",
+          className: "bg-red-50 border-red-200 text-black",
+          style: errorStyle,
+        });
+      }
+
+      resetLinkingState();
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!isLinking) return;
+
+      if (timeout) clearTimeout(timeout);
+
+      if (e.key.length > 1 && e.key !== "Enter") return;
+
+      if (e.key === "Enter") {
+        handleLastKeyPress();
+        resetLinkingState();
+        buffer = "";
+      } else {
+        buffer += e.key;
+        timeout = setTimeout(() => {
+          handleLastKeyPress();
+          resetLinkingState();
+          buffer = "";
+        }, 500);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      if (timeout) clearTimeout(timeout);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [open, isLinking, UHFLength, EMLength, MIFARELength, assignedPersonnel]);
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange} modal={false}>
+      {/* Manual backdrop */}
+      {open && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 pointer-events-none"></div>
+      )}
       <DialogContent className="sm:max-w-[600px] p-8 bg-white rounded-lg shadow-xl">
         <DialogHeader className="flex flex-row justify-between items-center mb-6">
           <DialogTitle className="text-xl font-semibold text-gray-800">
@@ -84,6 +204,7 @@ const AssignPersonnelDialog = ({
             register={register}
             errors={formState?.errors}
             queryHook={useGetHostPerson}
+            withEmployeeNo
           />
           <Divider />
 
@@ -129,17 +250,13 @@ const AssignPersonnelDialog = ({
 
             <AutoComplete
               label="Department"
-              name={"GuestType"}
+              name={"Department"}
               id="employee-type"
               setValue={setValue}
               watch={watch}
               register={register}
               errors={formState?.errors}
-              list={[
-                { label: "IT", value: "IT" },
-                { label: "HR", value: "HR" },
-                { label: "Finance", value: "Finance" },
-              ]}
+              list={departmentList ?? []}
             />
 
             <TextInput
@@ -160,42 +277,55 @@ const AssignPersonnelDialog = ({
             <LinkCardInput
               label="UHF Card"
               variant={"evacuation"}
-              value={assignedPersonnel?.UHF || deviceUHFValue}
+              value={watch("UHF")}
               isLinking={isUHFLinking}
               isDeviceConnected={!!port}
-              // onLinkCard={handleLinkCard}
+              onLinkCard={handleLinkCard}
               onStopReading={() => setIsUHFLinking(false)}
+              onUnlinkCard={() => setValue("UHF", "")}
             />
 
             <LinkCardInput
               ref={mifareRef}
               label="MIFARE Card"
               variant={"evacuation"}
-              value={assignedPersonnel?.MIFARE || deviceMIFAREValue}
+              value={watch("MIFARE")}
               onLinkCard={() => {
                 setIsLinking("MIFARE");
                 mifareRef.current?.focus();
               }}
               isLinking={isLinking === "MIFARE"}
               onStopReading={() => setIsLinking(null)}
+              onUnlinkCard={() => setValue("MIFARE", "")}
             />
             <LinkCardInput
               ref={emRef}
               label="EM Card"
               variant={"evacuation"}
-              value={assignedPersonnel?.EM || deviceEMValue}
+              value={watch("EM")}
               onLinkCard={() => {
                 setIsLinking("EM");
                 emRef.current?.focus();
               }}
               isLinking={isLinking === "EM"}
               onStopReading={() => setIsLinking(null)}
+              onUnlinkCard={() => setValue("EM", "")}
             />
           </div>
 
           <Divider />
           <div className="flex justify-end items-center mt-6 gap-4">
-            <Button variant={"outline"}>Clear Data</Button>
+            <Button
+              variant={"outline"}
+              onClick={() => {
+                reset();
+                setValue("UHF", "");
+                setValue("MIFARE", "");
+                setValue("EM", "");
+              }}
+            >
+              Clear Data
+            </Button>
             <Button
               variant={"evacuation"}
               className=" text-white px-4 py-2 rounded text-sm font-semibold"

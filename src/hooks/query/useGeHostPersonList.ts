@@ -12,6 +12,7 @@ const getHostPerson = async (hostPerson: string) => {
       label: item.HOSTPERSON,
       email: item.EmailAddress,
       id: item.EmployeeID,
+      employeeNo: item.EmployeeNo,
     }));
   } catch (error) {
     console.error("Error fetching host person data:", error);
