@@ -14,6 +14,8 @@ import { objToParams } from "@/utils/objToParams";
 import { unparse } from "papaparse";
 import dayjs from "dayjs";
 import { useGetDepartmentList } from "@/hooks/query/useGetDepartmentList";
+import EVSCounts from "@/components/ui/evs-counts";
+import AssignPersonnelDialog from "@/components/dialogs/AssignPersonnelDialog";
 
 export interface EmployeeReport {
   EmployeeNo: string;
@@ -97,10 +99,44 @@ function ReportsDataTable() {
   const columns = [
     { key: "EmployeeNo", label: "EMPLOYEE NO." },
     { key: "Name", label: "Name" },
-    { key: "Department", label: "Department" },
-    { key: "ClockedIN", label: "Clocked In" },
-    { key: "ClockedOUT", label: "Clocked Out" },
+    { key: "Type", label: "Type" },
+    { key: "Status", label: "Status" },
+    { key: "EvacuationTime", label: "Evacution Time" },
   ];
+
+  // const mockedData = {
+  //   Overall: 100,
+  //   Safe: 80,
+  //   Injured: 15,
+  //   GoHome: 5,
+  //   Missing: 0,
+  //   data: [
+  //     {
+  //       EmployeeNo: "001",
+  //       Name: "John Doe",
+  //       Type: "Staff",
+  //       Status: "Safe",
+  //       EvacuationTime: "10:15:00 AM",
+  //     },
+  //     {
+  //       EmployeeNo: "002",
+  //       Name: "Jane Smith",
+  //       Type: "Staff",
+  //       Status: "Injured",
+  //       EvacuationTime: "10:20:00 AM",
+  //     },
+  //     {
+  //       EmployeeNo: "003",
+  //       Name: "Alice Johnson",
+  //       Type: "Visitor",
+  //       Status: "Go Home",
+  //       EvacuationTime: "10:25:00 AM",
+  //     },
+  //   ],
+  //   pageSize: 10,
+  //   totalItems: 3,
+  //   totalPages: 1,
+  // };
 
   const filters = [
     {
@@ -190,7 +226,9 @@ function ReportsDataTable() {
 
   return (
     <div>
-      {/* Render the table with multi-select enabled */}
+      <div className="mt-2 mb-4">
+        <EVSCounts countData={{}} type="compact" />
+      </div>
       <DynamicTable
         columns={columns}
         data={data ? data : []}
