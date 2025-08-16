@@ -28,24 +28,74 @@ bun install
 bun run start
 ```
 
-The application will be available at http://localhost:3000
+The application will be available at <http://localhost:3000>
 
 ## 📋 Available Scripts
+
+### 🔧 Development Scripts
 
 | Command | Description |
 |---------|-------------|
 | `bun run start` | Start development server |
 | `bun run build` | Build for production (uses .env.production) |
 | `bun run preview` | Preview production build |
+| `bun run setup-env` | Setup development environment variables |
+| `bun run setup-env:prod` | Setup production environment variables |
+
+### 🧪 Testing Scripts
+
+| Command | Description |
+|---------|-------------|
 | `bun run test` | Run tests |
 | `bun run test:watch` | Run tests in watch mode |
 | `bun run test:coverage` | Run tests with coverage |
-| `bun run setup-env` | Setup development environment variables |
-| `bun run setup-env:prod` | Setup production environment variables |
+
+### 🎨 Code Quality Scripts
+
+| Command | Description |
+|---------|-------------|
 | `bun run lint` | Run ESLint |
 | `bun run format` | Format code with Prettier |
 
+### 🚀 Deployment Scripts
+
+| Command | Description |
+|---------|-------------|
+| `bun run deploy:both` | 🎯 Deploy both Main and EVS applications |
+| `bun run deploy:main` | 📱 Deploy Main application only |
+| `bun run deploy:evs` | 🚨 Deploy EVS application only |
+| `bun run down:all` | ⏹️ Stop all running applications |
+
+### 📦 Docker Export Scripts
+
+| Command | Description |
+|---------|-------------|
+| `bun run docker:tar:both` | 📦 Export both Main and EVS apps to tar file |
+| `bun run docker:tar:main` | 📱 Export Main application only to tar file |
+| `bun run docker:tar:evs` | 🚨 Export EVS application only to tar file |
+
+### 🐳 Legacy Docker Scripts
+
+| Command | Description |
+|---------|-------------|
+| `bun run docker:build:up` | Build and start single container |
+| `bun run docker:up` | Start single container |
+| `bun run docker:down` | Stop single container |
+| `bun run docker:logs` | View container logs |
+| `bun run docker:tar` | Export single container to tar (legacy) |
+| `bun run docker:clean` | Remove container, volumes, and images |
+
 ## 🔧 Environment Setup
+
+### 📁 Environment File Structure
+
+```
+epson-fe-web/
+├── src/envs/
+│   ├── .env.development     # 🔧 Development variables
+│   └── .env.production      # 🏭 Production variables
+└── .env                    # 🔄 Auto-generated from src/envs/ (don't edit)
+```
 
 ### Development Environment
 
@@ -54,6 +104,23 @@ Development environment variables are stored in `src/envs/.env.development`. Whe
 ### Production Environment
 
 Production environment variables are stored in `src/envs/.env.production`. When you build the application with `bun run build`, these variables are automatically copied to the root `.env` file.
+
+### 🐳 Docker Deployment Environment
+
+For Docker deployments, the system uses the automatically generated `.env` file and overrides the `VITE_IS_EVS` variable at runtime:
+
+#### How It Works
+
+- **Main App**: Uses `.env` + `VITE_IS_EVS=false` (runtime override)
+- **EVS App**: Uses `.env` + `VITE_IS_EVS=true` (runtime override)
+
+#### Configuration
+
+| Component | Main App | EVS App | Source |
+|-----------|----------|---------|--------|
+| Base variables | ✅ `.env` | ✅ `.env` | Auto-generated from `src/envs/.env.production` |
+| `VITE_IS_EVS` | `false` | `true` | Runtime override in docker-compose.yml |
+| Socket endpoint | Uses `VITE_API_SOCKET_URL` | Uses `VITE_API_SOCKET_EVS_URL` | Based on `VITE_IS_EVS` value |
 
 ### Adding Environment Variables
 
@@ -124,6 +191,7 @@ export const getApiBaseUrl = () => getEnvVar("VITE_SOCKET_BASE_URL");
 ```
 
 Using this utility provides several advantages:
+
 - Centralized access to environment variables
 - Default fallback values to prevent undefined errors
 - Type safety through specific getter functions
@@ -184,15 +252,71 @@ interface ImportMetaEnv {
 ## 📁 Project Structure
 
 ```
-src/
-├── components/    # UI components
-├── routes/        # TanStack Router routes
-├── store/         # Zustand state management
-├── hooks/         # Custom React hooks
-├── lib/           # Utility libraries
-├── assets/        # Static assets (images, SVGs)
-├── envs/          # Environment variables
-└── main.tsx       # Application entry point
+epson-fe-web/
+├── 📂 src/
+│   ├── 📂 components/     # 🧩 UI components
+│   │   ├── 📂 ui/         # 🎨 shadcn/ui components
+│   │   ├── 📂 dialogs/    # 💬 Modal dialogs
+│   │   ├── 📂 inputs/     # 📝 Form inputs
+│   │   └── 📂 layouts/    # 🏗️ Page layouts
+│   ├── 📂 routes/         # 🧭 TanStack Router routes
+│   │   ├── 📂 _authenticated/  # 🔐 Protected routes
+│   │   │   ├── 📂 attendance-monitoring/
+│   │   │   ├── 📂 device-management/
+│   │   │   ├── 📂 evacuation-monitoring/
+│   │   │   ├── 📂 user-management/
+│   │   │   └── 📂 visitor-management/
+│   │   └── __root.tsx     # 🌳 Root layout
+│   ├── 📂 store/          # 🗄️ Zustand state management
+│   ├── 📂 hooks/          # 🪝 Custom React hooks
+│   │   ├── 📂 query/      # 📊 TanStack Query hooks
+│   │   └── 📂 mutation/   # ✏️ Mutation hooks
+│   ├── 📂 lib/            # 🛠️ Utility libraries
+│   ├── 📂 assets/         # 🖼️ Static assets
+│   │   ├── 📂 images/     # 🖼️ Images
+│   │   └── 📂 svgs/       # 🎨 SVG icons
+│   ├── 📂 envs/           # 🌍 Environment variables
+│   │   ├── .env.development
+│   │   └── .env.production
+│   ├── 📂 utils/          # 🔧 Utility functions
+│   └── main.tsx           # 🚀 Application entry point
+├── 📂 public/             # 📁 Static assets
+├── 📂 scripts/            # 📜 Build scripts
+├── 🐳 Dockerfile         # 🐳 Container definition
+├── 🐳 docker-compose.yml # 🐳 Multi-container setup
+
+└── package.json          # 📦 Dependencies & scripts
+```
+
+### 🏗️ Architecture Patterns
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     Application Flow                        │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  Browser Request                                            │
+│       │                                                     │
+│       ▼                                                     │
+│  ┌─────────────────┐     ┌─────────────────┐              │
+│  │  TanStack       │────▶│  React          │              │
+│  │  Router         │     │  Components     │              │
+│  │  (routes/)      │     │  (components/)  │              │
+│  └─────────────────┘     └─────────────────┘              │
+│       │                           │                        │
+│       ▼                           ▼                        │
+│  ┌─────────────────┐     ┌─────────────────┐              │
+│  │  Route Guards   │     │  TanStack       │              │
+│  │  (guardRoute)   │     │  Query          │              │
+│  └─────────────────┘     │  (hooks/query/) │              │
+│       │                  └─────────────────┘              │
+│       ▼                           │                        │
+│  ┌─────────────────┐              ▼                        │
+│  │  Zustand Store  │     ┌─────────────────┐              │
+│  │  (store/)       │     │  API Calls      │              │
+│  └─────────────────┘     │  (axios)        │              │
+│                          └─────────────────┘              │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ## 🧠 State Management with Zustand
@@ -362,45 +486,180 @@ bun run preview
 
 ## 🐳 Docker
 
-This application is containerized using Docker with Nginx as the web server.
+This application supports dual deployment architecture - running two separate instances with different behaviors based on the `VITE_IS_EVS` environment variable.
 
-### Building the Docker Image
+### 🏗️ Architecture Overview
 
-```bash
-docker build -t epson-fe-web .
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Dual Deployment Setup                     │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  ┌──────────────────┐         ┌──────────────────┐         │
+│  │   Main App       │         │   EVS App        │         │
+│  │   Port: 8765     │         │   Port: 8766     │         │
+│  │   VITE_IS_EVS=   │         │   VITE_IS_EVS=   │         │
+│  │   false          │         │   true           │         │
+│  └──────────────────┘         └──────────────────┘         │
+│           │                            │                   │
+│           └────────────┬───────────────┘                   │
+│                        │                                   │
+│              ┌─────────▼─────────┐                         │
+│              │  Shared Docker    │                         │
+│              │  Image            │                         │
+│              │  (nginx + built   │                         │
+│              │   React app)      │                         │
+│              └───────────────────┘                         │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-### Running the Docker Container
+### 📋 Environment Setup
+
+The deployment uses the automatically generated `.env` file from your production environment:
+
+#### Automatic Configuration
+
+- Environment variables are loaded from `src/envs/.env.production`
+- The build process copies them to the root `.env` file
+- Docker containers override `VITE_IS_EVS` at runtime to differentiate app behavior
+
+#### Required Variables in `src/envs/.env.production`
 
 ```bash
-docker run -p 8765:80 epson-fe-web
+# API Configuration
+VITE_API_REST_URL=https://your-api.example.com
+VITE_API_SOCKET_URL=wss://your-socket.example.com
+VITE_API_SOCKET_EVS_URL=wss://your-evs-socket.example.com
+
+# Add other VITE_* variables as needed
 ```
 
-### Using Docker Compose
+### 🚀 Deployment Options
+
+#### Deploy Both Applications
 
 ```bash
-# Start the application
-docker-compose up -d
-
-# Stop the application
-docker-compose down
+bun run deploy:both
 ```
 
-The application will be available at http://localhost:8765 when running in Docker.
+**Result:** Both Main App (port 8765) and EVS App (port 8766) running
 
-### Environment Variables
+#### Deploy Main Application Only
 
-The Docker setup will use environment variables from your `.env` file during the build process. Make sure your environment variables are properly set before building the Docker image.
+```bash
+bun run deploy:main
+```
 
-### Docker Scripts
+**Result:** Main App running on port 8765
+
+#### Deploy EVS Application Only
+
+```bash
+bun run deploy:evs
+```
+
+**Result:** EVS App running on port 8766
+
+#### Stop All Applications
+
+```bash
+bun run down:all
+```
+
+### 🔄 Deployment Flow
+
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   npm script    │───▶│  Docker Compose │───▶│   Container(s)  │
+│                 │    │   with profile  │    │                 │
+│ deploy:both     │    │                 │    │ ┌─────────────┐ │
+│ deploy:main     │    │ --profile main  │    │ │  Main App   │ │
+│ deploy:evs      │    │ --profile evs   │    │ │  EVS App    │ │
+│                 │    │                 │    │ └─────────────┘ │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+```
+
+### 🌐 Access URLs
+
+After deployment, your applications will be available at:
+
+- **Main Application**: <http://localhost:8765>
+- **EVS Application**: <http://localhost:8766>
+
+### 🔧 Advanced Docker Commands
 
 | Command | Description |
 |---------|-------------|
-| `bun run docker:build:up` | Build and start the container |
-| `bun run docker:up` | Start the container |
-| `bun run docker:down` | Stop the container |
+| `bun run deploy:both` | Deploy both Main and EVS applications |
+| `bun run deploy:main` | Deploy Main application only |
+| `bun run deploy:evs` | Deploy EVS application only |
+| `bun run down:all` | Stop all running applications |
+| `bun run docker:build:up` | Build and start single container (legacy) |
+| `bun run docker:up` | Start single container (legacy) |
+| `bun run docker:down` | Stop single container (legacy) |
 | `bun run docker:logs` | View container logs |
 | `bun run docker:clean` | Remove container, volumes, and images |
+
+### 📦 Docker Image Export
+
+Generate distributable tar files for deployment:
+
+```bash
+# Export both applications (recommended for production)
+bun run docker:tar:both
+# → Creates: epson-fe-web-both.tar
+
+# Export Main application only
+bun run docker:tar:main
+# → Creates: epson-fe-web-main.tar
+
+# Export EVS application only
+bun run docker:tar:evs
+# → Creates: epson-fe-web-evs.tar
+```
+
+**Use Cases:**
+
+- 🚀 **Production deployment** on servers without internet access
+- 📦 **Distribution** to multiple environments
+- 💾 **Backup** of specific application variants
+- 🔄 **Version control** of deployed images
+
+### 🏷️ Container Management
+
+```bash
+# View running containers
+docker ps
+
+# View logs for specific service
+docker compose logs web-main
+docker compose logs web-evs
+
+# Restart specific service
+docker compose restart web-main
+docker compose restart web-evs
+
+# Build and deploy with no cache
+docker compose build --no-cache
+bun run deploy:both
+```
+
+### ⚙️ How It Works
+
+1. **Single Image Strategy**: Both applications use the same Docker image
+2. **Runtime Configuration**: Environment variables are injected at container startup
+3. **Profile-based Deployment**: Docker Compose profiles control which services run
+4. **Port Separation**: Each application runs on a different port for parallel access
+
+### 🔍 Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| Port already in use | Check if containers are already running with `docker ps` |
+| Environment variables not loaded | Ensure `src/envs/.env.production` exists and run `bun run build` first |
+| Build fails | Run `docker system prune` to clean up and try again |
+| Service not accessible | Check firewall settings and ensure ports 8765/8766 are open |
 
 ## 🧹 Demo Files
 

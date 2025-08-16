@@ -1,7 +1,7 @@
-version: "3.8"
-
 services:
-  web:
+  web-main:
+    profiles: ["main"]
+    image: epson-fe-web:latest
     build:
       context: .
       dockerfile: Dockerfile
@@ -12,6 +12,48 @@ services:
       - .env
     environment:
       - NODE_ENV=production
+      - VITE_IS_EVS=false
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:80",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 512M
+        reservations:
+          cpus: "0.5"
+          memory: 256M
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - app-network
+
+  web-evs:
+    profiles: ["evs"]
+    image: epson-fe-web:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8766:80"
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - VITE_IS_EVS=true
     healthcheck:
       test:
         [

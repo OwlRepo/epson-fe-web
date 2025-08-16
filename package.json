@@ -18,10 +18,16 @@
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
     "docker:logs": "docker compose logs -f",
-    "docker:tar": "bun run build && docker save -o epson-fe-web.tar epson-fe-web-web:latest",
+    "docker:tar:both": "bun run deploy:both && docker save -o epson-fe-web-both.tar epson-fe-web:latest",
+    "docker:tar:main": "bun run deploy:main && docker save -o epson-fe-web-main.tar epson-fe-web:latest",
+    "docker:tar:evs": "bun run deploy:evs && docker save -o epson-fe-web-evs.tar epson-fe-web:latest",
     "docker:clean": "docker compose down -v --rmi all",
     "deploy:prod": "npm run build && npm run docker:build:up",
-    "deploy:dev": "npm run docker:build && npm run docker:up"
+    "deploy:dev": "npm run docker:build && npm run docker:up",
+    "deploy:both": "docker compose --profile main --profile evs up -d --build",
+    "deploy:main": "docker compose --profile main up -d --build",
+    "deploy:evs": "docker compose --profile evs up -d --build",
+    "down:all": "docker compose --profile main --profile evs down"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
