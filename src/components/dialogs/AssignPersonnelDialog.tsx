@@ -1,4 +1,4 @@
-import { DialogOverlay, type DialogProps } from "@radix-ui/react-dialog";
+import { type DialogProps } from "@radix-ui/react-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 
 import { useGetHostPerson } from "@/hooks/query/useGeHostPersonList";
