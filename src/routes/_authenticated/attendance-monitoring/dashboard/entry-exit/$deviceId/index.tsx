@@ -163,26 +163,27 @@ function RouteComponent() {
               //     value: item,
               //   })),
               // },
-              {
-                key: "clocked_in",
-                label: "Time In",
-                options: Array.from(
-                  new Set(data.map((item) => item.clocked_in ?? "-"))
-                ).map((item) => ({
-                  label: item,
-                  value: item,
-                })),
-              },
-              {
-                key: "clocked_out",
-                label: "Time Out",
-                options: Array.from(
-                  new Set(data.map((item) => item.clocked_out ?? "-"))
-                ).map((item) => ({
-                  label: item,
-                  value: item,
-                })),
-              },
+              currentSelectedDeviceType === "Clocked In"
+                ? {
+                    key: "clocked_in",
+                    label: "Time In",
+                    options: Array.from(
+                      new Set(data.map((item) => item.clocked_in ?? "-"))
+                    ).map((item) => ({
+                      label: item,
+                      value: item,
+                    })),
+                  }
+                : {
+                    key: "clocked_out",
+                    label: "Time Out",
+                    options: Array.from(
+                      new Set(data.map((item) => item.clocked_out ?? "-"))
+                    ).map((item) => ({
+                      label: item,
+                      value: item,
+                    })),
+                  },
             ]}
             data={data
               .map((employeeData) => {
