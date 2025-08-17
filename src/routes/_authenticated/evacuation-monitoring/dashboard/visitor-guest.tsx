@@ -92,7 +92,7 @@ function RouteComponent() {
             onPageSizeChange={handlePageSizeChange}
             columns={[
               {
-                key: "id",
+                key: "employee_id",
                 label: "ID",
               },
               {
@@ -136,10 +136,15 @@ function RouteComponent() {
             ]}
             data={data
               .map((employeeData) => {
-                const { id, eva_status, log_time, full_name, user_type } =
-                  employeeData;
+                const {
+                  employee_id,
+                  eva_status,
+                  log_time,
+                  full_name,
+                  user_type,
+                } = employeeData;
                 return {
-                  id: id,
+                  employee_id: employee_id,
                   eva_status: eva_status,
                   log_time: log_time,
                   full_name: full_name,
@@ -152,8 +157,8 @@ function RouteComponent() {
                   search.filter_eva_status
                 );
                 const matchesId = matchesFilter(
-                  item.id ?? "",
-                  search.filter_id
+                  item.employee_id ?? "",
+                  search.filter_employee_id
                 );
                 const matchesName = matchesFilter(
                   item.full_name ?? "",
