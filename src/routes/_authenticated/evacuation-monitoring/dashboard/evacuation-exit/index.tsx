@@ -1,6 +1,5 @@
 import CardSection from "@/components/layouts/CardSection";
 import CardHeaderLeft from "@/components/ui/card-header-left";
-import CardHeaderRight from "@/components/ui/card-header-right";
 import { DepartmentCard } from "@/components/ui/department-card";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import Spinner from "@/components/ui/spinner";

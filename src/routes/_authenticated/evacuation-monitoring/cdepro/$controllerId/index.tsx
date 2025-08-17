@@ -1,7 +1,6 @@
 import { EpsonFlame } from "@/assets/svgs";
 import CardSection from "@/components/layouts/CardSection";
 import CardHeaderLeft from "@/components/ui/card-header-left";
-import CardHeaderRight from "@/components/ui/card-header-right";
 import EVSCounts from "@/components/ui/evs-counts";
 import { LiveDataTable } from "@/components/ui/live-data-table";
 import Spinner from "@/components/ui/spinner";
@@ -30,9 +29,6 @@ function RouteComponent() {
     isConnected,
     countData: totalLogs,
     clearData,
-    searchData,
-    clearSearch,
-    searchTerm,
   } = useCDEPROControllerData({
     room: "cdepro_department" + params.controllerId,
     dataType: "live",
@@ -45,21 +41,6 @@ function RouteComponent() {
   const search = useSearch({
     from: "/_authenticated/evacuation-monitoring/cdepro/$controllerId/",
   });
-  // Handle filter changes
-  const handleFilter = (key: string, value: string) => {
-    navigate({
-      search: (prev) => ({
-        ...prev,
-        [`filter_${key}`]: value || undefined,
-      }),
-      replace: true,
-    });
-  };
-
-  // Handle search using socket functionality
-  const handleSearch = (searchTerm: string) => {
-    searchData(searchTerm);
-  };
 
   // Add handler for page size changes
   const handlePageSizeChange = (newPageSize: number) => {
