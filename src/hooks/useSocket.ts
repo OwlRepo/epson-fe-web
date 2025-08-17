@@ -292,6 +292,8 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
         home: countData.home,
         missing: countData.missing,
         all: countData.all,
+        active: countData.active,
+        inactive: countData.inactive,
       });
       console.log("📈 Raw count data:", countData);
 

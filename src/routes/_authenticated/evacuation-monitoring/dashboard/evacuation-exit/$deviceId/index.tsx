@@ -14,6 +14,7 @@ import CardHeaderRight from "@/components/ui/card-header-right";
 import useEntryExitStore from "@/store/useEntryExitStore";
 import matchesFilter from "@/utils/matchesFilter";
 import { useEvacuationExitsData } from "@/hooks/useEvacuationExitsData";
+import EVSCounts from "@/components/ui/evs-counts";
 
 export const Route = createFileRoute(
   "/_authenticated/evacuation-monitoring/dashboard/evacuation-exit/$deviceId/"
@@ -87,20 +88,7 @@ function RouteComponent() {
           }
         />
       }
-      headerRight={
-        <CardHeaderRight
-          clockedOut={
-            currentSelectedDeviceType === "Clocked Out"
-              ? totalLogs?.out
-              : undefined
-          }
-          clockedIn={
-            currentSelectedDeviceType === "Clocked In"
-              ? totalLogs?.in
-              : undefined
-          }
-        />
-      }
+      headerRight={<EVSCounts countData={totalLogs} type="compact" />}
     >
       {isConnected && !isLoading ? (
         <div className="flex">

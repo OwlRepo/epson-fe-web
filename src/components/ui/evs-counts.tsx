@@ -44,16 +44,6 @@ export default function EVSCounts(props: EVSCountsProps) {
           borderColor: "border-green-200",
         },
         {
-          icon: <EvacuatedIcon className="w-3.5 h-3.5" />,
-          label: "Active",
-          count: countData?.active
-            ? parseInt(formatCountWithCommas(countData.active))
-            : 0,
-          bgColor: "bg-green-50",
-          textColor: "text-green-700",
-          borderColor: "border-green-200",
-        },
-        {
           icon: <InjuredIcon className="w-3.5 h-3.5" />,
           label: "Injured",
           count: countData?.injured
@@ -76,16 +66,6 @@ export default function EVSCounts(props: EVSCountsProps) {
           label: "Missing",
           count: countData?.missing
             ? formatCountWithCommas(countData.missing)
-            : 0,
-          bgColor: "bg-red-50",
-          textColor: "text-red-700",
-          borderColor: "border-red-200",
-        },
-        {
-          icon: <InPremisesEvsIcon className="w-3.5 h-3.5" />,
-          label: "Inactive",
-          count: countData?.inactive
-            ? formatCountWithCommas(countData.inactive)
             : 0,
           bgColor: "bg-red-50",
           textColor: "text-red-700",

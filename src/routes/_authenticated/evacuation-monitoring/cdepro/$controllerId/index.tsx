@@ -2,13 +2,15 @@ import { EpsonFlame } from "@/assets/svgs";
 import CardSection from "@/components/layouts/CardSection";
 import CardHeaderLeft from "@/components/ui/card-header-left";
 import CardHeaderRight from "@/components/ui/card-header-right";
+import EVSCounts from "@/components/ui/evs-counts";
 import { LiveDataTable } from "@/components/ui/live-data-table";
 import Spinner from "@/components/ui/spinner";
-import { useEmployeeData } from "@/hooks";
+import { useCDEPROControllerData } from "@/hooks/useCDEPROControllerData";
 import matchesFilter from "@/utils/matchesFilter";
 import {
   createFileRoute,
   useNavigate,
+  useParams,
   useSearch,
 } from "@tanstack/react-router";
 
@@ -19,6 +21,9 @@ export const Route = createFileRoute(
 });
 
 function RouteComponent() {
+  const params = useParams({
+    from: "/_authenticated/evacuation-monitoring/cdepro/$controllerId/",
+  });
   const {
     data,
     isLoading,
@@ -28,7 +33,10 @@ function RouteComponent() {
     searchData,
     clearSearch,
     searchTerm,
-  } = useEmployeeData();
+  } = useCDEPROControllerData({
+    room: "cdepro_department" + params.controllerId,
+    dataType: "live",
+  });
 
   const navigate = useNavigate({
     from: "/evacuation-monitoring/cdepro/$controllerId",
@@ -67,10 +75,7 @@ function RouteComponent() {
   return (
     <CardSection
       headerRight={
-        <CardHeaderRight
-          clockedOut={totalLogs?.out}
-          clockedIn={totalLogs?.in}
-        />
+        <EVSCounts countData={totalLogs} type="compact" countType="cdepro" />
       }
       headerLeft={
         <CardHeaderLeft
