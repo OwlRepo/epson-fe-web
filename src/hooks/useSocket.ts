@@ -15,6 +15,9 @@ export interface SummaryData extends DeviceData {
   safe: string;
   home: string;
   all: string;
+  active: string;
+  inactive: string;
+  Department: string;
 }
 
 export interface SummaryCountData {

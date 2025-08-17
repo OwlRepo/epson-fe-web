@@ -2,8 +2,9 @@ import CardSection from "@/components/layouts/CardSection";
 import CardHeaderLeft from "@/components/ui/card-header-left";
 import CardHeaderRight from "@/components/ui/card-header-right";
 import { DepartmentCard } from "@/components/ui/department-card";
+import EVSCounts from "@/components/ui/evs-counts";
 import Spinner from "@/components/ui/spinner";
-import { useDivisionData } from "@/hooks";
+import { useCDEPROData } from "@/hooks/useCDEPROData";
 import { createFileRoute, Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute(
@@ -18,33 +19,32 @@ function RouteComponent() {
     isLoading,
     isConnected,
     countData: totalLogs,
-  } = useDivisionData();
+  } = useCDEPROData();
 
   return (
     <CardSection
       headerLeft={<CardHeaderLeft />}
       headerRight={
-        <CardHeaderRight
-          clockedOut={totalLogs?.out}
-          clockedIn={totalLogs?.in}
-        />
+        <EVSCounts countData={totalLogs} type="compact" countType="cdepro" />
       }
     >
-      <h2 className="text-2xl font-bold my-5">Divisions</h2>
+      <h2 className="text-2xl font-bold my-5">CDEPRO</h2>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
         {isConnected && !isLoading ? (
           data
-            .filter((d) => d.name)
+            .filter((d) => d.Department)
             .map((division) => (
               <Link
                 to={`/evacuation-monitoring/cdepro/$controllerId`}
-                params={{ controllerId: division.name }}
-                key={division.name}
+                params={{ controllerId: division.Department }}
+                key={division.Department}
               >
                 <DepartmentCard
-                  title={division.name}
-                  clockedIn={division.in}
-                  clockedOut={division.out}
+                  title={division.Department}
+                  clockedIn={division.active}
+                  clockedOut={division.inactive}
+                  countLabelLeft="Active"
+                  countLabelRight="Inactive"
                 />
               </Link>
             ))

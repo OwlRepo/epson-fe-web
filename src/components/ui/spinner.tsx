@@ -1,5 +1,6 @@
 import { BounceLoader } from "react-spinners";
 import { cn } from "@/lib/utils";
+import { useLocation } from "@tanstack/react-router";
 interface SpinnerProps {
   color?: string;
   size?: number;
@@ -15,6 +16,7 @@ export default function Spinner({
   containerClassName,
   spinnerClassName,
 }: SpinnerProps) {
+  const location = useLocation();
   return (
     <div
       className={cn(
@@ -22,7 +24,15 @@ export default function Spinner({
         containerClassName
       )}
     >
-      <BounceLoader color={color} size={size} className={spinnerClassName} />
+      <BounceLoader
+        color={
+          location.pathname.includes("evacuation-monitoring")
+            ? "#980000"
+            : color
+        }
+        size={size}
+        className={spinnerClassName}
+      />
       {message && <p className="text-lg font-bold">{message}</p>}
     </div>
   );
