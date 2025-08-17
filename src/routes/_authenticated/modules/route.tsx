@@ -40,7 +40,7 @@ const moduleRoutes = [
     external: false,
   },
   {
-    path: `${getEVSAppBaseUrl()}/validate-token?token=${encodeURIComponent(
+    path: `${getEVSAppBaseUrl()}/validate-session?token=${encodeURIComponent(
       localStorage.getItem("token")!
     )}`,
     title: "Evacuation",

@@ -3,7 +3,7 @@ import Spinner from "@/components/ui/spinner";
 import api from "@/config/axiosInstance";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/validate-token")({
+export const Route = createFileRoute("/validate-session")({
   component: RouteComponent,
   beforeLoad: async ({ search }) => {
     if (search.token) {
