@@ -34,6 +34,8 @@ export interface DeviceData {
   DeviceName: string;
   DeviceLabel: "Clocked In" | "Clocked Out";
   DeviceCount: string | number;
+  eva: string;
+  home: string;
 }
 
 export interface VisitorData {

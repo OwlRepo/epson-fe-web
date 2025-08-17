@@ -44,8 +44,12 @@ export function EvacuationMonitoringLayout({
           href: "/evacuation-monitoring/dashboard/divisions",
         },
         {
-          label: "Entry & Exit Points",
-          href: "/evacuation-monitoring/dashboard/entry-exit",
+          label: "Visitor / Guest",
+          href: "/evacuation-monitoring/dashboard/visitor-guest",
+        },
+        {
+          label: "Evacuation Exit",
+          href: "/evacuation-monitoring/dashboard/evacuation-exit",
         },
       ],
     },

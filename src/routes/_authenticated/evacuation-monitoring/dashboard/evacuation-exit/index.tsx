@@ -3,12 +3,12 @@ import CardHeaderLeft from "@/components/ui/card-header-left";
 import CardHeaderRight from "@/components/ui/card-header-right";
 import { DepartmentCard } from "@/components/ui/department-card";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEntryExitPointsData } from "@/hooks";
 import Spinner from "@/components/ui/spinner";
 import useEntryExitStore from "@/store/useEntryExitStore";
 import { useEffect } from "react";
+import { useEvacuationExitsData } from "@/hooks/useEvacuationExitsData";
 export const Route = createFileRoute(
-  "/_authenticated/evacuation-monitoring/dashboard/entry-exit/"
+  "/_authenticated/evacuation-monitoring/dashboard/evacuation-exit/"
 )({
   component: RouteComponent,
 });
@@ -19,8 +19,8 @@ function RouteComponent() {
     isLoading,
     isConnected,
     countData: totalLogs,
-  } = useEntryExitPointsData({
-    room: "VIEW_CONTROLLER",
+  } = useEvacuationExitsData({
+    room: "evs_device",
     dataType: "summary",
   });
 
@@ -40,30 +40,28 @@ function RouteComponent() {
         />
       }
     >
-      <h2 className="text-2xl font-bold my-5">Entry & Exit Points</h2>
+      <h2 className="text-2xl font-bold my-5">Evacuation Exit</h2>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
         {isConnected && !isLoading ? (
           data
             .filter((d) => d.DeviceName)
             .map((point) => (
               <Link
-                to={`/evacuation-monitoring/dashboard/entry-exit/$deviceId`}
+                to={`/evacuation-monitoring/dashboard/evacuation-exit/$deviceId`}
                 onClick={() => setCurrentSelectedDeviceType(point.DeviceLabel)}
-                params={{ deviceId: point.DeviceId.toString() }}
-                key={point.DeviceId.toString()}
+                params={{
+                  deviceId: point.DeviceId.toString()
+                    ? point.DeviceId.toString()
+                    : point.DeviceName,
+                }}
+                key={point.DeviceId.toString() + point.DeviceName}
               >
                 <DepartmentCard
                   title={point.DeviceName}
-                  clockedIn={
-                    point.DeviceLabel === "Clocked In"
-                      ? point.DeviceCount
-                      : undefined
-                  }
-                  clockedOut={
-                    point.DeviceLabel === "Clocked Out"
-                      ? point.DeviceCount
-                      : undefined
-                  }
+                  clockedIn={point.eva}
+                  clockedOut={point.home}
+                  countLabelLeft="Evacuated"
+                  countLabelRight="Home"
                 />
               </Link>
             ))

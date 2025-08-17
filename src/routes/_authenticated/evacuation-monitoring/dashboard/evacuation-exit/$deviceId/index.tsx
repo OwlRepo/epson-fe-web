@@ -6,23 +6,24 @@ import {
   useParams,
   useSearch,
 } from "@tanstack/react-router";
-import { useEntryExitPointsData } from "@/hooks";
+
 import { EpsonFlame } from "@/assets/svgs";
 import Spinner from "@/components/ui/spinner";
 import { LiveDataTable } from "@/components/ui/live-data-table";
 import CardHeaderRight from "@/components/ui/card-header-right";
 import useEntryExitStore from "@/store/useEntryExitStore";
 import matchesFilter from "@/utils/matchesFilter";
+import { useEvacuationExitsData } from "@/hooks/useEvacuationExitsData";
 
 export const Route = createFileRoute(
-  "/_authenticated/evacuation-monitoring/dashboard/entry-exit/$deviceId/"
+  "/_authenticated/evacuation-monitoring/dashboard/evacuation-exit/$deviceId/"
 )({
   component: RouteComponent,
 });
 
 function RouteComponent() {
   const params = useParams({
-    from: "/_authenticated/evacuation-monitoring/dashboard/entry-exit/$deviceId/",
+    from: "/_authenticated/evacuation-monitoring/dashboard/evacuation-exit/$deviceId/",
   });
   const {
     data,
@@ -33,17 +34,17 @@ function RouteComponent() {
     searchData,
     clearSearch,
     searchTerm,
-  } = useEntryExitPointsData({
-    room: "VIEW_CONTROLLER" + params.deviceId,
+  } = useEvacuationExitsData({
+    room: "evs_device" + params.deviceId,
     dataType: "live",
   });
 
   const navigate = useNavigate({
-    from: "/evacuation-monitoring/dashboard/entry-exit/$deviceId",
+    from: "/evacuation-monitoring/dashboard/evacuation-exit/$deviceId",
   });
 
   const search = useSearch({
-    from: "/_authenticated/evacuation-monitoring/dashboard/entry-exit/$deviceId/",
+    from: "/_authenticated/evacuation-monitoring/dashboard/evacuation-exit/$deviceId/",
   });
   // Handle filter changes
   const handleFilter = (key: string, value: string) => {
