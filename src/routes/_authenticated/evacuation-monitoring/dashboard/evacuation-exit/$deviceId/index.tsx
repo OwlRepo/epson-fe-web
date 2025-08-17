@@ -10,7 +10,6 @@ import {
 import { EpsonFlame } from "@/assets/svgs";
 import Spinner from "@/components/ui/spinner";
 import { LiveDataTable } from "@/components/ui/live-data-table";
-import useEntryExitStore from "@/store/useEntryExitStore";
 import matchesFilter from "@/utils/matchesFilter";
 import { useEvacuationExitsData } from "@/hooks/useEvacuationExitsData";
 import EVSCounts from "@/components/ui/evs-counts";
@@ -73,8 +72,6 @@ function RouteComponent() {
       replace: true,
     });
   };
-
-  const { currentSelectedDeviceType } = useEntryExitStore();
 
   return (
     <CardSection
