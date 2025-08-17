@@ -135,10 +135,10 @@ To add new environment variables to your project:
 
 ```bash
 # Example .env.development or .env.production
-VITE_API_BASE_URL=https://api.example.com
-VITE_APP_TITLE=Epson App
-VITE_FEATURE_FLAG_NEW_UI=true
-VITE_AUTH_TIMEOUT=3600
+VITE_API_REST_URL=https://577979416119.ngrok-free.app
+VITE_API_SOCKET_URL=https://4d4df22f1029.ngrok-free.app
+VITE_IS_EVS=false
+VITE_VALID_USER_CARD_ID=1234000000000000|000000000000000
 ```
 
 ### Using Environment Variables in Your Code
@@ -148,7 +148,8 @@ You can access environment variables in your React components and other code thr
 ```tsx
 // Example usage in a component
 function ApiComponent() {
-  const apiUrl = import.meta.env.VITE_API_BASE_URL;
+  const apiUrl = import.meta.env.VITE_API_REST_URL;
+  const isEvs = import.meta.env.VITE_IS_EVS === 'true';
   
   // Use the variable
   useEffect(() => {
@@ -159,10 +160,11 @@ function ApiComponent() {
   
   return (
     <div>
-      <h1>{import.meta.env.VITE_APP_TITLE}</h1>
-      {/* Conditional rendering based on feature flag */}
-      {import.meta.env.VITE_FEATURE_FLAG_NEW_UI === 'true' && (
-        <NewUIComponent />
+      {/* Conditional rendering based on EVS mode */}
+      {isEvs ? (
+        <EVSComponent />
+      ) : (
+        <MainAppComponent />
       )}
     </div>
   );
@@ -186,7 +188,11 @@ export const getEnvVar = (key: string): string => {
 };
 
 // Create specific getters for each env variable
-export const getApiBaseUrl = () => getEnvVar("VITE_SOCKET_BASE_URL");
+export const getApiRestUrl = () => getEnvVar("VITE_API_REST_URL");
+export const getApiSocketUrl = () => getEnvVar("VITE_API_SOCKET_URL");
+export const getApiSocketEvsUrl = () => getEnvVar("VITE_API_SOCKET_EVS_URL");
+export const getApiRestEvsUrl = () => getEnvVar("VITE_API_REST_EVS_URL");
+export const isEvsMode = () => getEnvVar("VITE_IS_EVS") === "true";
 // Add other env variable getters as needed
 ```
 
@@ -200,10 +206,11 @@ Using this utility provides several advantages:
 Example usage in components:
 
 ```tsx
-import { getApiBaseUrl } from '@/utils/env';
+import { getApiRestUrl, isEvsMode } from '@/utils/env';
 
 function ApiComponent() {
-  const apiUrl = getApiBaseUrl();
+  const apiUrl = getApiRestUrl();
+  const isEvs = isEvsMode();
   
   useEffect(() => {
     fetch(`${apiUrl}/users`)
@@ -212,7 +219,9 @@ function ApiComponent() {
   }, []);
   
   return (
-    // Component code...
+    <div>
+      {isEvs ? <EVSView /> : <MainView />}
+    </div>
   );
 }
 ```
@@ -221,12 +230,10 @@ To add new environment variable getters, extend the `env.ts` file:
 
 ```typescript
 // Adding new environment variable getters
-export const getAppTitle = () => getEnvVar("VITE_APP_TITLE");
-export const getFeatureFlags = () => ({
-  newUI: getEnvVar("VITE_FEATURE_FLAG_NEW_UI") === "true",
-  betaFeatures: getEnvVar("VITE_FEATURE_FLAG_BETA") === "true",
-});
-export const getAuthTimeout = () => Number(getEnvVar("VITE_AUTH_TIMEOUT") || "3600");
+export const getValidUserCardId = () => getEnvVar("VITE_VALID_USER_CARD_ID");
+export const getUhfDeviceId = () => getEnvVar("VITE_UHF_DEVICE_ID");
+export const getUhfProductId = () => getEnvVar("VITE_UHF_PRODUCT_ID");
+export const getEvsAppBaseUrl = () => getEnvVar("VITE_EVS_APP_BASE_URL");
 ```
 
 ### Environment Types
@@ -235,10 +242,15 @@ To get TypeScript autocompletion for your environment variables, add them to the
 
 ```ts
 interface ImportMetaEnv {
-  readonly VITE_API_BASE_URL: string
-  readonly VITE_APP_TITLE: string
-  readonly VITE_FEATURE_FLAG_NEW_UI: string
-  readonly VITE_AUTH_TIMEOUT: string
+  readonly VITE_API_REST_URL: string
+  readonly VITE_API_SOCKET_URL: string
+  readonly VITE_API_SOCKET_EVS_URL: string
+  readonly VITE_API_REST_EVS_URL: string
+  readonly VITE_IS_EVS: string
+  readonly VITE_EVS_APP_BASE_URL: string
+  readonly VITE_VALID_USER_CARD_ID: string
+  readonly VITE_UHF_DEVICE_ID: string
+  readonly VITE_UHF_PRODUCT_ID: string
   // Add other variables here
 }
 ```
@@ -528,9 +540,19 @@ The deployment uses the automatically generated `.env` file from your production
 
 ```bash
 # API Configuration
-VITE_API_REST_URL=https://your-api.example.com
-VITE_API_SOCKET_URL=wss://your-socket.example.com
-VITE_API_SOCKET_EVS_URL=wss://your-evs-socket.example.com
+VITE_API_REST_URL=https://577979416119.ngrok-free.app
+VITE_API_SOCKET_URL=https://4d4df22f1029.ngrok-free.app
+VITE_API_SOCKET_EVS_URL=http://185.144.158.11:12797
+VITE_API_REST_EVS_URL=http://185.144.158.11:12797
+
+# EVS Application Configuration
+VITE_IS_EVS=false
+VITE_EVS_APP_BASE_URL=http://localhost:8766
+
+# Device and Card Configuration
+VITE_VALID_USER_CARD_ID=1234000000000000|000000000000000
+VITE_UHF_DEVICE_ID=0x1a86
+VITE_UHF_PRODUCT_ID=0x7523
 
 # Add other VITE_* variables as needed
 ```
