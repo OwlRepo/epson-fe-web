@@ -22,11 +22,11 @@
     "docker:tar:main": "bun run deploy:main && docker save -o epson-fe-web-main.tar epson-fe-web:latest",
     "docker:tar:evs": "bun run deploy:evs && docker save -o epson-fe-web-evs.tar epson-fe-web:latest",
     "docker:clean": "docker compose down -v --rmi all",
-    "deploy:prod": "npm run build && npm run docker:build:up",
-    "deploy:dev": "npm run docker:build && npm run docker:up",
-    "deploy:both": "docker compose --profile main --profile evs up -d --build",
-    "deploy:main": "docker compose --profile main up -d --build",
-    "deploy:evs": "docker compose --profile evs up -d --build",
+    "deploy:prod": "bun run build && bun run docker:build:up",
+    "deploy:dev": "bun run docker:build && bun run docker:up",
+    "deploy:both": "bun run setup-env:prod && docker compose --profile main --profile evs up -d --build",
+    "deploy:main": "bun run setup-env:prod && docker compose --profile main up -d --build",
+    "deploy:evs": "bun run setup-env:prod && docker compose --profile evs up -d --build",
     "down:all": "docker compose --profile main --profile evs down"
   },
   "dependencies": {
