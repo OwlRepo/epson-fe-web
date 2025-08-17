@@ -12,9 +12,10 @@ export const Route = createFileRoute("/validate-session")({
           token: search.token,
         })
         .then((res) => {
-          const { token, refreshToken } = res.data.data;
+          const { token, refreshToken, user } = res.data.data;
           localStorage.setItem("token", token);
           localStorage.setItem("refreshToken", refreshToken);
+          localStorage.setItem("user", JSON.stringify(user));
           redirect({
             to: "/evacuation-monitoring/dashboard/overview",
           });
