@@ -347,7 +347,6 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
   // Compute filtered data based on search term and status filter
   const filteredData = useMemo(() => {
     let filteredBySearch = data;
-
     // Apply search filter first
     if (searchTerm.trim()) {
       const lowerSearchTerm = searchTerm.toLowerCase().trim();
@@ -370,7 +369,15 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
     if (statusFilter) {
       return filteredBySearch.filter((item: any) => {
         // Filter for rows where status has content (same logic as line 1208 in dynamic-table.tsx)
-        return item?.status?.toString()?.length > 0;
+
+        if (item?.eva_status) {
+          return item?.eva_status?.toLowerCase() === "missing";
+        }
+
+        if (item?.status) {
+          return item?.status?.toString()?.length > 0;
+        }
+        return false;
       });
     }
 

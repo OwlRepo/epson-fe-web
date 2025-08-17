@@ -16,6 +16,9 @@ import matchesFilter from "@/utils/matchesFilter";
 
 import AssignPersonnelDialog from "@/components/dialogs/AssignPersonnelDialog";
 import EVSCounts from "@/components/ui/evs-counts";
+import useLiveDataTableStore from "@/store/vms/overview/useLiveDataTableStore";
+import { Switch } from "@/components/ui/switch";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute(
   "/_authenticated/evacuation-monitoring/dashboard/overview"
@@ -62,6 +65,7 @@ function RouteComponent() {
     searchData(searchTerm);
   };
 
+  const { flaggedRecords, setFlaggedRecords } = useLiveDataTableStore();
   const {
     data: liveData,
     isLoading: isLiveDataLoading,
@@ -74,13 +78,30 @@ function RouteComponent() {
   } = useOverviewCountData({
     room: "evs",
     dataType: "live",
+    statusFilter: flaggedRecords,
   });
-
   return (
     <>
       <div className="space-y-8">
         <EVSCounts countData={countData} />
         <CardSection
+          headerRight={
+            isLiveDataConnected &&
+            !isLiveDataLoading && (
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-muted-foreground">
+                  Missing People
+                </span>
+                <Switch
+                  id="airplane-mode"
+                  className="data-[state=checked]:bg-primary-evs"
+                  checked={flaggedRecords}
+                  onCheckedChange={setFlaggedRecords}
+                  disabled={!isLiveDataConnected || isLiveDataLoading}
+                />
+              </div>
+            )
+          }
           headerLeft={
             <CardHeaderLeft
               title={
@@ -108,18 +129,18 @@ function RouteComponent() {
                 columns={[
                   {
                     key: "employee_id",
-                    label: "EMPLOYEE NO.",
-                  },
-                  {
-                    key: "type",
-                    label: "Type",
+                    label: "ID",
                   },
                   {
                     key: "name",
                     label: "Name",
                   },
                   {
-                    key: "status",
+                    key: "type",
+                    label: "Type",
+                  },
+                  {
+                    key: "eva_status",
                     label: "Status",
                   },
                   {
@@ -161,7 +182,7 @@ function RouteComponent() {
                   {
                     key: "status",
                     label: "Status",
-                    options: ["Safe", "Injured", "Go Home", "Missing"].map(
+                    options: ["Safe", "Injured", "Home", "Missing"].map(
                       (item) => ({
                         label: item,
                         value: item,
@@ -193,7 +214,7 @@ function RouteComponent() {
                       name: full_name,
                       type: user_type,
                       date_time: log_time,
-                      status: eva_status,
+                      eva_status: eva_status,
                     };
                   })
                   .filter((item) => {
@@ -218,7 +239,10 @@ function RouteComponent() {
                         );
                     const matchesStatus = !search.filter_status
                       ? true
-                      : matchesFilter(item.status ?? "", search.filter_status);
+                      : matchesFilter(
+                          item.eva_status ?? "",
+                          search.filter_status
+                        );
 
                     return (
                       matchesId &&
@@ -228,7 +252,29 @@ function RouteComponent() {
                       matchesStatus
                     );
                   })
-                  .reverse()}
+                  .reverse()
+                  .map((item) => ({
+                    ...item,
+                    eva_status: (
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={cn(
+                            `flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border`,
+                            item.eva_status === "Missing" &&
+                              "border-red-200 border  bg-red-50 text-red-500",
+                            item.eva_status === "Safe" &&
+                              "border-green-200 border  bg-green-50 text-green-500",
+                            item.eva_status === "Injured" &&
+                              "border-yellow-200 border  bg-yellow-50 text-yellow-500",
+                            item.eva_status === "Home" &&
+                              "border-blue-200 border  bg-blue-50 text-blue-500"
+                          )}
+                        >
+                          <span className="font-medium">{item.eva_status}</span>
+                        </div>
+                      </div>
+                    ),
+                  }))}
                 onFilter={handleFilter}
                 onSearch={handleSearch}
                 routeSearch={search}
