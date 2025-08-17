@@ -5,6 +5,7 @@ import EVSCounts from "@/components/ui/evs-counts";
 import { LiveDataTable } from "@/components/ui/live-data-table";
 import Spinner from "@/components/ui/spinner";
 import { useCDEPROControllerData } from "@/hooks/useCDEPROControllerData";
+import { cn } from "@/lib/utils";
 import matchesFilter from "@/utils/matchesFilter";
 import {
   createFileRoute,
@@ -77,70 +78,63 @@ function RouteComponent() {
             onPageSizeChange={handlePageSizeChange}
             columns={[
               {
-                key: "id",
+                key: "ID",
                 label: "ID",
               },
               {
-                key: "name",
+                key: "FullName",
                 label: "NAME",
               },
               {
-                key: "position",
+                key: "Position",
                 label: "POSITION",
               },
               {
-                key: "contact_no",
+                key: "ContactNo",
                 label: "CONTACT NO.",
               },
             ]}
             data={data
               .map((employeeData) => {
-                const {
-                  employee_id,
-                  section,
-                  clocked_in,
-                  clocked_out,
-                  full_name,
-                } = employeeData;
+                const { ID, FirstName, LastName, Position, ContactNo } =
+                  employeeData;
                 return {
-                  employee_id: employee_id,
-                  section: section,
-                  name: full_name,
-                  clocked_in: clocked_in,
-                  clocked_out: clocked_out,
+                  ID: ID,
+                  FullName: `${FirstName} ${LastName}`,
+                  Position: Position,
+                  ContactNo: ContactNo,
                 };
               })
               .filter((item) => {
-                const matchesSection = matchesFilter(
-                  item.section ?? "",
-                  search.filter_section
+                const matchesPosition = matchesFilter(
+                  item.Position ?? "",
+                  search.filter_position
                 );
-                const matchesId = matchesFilter(
-                  item.employee_id ?? "",
-                  search.filter_employee_id
+                const matchesContactNo = matchesFilter(
+                  item.ContactNo ?? "",
+                  search.filter_contact_no
                 );
-                const matchesName = matchesFilter(
-                  item.name ?? "",
-                  search.filter_name
-                );
-                const matchesTimeIn = matchesFilter(
-                  item.clocked_in ?? "",
-                  search.filter_clocked_in
-                );
-                const matchesTimeOut = matchesFilter(
-                  item.clocked_out ?? "",
-                  search.filter_clocked_out
-                );
-
-                return (
-                  matchesSection &&
-                  matchesId &&
-                  matchesName &&
-                  matchesTimeIn &&
-                  matchesTimeOut
-                );
+                return matchesPosition && matchesContactNo;
               })
-              .reverse()}
+              .reverse()
+              .map((item: any) => {
+                return {
+                  ...item,
+                  ID: (
+                    <div className="flex items-center space-x-3">
+                      <div
+                        className={cn(
+                          `h-4 w-4 rounded-full`,
+                          item?.status === "Active" && "bg-green-500",
+                          item?.status === "Inactive" && "bg-red-500",
+                          item?.status === undefined && "bg-gray-500"
+                        )}
+                      />{" "}
+                      <span>{item.ID}</span>
+                    </div>
+                  ),
+                };
+              })}
             isLoading={false}
             tableId="cdepro-controller-table"
           />
