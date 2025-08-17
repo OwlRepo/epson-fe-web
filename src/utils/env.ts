@@ -19,7 +19,8 @@ export const getIsEVS = () => getEnvVar("VITE_IS_EVS") === "true";
 export const getEVSAppBaseUrl = () => getEnvVar("VITE_EVS_APP_BASE_URL");
 export const getApiSocketBaseUrl = () =>
   `${getEnvVar("VITE_IS_EVS") === "true" ? getEnvVar("VITE_API_SOCKET_EVS_URL") : getEnvVar("VITE_API_SOCKET_URL")}`;
-export const getApiRESTBaseUrl = () => `${getEnvVar("VITE_API_REST_URL")}`;
+export const getApiRESTBaseUrl = () =>
+  `${getEnvVar("VITE_IS_EVS") === "true" ? getEnvVar("VITE_API_REST_EVS_URL") : getEnvVar("VITE_API_REST_URL")}`;
 export const getValidUserID = () =>
   getEnvVar("VITE_VALID_USER_CARD_ID").split("|") ?? [];
 export const getUHFDeviceID = () => getEnvVar("VITE_UHF_DEVICE_ID");

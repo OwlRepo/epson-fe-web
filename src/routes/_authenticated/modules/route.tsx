@@ -40,7 +40,9 @@ const moduleRoutes = [
     external: false,
   },
   {
-    path: getEVSAppBaseUrl() + "/evacuation-monitoring",
+    path: `${getEVSAppBaseUrl()}/validate-token?token=${encodeURIComponent(
+      localStorage.getItem("token")!
+    )}`,
     title: "Evacuation",
     icon: EvacuationMonitoring,
     subtitle: "Monitoring",

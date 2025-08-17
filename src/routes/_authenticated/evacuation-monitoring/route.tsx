@@ -5,6 +5,7 @@ import {
   Outlet,
   redirect,
   useLoaderData,
+  useLocation,
 } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_authenticated/evacuation-monitoring")({
@@ -40,7 +41,10 @@ function DashboardPage() {
   const { userProfile } = useLoaderData({
     from: "/_authenticated/evacuation-monitoring",
   });
-  return (
+  const location = useLocation();
+  return location.pathname.includes("validate-token") ? (
+    <Outlet />
+  ) : (
     <EvacuationMonitoringLayout
       userProfile={userProfile}
       defaultCollapsed={false}
