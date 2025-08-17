@@ -11,6 +11,7 @@ import Spinner from "@/components/ui/spinner";
 import { LiveDataTable } from "@/components/ui/live-data-table";
 import matchesFilter from "@/utils/matchesFilter";
 import EVSCounts from "@/components/ui/evs-counts";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute(
   "/_authenticated/evacuation-monitoring/dashboard/divisions/$divisionId/$departmentId/$sectionId/"
@@ -91,74 +92,23 @@ function RouteComponent() {
             onPageSizeChange={handlePageSizeChange}
             columns={[
               {
-                key: "employee_no",
-                label: "EMPLOYEE NO.",
+                key: "employee_id",
+                label: "ID",
               },
               {
                 key: "name",
                 label: "NAME",
               },
               {
-                key: "status",
+                key: "eva_status",
                 label: "STATUS",
               },
               {
-                key: "evacuation_time",
-                label: "EVACUATION TIME",
+                key: "log_time",
+                label: "EVACUATE TIME",
               },
             ]}
-            filters={[
-              {
-                key: "employee_id",
-                label: "ID",
-                options: Array.from(
-                  new Set(data.map((item) => item.employee_id))
-                ).map((item) => ({
-                  label: item,
-                  value: item,
-                })),
-              },
-              {
-                key: "section",
-                label: "Section",
-                options: Array.from(
-                  new Set(data.map((item) => item.section))
-                ).map((item) => ({
-                  label: item,
-                  value: item,
-                })),
-              },
-              {
-                key: "name",
-                label: "Name",
-                options: Array.from(
-                  new Set(data.map((item) => item.full_name))
-                ).map((item) => ({
-                  label: item,
-                  value: item,
-                })),
-              },
-              {
-                key: "clocked_in",
-                label: "Time In",
-                options: Array.from(
-                  new Set(data.map((item) => item.clocked_in ?? "-"))
-                ).map((item) => ({
-                  label: item,
-                  value: item,
-                })),
-              },
-              {
-                key: "clocked_out",
-                label: "Time Out",
-                options: Array.from(
-                  new Set(data.map((item) => item.clocked_out ?? "-"))
-                ).map((item) => ({
-                  label: item,
-                  value: item,
-                })),
-              },
-            ]}
+            filters={[]}
             data={data
               .map((employeeData) => {
                 const {
@@ -167,6 +117,8 @@ function RouteComponent() {
                   clocked_in,
                   clocked_out,
                   full_name,
+                  eva_status,
+                  log_time,
                 } = employeeData;
                 return {
                   employee_id: employee_id,
@@ -174,6 +126,8 @@ function RouteComponent() {
                   name: full_name,
                   clocked_in: clocked_in,
                   clocked_out: clocked_out,
+                  eva_status: eva_status,
+                  log_time: log_time,
                 };
               })
               .filter((item) => {
@@ -197,16 +151,42 @@ function RouteComponent() {
                   item.clocked_out ?? "",
                   search.filter_clocked_out
                 );
-
+                const matchesStatus = matchesFilter(
+                  item.eva_status ?? "",
+                  search.filter_status
+                );
                 return (
                   matchesSection &&
                   matchesId &&
                   matchesName &&
                   matchesTimeIn &&
-                  matchesTimeOut
+                  matchesTimeOut &&
+                  matchesStatus
                 );
               })
-              .reverse()}
+              .reverse()
+              .map((item) => ({
+                ...item,
+                eva_status: (
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={cn(
+                        `flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border`,
+                        item.eva_status === "Missing" &&
+                          "border-red-200 border  bg-red-50 text-red-500",
+                        item.eva_status === "Safe" &&
+                          "border-green-200 border  bg-green-50 text-green-500",
+                        item.eva_status === "Injured" &&
+                          "border-yellow-200 border  bg-yellow-50 text-yellow-500",
+                        item.eva_status === "Home" &&
+                          "border-blue-200 border  bg-blue-50 text-blue-500"
+                      )}
+                    >
+                      <span className="font-medium">{item.eva_status}</span>
+                    </div>
+                  </div>
+                ),
+              }))}
             onFilter={handleFilter}
             onSearch={handleSearch}
             routeSearch={search}
