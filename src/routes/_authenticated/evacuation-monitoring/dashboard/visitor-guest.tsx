@@ -92,6 +92,10 @@ function RouteComponent() {
             onPageSizeChange={handlePageSizeChange}
             columns={[
               {
+                key: "id",
+                label: "ID",
+              },
+              {
                 key: "full_name",
                 label: "NAME",
               },
