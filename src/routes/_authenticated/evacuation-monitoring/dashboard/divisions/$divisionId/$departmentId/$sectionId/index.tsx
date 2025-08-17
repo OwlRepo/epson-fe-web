@@ -91,24 +91,20 @@ function RouteComponent() {
             onPageSizeChange={handlePageSizeChange}
             columns={[
               {
-                key: "employee_id",
+                key: "employee_no",
                 label: "EMPLOYEE NO.",
-              },
-              {
-                key: "section",
-                label: "SECTION",
               },
               {
                 key: "name",
                 label: "NAME",
               },
               {
-                key: "clocked_in",
-                label: "TIME IN",
+                key: "status",
+                label: "STATUS",
               },
               {
-                key: "clocked_out",
-                label: "TIME OUT",
+                key: "evacuation_time",
+                label: "EVACUATION TIME",
               },
             ]}
             filters={[

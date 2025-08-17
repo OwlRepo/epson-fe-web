@@ -5,6 +5,8 @@ interface DepartmentCardProps {
   title: string;
   clockedIn: number | string | undefined;
   clockedOut: number | string | undefined;
+  countLabelLeft?: string;
+  countLabelRight?: string;
   className?: string;
   onClick?: () => void;
 }
@@ -13,6 +15,8 @@ export function DepartmentCard({
   title,
   clockedIn,
   clockedOut,
+  countLabelLeft,
+  countLabelRight,
   className,
   onClick,
 }: DepartmentCardProps) {
@@ -35,7 +39,9 @@ export function DepartmentCard({
             <span className="text-2xl font-bold">
               {formatCountWithCommas(clockedIn)}
             </span>
-            <span className="text-xs text-gray-600">Time In</span>
+            <span className="text-xs text-gray-600">
+              {countLabelLeft ? countLabelLeft : "Time In"}
+            </span>
           </div>
         )}
         {clockedOut !== undefined && (
@@ -43,7 +49,9 @@ export function DepartmentCard({
             <span className="text-2xl font-bold">
               {formatCountWithCommas(clockedOut)}
             </span>
-            <span className="text-xs text-gray-600">Time Out</span>
+            <span className="text-xs text-gray-600">
+              {countLabelRight ? countLabelRight : "Time Out"}
+            </span>
           </div>
         )}
       </div>

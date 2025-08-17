@@ -44,8 +44,10 @@ function RouteComponent() {
               >
                 <DepartmentCard
                   title={section.name}
-                  clockedIn={section.in}
-                  clockedOut={section.out}
+                  clockedIn={section.evacuated}
+                  clockedOut={section.missing}
+                  countLabelLeft="Evacuated"
+                  countLabelRight="Missing"
                 />
               </Link>
             ))

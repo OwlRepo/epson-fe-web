@@ -9,6 +9,12 @@ export interface SummaryData extends DeviceData {
   in: string; // Total Count
   out: string; // Total Count
   inside: string; // Optional, only for summary data
+  evacuated: string;
+  missing: string;
+  injured: string;
+  safe: string;
+  home: string;
+  all: string;
 }
 
 export interface SummaryCountData {
