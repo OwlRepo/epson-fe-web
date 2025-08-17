@@ -92,82 +92,24 @@ function RouteComponent() {
         <div className="flex">
           <LiveDataTable
             clearSocketData={clearData}
-            searchTerm={searchTerm}
-            onClearSearch={clearSearch}
             pageSize={Number(search.pageSize) || 10}
             onPageSizeChange={handlePageSizeChange}
             columns={[
               {
-                key: "employee_id",
-                label: "EMPLOYEE NO.",
-              },
-              {
-                key: "section",
-                label: "SECTION",
+                key: "id",
+                label: "ID",
               },
               {
                 key: "name",
                 label: "NAME",
               },
               {
-                key: "clocked_in",
-                label: "TIME IN",
+                key: "position",
+                label: "POSITION",
               },
               {
-                key: "clocked_out",
-                label: "TIME OUT",
-              },
-            ]}
-            filters={[
-              // {
-              //   key: "employee_id",
-              //   label: "ID",
-              //   options: Array.from(
-              //     new Set(data.map((item) => item.employee_id))
-              //   ).map((item) => ({
-              //     label: item,
-              //     value: item,
-              //   })),
-              // },
-              {
-                key: "section",
-                label: "Section",
-                options: Array.from(
-                  new Set(data.map((item) => item.section))
-                ).map((item) => ({
-                  label: item,
-                  value: item,
-                })),
-              },
-              // {
-              //   key: "name",
-              //   label: "Name",
-              //   options: Array.from(
-              //     new Set(data.map((item) => item.full_name))
-              //   ).map((item) => ({
-              //     label: item,
-              //     value: item,
-              //   })),
-              // },
-              {
-                key: "clocked_in",
-                label: "Time In",
-                options: Array.from(
-                  new Set(data.map((item) => item.clocked_in ?? "-"))
-                ).map((item) => ({
-                  label: item,
-                  value: item,
-                })),
-              },
-              {
-                key: "clocked_out",
-                label: "Time Out",
-                options: Array.from(
-                  new Set(data.map((item) => item.clocked_out ?? "-"))
-                ).map((item) => ({
-                  label: item,
-                  value: item,
-                })),
+                key: "contact_no",
+                label: "CONTACT NO.",
               },
             ]}
             data={data
@@ -218,11 +160,8 @@ function RouteComponent() {
                 );
               })
               .reverse()}
-            onFilter={handleFilter}
-            onSearch={handleSearch}
-            routeSearch={search}
             isLoading={false}
-            tableId="divisions-departments-sections-table"
+            tableId="cdepro-controller-table"
           />
         </div>
       ) : (
