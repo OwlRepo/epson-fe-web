@@ -49,6 +49,7 @@ export interface VisitorData {
 
 export interface LiveData extends DeviceData, VisitorData {
   id: string;
+  ERT: string;
   device_id: string;
   name: string;
   employee_id: string;
@@ -78,6 +79,7 @@ export interface LiveData extends DeviceData, VisitorData {
   ContactNo: string;
   ID: string;
   FullName: string;
+  Status: string;
 }
 
 type DataType = "summary" | "live";

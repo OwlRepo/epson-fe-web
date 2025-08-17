@@ -96,13 +96,14 @@ function RouteComponent() {
             ]}
             data={data
               .map((employeeData) => {
-                const { ID, FirstName, LastName, Position, ContactNo } =
+                const { ID, FirstName, LastName, ERT, ContactNo, Status } =
                   employeeData;
                 return {
                   ID: ID,
                   FullName: `${FirstName} ${LastName}`,
-                  Position: Position,
+                  Position: ERT,
                   ContactNo: ContactNo,
+                  Status: Status,
                 };
               })
               .filter((item) => {
@@ -125,11 +126,11 @@ function RouteComponent() {
                       <div
                         className={cn(
                           `h-4 w-4 rounded-full`,
-                          item?.status === "Active" && "bg-green-500",
-                          item?.status === "Inactive" && "bg-red-500",
-                          item?.status === undefined && "bg-gray-500"
+                          item?.Status === "Active" && "bg-green-500",
+                          item?.Status === "In Active" && "bg-red-500",
+                          item?.Status === undefined && "bg-gray-500"
                         )}
-                      />{" "}
+                      />
                       <span>{item.ID}</span>
                     </div>
                   ),
