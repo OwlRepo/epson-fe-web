@@ -11,7 +11,7 @@ import { EPSON_LOGO_NORMAL } from "@/assets/images";
 import { ModuleCard } from "@/components/ui/module-card";
 import UserProfile from "@/components/ui/user-profile";
 import { useEffect } from "react";
-import { getIsEVS } from "@/utils/env";
+import { getEVSAppBaseUrl, getIsEVS } from "@/utils/env";
 
 export const Route = createFileRoute("/_authenticated/modules")({
   component: RouteComponent,
@@ -29,6 +29,7 @@ const moduleRoutes = [
     icon: AttendanceMonitoring,
     subtitle: "Monitoring",
     key: "AMS",
+    external: false,
   },
   {
     path: "/visitor-management",
@@ -36,13 +37,15 @@ const moduleRoutes = [
     icon: VisitorManagement,
     subtitle: "Management",
     key: "VMS",
+    external: false,
   },
   {
-    path: "/evacuation-monitoring",
+    path: getEVSAppBaseUrl() + "/evacuation-monitoring",
     title: "Evacuation",
     icon: EvacuationMonitoring,
     subtitle: "Monitoring",
     key: "EVS",
+    external: true,
   },
   {
     path: "/user-management",
@@ -50,6 +53,7 @@ const moduleRoutes = [
     icon: UserManagement,
     subtitle: "Management",
     key: "UMG",
+    external: false,
   },
   {
     path: "/device-management",
@@ -57,6 +61,7 @@ const moduleRoutes = [
     icon: DeviceManagement,
     subtitle: "Management",
     key: "DMG",
+    external: false,
   },
 ];
 
@@ -122,6 +127,7 @@ function RouteComponent() {
               title={module.title}
               subtitle={module.subtitle}
               href={module.path}
+              external={module.external}
               className="w-full lg:w-[320px] border border-gray-200 rounded-2xl hover:border-gray-300 transition-colors"
             />
           ))}

@@ -9,6 +9,7 @@ interface ModuleCardProps {
   subtitle: string;
   href: string;
   className?: string;
+  external?: boolean;
 }
 
 export function ModuleCard({
@@ -17,6 +18,7 @@ export function ModuleCard({
   subtitle,
   href,
   className,
+  external,
 }: ModuleCardProps) {
   return (
     <Link
@@ -26,6 +28,8 @@ export function ModuleCard({
         "border-gray-200 border hover:border-blue-800",
         className
       )}
+      target={external ? "_blank" : undefined}
+      rel={external ? "noopener noreferrer" : undefined}
     >
       {typeof icon === "string" ? (
         <img

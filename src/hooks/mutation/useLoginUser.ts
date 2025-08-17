@@ -27,13 +27,14 @@ export default function useLoginUser() {
   const loginResponse = useMutation({
     mutationFn: loginUser,
     onSuccess: (data) => {
-      const { token, user } = data.data;
+      const { token, user, refreshToken } = data.data;
       toast.success("Login successful!", {
         description: "Welcome back! You've successfully signed in.",
         className: "bg-green-50 border-green-200 text-black",
         style: successStyle,
       });
       localStorage.setItem("token", token);
+      localStorage.setItem("refreshToken", refreshToken);
       localStorage.setItem("user", JSON.stringify(user));
       router.navigate({ to: search.redirect || "/modules" });
     },
