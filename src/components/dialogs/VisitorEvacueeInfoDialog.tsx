@@ -16,11 +16,7 @@ const VisitorEvacueeInfoDialog = ({
   open,
 }: VisitorEvacueeInfoDialogProps) => {
   const form = useForm();
-  const {
-    register,
-
-    formState,
-  } = form;
+  const { register, formState } = form;
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[700px] p-8 bg-white rounded-lg shadow-xl">
