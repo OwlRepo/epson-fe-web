@@ -15,6 +15,7 @@ import {
   useParams,
   useSearch,
 } from "@tanstack/react-router";
+
 import { useState } from "react";
 
 export const Route = createFileRoute(
@@ -28,6 +29,7 @@ function RouteComponent() {
     from: "/_authenticated/evacuation-monitoring/cdepro/$controllerId/",
   });
   const {
+    emitData,
     data,
     isLoading,
     isConnected,
@@ -39,6 +41,7 @@ function RouteComponent() {
   });
 
   const [open, setOpen] = useState(false);
+  const [assignedPersonnel, setAssignedPersonnel] = useState({});
 
   const navigate = useNavigate({
     from: "/evacuation-monitoring/cdepro/$controllerId",
@@ -69,7 +72,14 @@ function RouteComponent() {
               type="compact"
               countType="cdepro"
             />
-            <Button variant="evacuation" className="text-white mt-2">
+            <Button
+              variant="evacuation"
+              className="text-white mt-2"
+              onClick={() => {
+                setOpen(true);
+                setAssignedPersonnel(null);
+              }}
+            >
               Assign Personnel
             </Button>
           </div>
@@ -111,14 +121,31 @@ function RouteComponent() {
               ]}
               data={data
                 .map((employeeData) => {
-                  const { ID, FirstName, LastName, ERT, ContactNo, Status } =
-                    employeeData;
+                  const {
+                    ID,
+                    FirstName,
+                    LastName,
+                    ERT,
+                    ContactNo,
+                    Status,
+                    EmailAddress,
+                    Department,
+                    EmployeeID,
+                  } = employeeData;
                   return {
                     ID: ID,
                     FullName: `${FirstName} ${LastName}`,
                     Position: ERT,
                     ContactNo: ContactNo,
                     Status: Status,
+                    FirstName,
+                    LastName,
+                    EmailAddress,
+                    ContactNo,
+                    ERT,
+                    Department,
+                    EmployeeID,
+                    RowID: ID,
                   };
                 })
                 .filter((item) => {
@@ -154,6 +181,7 @@ function RouteComponent() {
               isLoading={false}
               onRowClick={(row) => {
                 setOpen(true);
+                setAssignedPersonnel(row);
               }}
               tableId="cdepro-controller-table"
             />
@@ -166,7 +194,14 @@ function RouteComponent() {
         )}
       </CardSection>
 
-      {open && <AssignPersonnelDialog open={open} onOpenChange={setOpen} />}
+      {open && (
+        <AssignPersonnelDialog
+          open={open}
+          onOpenChange={setOpen}
+          assignedPersonnel={assignedPersonnel}
+          emitData={emitData}
+        />
+      )}
     </>
   );
 }

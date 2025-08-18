@@ -294,6 +294,16 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
       setData(data);
     });
 
+    //Listen for get_user  data
+    socketInstance.on("cdepro_update_response", (data) => {
+      console.log("cdepro_update_resppose", data);
+    });
+
+    //Listen for get_user  data
+    socketInstance.on("cdepro_add_response", (data) => {
+      console.log("cdepro_add_resppose", data);
+    });
+
     // Listen for summary count data
     socketInstance.on("count", (countData) => {
       console.log("📊 Count data received for room:", room);
@@ -456,6 +466,7 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
     error,
     isLoading,
     searchTerm,
+
     searchData,
     clearSearch,
     joinRoom,

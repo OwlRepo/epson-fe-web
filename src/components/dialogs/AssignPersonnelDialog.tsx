@@ -16,6 +16,9 @@ import { toast } from "sonner";
 import { readRFIDData } from "@/utils/rfidReaderCommand";
 import { useGetDepartmentList } from "@/hooks/query/useGetDepartmentList";
 import { useGetEmployeeByNo } from "@/hooks/query/useGetEmployeeById";
+import { useSocket } from "@/hooks";
+import { useCDEPROControllerData } from "@/hooks/useCDEPROControllerData";
+import { useParams } from "@tanstack/react-router";
 
 interface AssignPersonnelDialogProps extends DialogProps {
   assignedPersonnel?: any;
@@ -30,9 +33,10 @@ const AssignPersonnelDialog = ({
   open,
   onOpenChange,
   assignedPersonnel,
+  emitData,
 }: AssignPersonnelDialogProps) => {
   const form = useForm();
-  const { register, reset, formState, setValue, watch } = form;
+  const { register, reset, formState, setValue, watch, handleSubmit } = form;
 
   const { errorStyle, infoStyle } = useToastStyleTheme();
 
@@ -44,6 +48,39 @@ const AssignPersonnelDialog = ({
 
   const { data: employee } = useGetEmployeeByNo(watch("EmployeeNo") ?? "");
 
+  const onSubmit = (data: any) => {
+    console.log("Form submitted:", data);
+
+    if (!assignedPersonnel) {
+      emitData("cdepro_add", {
+        id: employee?.EmployeeID.toString(),
+        firstname: data.FirstName,
+        lastname: data.LastName,
+        email: data.EmailAddress,
+        contact: data.ContactNo,
+        department: data.Department,
+        ert: data.EmergencyResponseTeam,
+        uhf: data?.UHF ?? "123",
+        mifare: data?.MIFARE ?? "123",
+        em: data?.EM ?? "123",
+      });
+    } else {
+      emitData("cdepro_update", {
+        row_id: assignedPersonnel?.RowID.toString(),
+        id: assignedPersonnel?.EmployeeID.toString(),
+        firstname: data.FirstName,
+        lastname: data.LastName,
+        email: data.EmailAddress,
+        contact: data.ContactNo,
+        department: data.Department,
+        ert: data.EmergencyResponseTeam,
+        uhf: data?.UHF ?? "123",
+        mifare: data?.MIFARE ?? "123",
+        em: data?.EM ?? "123",
+      });
+    }
+  };
+
   useEffect(() => {
     if (employee) {
       setValue("FirstName", employee.FirstName);
@@ -51,8 +88,24 @@ const AssignPersonnelDialog = ({
       setValue("EmailAddress", employee.EmailAddress);
       setValue("ContactNo", employee.ContactNo);
       setValue("Department", employee.DepartmentName);
+      setValue("UHF", employee.UHF || "");
+      setValue("MIFARE", employee.MIFARE || "");
+      setValue("EM", employee.EM || "");
     }
   }, [employee, setValue]);
+
+  useEffect(() => {
+    if (assignedPersonnel) {
+      reset({
+        LastName: assignedPersonnel.LastName || "",
+        FirstName: assignedPersonnel.FirstName || "",
+        EmailAddress: assignedPersonnel.EmailAddress || "",
+        ContactNo: assignedPersonnel.ContactNo || "",
+        EmergencyResponseTeam: assignedPersonnel.ERT || "",
+        Department: assignedPersonnel.Department || "",
+      });
+    }
+  }, [assignedPersonnel]);
 
   const mifareRef = useRef<HTMLInputElement>(null);
   const emRef = useRef<HTMLInputElement>(null);
@@ -195,17 +248,19 @@ const AssignPersonnelDialog = ({
           </DialogTitle>
         </DialogHeader>
         <div>
-          <AsyncAutoComplete
-            label="Assign Personnel"
-            name={"AssignPersonnel"}
-            id="assign-personnel"
-            setValue={setValue}
-            watch={watch}
-            register={register}
-            errors={formState?.errors}
-            queryHook={useGetHostPerson}
-            withEmployeeNo
-          />
+          {!assignedPersonnel && (
+            <AsyncAutoComplete
+              label="Assign Personnel"
+              name={"AssignPersonnel"}
+              id="assign-personnel"
+              setValue={setValue}
+              watch={watch}
+              register={register}
+              errors={formState?.errors}
+              queryHook={useGetHostPerson}
+              withEmployeeNo
+            />
+          )}
           <Divider />
 
           <div className="grid grid-cols-2 gap-4">
@@ -329,6 +384,7 @@ const AssignPersonnelDialog = ({
             <Button
               variant={"evacuation"}
               className=" text-white px-4 py-2 rounded text-sm font-semibold"
+              onClick={handleSubmit(onSubmit)}
             >
               Assign Personnel
             </Button>
