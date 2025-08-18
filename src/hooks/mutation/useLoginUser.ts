@@ -4,6 +4,7 @@ import api from "@/config/axiosInstance";
 import { useMutation } from "@tanstack/react-query";
 import useToastStyleTheme from "../useToastStyleTheme";
 import { useRouter, useSearch } from "@tanstack/react-router";
+import { getIsEVS } from "@/utils/env";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address").min(1, "Email is required"),
@@ -13,7 +14,7 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 const loginUser = async (data: LoginFormData) => {
-  const response = await api.post("/api/users/loginUser", {
+  const response = await api.post(`/api/${getIsEVS() ? "evs" : "users"}/loginUser`, {
     email: data.email,
     password: data.password,
   });

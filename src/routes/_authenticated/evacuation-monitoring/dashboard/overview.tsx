@@ -20,9 +20,32 @@ import useLiveDataTableStore from "@/store/vms/overview/useLiveDataTableStore";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 
+interface SearchParams {
+  pageSize?: string;
+  filter_employee_id?: string;
+  filter_type?: string;
+  filter_name?: string;
+  filter_status?: string;
+  from_date_time?: string;
+  to_date_time?: string;
+  [key: string]: string | undefined;
+}
+
 export const Route = createFileRoute(
   "/_authenticated/evacuation-monitoring/dashboard/overview"
 )({
+  validateSearch: (search: Record<string, unknown>): SearchParams => ({
+    pageSize: search.pageSize as string,
+    filter_employee_id: search.filter_employee_id as string,
+    filter_type: search.filter_type as string,
+    filter_name: search.filter_name as string,
+    filter_status: search.filter_status as string,
+    from_date_time: search.from_date_time as string,
+    to_date_time: search.to_date_time as string,
+    ...Object.entries(search)
+      .filter(([key]) => key.startsWith("filter_") || key.startsWith("from_") || key.startsWith("to_"))
+      .reduce((acc, [key, value]) => ({ ...acc, [key]: value as string }), {}),
+  }),
   component: RouteComponent,
 });
 
@@ -149,26 +172,6 @@ function RouteComponent() {
                   },
                 ]}
                 filters={[
-                  // {
-                  //   key: "employee_id",
-                  //   label: "ID",
-                  //   options: Array.from(
-                  //     new Set(liveData.map((item) => item.employee_id))
-                  //   ).map((item) => ({
-                  //     label: item,
-                  //     value: item,
-                  //   })),
-                  // },
-                  // {
-                  //   key: "name",
-                  //   label: "Name",
-                  //   options: Array.from(
-                  //     new Set(liveData.map((item) => item.full_name))
-                  //   ).map((item) => ({
-                  //     label: item,
-                  //     value: item,
-                  //   })),
-                  // },
                   {
                     key: "type",
                     label: "Type",
@@ -191,13 +194,8 @@ function RouteComponent() {
                   },
                   {
                     key: "date_time",
-                    label: "Date",
-                    options: Array.from(
-                      new Set(liveData.map((item) => item.date_time ?? "-"))
-                    ).map((item) => ({
-                      label: item,
-                      value: item,
-                    })),
+                    label: "Date & Time Range",
+                    isDateTimeRangePicker: true,
                   },
                 ]}
                 data={liveData
@@ -231,12 +229,62 @@ function RouteComponent() {
                       item.name ?? "",
                       search.filter_name
                     );
-                    const matchesDate = !search.filter_date_time
-                      ? true
-                      : matchesFilter(
-                          item.date_time ?? "",
-                          search.filter_date_time
-                        );
+                    // Handle date-time range filtering
+                    const matchesDate = (() => {
+                      const fromDateTime = search.from_date_time;
+                      const toDateTime = search.to_date_time;
+                      
+                      if (!fromDateTime && !toDateTime) return true;
+                      
+                      // Parse the date format: "Aug 17, 2025 11:37 pm"
+                      const parseCustomDate = (dateStr: string) => {
+                        if (!dateStr) return null;
+                        
+                        try {
+                          // First try direct parsing
+                          let parsedDate = new Date(dateStr);
+                          
+                          // If that fails, try to handle the custom format
+                          if (isNaN(parsedDate.getTime())) {
+                            // Handle format like "Aug 17, 2025 11:37 pm"
+                            const cleanedStr = dateStr
+                              .replace(/(\d{1,2}):(\d{2})\s+(am|pm)/i, (_, hour, min, period) => {
+                                let h = parseInt(hour);
+                                if (period.toLowerCase() === 'pm' && h !== 12) h += 12;
+                                if (period.toLowerCase() === 'am' && h === 12) h = 0;
+                                return `${h.toString().padStart(2, '0')}:${min}:00`;
+                              });
+                            
+                            parsedDate = new Date(cleanedStr);
+                          }
+                          
+                          return isNaN(parsedDate.getTime()) ? null : parsedDate;
+                        } catch {
+                          return null;
+                        }
+                      };
+                      
+                      const itemDateTime = parseCustomDate(item.date_time ?? "");
+                      if (!itemDateTime) return true; // Invalid date, include it
+                      
+                      let matches = true;
+                      
+                      if (fromDateTime) {
+                        const fromDate = new Date(fromDateTime);
+                        if (!isNaN(fromDate.getTime())) {
+                          matches = matches && itemDateTime >= fromDate;
+                        }
+                      }
+                      
+                      if (toDateTime) {
+                        const toDate = new Date(toDateTime);
+                        if (!isNaN(toDate.getTime())) {
+                          matches = matches && itemDateTime <= toDate;
+                        }
+                      }
+                      
+                      return matches;
+                    })();
                     const matchesStatus = !search.filter_status
                       ? true
                       : matchesFilter(

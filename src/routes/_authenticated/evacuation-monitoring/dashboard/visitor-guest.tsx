@@ -13,9 +13,32 @@ import matchesFilter from "@/utils/matchesFilter";
 import EVSCounts from "@/components/ui/evs-counts";
 import { cn } from "@/lib/utils";
 
+interface SearchParams {
+  pageSize?: string;
+  filter_employee_id?: string;
+  filter_full_name?: string;
+  filter_user_type?: string;
+  filter_eva_status?: string;
+  from_log_time?: string;
+  to_log_time?: string;
+  [key: string]: string | undefined;
+}
+
 export const Route = createFileRoute(
   "/_authenticated/evacuation-monitoring/dashboard/visitor-guest"
 )({
+  validateSearch: (search: Record<string, unknown>): SearchParams => ({
+    pageSize: search.pageSize as string,
+    filter_employee_id: search.filter_employee_id as string,
+    filter_full_name: search.filter_full_name as string,
+    filter_user_type: search.filter_user_type as string,
+    filter_eva_status: search.filter_eva_status as string,
+    from_log_time: search.from_log_time as string,
+    to_log_time: search.to_log_time as string,
+    ...Object.entries(search)
+      .filter(([key]) => key.startsWith("filter_") || key.startsWith("from_") || key.startsWith("to_"))
+      .reduce((acc, [key, value]) => ({ ...acc, [key]: value as string }), {}),
+  }),
   component: RouteComponent,
 });
 
@@ -114,16 +137,6 @@ function RouteComponent() {
             ]}
             filters={[
               {
-                key: "eva_status",
-                label: "Status",
-                options: Array.from(
-                  new Set(data.map((item) => item.eva_status))
-                ).map((item) => ({
-                  label: item,
-                  value: item,
-                })),
-              },
-              {
                 key: "user_type",
                 label: "Type",
                 options: Array.from(
@@ -132,6 +145,21 @@ function RouteComponent() {
                   label: item,
                   value: item,
                 })),
+              },
+              {
+                key: "eva_status",
+                label: "Status",
+                options: ["Safe", "Injured", "Home", "Missing"].map(
+                  (item) => ({
+                    label: item,
+                    value: item,
+                  })
+                ),
+              },
+              {
+                key: "log_time",
+                label: "Evacuate Time Range",
+                isDateTimeRangePicker: true,
               },
             ]}
             data={data
@@ -152,35 +180,77 @@ function RouteComponent() {
                 };
               })
               .filter((item) => {
-                const matchesSection = matchesFilter(
-                  item.eva_status ?? "",
-                  search.filter_eva_status
-                );
-                const matchesId = matchesFilter(
-                  item.employee_id ?? "",
-                  search.filter_employee_id
-                );
-                const matchesName = matchesFilter(
-                  item.full_name ?? "",
-                  search.filter_full_name
-                );
-                const matchesType = matchesFilter(
-                  item.user_type ?? "",
-                  search.filter_user_type
-                );
+                const matchesId = !search.filter_employee_id
+                  ? true
+                  : matchesFilter(item.employee_id ?? "", search.filter_employee_id);
+                const matchesName = !search.filter_full_name
+                  ? true
+                  : matchesFilter(item.full_name ?? "", search.filter_full_name);
+                const matchesType = !search.filter_user_type
+                  ? true
+                  : matchesFilter(item.user_type ?? "", search.filter_user_type);
+                const matchesStatus = !search.filter_eva_status
+                  ? true
+                  : matchesFilter(item.eva_status ?? "", search.filter_eva_status);
+                
+                // Handle date-time range filtering for log_time
+                const matchesLogTime = (() => {
+                  const fromLogTime = search.from_log_time;
+                  const toLogTime = search.to_log_time;
+                  
+                  if (!fromLogTime && !toLogTime) return true;
+                  
+                  // Parse the date format: "Aug 17, 2025 11:37 pm"
+                  const parseCustomDate = (dateStr: string) => {
+                    if (!dateStr) return null;
+                    
+                    try {
+                      // First try direct parsing
+                      let parsedDate = new Date(dateStr);
+                      
+                      // If that fails, try to handle the custom format
+                      if (isNaN(parsedDate.getTime())) {
+                        // Handle format like "Aug 17, 2025 11:37 pm"
+                        const cleanedStr = dateStr
+                          .replace(/(\d{1,2}):(\d{2})\s+(am|pm)/i, (_, hour, min, period) => {
+                            let h = parseInt(hour);
+                            if (period.toLowerCase() === 'pm' && h !== 12) h += 12;
+                            if (period.toLowerCase() === 'am' && h === 12) h = 0;
+                            return `${h.toString().padStart(2, '0')}:${min}:00`;
+                          });
+                        
+                        parsedDate = new Date(cleanedStr);
+                      }
+                      
+                      return isNaN(parsedDate.getTime()) ? null : parsedDate;
+                    } catch {
+                      return null;
+                    }
+                  };
+                  
+                  const itemDateTime = parseCustomDate(item.log_time ?? "");
+                  if (!itemDateTime) return true; // Invalid date, include it
+                  
+                  let matches = true;
+                  
+                  if (fromLogTime) {
+                    const fromDate = new Date(fromLogTime);
+                    if (!isNaN(fromDate.getTime())) {
+                      matches = matches && itemDateTime >= fromDate;
+                    }
+                  }
+                  
+                  if (toLogTime) {
+                    const toDate = new Date(toLogTime);
+                    if (!isNaN(toDate.getTime())) {
+                      matches = matches && itemDateTime <= toDate;
+                    }
+                  }
+                  
+                  return matches;
+                })();
 
-                const matchesStatus = matchesFilter(
-                  item.eva_status ?? "",
-                  search.filter_eva_status
-                );
-
-                return (
-                  matchesSection &&
-                  matchesId &&
-                  matchesName &&
-                  matchesType &&
-                  matchesStatus
-                );
+                return matchesId && matchesName && matchesType && matchesStatus && matchesLogTime;
               })
               .reverse()
               .map((item) => ({

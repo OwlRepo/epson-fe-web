@@ -37,6 +37,7 @@ import {
 import { Calendar } from "./calendar";
 import dayjs from "dayjs";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover";
+import { DateTimeRangePicker } from "./date-time-range-picker";
 import {
   Dialog,
   DialogContent,
@@ -89,6 +90,7 @@ export interface Filter {
   singleSelect?: boolean; // If true, only one option can be selected at a time
   isDateTimePicker?: boolean; // If true, this filter will be a date-time picker
   isDateRangePicker?: boolean; // If true, this filter will be a date range picker with "from" and "to" dates
+  isDateTimeRangePicker?: boolean; // If true, this filter will be a date-time range picker with "from" and "to" date-times
 }
 
 export interface PaginationConfig {
@@ -244,6 +246,17 @@ export function DynamicTable({
         return; // Skip traditional filter processing for date range pickers
       }
 
+      // Handle date-time range picker with separate from_datetime and to_datetime params
+      if (filter.isDateTimeRangePicker) {
+        const fromDateTime = routeSearch[`from_${filter.key}`];
+        const toDateTime = routeSearch[`to_${filter.key}`];
+
+        if (fromDateTime || toDateTime) {
+          tempFilterValues[filter.key] = [fromDateTime || "", toDateTime || ""];
+        }
+        return; // Skip traditional filter processing for date-time range pickers
+      }
+
       // Handle traditional filters (non-date-range)
       const filterKey = `filter_${filter.key}`;
       let filterValue = routeSearch[filterKey];
@@ -315,6 +328,17 @@ export function DynamicTable({
             tempFilterValues[filter.key] = [fromDate || "", toDate || ""];
           }
           return; // Skip traditional filter processing for date range pickers
+        }
+
+        // Handle date-time range picker with separate from_datetime and to_datetime params
+        if (filter.isDateTimeRangePicker) {
+          const fromDateTime = routeSearch[`from_${filter.key}`];
+          const toDateTime = routeSearch[`to_${filter.key}`];
+
+          if (fromDateTime || toDateTime) {
+            tempFilterValues[filter.key] = [fromDateTime || "", toDateTime || ""];
+          }
+          return; // Skip traditional filter processing for date-time range pickers
         }
 
         // Handle traditional filters (non-date-range)
@@ -438,6 +462,12 @@ export function DynamicTable({
       return [fromDate, toDate].filter(Boolean);
     }
 
+    if (filter?.isDateTimeRangePicker) {
+      const fromDateTime = routeSearch?.[`from_${filterKey}`];
+      const toDateTime = routeSearch?.[`to_${filterKey}`];
+      return [fromDateTime, toDateTime].filter(Boolean);
+    }
+
     const value = routeSearch?.[getSearchKey(`filter_${filterKey}`)];
     return value ? value.split(",") : [];
   };
@@ -478,6 +508,26 @@ export function DynamicTable({
 
       // Don't call onFilter for date range pickers since we handle URL params directly
       return;
+    }
+
+    // Handle date-time range picker with separate parameters
+    if (filter?.isDateTimeRangePicker) {
+      const [fromDateTime, toDateTime] = newValues;
+
+      // Update URL params using TanStack Router's navigate function
+      navigate({
+        //@ts-ignore
+        search: (prev) => ({
+          ...prev,
+          [`from_${key}`]:
+            fromDateTime && fromDateTime.trim() ? fromDateTime.trim() : undefined,
+          [`to_${key}`]: toDateTime && toDateTime.trim() ? toDateTime.trim() : undefined,
+        }),
+        replace: true,
+      });
+
+      // Don't call onFilter for date-time range pickers since we handle URL params directly
+      return;
     } else {
       // For other filters, use the existing logic
       const finalValues = filter?.singleSelect
@@ -515,6 +565,17 @@ export function DynamicTable({
 
     // Clear URL params for date range picker
     if (filter?.isDateRangePicker) {
+      navigate({
+        //@ts-ignore
+        search: (prev) => ({
+          ...prev,
+          [`from_${key}`]: undefined,
+          [`to_${key}`]: undefined,
+        }),
+        replace: true,
+      });
+    } else if (filter?.isDateTimeRangePicker) {
+      // Clear URL params for date-time range picker
       navigate({
         //@ts-ignore
         search: (prev) => ({
@@ -603,7 +664,7 @@ export function DynamicTable({
   // Filter options based on search input
   const getFilteredOptions = (filter: Filter, searchTerm: string) => {
     // Don't show options for date picker filters
-    if (filter.isDateTimePicker || filter.isDateRangePicker) {
+    if (filter.isDateTimePicker || filter.isDateRangePicker || filter.isDateTimeRangePicker) {
       return [];
     }
 
@@ -664,7 +725,7 @@ export function DynamicTable({
                 <Button
                   variant="default"
                   className="flex items-center shadow-none bg-[#F4F4F4] hover:bg-gray-300 text-black"
-                  disabled={isLoading || data.length === 0}
+                  disabled={isLoading}
                 >
                   Filters
                   {Object.keys(filters).reduce(
@@ -715,7 +776,8 @@ export function DynamicTable({
                         <div className="p-4 pt-5 bg-white border-x border-b rounded-b-lg">
                           <div className="space-y-4">
                             {!filter.isDateTimePicker &&
-                              !filter.isDateRangePicker && (
+                              !filter.isDateRangePicker &&
+                              !filter.isDateTimeRangePicker && (
                                 <div className="relative w-full">
                                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                                   <Input
@@ -732,7 +794,7 @@ export function DynamicTable({
                                   />
                                 </div>
                               )}
-                            <div className="space-y-3 max-h-[200px] overflow-y-auto">
+                            <div className="space-y-3 max-h-[500px] overflow-y-auto">
                               {filter.isDateTimePicker ? (
                                 <div className="py-2">
                                   <Popover>
@@ -997,6 +1059,29 @@ export function DynamicTable({
                                     </Popover>
                                   </div>
                                 </div>
+                              ) : filter.isDateTimeRangePicker ? (
+                                <DateTimeRangePicker
+                                  fromDateTime={tempFilters[filter.key]?.[0] || ""}
+                                  toDateTime={tempFilters[filter.key]?.[1] || ""}
+                                  onFromDateTimeChange={(dateTime) => {
+                                    setTempFilters((prev) => ({
+                                      ...prev,
+                                      [filter.key]: [
+                                        dateTime,
+                                        prev[filter.key]?.[1] || "",
+                                      ],
+                                    }));
+                                  }}
+                                  onToDateTimeChange={(dateTime) => {
+                                    setTempFilters((prev) => ({
+                                      ...prev,
+                                      [filter.key]: [
+                                        prev[filter.key]?.[0] || "",
+                                        dateTime,
+                                      ],
+                                    }));
+                                  }}
+                                />
                               ) : getFilteredOptions(
                                   filter,
                                   filterSearches[filter.key] || ""

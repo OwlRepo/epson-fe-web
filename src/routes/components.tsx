@@ -3,6 +3,7 @@ import { BasicInformationFormExample } from "@/components/examples/BasicInformat
 import { BasicTableExample } from "@/components/examples/BasicTableExample";
 import { ButtonExample } from "@/components/examples/ButtonExample";
 import { CardExamples } from "@/components/examples/CardExamples";
+import DateTimeRangePickerExample from "@/components/examples/DateTimeRangePickerExample";
 import { DynamicTableExample } from "@/components/examples/DynamicTableExample";
 import EmpInfoDialogExample from "@/components/examples/EmpInfoDialogExample";
 import { SidebarExample } from "@/components/examples/SidebarExample";
@@ -61,6 +62,11 @@ function ComponentsShowcase() {
       {/* Dynamic Table Example */}
       <section className="mb-12">
         <DynamicTableExample />
+      </section>
+
+      {/* Date Time Range Picker Example */}
+      <section className="mb-12">
+        <DateTimeRangePickerExample />
       </section>
 
       {/* Axios Example */}
