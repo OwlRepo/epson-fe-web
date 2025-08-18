@@ -80,6 +80,7 @@ export interface LiveData extends DeviceData, VisitorData {
   ID: string;
   FullName: string;
   Status: string;
+  remarks?: string;
 }
 
 type DataType = "summary" | "live";
@@ -285,6 +286,12 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
     socketInstance.on("remove_data", (epc) => {
       console.log("remove from evs", epc);
       setData((prev) => prev.filter((item: any) => item?.epc !== epc));
+    });
+
+    //Listen for get_user  data
+    socketInstance.on("get_user", (data) => {
+      console.log("get_user", data);
+      setData(data);
     });
 
     // Listen for summary count data

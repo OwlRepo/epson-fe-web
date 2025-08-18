@@ -164,6 +164,8 @@ function RouteComponent() {
                     eva_status,
                     log_time,
                     epc,
+                    division,
+                    remarks,
                   } = employeeData;
                   return {
                     employee_id: employee_id,
@@ -173,8 +175,10 @@ function RouteComponent() {
                     clocked_out: clocked_out,
                     eva_status: eva_status,
                     log_time: log_time,
-                    division: employeeData.division,
+                    division: division,
                     epc: epc,
+                    raw_status: eva_status,
+                    remarks: remarks,
                   };
                 })
                 .filter((item) => {

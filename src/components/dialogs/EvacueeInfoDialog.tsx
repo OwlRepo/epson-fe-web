@@ -5,25 +5,59 @@ import { Switch } from "../ui/switch";
 import { cn } from "@/lib/utils";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
-import { Controller, useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { useEffect } from "react";
+import { useSocket } from "@/hooks";
 
 export interface EvacueeInfoDialogProps extends DialogProps {
   evacuee?: any;
 }
+
+type FormValues = {
+  status: "Safe" | "Injured";
+  remarks: string;
+};
+
 const EvacueeInfoDialog = ({
   onOpenChange,
   open,
   evacuee,
 }: EvacueeInfoDialogProps) => {
-  const { control, register, formState, reset } = useForm();
+  const { emitData } = useSocket({
+    room: "epc_eva_updates",
+    dataType: "live",
+  });
+
+  console.log("Evacuee Info Dialog", evacuee);
+
+  const { control, register, handleSubmit, reset, watch, formState } =
+    useForm<FormValues>({
+      defaultValues: {
+        status: evacuee?.raw_status === "Safe" ? "Safe" : "Injured",
+        remarks: evacuee?.remarks || "",
+      },
+    });
+
+  const onSubmit = (data: FormValues) => {
+    console.log("Form submitted:", data);
+
+    emitData(
+      "epc_eva_updates",
+      JSON.stringify([evacuee?.epc, data.status, data.remarks, new Date(), 0])
+    );
+
+    onOpenChange?.(false);
+  };
 
   useEffect(() => {
-    return () => {
-      // Cleanup if necessary
-      reset();
-    };
-  }, []);
+    reset({
+      status: evacuee?.raw_status === "Safe" ? "Safe" : "Injured",
+      remarks: evacuee?.remarks || "",
+    });
+  }, [evacuee, reset]);
+
+  const currentStatus = watch("status");
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[400px] p-8 bg-white rounded-lg shadow-xl">
@@ -32,7 +66,7 @@ const EvacueeInfoDialog = ({
             Evacuee Information
           </DialogTitle>
         </DialogHeader>
-        <div>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <p className="text-sm">{`Card ID: ${evacuee?.epc}`}</p>
           <div className="flex items-center gap-4 mt-4">
             <h1 className="text-3xl font-bold text-[#980000]">
@@ -47,22 +81,28 @@ const EvacueeInfoDialog = ({
             <p className="text-sm">Kindly confirm the status of the evacuee</p>
           </div>
 
-          {/* Controlled Switch */}
+          {/* Switch now toggles between Safe and Injured */}
           <div className="flex items-center mt-4 gap-4">
             <Controller
               control={control}
-              name="isSafe"
+              name="status"
               render={({ field }) => (
                 <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
+                  checked={field.value === "Safe"}
+                  onCheckedChange={(checked) =>
+                    field.onChange(checked ? "Safe" : "Injured")
+                  }
                   className={cn(
                     "data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
                   )}
                 />
               )}
             />
-            <p className="text-sm">Evacuee is Safe</p>
+            <p className="text-sm">
+              {currentStatus === "Safe"
+                ? "Evacuee is Safe"
+                : "Evacuee is Injured"}
+            </p>
           </div>
 
           {/* Remarks */}
@@ -77,9 +117,11 @@ const EvacueeInfoDialog = ({
           </div>
 
           <div className="flex justify-end mt-4">
-            <Button disabled={!formState.isDirty}>Save Changes</Button>
+            <Button type="submit" disabled={!formState.isDirty}>
+              Save Changes
+            </Button>
           </div>
-        </div>
+        </form>
       </DialogContent>
     </Dialog>
   );
