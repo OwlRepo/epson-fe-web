@@ -13,14 +13,12 @@ export const Route = createFileRoute("/validate-session")({
         })
         .then((res) => {
           const { token, refreshToken, user } = res.data.data;
-          if (res && res.status === 200) {
             localStorage.setItem("token", token);
             localStorage.setItem("refreshToken", refreshToken);
             localStorage.setItem("user", JSON.stringify(user));
             redirect({
               to: "/evacuation-monitoring/dashboard/overview",
             });
-          }
         })
         .catch(async () => {
           redirect({
