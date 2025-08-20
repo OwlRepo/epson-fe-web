@@ -20,19 +20,19 @@ const VisitorEvacueeInfoDialog = ({
 }: VisitorEvacueeInfoDialogProps) => {
   const {
     emitData,
-    data: live_data,
+    response: live_data,
     isLoading,
-  } = useSocket<any>({
+  } = useSocket({
     room: "get_user",
     dataType: "live",
   });
 
   const form = useForm({
     defaultValues: {
-      ContactInfo: live_data?.[0]?.ContactInformation || "",
-      Company: live_data?.[0]?.Company || "",
-      GuestType: live_data?.[0]?.GuestType || "",
-      HostPerson: live_data?.[0]?.HostPerson || "",
+      ContactInfo: live_data?.ContactInformation || "",
+      Company: live_data?.Company || "",
+      GuestType: live_data?.GuestType || "",
+      HostPerson: live_data?.HostPerson || "",
       status: evacuee?.raw_status === "Safe" ? "Safe" : "Injured",
       remarks: evacuee?.remarks || "",
     },

@@ -131,21 +131,26 @@ function RouteComponent() {
                     EmailAddress,
                     Department,
                     EmployeeID,
+                    EM,
+                    MIFARE,
+                    UHF,
                   } = employeeData;
                   return {
                     ID: ID,
                     FullName: `${FirstName} ${LastName}`,
                     Position: ERT,
-                    ContactNo: ContactNo,
+                    ContactNo,
                     Status: Status,
                     FirstName,
                     LastName,
                     EmailAddress,
-                    ContactNo,
                     ERT,
                     Department,
                     EmployeeID,
                     RowID: ID,
+                    EM,
+                    MIFARE,
+                    UHF,
                   };
                 })
                 .filter((item) => {

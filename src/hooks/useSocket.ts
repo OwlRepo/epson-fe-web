@@ -105,6 +105,7 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [response, setResponse] = useState<any>(null);
 
   // Connect to socket and join room
   useEffect(() => {
@@ -291,7 +292,7 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
     //Listen for get_user  data
     socketInstance.on("get_user", (data) => {
       console.log("get_user", data);
-      setData(data);
+      setResponse(data);
     });
 
     //Listen for get_user  data
@@ -466,6 +467,7 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
     error,
     isLoading,
     searchTerm,
+    response,
 
     searchData,
     clearSearch,
