@@ -33,18 +33,20 @@ export function ConfirmationDialog(props: ConfirmationDialogProps) {
 
   return (
     <AlertDialog open={open} onOpenChange={handleOpenChange}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>{Title}</AlertDialogTitle>
-          <AlertDialogDescription>{Description}</AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel onClick={() => onOpenChange(false)}>
-            Cancel
-          </AlertDialogCancel>
-          <AlertDialogAction onClick={onConfirm}>Continue</AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
+      {open && (
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{Title}</AlertDialogTitle>
+            <AlertDialogDescription>{Description}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => onOpenChange(false)}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={onConfirm}>Continue</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      )}
     </AlertDialog>
   );
 }

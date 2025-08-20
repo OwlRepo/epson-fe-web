@@ -16,12 +16,10 @@ import { toast } from "sonner";
 import { readRFIDData } from "@/utils/rfidReaderCommand";
 import { useGetDepartmentList } from "@/hooks/query/useGetDepartmentList";
 import { useGetEmployeeByNo } from "@/hooks/query/useGetEmployeeById";
-import { useSocket } from "@/hooks";
-import { useCDEPROControllerData } from "@/hooks/useCDEPROControllerData";
-import { useParams } from "@tanstack/react-router";
 
 interface AssignPersonnelDialogProps extends DialogProps {
   assignedPersonnel?: any;
+  emitData: (event: string, data: any) => void;
 }
 
 //env configs
@@ -96,6 +94,7 @@ const AssignPersonnelDialog = ({
 
   useEffect(() => {
     if (assignedPersonnel) {
+      console.log("Assigned Personnel Data:", assignedPersonnel);
       reset({
         LastName: assignedPersonnel.LastName || "",
         FirstName: assignedPersonnel.FirstName || "",
@@ -103,6 +102,9 @@ const AssignPersonnelDialog = ({
         ContactNo: assignedPersonnel.ContactNo || "",
         EmergencyResponseTeam: assignedPersonnel.ERT || "",
         Department: assignedPersonnel.Department || "",
+        UHF: assignedPersonnel.UHF || "",
+        MIFARE: assignedPersonnel.MIFARE || "",
+        EM: assignedPersonnel.EM || "",
       });
     }
   }, [assignedPersonnel]);
@@ -239,7 +241,7 @@ const AssignPersonnelDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange} modal={false}>
       {/* Manual backdrop */}
       {open && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 pointer-events-none"></div>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"></div>
       )}
       <DialogContent className="sm:max-w-[600px] p-8 bg-white rounded-lg shadow-xl">
         <DialogHeader className="flex flex-row justify-between items-center mb-6">
@@ -249,19 +251,21 @@ const AssignPersonnelDialog = ({
         </DialogHeader>
         <div>
           {!assignedPersonnel && (
-            <AsyncAutoComplete
-              label="Assign Personnel"
-              name={"AssignPersonnel"}
-              id="assign-personnel"
-              setValue={setValue}
-              watch={watch}
-              register={register}
-              errors={formState?.errors}
-              queryHook={useGetHostPerson}
-              withEmployeeNo
-            />
+            <>
+              <AsyncAutoComplete
+                label="Assign Personnel"
+                name={"AssignPersonnel"}
+                id="assign-personnel"
+                setValue={setValue}
+                watch={watch}
+                register={register}
+                errors={formState?.errors}
+                queryHook={useGetHostPerson}
+                withEmployeeNo
+              />
+              <Divider />
+            </>
           )}
-          <Divider />
 
           <div className="grid grid-cols-2 gap-4">
             <TextInput
@@ -337,7 +341,7 @@ const AssignPersonnelDialog = ({
               isDeviceConnected={!!port}
               onLinkCard={handleLinkCard}
               onStopReading={() => setIsUHFLinking(false)}
-              onUnlinkCard={() => setValue("UHF", "")}
+              onUnlinkCard={() => setValue("UHF", "", { shouldDirty: true })}
             />
 
             <LinkCardInput
@@ -351,7 +355,7 @@ const AssignPersonnelDialog = ({
               }}
               isLinking={isLinking === "MIFARE"}
               onStopReading={() => setIsLinking(null)}
-              onUnlinkCard={() => setValue("MIFARE", "")}
+              onUnlinkCard={() => setValue("MIFARE", "", { shouldDirty: true })}
             />
             <LinkCardInput
               ref={emRef}
@@ -364,7 +368,7 @@ const AssignPersonnelDialog = ({
               }}
               isLinking={isLinking === "EM"}
               onStopReading={() => setIsLinking(null)}
-              onUnlinkCard={() => setValue("EM", "")}
+              onUnlinkCard={() => setValue("EM", "", { shouldDirty: true })}
             />
           </div>
 
@@ -385,8 +389,9 @@ const AssignPersonnelDialog = ({
               variant={"evacuation"}
               className=" text-white px-4 py-2 rounded text-sm font-semibold"
               onClick={handleSubmit(onSubmit)}
+              disabled={!formState.isDirty}
             >
-              Assign Personnel
+              {assignedPersonnel ? "Update Personnel" : "Assign Personnel"}
             </Button>
           </div>
         </div>
