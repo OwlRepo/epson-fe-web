@@ -17,6 +17,18 @@ import { useCurrentPath } from "@/hooks/useCurrentPath";
 import { EPSON_LOGO_WHITE } from "@/assets/images";
 import { VerifyiLogoLight, VerifyiVLogo } from "@/assets/svgs";
 import { getIsEVS } from "@/utils/env";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Input } from "./input";
 
 interface SubItem {
   label: string;
@@ -40,6 +52,7 @@ interface SidebarProps {
   footerItems?: React.ReactNode[];
   collapsedLogo?: React.ReactNode;
   collapsedFooterItems?: React.ReactNode[];
+  onEvacComplete?: () => void;
 }
 
 interface NavItemProps {
@@ -353,11 +366,13 @@ export function Sidebar({
   navItems = defaultNavItems,
   logo = defaultLogo,
   collapsedLogo,
+  onEvacComplete,
 }: SidebarProps) {
   const router = useRouter();
   const [collapsed, setCollapsed] = React.useState(defaultCollapsed);
   const toggleSidebar = () => setCollapsed(!collapsed);
   const currentPath = router.state.location.pathname;
+  const [email, setEmail] = React.useState("");
 
   return (
     <aside
@@ -476,7 +491,57 @@ export function Sidebar({
       </nav>
 
       {/* Footer */}
-      <div className="py-6">
+      <div className="py-6 flex flex-col items-center justify-center space-y-5">
+        {onEvacComplete && (
+          <div className="w-full flex items-center justify-center">
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="secondary" className="w-[90%] text-white">
+                  Evacuation Complete
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent className="w-[700px] flex flex-col">
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Evacuation Complete</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Kindly provide your email to confirm the completion of the
+                    evacuation.
+                  </AlertDialogDescription>
+                  <Input
+                    type="email"
+                    placeholder="Enter your email"
+                    onPaste={(e) => e.preventDefault()}
+                    onCopy={(e) => e.preventDefault()}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                  <small className="text-red-500">
+                    {email !== "" &&
+                      email !==
+                        JSON.parse(localStorage.getItem("user") || "{}")[
+                          "EmailAddress"
+                        ] &&
+                      "Incorrect email address"}
+                  </small>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    className="bg-primary-evs hover:bg-primary-evs/80"
+                    disabled={
+                      email !==
+                      JSON.parse(localStorage.getItem("user") || "{}")[
+                        "EmailAddress"
+                      ]
+                    }
+                    onClick={onEvacComplete}
+                  >
+                    Confirm
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+        )}
         {!collapsed ? (
           <div className="flex flex-col items-center justify-center gap-3">
             <VerifyiLogoLight className="w-full px-16 opacity-70 h-fit" />
