@@ -41,7 +41,7 @@ function RouteComponent() {
   });
 
   const [open, setOpen] = useState(false);
-  const [assignedPersonnel, setAssignedPersonnel] = useState({});
+  const [assignedPersonnel, setAssignedPersonnel] = useState<any>({});
 
   const navigate = useNavigate({
     from: "/evacuation-monitoring/cdepro/$controllerId",
@@ -120,7 +120,7 @@ function RouteComponent() {
                 },
               ]}
               data={data
-                .map((employeeData) => {
+                .map((employeeData: any) => {
                   const {
                     ID,
                     FirstName,

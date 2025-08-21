@@ -14,11 +14,13 @@ import {
 import { useState } from "react";
 import matchesFilter from "@/utils/matchesFilter";
 
-import AssignPersonnelDialog from "@/components/dialogs/AssignPersonnelDialog";
 import EVSCounts from "@/components/ui/evs-counts";
 import useLiveDataTableStore from "@/store/vms/overview/useLiveDataTableStore";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
+
+import VisitorEvacueeInfoDialog from "@/components/dialogs/VisitorEvacueeInfoDialog";
+import EvacueeInfoDialog from "@/components/dialogs/EvacueeInfoDialog";
 
 interface SearchParams {
   pageSize?: string;
@@ -63,10 +65,13 @@ function RouteComponent() {
   });
 
   //employee data
-  const [isOpen, setIsOpen] = useState(false);
-  const [, setEmployeeID] = useState("");
+  const [openVisitorDialog, setOpenVisitorDialog] = useState(false);
+  const [openEvacueeDialog, setOpenEvacueeDialog] = useState(false);
+
+  const [evacuee, setEvacuee] = useState<any>(null);
 
   // Add handler for page size changes
+
   const handlePageSizeChange = (newPageSize: number) => {
     navigate({
       search: (prev) => ({
@@ -150,8 +155,14 @@ function RouteComponent() {
               pageSize={Number(search.pageSize) || 10}
               onPageSizeChange={handlePageSizeChange}
               onRowClick={(row) => {
-                setEmployeeID(row.employee_id);
-                setIsOpen(true);
+                setEvacuee(row);
+                if (row.user_type === "Visitor") {
+                  setOpenVisitorDialog(true);
+                }
+
+                if (row.user_type === "Evacuee") {
+                  setOpenEvacueeDialog(true);
+                }
               }}
               columns={[
                 {
@@ -334,6 +345,16 @@ function RouteComponent() {
           </div>
         )}
       </CardSection>
+      {openVisitorDialog && (
+        <VisitorEvacueeInfoDialog open={openVisitorDialog} evacuee={evacuee} />
+      )}
+      {openEvacueeDialog && (
+        <EvacueeInfoDialog
+          open={openEvacueeDialog}
+          evacuee={evacuee}
+          onOpenChange={setOpenEvacueeDialog}
+        />
+      )}
     </div>
   );
 }
