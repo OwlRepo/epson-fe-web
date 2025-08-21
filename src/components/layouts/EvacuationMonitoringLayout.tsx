@@ -98,6 +98,7 @@ export function EvacuationMonitoringLayout({
             email: JSON.parse(localStorage.getItem("user") || "{}")[
               "EmailAddress"
             ],
+            date: new Date(),
           });
         }}
       />
