@@ -15,10 +15,11 @@ export interface ConfirmationDialogProps {
   onConfirm: () => void;
   Title?: string;
   Description?: string;
+  isEVS?: boolean;
 }
 
 export function ConfirmationDialog(props: ConfirmationDialogProps) {
-  const { open, onOpenChange, onConfirm, Title, Description } = props;
+  const { open, onOpenChange, onConfirm, Title, Description, isEVS } = props;
 
   const handleOpenChange = (openState: boolean) => {
     onOpenChange(openState);
@@ -40,10 +41,24 @@ export function ConfirmationDialog(props: ConfirmationDialogProps) {
             <AlertDialogDescription>{Description}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => onOpenChange(false)}>
+            <AlertDialogCancel
+              onClick={() => onOpenChange(false)}
+              className={
+                isEVS
+                  ? "border-[#980000] text-[#980000] hover:text-[#980000]"
+                  : undefined
+              }
+            >
               Cancel
             </AlertDialogCancel>
-            <AlertDialogAction onClick={onConfirm}>Continue</AlertDialogAction>
+            <AlertDialogAction
+              onClick={onConfirm}
+              className={
+                isEVS ? "bg-[#980000] hover:bg-[##980000]/10" : undefined
+              }
+            >
+              Continue
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       )}

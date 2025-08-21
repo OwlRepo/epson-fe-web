@@ -1,6 +1,8 @@
 import { getApiSocketBaseUrl } from "@/utils/env";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { io, Socket } from "socket.io-client";
+import useToastStyleTheme from "./useToastStyleTheme";
+import { toast } from "sonner";
 
 // Define types for our data
 export interface SummaryData extends DeviceData {
@@ -106,6 +108,8 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [response, setResponse] = useState<any>(null);
+
+  const { successStyle } = useToastStyleTheme();
 
   // Connect to socket and join room
   useEffect(() => {
@@ -297,14 +301,24 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
 
     //Listen for get_user  data
     socketInstance.on("cdepro_update_response", (data) => {
+      toast.success("Personnel information updated successfully", {
+        style: successStyle,
+      });
       console.log("cdepro_update_resppose", data);
     });
 
     //Listen for get_user  data
     socketInstance.on("cdepro_add_response", (data) => {
+      toast.success("Personnel information added successfully", {
+        style: successStyle,
+      });
       console.log("cdepro_add_resppose", data);
     });
 
+    //Listen for get_user  data
+    socketInstance.on("cdepro_remove_response", (data) => {
+      console.log("cdepro_remove_resppose", data);
+    });
     // Listen for summary count data
     socketInstance.on("count", (countData) => {
       console.log("📊 Count data received for room:", room);

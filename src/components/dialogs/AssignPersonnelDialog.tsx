@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { readRFIDData } from "@/utils/rfidReaderCommand";
 import { useGetDepartmentList } from "@/hooks/query/useGetDepartmentList";
 import { useGetEmployeeByNo } from "@/hooks/query/useGetEmployeeById";
+import { ConfirmationDialog } from "./ConfirmationDialog";
 
 interface AssignPersonnelDialogProps extends DialogProps {
   assignedPersonnel?: any;
@@ -41,44 +42,57 @@ const AssignPersonnelDialog = ({
   const [isUHFLinking, setIsUHFLinking] = useState(false);
   const [isLinking, setIsLinking] = useState<CardType>(null);
   const { port, setPort } = usePortStore((store) => store);
+  const [openDialog, setOpenDialog] = useState<"remove" | "update" | null>(
+    null
+  );
 
   const { data: departmentList } = useGetDepartmentList();
 
   const { data: employee } = useGetEmployeeByNo(watch("EmployeeNo") ?? "");
 
   const onSubmit = (data: any) => {
-    console.log("Form submitted:", data);
-
-    if (!assignedPersonnel) {
-      emitData("cdepro_add", {
-        id: employee?.EmployeeID.toString(),
-        firstname: data.FirstName,
-        lastname: data.LastName,
-        email: data.EmailAddress,
-        contact: data.ContactNo,
-        department: data.Department,
-        ert: data.EmergencyResponseTeam,
-        uhf: data?.UHF ?? "123",
-        mifare: data?.MIFARE ?? "123",
-        em: data?.EM ?? "123",
-      });
-    } else {
-      emitData("cdepro_update", {
-        row_id: assignedPersonnel?.RowID.toString(),
-        id: assignedPersonnel?.EmployeeID.toString(),
-        firstname: data.FirstName,
-        lastname: data.LastName,
-        email: data.EmailAddress,
-        contact: data.ContactNo,
-        department: data.Department,
-        ert: data.EmergencyResponseTeam,
-        uhf: data?.UHF ?? "123",
-        mifare: data?.MIFARE ?? "123",
-        em: data?.EM ?? "123",
-      });
-    }
+    emitData("cdepro_add", {
+      id: employee?.EmployeeID.toString(),
+      firstname: data.FirstName,
+      lastname: data.LastName,
+      email: data.EmailAddress,
+      contact: data.ContactNo,
+      department: data.Department,
+      ert: data.EmergencyResponseTeam,
+      uhf: data?.UHF ?? "123",
+      mifare: data?.MIFARE ?? "123",
+      em: data?.EM ?? "123",
+    });
   };
 
+  const onClearData = () => {
+    reset();
+    setValue("UHF", "");
+    setValue("MIFARE", "");
+    setValue("EM", "");
+  };
+
+  const onUpdatePersonnel = (data: any) => {
+    emitData("cdepro_update", {
+      row_id: assignedPersonnel?.RowID.toString(),
+      id: assignedPersonnel?.EmployeeID.toString(),
+      firstname: data.FirstName,
+      lastname: data.LastName,
+      email: data.EmailAddress,
+      contact: data.ContactNo,
+      department: data.Department,
+      ert: data.EmergencyResponseTeam,
+      uhf: data?.UHF ?? "123",
+      mifare: data?.MIFARE ?? "123",
+      em: data?.EM ?? "123",
+    });
+    setOpenDialog(null);
+  };
+
+  const onRemovePersonnel = () => {
+    emitData("cdepro_remove", assignedPersonnel?.RowID.toString());
+    setOpenDialog(null);
+  };
   useEffect(() => {
     if (employee) {
       setValue("FirstName", employee.FirstName);
@@ -376,24 +390,47 @@ const AssignPersonnelDialog = ({
           <div className="flex justify-end items-center mt-6 gap-4">
             <Button
               variant={"outline"}
+              className="border-[#980000] text-[#980000] hover:text-[#980000] "
               onClick={() => {
-                reset();
-                setValue("UHF", "");
-                setValue("MIFARE", "");
-                setValue("EM", "");
+                if (assignedPersonnel) {
+                  setOpenDialog("update");
+                } else {
+                  onClearData();
+                }
               }}
             >
-              Clear Data
+              {assignedPersonnel ? "Update Personnel" : "Clear Data"}
             </Button>
             <Button
               variant={"evacuation"}
               className=" text-white px-4 py-2 rounded text-sm font-semibold"
-              onClick={handleSubmit(onSubmit)}
-              disabled={!formState.isDirty}
+              onClick={() => {
+                if (assignedPersonnel) {
+                  setOpenDialog("remove");
+                } else {
+                  handleSubmit(onSubmit)();
+                }
+              }}
             >
-              {assignedPersonnel ? "Update Personnel" : "Assign Personnel"}
+              {assignedPersonnel ? "Remove Data" : "Assign Personnel"}
             </Button>
           </div>
+          <ConfirmationDialog
+            isEVS
+            open={Boolean(openDialog)}
+            onOpenChange={(openState) => {
+              if (!openState) setOpenDialog(null);
+            }}
+            onConfirm={() => {
+              if (openDialog === "update") {
+                handleSubmit(onUpdatePersonnel)();
+              } else {
+                onRemovePersonnel();
+              }
+            }}
+            Title="Confirmation"
+            Description={`Are you sure you want to ${openDialog} this person's information?`}
+          />
         </div>
       </DialogContent>
     </Dialog>
