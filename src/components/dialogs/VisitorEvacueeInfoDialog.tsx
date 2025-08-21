@@ -8,25 +8,23 @@ import { Button } from "../ui/button";
 import TextInput from "../inputs/TextInput";
 import { Controller, useForm } from "react-hook-form";
 import { useEffect } from "react";
-import { useSocket } from "@/hooks";
+
+import Spinner from "../ui/spinner";
 
 export interface VisitorEvacueeInfoDialogProps extends DialogProps {
   evacuee?: any;
+  emitData: (event: string, data: any) => void;
+  response: any;
+  isLoading: boolean;
 }
 const VisitorEvacueeInfoDialog = ({
   onOpenChange,
   open,
   evacuee,
+  emitData,
+  response: live_data,
+  isLoading = false,
 }: VisitorEvacueeInfoDialogProps) => {
-  const {
-    emitData,
-    response: live_data,
-    isLoading,
-  } = useSocket({
-    room: "get_user",
-    dataType: "live",
-  });
-
   const form = useForm({
     defaultValues: {
       ContactInfo: live_data?.ContactInformation || "",
@@ -81,115 +79,119 @@ const VisitorEvacueeInfoDialog = ({
             Evacuee Information
           </DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div>
-            <p className="text-sm">Card ID: 000000481</p>
-            <div className="flex items-center gap-4 mt-4">
-              <h1 className="text-3xl font-bold text-[#980000]">
-                {live_data?.Name}
-              </h1>
-              <Badge
-                className={cn(
-                  `rounded-full border`,
-                  live_data?.Status === "Missing" &&
-                    "border-red-200 border  bg-red-50 text-red-500",
-                  live_data?.Status === "Safe" &&
-                    "border-green-200 border  bg-green-50 text-green-500",
-                  live_data?.Status === "Injured" &&
-                    "border-yellow-200 border  bg-yellow-50 text-yellow-500",
-                  live_data?.Status === "Home" &&
-                    "border-blue-200 border  bg-blue-50 text-blue-500"
-                )}
-                variant="default"
-              >
-                {live_data?.Status || "Unknown"}
-              </Badge>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4 mt-2">
-              <TextInput
-                label="Contact Information"
-                id="contact-info"
-                name="ContactInfo"
-                register={register}
-                errors={formState?.errors}
-                readOnly={true}
-              />
-              <TextInput
-                label="Company/Organization"
-                id="company"
-                name="Company"
-                register={register}
-                errors={formState?.errors}
-                readOnly={true}
-              />
-              <TextInput
-                label="Guest Type"
-                id="guest-type"
-                name="GuestType"
-                register={register}
-                errors={formState?.errors}
-                readOnly={true}
-              />
-              <TextInput
-                label="Host Person"
-                id="host-person"
-                name="HostPerson"
-                register={register}
-                errors={formState?.errors}
-                readOnly={true}
-              />
-
-              <div>
-                <div>
-                  <p className="text-lg font-semibold mt-4 text-[#980000]">
-                    Status:
-                  </p>
-                  <p className="text-sm">
-                    Kindly confirm the status of the evacuee
-                  </p>
-                </div>
-                <div className="flex mt-4 gap-4">
-                  <Controller
-                    control={control}
-                    name="status"
-                    render={({ field }) => (
-                      <Switch
-                        checked={field.value === "Safe"}
-                        onCheckedChange={(checked) =>
-                          field.onChange(checked ? "Safe" : "Injured")
-                        }
-                        className={cn(
-                          "data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
-                        )}
-                      />
-                    )}
-                  />
-                  <p className="text-sm">
-                    {currentStatus === "Safe"
-                      ? "Evacuee is Safe"
-                      : "Evacuee is Injured"}
-                  </p>
-                </div>
-              </div>
-
-              <div className="space-y-1 mt-4">
-                <label
-                  htmlFor="purpose"
-                  className="text-sm font-normal text-gray-700"
+        {isLoading ? (
+          <Spinner />
+        ) : (
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <div>
+              <p className="text-sm">Card ID: 000000481</p>
+              <div className="flex items-center gap-4 mt-4">
+                <h1 className="text-3xl font-bold text-[#980000]">
+                  {live_data?.Name}
+                </h1>
+                <Badge
+                  className={cn(
+                    `rounded-full border`,
+                    live_data?.Status === "Missing" &&
+                      "border-red-200 border  bg-red-50 text-red-500",
+                    live_data?.Status === "Safe" &&
+                      "border-green-200 border  bg-green-50 text-green-500",
+                    live_data?.Status === "Injured" &&
+                      "border-yellow-200 border  bg-yellow-50 text-yellow-500",
+                    live_data?.Status === "Home" &&
+                      "border-blue-200 border  bg-blue-50 text-blue-500"
+                  )}
+                  variant="default"
                 >
-                  Remarks
-                </label>
-                <Textarea id="remarks" {...register("remarks")} />
+                  {live_data?.Status || "Unknown"}
+                </Badge>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 mt-2">
+                <TextInput
+                  label="Contact Information"
+                  id="contact-info"
+                  name="ContactInfo"
+                  register={register}
+                  errors={formState?.errors}
+                  readOnly={true}
+                />
+                <TextInput
+                  label="Company/Organization"
+                  id="company"
+                  name="Company"
+                  register={register}
+                  errors={formState?.errors}
+                  readOnly={true}
+                />
+                <TextInput
+                  label="Guest Type"
+                  id="guest-type"
+                  name="GuestType"
+                  register={register}
+                  errors={formState?.errors}
+                  readOnly={true}
+                />
+                <TextInput
+                  label="Host Person"
+                  id="host-person"
+                  name="HostPerson"
+                  register={register}
+                  errors={formState?.errors}
+                  readOnly={true}
+                />
+
+                <div>
+                  <div>
+                    <p className="text-lg font-semibold mt-4 text-[#980000]">
+                      Status:
+                    </p>
+                    <p className="text-sm">
+                      Kindly confirm the status of the evacuee
+                    </p>
+                  </div>
+                  <div className="flex mt-4 gap-4">
+                    <Controller
+                      control={control}
+                      name="status"
+                      render={({ field }) => (
+                        <Switch
+                          checked={field.value === "Safe"}
+                          onCheckedChange={(checked) =>
+                            field.onChange(checked ? "Safe" : "Injured")
+                          }
+                          className={cn(
+                            "data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
+                          )}
+                        />
+                      )}
+                    />
+                    <p className="text-sm">
+                      {currentStatus === "Safe"
+                        ? "Evacuee is Safe"
+                        : "Evacuee is Injured"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-1 mt-4">
+                  <label
+                    htmlFor="purpose"
+                    className="text-sm font-normal text-gray-700"
+                  >
+                    Remarks
+                  </label>
+                  <Textarea id="remarks" {...register("remarks")} />
+                </div>
+              </div>
+              <div className="flex justify-end mt-4">
+                <Button disabled={!formState.isDirty} type="submit">
+                  Save Changes
+                </Button>
               </div>
             </div>
-            <div className="flex justify-end mt-4">
-              <Button disabled={!formState.isDirty} type="submit">
-                Save Changes
-              </Button>
-            </div>
-          </div>
-        </form>
+          </form>
+        )}
       </DialogContent>
     </Dialog>
   );

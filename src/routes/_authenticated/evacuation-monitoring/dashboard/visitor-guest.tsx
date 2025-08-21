@@ -59,6 +59,8 @@ function RouteComponent() {
     searchData,
     clearSearch,
     searchTerm,
+    emitData,
+    response,
   } = useVisitorsGuestData({
     room: "evs_visitor",
     dataType: "live",
@@ -261,6 +263,9 @@ function RouteComponent() {
       </CardSection>
       {open && (
         <VisitorEvacueeInfoDialog
+          emitData={emitData}
+          response={response}
+          isLoading={isLoading}
           open={open}
           onOpenChange={setOpen}
           evacuee={selectedRow}

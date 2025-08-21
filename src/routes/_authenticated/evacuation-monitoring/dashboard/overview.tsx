@@ -103,11 +103,13 @@ function RouteComponent() {
     data: liveData,
     isLoading: isLiveDataLoading,
     isConnected: isLiveDataConnected,
+    response,
     countData,
     clearData,
     searchData,
     clearSearch,
     searchTerm,
+    emitData,
   } = useOverviewCountData({
     room: "evs",
     dataType: "live",
@@ -156,12 +158,10 @@ function RouteComponent() {
               onPageSizeChange={handlePageSizeChange}
               onRowClick={(row) => {
                 setEvacuee(row);
-                if (row.user_type === "Visitor") {
-                  setOpenVisitorDialog(true);
-                }
-
-                if (row.user_type === "Evacuee") {
+                if (row.type === "Employee") {
                   setOpenEvacueeDialog(true);
+                } else {
+                  setOpenVisitorDialog(true);
                 }
               }}
               columns={[
@@ -246,6 +246,8 @@ function RouteComponent() {
                     user_type,
                     eva_status,
                     log_time,
+                    epc,
+                    remarks,
                   } = employeeData;
                   return {
                     employee_id: employee_id,
@@ -253,6 +255,9 @@ function RouteComponent() {
                     type: user_type,
                     date_time: log_time,
                     eva_status: eva_status,
+                    raw_status: eva_status,
+                    epc,
+                    remarks,
                   };
                 })
                 .filter((item) => {
@@ -346,7 +351,14 @@ function RouteComponent() {
         )}
       </CardSection>
       {openVisitorDialog && (
-        <VisitorEvacueeInfoDialog open={openVisitorDialog} evacuee={evacuee} />
+        <VisitorEvacueeInfoDialog
+          emitData={emitData}
+          isLoading={isLiveDataLoading}
+          response={response}
+          open={openVisitorDialog}
+          evacuee={evacuee}
+          onOpenChange={setOpenVisitorDialog}
+        />
       )}
       {openEvacueeDialog && (
         <EvacueeInfoDialog

@@ -8,6 +8,7 @@ import { Button } from "../ui/button";
 import { useForm, Controller } from "react-hook-form";
 import { useEffect } from "react";
 import { useSocket } from "@/hooks";
+import { Badge } from "../ui/badge";
 
 export interface EvacueeInfoDialogProps extends DialogProps {
   evacuee?: any;
@@ -72,7 +73,22 @@ const EvacueeInfoDialog = ({
             <h1 className="text-3xl font-bold text-[#980000]">
               {evacuee?.name}
             </h1>
-            {evacuee?.eva_status || "Unknown"}
+            <Badge
+              className={cn(
+                `rounded-full border`,
+                evacuee.raw_status === "Missing" &&
+                  "border-red-200 border  bg-red-50 text-red-500",
+                evacuee.raw_status === "Safe" &&
+                  "border-green-200 border  bg-green-50 text-green-500",
+                evacuee.raw_status === "Injured" &&
+                  "border-yellow-200 border  bg-yellow-50 text-yellow-500",
+                evacuee.raw_status === "Home" &&
+                  "border-blue-200 border  bg-blue-50 text-blue-500"
+              )}
+              variant="default"
+            >
+              {evacuee.raw_status || "Unknown"}
+            </Badge>
           </div>
           <p className="text-sm">{evacuee?.section}</p>
 
