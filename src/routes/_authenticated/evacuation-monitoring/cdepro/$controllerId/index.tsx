@@ -103,6 +103,10 @@ function RouteComponent() {
               onPageSizeChange={handlePageSizeChange}
               columns={[
                 {
+                  key: "Status",
+                  label: "",
+                },
+                {
                   key: "ID",
                   label: "ID",
                 },
@@ -168,18 +172,15 @@ function RouteComponent() {
                 .map((item: any) => {
                   return {
                     ...item,
-                    ID: (
-                      <div className="flex items-center space-x-3">
-                        <div
-                          className={cn(
-                            `h-4 w-4 rounded-full`,
-                            item?.Status === "Active" && "bg-green-500",
-                            item?.Status === "In Active" && "bg-red-500",
-                            item?.Status === undefined && "bg-gray-500"
-                          )}
-                        />
-                        <span>{item.ID}</span>
-                      </div>
+                    Status: (
+                      <div
+                        className={cn(
+                          `h-4 w-4 rounded-full ml-2 mr-[-28px]`,
+                          item?.Status === "Active" && "bg-green-500",
+                          item?.Status === "In Active" && "bg-red-500",
+                          item?.Status === undefined && "bg-gray-500"
+                        )}
+                      />
                     ),
                   };
                 })}
