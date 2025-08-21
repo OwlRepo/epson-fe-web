@@ -24,6 +24,7 @@ export interface LinkCardInputProps {
   variant?: ButtonProps["variant"];
   errors?: any;
   name?: any;
+  readOnly?: boolean;
 }
 
 export const LinkCardInput = forwardRef(
@@ -38,6 +39,7 @@ export const LinkCardInput = forwardRef(
       variant,
       errors,
       name,
+      readOnly = false,
     }: LinkCardInputProps,
     ref
   ) => {
@@ -79,6 +81,7 @@ export const LinkCardInput = forwardRef(
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
+                  disabled={readOnly}
                   variant={variant}
                   className=" text-white px-4 py-2 rounded text-sm font-semibold self-end w-32"
                 >
@@ -97,6 +100,7 @@ export const LinkCardInput = forwardRef(
           )}
           {!value && !isLinking && (
             <Button
+              disabled={readOnly}
               variant={variant}
               onClick={onLinkCard}
               className=" text-white px-4 py-2 rounded text-sm font-semibold self-end w-32"
@@ -107,6 +111,7 @@ export const LinkCardInput = forwardRef(
           {isLinking && (
             <>
               <Button
+                disabled={readOnly}
                 variant={variant}
                 onClick={onStopReading}
                 className=" text-white px-4 py-2 rounded text-sm font-semibold self-end w-32"

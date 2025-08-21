@@ -108,8 +108,11 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [response, setResponse] = useState<any>(null);
+  const [responseStatus, setResponseStatus] = useState<"success" | "fail" | "">(
+    ""
+  );
 
-  const { successStyle } = useToastStyleTheme();
+  const { successStyle, errorStyle } = useToastStyleTheme();
 
   // Connect to socket and join room
   useEffect(() => {
@@ -152,6 +155,7 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
     // Set loading state
     console.log("⏳ Setting loading state...");
     setIsLoading(true);
+    setResponseStatus("");
 
     socketInstance.on("connect", () => {
       console.log("🟢 Socket connected to server successfully!");
@@ -289,8 +293,12 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
 
     //Listen for removed data
     socketInstance.on("remove_data", (epc) => {
-      console.log("remove from evs", epc);
-      setData((prev) => prev.filter((item: any) => item?.epc !== epc));
+      console.log("remove from data", epc);
+      setData((prev) => {
+        return prev.filter(
+          (item: any) => item?.epc !== epc && item?.ID !== Number(epc)
+        );
+      });
     });
 
     //Listen for get_user  data
@@ -301,23 +309,41 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
 
     //Listen for get_user  data
     socketInstance.on("cdepro_update_response", (data) => {
-      toast.success("Personnel information updated successfully", {
-        style: successStyle,
-      });
+      if (data.includes("already")) {
+        toast.error(data, {
+          style: errorStyle,
+        });
+        setResponseStatus("fail");
+      } else {
+        toast.success(data, {
+          style: successStyle,
+        });
+        setResponseStatus("success");
+      }
       console.log("cdepro_update_resppose", data);
     });
 
-    //Listen for get_user  data
+    //Listen for cdeppro add  data
     socketInstance.on("cdepro_add_response", (data) => {
-      toast.success("Personnel information added successfully", {
-        style: successStyle,
-      });
+      if (data.includes("already")) {
+        toast.error(data, {
+          style: errorStyle,
+        });
+        setResponseStatus("fail");
+      } else {
+        toast.success(data, {
+          style: successStyle,
+        });
+        setResponseStatus("success");
+      }
+
       console.log("cdepro_add_resppose", data);
     });
 
     //Listen for get_user  data
     socketInstance.on("cdepro_remove_response", (data) => {
       console.log("cdepro_remove_resppose", data);
+      setIsLoading(false);
     });
     // Listen for summary count data
     socketInstance.on("count", (countData) => {
@@ -349,6 +375,8 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
           home: countData.home,
           missing: countData.missing,
           all: countData.all,
+          active: countData.active,
+          inactive: countData.inactive,
         };
         console.log("✅ Count data updated in state:", updatedData);
         return updatedData;
@@ -482,7 +510,7 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
     isLoading,
     searchTerm,
     response,
-
+    responseStatus,
     searchData,
     clearSearch,
     joinRoom,

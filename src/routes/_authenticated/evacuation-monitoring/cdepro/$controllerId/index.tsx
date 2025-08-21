@@ -34,6 +34,7 @@ function RouteComponent() {
     isLoading,
     isConnected,
     countData: totalLogs,
+    responseStatus,
     clearData,
   } = useCDEPROControllerData({
     room: "cdepro_department" + params.controllerId,
@@ -66,7 +67,7 @@ function RouteComponent() {
     <>
       <CardSection
         headerRight={
-          <div className="flex flex-col items-end">
+          <div className="flex flex-col  items-end">
             <EVSCounts
               countData={totalLogs}
               type="compact"
@@ -74,7 +75,7 @@ function RouteComponent() {
             />
             <Button
               variant="evacuation"
-              className="text-white mt-2"
+              className="text-white mt-6"
               onClick={() => {
                 setOpen(true);
                 setAssignedPersonnel(null);
@@ -202,10 +203,12 @@ function RouteComponent() {
 
       {open && (
         <AssignPersonnelDialog
+          responseStatus={responseStatus}
           open={open}
           onOpenChange={setOpen}
           assignedPersonnel={assignedPersonnel}
           emitData={emitData}
+          modal={false}
         />
       )}
     </>

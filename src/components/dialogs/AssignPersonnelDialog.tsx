@@ -21,6 +21,7 @@ import { ConfirmationDialog } from "./ConfirmationDialog";
 interface AssignPersonnelDialogProps extends DialogProps {
   assignedPersonnel?: any;
   emitData: (event: string, data: any) => void;
+  responseStatus?: string;
 }
 
 //env configs
@@ -33,6 +34,7 @@ const AssignPersonnelDialog = ({
   onOpenChange,
   assignedPersonnel,
   emitData,
+  responseStatus,
 }: AssignPersonnelDialogProps) => {
   const form = useForm();
   const { register, reset, formState, setValue, watch, handleSubmit } = form;
@@ -52,16 +54,16 @@ const AssignPersonnelDialog = ({
 
   const onSubmit = (data: any) => {
     emitData("cdepro_add", {
-      id: employee?.EmployeeID.toString(),
+      id: employee?.EmployeeID.toString() ?? "",
       firstname: data.FirstName,
       lastname: data.LastName,
       email: data.EmailAddress,
       contact: data.ContactNo,
       department: data.Department,
       ert: data.EmergencyResponseTeam,
-      uhf: data?.UHF ?? "123",
-      mifare: data?.MIFARE ?? "123",
-      em: data?.EM ?? "123",
+      uhf: data?.UHF ?? "",
+      mifare: data?.MIFARE ?? "",
+      em: data?.EM ?? "",
     });
   };
 
@@ -82,17 +84,18 @@ const AssignPersonnelDialog = ({
       contact: data.ContactNo,
       department: data.Department,
       ert: data.EmergencyResponseTeam,
-      uhf: data?.UHF ?? "123",
-      mifare: data?.MIFARE ?? "123",
-      em: data?.EM ?? "123",
+      uhf: data?.UHF ?? "",
+      mifare: data?.MIFARE ?? "",
+      em: data?.EM ?? "",
     });
     setOpenDialog(null);
   };
 
   const onRemovePersonnel = () => {
-    emitData("cdepro_remove", assignedPersonnel?.RowID.toString());
+    emitData("cdepro_remove", { row_id: assignedPersonnel?.RowID?.toString() });
     setOpenDialog(null);
   };
+
   useEffect(() => {
     if (employee) {
       setValue("FirstName", employee.FirstName);
@@ -276,6 +279,7 @@ const AssignPersonnelDialog = ({
                 errors={formState?.errors}
                 queryHook={useGetHostPerson}
                 withEmployeeNo
+                required={false}
               />
               <Divider />
             </>
@@ -348,6 +352,7 @@ const AssignPersonnelDialog = ({
 
           <div className="flex flex-col gap-4 mt-4">
             <LinkCardInput
+              readOnly={Boolean(watch("UHF")) && !assignedPersonnel}
               label="UHF Card"
               variant={"evacuation"}
               value={watch("UHF")}
@@ -359,6 +364,7 @@ const AssignPersonnelDialog = ({
             />
 
             <LinkCardInput
+              readOnly={Boolean(watch("MIFARE")) && !assignedPersonnel}
               ref={mifareRef}
               label="MIFARE Card"
               variant={"evacuation"}
@@ -372,6 +378,7 @@ const AssignPersonnelDialog = ({
               onUnlinkCard={() => setValue("MIFARE", "", { shouldDirty: true })}
             />
             <LinkCardInput
+              readOnly={Boolean(watch("EM")) && !assignedPersonnel}
               ref={emRef}
               label="EM Card"
               variant={"evacuation"}
