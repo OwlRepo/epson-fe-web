@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { io, Socket } from "socket.io-client";
 import useToastStyleTheme from "./useToastStyleTheme";
 import { toast } from "sonner";
+import type { Device } from "@/components/dialogs/DeviceInfoDialog";
 
 // Define types for our data
 export interface SummaryData extends DeviceData {
@@ -97,7 +98,9 @@ interface UseSocketProps {
 
 const SOCKET_URL = getApiSocketBaseUrl();
 
-export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
+export const useSocket = <
+  T extends SummaryData | LiveData | SummaryCountData | Device,
+>({
   room,
   dataType,
   statusFilter = false,

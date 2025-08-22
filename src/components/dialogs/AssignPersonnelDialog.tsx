@@ -34,7 +34,6 @@ const AssignPersonnelDialog = ({
   onOpenChange,
   assignedPersonnel,
   emitData,
-  responseStatus,
 }: AssignPersonnelDialogProps) => {
   const form = useForm();
   const { register, reset, formState, setValue, watch, handleSubmit } = form;

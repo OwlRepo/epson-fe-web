@@ -1,7 +1,12 @@
+import DeviceInfoDialog, {
+  type Device,
+} from "@/components/dialogs/DeviceInfoDialog";
 import CardSection from "@/components/layouts/CardSection";
 import { Button } from "@/components/ui/button";
+import { useSocket } from "@/hooks";
 import { createFileRoute } from "@tanstack/react-router";
 import { Monitor } from "lucide-react";
+import { useState } from "react";
 
 export const Route = createFileRoute(
   "/_authenticated/device-management/dashboard/overview"
@@ -10,82 +15,165 @@ export const Route = createFileRoute(
 });
 
 function RouteComponent() {
-  return (
-    <CardSection
-      headerLeft={
-        <div>
-          <p className="text-xl font-bold">Overview</p>
-          <p className="text-sm text-slate-400">
-            Overview of Connected Devices
-          </p>
-        </div>
-      }
-    >
-      <div className="flex justify-between items-center mb-4">
-        <div className="flex gap-2">
-          <Button>ELID Controllers</Button>
-          <Button>Chainway (Mobile)</Button>
-        </div>
-        <Button>Regular Device</Button>
-      </div>
+  const [isController, setIsController] = useState(true);
 
-      {/* buttons */}
-      <div className="grid grid-cols-4 gap-4">
-        {Array.from({ length: 16 }).map((_, index) => (
-          <DeviceButton
-            key={index}
-            index={index}
-            variant={
-              index % 3 === 0 ? "entry" : index % 3 === 1 ? "exit" : "unknown"
-            }
-          />
-        ))}
-      </div>
-    </CardSection>
+  const { data: device, emitData } = useSocket<Device>({
+    room: isController ? "view_device_controller" : "view_device_chainway",
+    dataType: "live",
+  });
+
+  const [open, setOpen] = useState(false);
+  const [selectedDevice, setSelectedDevice] = useState<
+    Partial<Device> | undefined
+  >();
+  const [deviceIds, setDeviceIds] = useState([]);
+  const [deviceList, setDeviceList] = useState([]);
+
+  const data = device.map((apiDevice: any) => ({
+    id: apiDevice.ID ?? "",
+    name: apiDevice.DeviceName ?? "",
+    description: apiDevice.Description ?? "",
+    status: apiDevice.Status ?? "",
+    floor: apiDevice.Floor ?? "",
+    area: apiDevice.Area ?? "",
+    xaxis: apiDevice.XAxis ?? "",
+    yaxis: apiDevice.YAxis ?? "",
+    controllertype: apiDevice.DeviceType ?? "",
+    archive: 0,
+  }));
+
+  return (
+    <>
+      <CardSection
+        headerLeft={
+          <div>
+            <p className="text-xl font-bold">Overview</p>
+            <p className="text-sm text-slate-400">
+              Overview of Connected Devices
+            </p>
+          </div>
+        }
+      >
+        <div className="flex justify-between items-center mb-4">
+          <div className="flex gap-2">
+            <Button
+              onClick={() => setIsController(true)}
+              variant={isController ? undefined : "outline"}
+              className={
+                isController
+                  ? undefined
+                  : "border-primary text-primary hover:text-primary"
+              }
+            >
+              ELID Controllers
+            </Button>
+            <Button
+              onClick={() => setIsController(false)}
+              variant={!isController ? undefined : "outline"}
+              className={
+                !isController
+                  ? undefined
+                  : "border-primary text-primary hover:text-primary"
+              }
+            >
+              Chainway (Mobile)
+            </Button>
+          </div>
+          <Button
+            onClick={() => {
+              setOpen(true);
+              setDeviceIds(
+                (data ?? [])
+                  .filter((item) => item.name === "")
+                  .map((item) => item.id)
+              );
+            }}
+          >
+            Register Device
+          </Button>
+        </div>
+
+        {/* buttons */}
+        <div className="grid grid-cols-4 gap-4">
+          {data.map((item, index) => (
+            <DeviceButton
+              onClick={() => {
+                setOpen(true);
+                setSelectedDevice(item);
+                setDeviceIds(data.map((item) => item.id));
+              }}
+              key={index}
+              index={index}
+              variant={item?.status}
+              deviceName={item?.name}
+            />
+          ))}
+        </div>
+      </CardSection>
+      {open && (
+        <DeviceInfoDialog
+          deviceList={data}
+          deviceIds={deviceIds}
+          emitData={emitData}
+          open={open}
+          onOpenChange={() => {
+            setOpen(false);
+            setSelectedDevice(undefined);
+          }}
+          deviceInfo={selectedDevice as Device}
+          modal={false}
+        />
+      )}
+    </>
   );
 }
 
 function DeviceButton({
   index,
   variant,
+  deviceName,
+  onClick,
 }: {
   index: number;
-  variant: "entry" | "exit" | "unknown";
+  variant: string | null;
+  deviceName: string | null;
+  onClick?: () => void;
 }) {
-  const variantStyles = {
-    entry: {
+  const variantStyles: any = {
+    Active: {
       bgColor: "bg-[#DCF5DC]",
       hoverColor: "hover:bg-[#B2EAB2]",
       iconColor: "bg-green-500",
-      text: `Entry A${index + 1}`,
     },
-    exit: {
+    ["In Active"]: {
       bgColor: "bg-[#F5DCDC]",
       hoverColor: "hover:bg-[#EAB2B2]",
       iconColor: "bg-red-500",
-      text: `Exit A${index + 1}`,
     },
     unknown: {
       bgColor: "bg-gray-300",
       hoverColor: "hover:bg-gray-400",
       iconColor: "bg-gray-500",
-      text: `Unknown A${index + 1}`,
     },
   };
 
-  const { bgColor, hoverColor, iconColor, text } = variantStyles[variant];
+  const { bgColor, hoverColor, iconColor } =
+    variantStyles[variant ?? "unknown"];
 
   return (
-    <Button
-      key={index}
-      className={`h-20 w-60 flex justify-start items-center  ${bgColor} ${hoverColor}`}
-    >
-      <div
-        className={`rounded-full ${iconColor} p-2 h-10 w-10 flex items-center justify-center`}
+    <div className="flex flex-1  justify-center">
+      <Button
+        onClick={onClick}
+        key={index}
+        className={`h-24 w-full flex justify-start items-center  ${bgColor} ${hoverColor}`}
       >
-        <Monitor />
-      </div>
-      <p className="text-black text-xl font-bold">{text}</p>
-    </Button>
+        <div
+          className={`rounded-full ${iconColor} p-2 h-10 w-10 flex items-center justify-center`}
+        >
+          <Monitor />
+        </div>
+        <p className="text-black text-xl font-bold">{deviceName}</p>
+      </Button>
+    </div>
   );
 }
