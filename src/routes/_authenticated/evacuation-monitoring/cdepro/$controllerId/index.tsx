@@ -15,6 +15,7 @@ import {
   useParams,
   useSearch,
 } from "@tanstack/react-router";
+import { unparse } from "papaparse";
 
 import { useEffect, useState } from "react";
 
@@ -69,6 +70,29 @@ function RouteComponent() {
     }
   }, [responseStatus]);
 
+  const handleExport = () => {
+    const summary = [
+      { key: "Overall", value: totalLogs?.all },
+      { key: "Active", value: totalLogs?.active },
+      { key: "InActive", value: totalLogs?.inactive },
+    ];
+
+    const summaryCsv = unparse(summary, { header: false });
+    const liveData = unparse(data, { header: true });
+
+    const csvContent = `\n${summaryCsv}\n\n${liveData}`;
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", "report.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <>
       <CardSection
@@ -79,16 +103,25 @@ function RouteComponent() {
               type="compact"
               countType="cdepro"
             />
-            <Button
-              variant="evacuation"
-              className="text-white mt-6"
-              onClick={() => {
-                setOpen(true);
-                setAssignedPersonnel(null);
-              }}
-            >
-              Assign Personnel
-            </Button>
+            <div className="flex gap-2 items-end">
+              <Button
+                variant={"outline"}
+                className="text-[#980000] border-[#980000] hover:text-[#980000]"
+                onClick={handleExport}
+              >
+                Export Records
+              </Button>
+              <Button
+                variant="evacuation"
+                className="text-white mt-6"
+                onClick={() => {
+                  setOpen(true);
+                  setAssignedPersonnel(null);
+                }}
+              >
+                Assign Personnel
+              </Button>
+            </div>
           </div>
         }
         headerLeft={

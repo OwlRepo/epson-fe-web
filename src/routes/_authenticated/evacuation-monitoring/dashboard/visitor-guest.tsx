@@ -14,6 +14,7 @@ import EVSCounts from "@/components/ui/evs-counts";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import VisitorEvacueeInfoDialog from "@/components/dialogs/VisitorEvacueeInfoDialog";
+import { unparse } from "papaparse";
 
 interface SearchParams {
   pageSize?: string;
@@ -108,6 +109,31 @@ function RouteComponent() {
     setOpen(true);
   };
 
+  const handleExport = () => {
+    const summary = [
+      { key: "Overall", value: totalLogs?.total },
+      { key: "Safe", value: totalLogs?.safe },
+      { key: "Injured", value: totalLogs?.injured },
+      { key: "Go Home", value: totalLogs?.home },
+      { key: "Missing", value: totalLogs?.missing },
+    ];
+
+    const summaryCsv = unparse(summary, { header: false });
+    const liveData = unparse(data, { header: true });
+
+    const csvContent = `\n${summaryCsv}\n\n${liveData}`;
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", "report.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <>
       <CardSection
@@ -126,6 +152,7 @@ function RouteComponent() {
         {isConnected && !isLoading ? (
           <div className="flex">
             <LiveDataTable
+              exportTableData={{ type: "EVS", exportBtnOnClick: handleExport }}
               clearSocketData={clearData}
               searchTerm={searchTerm}
               onClearSearch={clearSearch}

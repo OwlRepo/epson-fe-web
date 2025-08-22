@@ -32,6 +32,8 @@ export interface SummaryCountData {
   home?: number;
   missing?: number;
   all?: number;
+  active?: number;
+  inactive?: number;
 }
 
 export interface DeviceData {
