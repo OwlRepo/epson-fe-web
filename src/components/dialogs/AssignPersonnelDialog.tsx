@@ -16,9 +16,12 @@ import { toast } from "sonner";
 import { readRFIDData } from "@/utils/rfidReaderCommand";
 import { useGetDepartmentList } from "@/hooks/query/useGetDepartmentList";
 import { useGetEmployeeByNo } from "@/hooks/query/useGetEmployeeById";
+import { ConfirmationDialog } from "./ConfirmationDialog";
 
 interface AssignPersonnelDialogProps extends DialogProps {
   assignedPersonnel?: any;
+  emitData: (event: string, data: any) => void;
+  responseStatus?: string;
 }
 
 //env configs
@@ -30,19 +33,67 @@ const AssignPersonnelDialog = ({
   open,
   onOpenChange,
   assignedPersonnel,
+  emitData,
 }: AssignPersonnelDialogProps) => {
   const form = useForm();
-  const { register, reset, formState, setValue, watch } = form;
+  const { register, reset, formState, setValue, watch, handleSubmit } = form;
 
   const { errorStyle, infoStyle } = useToastStyleTheme();
 
   const [isUHFLinking, setIsUHFLinking] = useState(false);
   const [isLinking, setIsLinking] = useState<CardType>(null);
   const { port, setPort } = usePortStore((store) => store);
+  const [openDialog, setOpenDialog] = useState<"remove" | "update" | null>(
+    null
+  );
 
   const { data: departmentList } = useGetDepartmentList();
 
   const { data: employee } = useGetEmployeeByNo(watch("EmployeeNo") ?? "");
+
+  const onSubmit = (data: any) => {
+    emitData("cdepro_add", {
+      id: employee?.EmployeeID.toString() ?? "",
+      firstname: data.FirstName,
+      lastname: data.LastName,
+      email: data.EmailAddress,
+      contact: data.ContactNo,
+      department: data.Department,
+      ert: data.EmergencyResponseTeam,
+      uhf: data?.UHF ?? "",
+      mifare: data?.MIFARE ?? "",
+      em: data?.EM ?? "",
+    });
+  };
+
+  const onClearData = () => {
+    reset();
+    setValue("UHF", "");
+    setValue("MIFARE", "");
+    setValue("EM", "");
+  };
+
+  const onUpdatePersonnel = (data: any) => {
+    emitData("cdepro_update", {
+      row_id: assignedPersonnel?.RowID.toString(),
+      id: assignedPersonnel?.EmployeeID.toString(),
+      firstname: data.FirstName,
+      lastname: data.LastName,
+      email: data.EmailAddress,
+      contact: data.ContactNo,
+      department: data.Department,
+      ert: data.EmergencyResponseTeam,
+      uhf: data?.UHF ?? "",
+      mifare: data?.MIFARE ?? "",
+      em: data?.EM ?? "",
+    });
+    setOpenDialog(null);
+  };
+
+  const onRemovePersonnel = () => {
+    emitData("cdepro_remove", { row_id: assignedPersonnel?.RowID?.toString() });
+    setOpenDialog(null);
+  };
 
   useEffect(() => {
     if (employee) {
@@ -51,8 +102,28 @@ const AssignPersonnelDialog = ({
       setValue("EmailAddress", employee.EmailAddress);
       setValue("ContactNo", employee.ContactNo);
       setValue("Department", employee.DepartmentName);
+      setValue("UHF", employee.UHF || "");
+      setValue("MIFARE", employee.MIFARE || "");
+      setValue("EM", employee.EM || "");
     }
   }, [employee, setValue]);
+
+  useEffect(() => {
+    if (assignedPersonnel) {
+      console.log("Assigned Personnel Data:", assignedPersonnel);
+      reset({
+        LastName: assignedPersonnel.LastName || "",
+        FirstName: assignedPersonnel.FirstName || "",
+        EmailAddress: assignedPersonnel.EmailAddress || "",
+        ContactNo: assignedPersonnel.ContactNo || "",
+        EmergencyResponseTeam: assignedPersonnel.ERT || "",
+        Department: assignedPersonnel.Department || "",
+        UHF: assignedPersonnel.UHF || "",
+        MIFARE: assignedPersonnel.MIFARE || "",
+        EM: assignedPersonnel.EM || "",
+      });
+    }
+  }, [assignedPersonnel]);
 
   const mifareRef = useRef<HTMLInputElement>(null);
   const emRef = useRef<HTMLInputElement>(null);
@@ -186,7 +257,7 @@ const AssignPersonnelDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange} modal={false}>
       {/* Manual backdrop */}
       {open && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 pointer-events-none"></div>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"></div>
       )}
       <DialogContent className="sm:max-w-[600px] p-8 bg-white rounded-lg shadow-xl">
         <DialogHeader className="flex flex-row justify-between items-center mb-6">
@@ -195,18 +266,23 @@ const AssignPersonnelDialog = ({
           </DialogTitle>
         </DialogHeader>
         <div>
-          <AsyncAutoComplete
-            label="Assign Personnel"
-            name={"AssignPersonnel"}
-            id="assign-personnel"
-            setValue={setValue}
-            watch={watch}
-            register={register}
-            errors={formState?.errors}
-            queryHook={useGetHostPerson}
-            withEmployeeNo
-          />
-          <Divider />
+          {!assignedPersonnel && (
+            <>
+              <AsyncAutoComplete
+                label="Assign Personnel"
+                name={"AssignPersonnel"}
+                id="assign-personnel"
+                setValue={setValue}
+                watch={watch}
+                register={register}
+                errors={formState?.errors}
+                queryHook={useGetHostPerson}
+                withEmployeeNo
+                required={false}
+              />
+              <Divider />
+            </>
+          )}
 
           <div className="grid grid-cols-2 gap-4">
             <TextInput
@@ -275,6 +351,7 @@ const AssignPersonnelDialog = ({
 
           <div className="flex flex-col gap-4 mt-4">
             <LinkCardInput
+              readOnly={Boolean(watch("UHF")) && !assignedPersonnel}
               label="UHF Card"
               variant={"evacuation"}
               value={watch("UHF")}
@@ -282,10 +359,11 @@ const AssignPersonnelDialog = ({
               isDeviceConnected={!!port}
               onLinkCard={handleLinkCard}
               onStopReading={() => setIsUHFLinking(false)}
-              onUnlinkCard={() => setValue("UHF", "")}
+              onUnlinkCard={() => setValue("UHF", "", { shouldDirty: true })}
             />
 
             <LinkCardInput
+              readOnly={Boolean(watch("MIFARE")) && !assignedPersonnel}
               ref={mifareRef}
               label="MIFARE Card"
               variant={"evacuation"}
@@ -296,9 +374,10 @@ const AssignPersonnelDialog = ({
               }}
               isLinking={isLinking === "MIFARE"}
               onStopReading={() => setIsLinking(null)}
-              onUnlinkCard={() => setValue("MIFARE", "")}
+              onUnlinkCard={() => setValue("MIFARE", "", { shouldDirty: true })}
             />
             <LinkCardInput
+              readOnly={Boolean(watch("EM")) && !assignedPersonnel}
               ref={emRef}
               label="EM Card"
               variant={"evacuation"}
@@ -309,7 +388,7 @@ const AssignPersonnelDialog = ({
               }}
               isLinking={isLinking === "EM"}
               onStopReading={() => setIsLinking(null)}
-              onUnlinkCard={() => setValue("EM", "")}
+              onUnlinkCard={() => setValue("EM", "", { shouldDirty: true })}
             />
           </div>
 
@@ -317,22 +396,47 @@ const AssignPersonnelDialog = ({
           <div className="flex justify-end items-center mt-6 gap-4">
             <Button
               variant={"outline"}
+              className="border-[#980000] text-[#980000] hover:text-[#980000] "
               onClick={() => {
-                reset();
-                setValue("UHF", "");
-                setValue("MIFARE", "");
-                setValue("EM", "");
+                if (assignedPersonnel) {
+                  setOpenDialog("update");
+                } else {
+                  onClearData();
+                }
               }}
             >
-              Clear Data
+              {assignedPersonnel ? "Update Personnel" : "Clear Data"}
             </Button>
             <Button
               variant={"evacuation"}
               className=" text-white px-4 py-2 rounded text-sm font-semibold"
+              onClick={() => {
+                if (assignedPersonnel) {
+                  setOpenDialog("remove");
+                } else {
+                  handleSubmit(onSubmit)();
+                }
+              }}
             >
-              Assign Personnel
+              {assignedPersonnel ? "Remove Data" : "Assign Personnel"}
             </Button>
           </div>
+          <ConfirmationDialog
+            isEVS
+            open={Boolean(openDialog)}
+            onOpenChange={(openState) => {
+              if (!openState) setOpenDialog(null);
+            }}
+            onConfirm={() => {
+              if (openDialog === "update") {
+                handleSubmit(onUpdatePersonnel)();
+              } else {
+                onRemovePersonnel();
+              }
+            }}
+            Title="Confirmation"
+            Description={`Are you sure you want to ${openDialog} this person's information?`}
+          />
         </div>
       </DialogContent>
     </Dialog>

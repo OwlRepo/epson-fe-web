@@ -116,6 +116,7 @@ export interface ExportOptions {
 export interface ExportTableData {
   exportOptions?: ExportOptions[];
   exportBtnLabel?: string;
+  exportBtnOnClick?: () => void;
   type?: "default" | "EVS";
 }
 
@@ -336,7 +337,10 @@ export function DynamicTable({
           const toDateTime = routeSearch[`to_${filter.key}`];
 
           if (fromDateTime || toDateTime) {
-            tempFilterValues[filter.key] = [fromDateTime || "", toDateTime || ""];
+            tempFilterValues[filter.key] = [
+              fromDateTime || "",
+              toDateTime || "",
+            ];
           }
           return; // Skip traditional filter processing for date-time range pickers
         }
@@ -520,8 +524,11 @@ export function DynamicTable({
         search: (prev) => ({
           ...prev,
           [`from_${key}`]:
-            fromDateTime && fromDateTime.trim() ? fromDateTime.trim() : undefined,
-          [`to_${key}`]: toDateTime && toDateTime.trim() ? toDateTime.trim() : undefined,
+            fromDateTime && fromDateTime.trim()
+              ? fromDateTime.trim()
+              : undefined,
+          [`to_${key}`]:
+            toDateTime && toDateTime.trim() ? toDateTime.trim() : undefined,
         }),
         replace: true,
       });
@@ -664,7 +671,11 @@ export function DynamicTable({
   // Filter options based on search input
   const getFilteredOptions = (filter: Filter, searchTerm: string) => {
     // Don't show options for date picker filters
-    if (filter.isDateTimePicker || filter.isDateRangePicker || filter.isDateTimeRangePicker) {
+    if (
+      filter.isDateTimePicker ||
+      filter.isDateRangePicker ||
+      filter.isDateTimeRangePicker
+    ) {
       return [];
     }
 
@@ -1061,8 +1072,12 @@ export function DynamicTable({
                                 </div>
                               ) : filter.isDateTimeRangePicker ? (
                                 <DateTimeRangePicker
-                                  fromDateTime={tempFilters[filter.key]?.[0] || ""}
-                                  toDateTime={tempFilters[filter.key]?.[1] || ""}
+                                  fromDateTime={
+                                    tempFilters[filter.key]?.[0] || ""
+                                  }
+                                  toDateTime={
+                                    tempFilters[filter.key]?.[1] || ""
+                                  }
                                   onFromDateTimeChange={(dateTime) => {
                                     setTempFilters((prev) => ({
                                       ...prev,
@@ -1174,6 +1189,20 @@ export function DynamicTable({
               <Trash2 /> {clearButtonLabel || "Clear"}
             </Button>
           )}
+          {exportTableData && exportTableData?.exportOptions === undefined && (
+            <div className="relative flex items-center justify-end flex-1">
+              <Button
+                onClick={() => exportTableData?.exportBtnOnClick?.()}
+                className={cn(
+                  "h-9",
+                  exportTableData?.type === "EVS" &&
+                    "bg-primary-evs text-white hover:bg-primary-evs"
+                )}
+              >
+                {exportTableData?.exportBtnLabel || "Export Records"}
+              </Button>
+            </div>
+          )}
           {exportTableData?.exportOptions && (
             <div className="relative flex items-center justify-end flex-1">
               <DropdownMenu>
@@ -1185,7 +1214,7 @@ export function DynamicTable({
                         "bg-primary-evs text-white"
                     )}
                   >
-                    {exportTableData.exportBtnLabel || "Export Records"}{" "}
+                    {exportTableData.exportBtnLabel || "Export Records"}
                     <ChevronDown />
                   </Button>
                 </DropdownMenuTrigger>

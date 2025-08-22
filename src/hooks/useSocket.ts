@@ -1,6 +1,9 @@
 import { getApiSocketBaseUrl } from "@/utils/env";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { io, Socket } from "socket.io-client";
+import useToastStyleTheme from "./useToastStyleTheme";
+import { toast } from "sonner";
+import type { Device } from "@/components/dialogs/DeviceInfoDialog";
 
 // Define types for our data
 export interface SummaryData extends DeviceData {
@@ -30,6 +33,8 @@ export interface SummaryCountData {
   home?: number;
   missing?: number;
   all?: number;
+  active?: number;
+  inactive?: number;
 }
 
 export interface DeviceData {
@@ -80,6 +85,7 @@ export interface LiveData extends DeviceData, VisitorData {
   ID: string;
   FullName: string;
   Status: string;
+  remarks?: string;
 }
 
 type DataType = "summary" | "live";
@@ -92,7 +98,9 @@ interface UseSocketProps {
 
 const SOCKET_URL = getApiSocketBaseUrl();
 
-export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
+export const useSocket = <
+  T extends SummaryData | LiveData | SummaryCountData | Device,
+>({
   room,
   dataType,
   statusFilter = false,
@@ -104,6 +112,12 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [response, setResponse] = useState<any>(null);
+  const [responseStatus, setResponseStatus] = useState<"success" | "fail" | "">(
+    ""
+  );
+
+  const { successStyle, errorStyle } = useToastStyleTheme();
 
   // Connect to socket and join room
   useEffect(() => {
@@ -283,10 +297,69 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
 
     //Listen for removed data
     socketInstance.on("remove_data", (epc) => {
-      console.log("remove from evs", epc);
-      setData((prev) => prev.filter((item: any) => item?.epc !== epc));
+      console.log("remove from data", epc);
+      setData((prev) => {
+        return prev.filter(
+          (item: any) => item?.epc !== epc && item?.ID !== Number(epc)
+        );
+      });
     });
 
+    //Listen for get_user  data
+    socketInstance.on("get_user", (data) => {
+      console.log("get_user", data);
+      setResponse(data);
+    });
+
+    //Listen for get_user  data
+    socketInstance.on("cdepro_update_response", (data) => {
+      if (data.includes("already")) {
+        toast.error(data, {
+          style: errorStyle,
+        });
+        setResponseStatus("fail");
+      } else {
+        toast.success(data, {
+          style: successStyle,
+        });
+        setResponseStatus("success");
+      }
+      console.log("cdepro_update_resppose", data);
+
+      setTimeout(() => {
+        setResponseStatus("");
+      }, 100);
+    });
+
+    //Listen for cdeppro add  data
+    socketInstance.on("cdepro_add_response", (data) => {
+      if (data.includes("already")) {
+        toast.error(data, {
+          style: errorStyle,
+        });
+        setResponseStatus("fail");
+      } else {
+        toast.success(data, {
+          style: successStyle,
+        });
+        setResponseStatus("success");
+      }
+
+      console.log("cdepro_add_resppose", data);
+      setTimeout(() => {
+        setResponseStatus("");
+      }, 100);
+    });
+
+    //Listen for get_user  data
+    socketInstance.on("cdepro_remove_response", (data) => {
+      console.log("cdepro_remove_resppose", data);
+      setIsLoading(false);
+      setResponseStatus("success");
+      setTimeout(() => {
+        setResponseStatus("");
+      }, 100);
+    });
     // Listen for summary count data
     socketInstance.on("count", (countData) => {
       console.log("📊 Count data received for room:", room);
@@ -317,6 +390,8 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
           home: countData.home,
           missing: countData.missing,
           all: countData.all,
+          active: countData.active,
+          inactive: countData.inactive,
         };
         console.log("✅ Count data updated in state:", updatedData);
         return updatedData;
@@ -449,6 +524,8 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
     error,
     isLoading,
     searchTerm,
+    response,
+    responseStatus,
     searchData,
     clearSearch,
     joinRoom,
