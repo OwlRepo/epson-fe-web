@@ -16,7 +16,7 @@ import {
   useSearch,
 } from "@tanstack/react-router";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export const Route = createFileRoute(
   "/_authenticated/evacuation-monitoring/cdepro/$controllerId/"
@@ -62,6 +62,12 @@ function RouteComponent() {
       replace: true,
     });
   };
+
+  useEffect(() => {
+    if (responseStatus === "success") {
+      setOpen(false);
+    }
+  }, [responseStatus]);
 
   return (
     <>

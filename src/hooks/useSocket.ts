@@ -155,7 +155,6 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
     // Set loading state
     console.log("⏳ Setting loading state...");
     setIsLoading(true);
-    setResponseStatus("");
 
     socketInstance.on("connect", () => {
       console.log("🟢 Socket connected to server successfully!");
@@ -321,6 +320,10 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
         setResponseStatus("success");
       }
       console.log("cdepro_update_resppose", data);
+
+      setTimeout(() => {
+        setResponseStatus("");
+      }, 100);
     });
 
     //Listen for cdeppro add  data
@@ -338,12 +341,19 @@ export const useSocket = <T extends SummaryData | LiveData | SummaryCountData>({
       }
 
       console.log("cdepro_add_resppose", data);
+      setTimeout(() => {
+        setResponseStatus("");
+      }, 100);
     });
 
     //Listen for get_user  data
     socketInstance.on("cdepro_remove_response", (data) => {
       console.log("cdepro_remove_resppose", data);
       setIsLoading(false);
+      setResponseStatus("success");
+      setTimeout(() => {
+        setResponseStatus("");
+      }, 100);
     });
     // Listen for summary count data
     socketInstance.on("count", (countData) => {
