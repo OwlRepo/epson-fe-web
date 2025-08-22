@@ -1,4 +1,4 @@
-import { ONE_FLOOR_AREA_FOUR } from "@/assets/images";
+import { EPSON_FL, EPSON_SL, ONE_FLOOR_AREA_FOUR } from "@/assets/images";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,6 +18,19 @@ import {
 import { useDraggable } from "@dnd-kit/core";
 import type { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
 import { useState, useRef, useLayoutEffect } from "react";
+import CardSection from "@/components/layouts/CardSection";
+import CardHeaderLeft from "@/components/ui/card-header-left";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ZoomIn } from "lucide-react";
+import { useSocket } from "@/hooks";
+import type { Device as DeviceType } from "@/components/dialogs/DeviceInfoDialog";
 
 export const Route = createFileRoute(
   "/_authenticated/device-management/dashboard/mapping"
@@ -30,7 +43,7 @@ interface PercentPosition {
   y: number; // percent (0-100)
 }
 
-interface Device {
+interface Device extends DeviceType {
   id: string; // internal unique id
   deviceId: string; // shown Device ID
   name: string;
@@ -55,6 +68,12 @@ const DRAGGABLES: Device[] = [
     description: "Morem ipsum dolor sit amet, consectetur adipiscing elit.",
     x: 10,
     y: 20,
+    floor: "first-floor",
+    area: "Area I",
+    xaxis: "10",
+    yaxis: "20",
+    controllertype: "Entry",
+    archive: 0,
   },
   {
     id: "device2",
@@ -67,6 +86,12 @@ const DRAGGABLES: Device[] = [
     description: "Morem ipsum dolor sit amet, consectetur adipiscing elit.",
     x: 30,
     y: 40,
+    floor: "first-floor",
+    area: "Area I",
+    xaxis: "30",
+    yaxis: "40",
+    controllertype: "Printer",
+    archive: 0,
   },
 ];
 
@@ -411,8 +436,17 @@ function RouteComponent() {
   };
 
   const dndReady = imageLoaded && containerRect && containerRect.height > 0;
+  const { data: device, emitData } = useSocket<DeviceType>({
+    room: "view_device_controller",
+    dataType: "live",
+  });
 
-  return (
+  const [deviceLocation, setDeviceLocation] = useState<{
+    floor: string;
+    area?: string;
+  } | null>({ floor: "first-floor" });
+
+  return deviceLocation?.floor && deviceLocation.area ? (
     <Card className="flex flex-col gap-4 p-5 h-auto">
       <div ref={containerRef} className="w-full relative">
         <img
@@ -466,5 +500,150 @@ function RouteComponent() {
         )}
       </div>
     </Card>
+  ) : (
+    <CardSection
+      headerLeft={
+        <CardHeaderLeft
+          title="Device Mapping"
+          subtitle="Manage Device Locations on the Map"
+        />
+      }
+      headerRight={
+        <div className="flex items-center space-x-5">
+          <div className="flex items-center space-x-2">
+            <p>
+              Online:{" "}
+              <span className="font-bold text-green-400">
+                {
+                  device?.filter((device: any) => device.Status === "Active")
+                    .length
+                }
+              </span>
+            </p>
+            <p>
+              Offline:{" "}
+              <span className="font-bold text-red-400">
+                {
+                  device?.filter((device: any) => device.Status === "Inactive")
+                    .length
+                }
+              </span>
+            </p>
+            <p>
+              Unregistered:{" "}
+              <span className="font-bold text-yellow-400">
+                {
+                  device?.filter(
+                    (device: any) => device.Status === "Unregistered"
+                  ).length
+                }
+              </span>
+            </p>
+            <p>
+              No Location:{" "}
+              <span className="font-bold text-gray-400">
+                {device?.filter((device: any) => !device.XAxis).length}
+              </span>
+            </p>
+          </div>
+        </div>
+      }
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-5">
+          <Tabs defaultValue="first-floor">
+            <div className="flex justify-between items-center">
+              <div className="flex items-stretch py-4 space-x-3">
+                <TabsList className="h-[50px] w-[245px]">
+                  <TabsTrigger
+                    value="first-floor"
+                    onClick={() => setDeviceLocation({ floor: "first-floor" })}
+                    className="data-[state=active]:bg-primary data-[state=active]:text-white h-full w-full rounded-r-none"
+                  >
+                    First Floor
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="second-floor"
+                    onClick={() => setDeviceLocation({ floor: "second-floor" })}
+                    className="data-[state=active]:bg-primary data-[state=active]:text-white h-full w-full rounded-l-none"
+                  >
+                    Second Floor
+                  </TabsTrigger>
+                </TabsList>
+
+                <Select>
+                  <SelectTrigger className="h-[50px] w-[145px]">
+                    <SelectValue placeholder="Select Device" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="device1">Device 1</SelectItem>
+                    <SelectItem value="device2">Device 2</SelectItem>
+                    <SelectItem value="device3">Device 3</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button className="h-[50px] w-[145px]">Register Device</Button>
+            </div>
+            <TabsContent value="first-floor" className="w-full h-full relative">
+              <img
+                src={EPSON_FL}
+                alt="First Floor"
+                className="w-full h-full object-contain"
+              />
+              <div className="grid grid-cols-2 absolute inset-0">
+                {[
+                  { name: "Area I", id: "area1", devices: 0 },
+                  { name: "Area II", id: "area2", devices: 0 },
+                  { name: "Area III", id: "area3", devices: 0 },
+                  { name: "Area IV", id: "area4", devices: 0 },
+                ].map((area) => (
+                  <div
+                    key={area.id}
+                    className="w-full h-full relative bg-[#F7FAFF]/90 hover:bg-[#003f98]/90 cursor-pointer transition ease-in-out duration-300 text-primary hover:text-white border border-primary p-5 group"
+                  >
+                    <p className=" text-3xl font-bold">{area.name}</p>
+                    <p className=" text-md ">Devices: {area.devices}</p>
+                    <ZoomIn
+                      size={50}
+                      className="absolute bottom-[43%] left-[43%] hidden group-hover:block"
+                    />
+                  </div>
+                ))}
+              </div>
+            </TabsContent>
+            <TabsContent
+              value="second-floor"
+              className="w-full h-full relative"
+            >
+              <img
+                src={EPSON_SL}
+                alt="First Floor"
+                className="w-full h-full object-contain"
+              />
+              <div className="grid grid-cols-2 absolute inset-0">
+                {[
+                  { name: "Area I", id: "area1", devices: 0 },
+                  { name: "Area II", id: "area2", devices: 0 },
+                  { name: "Area III", id: "area3", devices: 0 },
+                  { name: "Area IV", id: "area4", devices: 0 },
+                ].map((area) => (
+                  <div
+                    key={area.id}
+                    className="w-full h-full relative bg-[#F7FAFF]/90 hover:bg-[#003f98]/90 cursor-pointer transition ease-in-out duration-300 text-primary hover:text-white border border-primary p-5 group"
+                  >
+                    <p className=" text-3xl font-bold">{area.name}</p>
+                    <p className=" text-md ">Devices: {area.devices}</p>
+                    <ZoomIn
+                      size={50}
+                      className="absolute bottom-[43%] left-[43%] hidden group-hover:block"
+                    />
+                  </div>
+                ))}
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </div>
+    </CardSection>
   );
 }
