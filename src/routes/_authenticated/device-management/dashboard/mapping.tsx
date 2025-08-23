@@ -29,8 +29,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ZoomIn } from "lucide-react";
-import { useSocket } from "@/hooks";
 import type { Device as DeviceType } from "@/components/dialogs/DeviceInfoDialog";
+import useDeviceMappingData from "@/hooks/useDeviceMappingData";
 
 export const Route = createFileRoute(
   "/_authenticated/device-management/dashboard/mapping"
@@ -43,7 +43,7 @@ interface PercentPosition {
   y: number; // percent (0-100)
 }
 
-interface Device extends DeviceType {
+export interface Device extends DeviceType {
   id: string; // internal unique id
   deviceId: string; // shown Device ID
   name: string;
@@ -436,15 +436,16 @@ function RouteComponent() {
   };
 
   const dndReady = imageLoaded && containerRect && containerRect.height > 0;
-  const { data: device, emitData } = useSocket<DeviceType>({
-    room: "view_device_controller",
-    dataType: "live",
-  });
 
   const [deviceLocation, setDeviceLocation] = useState<{
     floor: string;
     area?: string;
-  } | null>({ floor: "first-floor" });
+  } | null>({ floor: "1" });
+
+  const { deviceCounts, deviceList } = useDeviceMappingData({
+    floor: deviceLocation?.floor || "1",
+    area: deviceLocation?.area,
+  });
 
   return deviceLocation?.floor && deviceLocation.area ? (
     <Card className="flex flex-col gap-4 p-5 h-auto">
@@ -514,35 +515,25 @@ function RouteComponent() {
             <p>
               Online:{" "}
               <span className="font-bold text-green-400">
-                {
-                  device?.filter((device: any) => device.Status === "Active")
-                    .length
-                }
+                {deviceCounts.perFloor.active}
               </span>
             </p>
             <p>
               Offline:{" "}
               <span className="font-bold text-red-400">
-                {
-                  device?.filter((device: any) => device.Status === "Inactive")
-                    .length
-                }
+                {deviceCounts.perFloor.inactive}
               </span>
             </p>
             <p>
               Unregistered:{" "}
               <span className="font-bold text-yellow-400">
-                {
-                  device?.filter(
-                    (device: any) => device.Status === "Unregistered"
-                  ).length
-                }
+                {deviceCounts.perFloor.unregistered}
               </span>
             </p>
             <p>
               No Location:{" "}
               <span className="font-bold text-gray-400">
-                {device?.filter((device: any) => !device.XAxis).length}
+                {deviceCounts.perFloor.noLocation}
               </span>
             </p>
           </div>
@@ -551,58 +542,68 @@ function RouteComponent() {
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-5">
-          <Tabs defaultValue="first-floor">
+          <Tabs defaultValue="1">
             <div className="flex justify-between items-center">
               <div className="flex items-stretch py-4 space-x-3">
                 <TabsList className="h-[50px] w-[245px]">
                   <TabsTrigger
-                    value="first-floor"
-                    onClick={() => setDeviceLocation({ floor: "first-floor" })}
+                    value="1"
+                    onClick={() => setDeviceLocation({ floor: "1" })}
                     className="data-[state=active]:bg-primary data-[state=active]:text-white h-full w-full rounded-r-none"
                   >
                     First Floor
                   </TabsTrigger>
                   <TabsTrigger
-                    value="second-floor"
-                    onClick={() => setDeviceLocation({ floor: "second-floor" })}
+                    value="2"
+                    onClick={() => setDeviceLocation({ floor: "2" })}
                     className="data-[state=active]:bg-primary data-[state=active]:text-white h-full w-full rounded-l-none"
                   >
                     Second Floor
                   </TabsTrigger>
                 </TabsList>
-
-                <Select>
+                <Select
+                  disabled={
+                    !deviceList[
+                      deviceLocation?.floor as keyof typeof deviceList
+                    ].length
+                  }
+                >
                   <SelectTrigger className="h-[50px] w-[145px]">
                     <SelectValue placeholder="Select Device" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="device1">Device 1</SelectItem>
-                    <SelectItem value="device2">Device 2</SelectItem>
-                    <SelectItem value="device3">Device 3</SelectItem>
+                    {deviceList[
+                      deviceLocation?.floor as keyof typeof deviceList
+                    ] ? (
+                      deviceList[
+                        deviceLocation?.floor as keyof typeof deviceList
+                      ].map((device: any) => (
+                        <SelectItem key={device.ID} value={device.ID}>
+                          {device.DeviceName}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="No devices">No devices</SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
               <Button className="h-[50px] w-[145px]">Register Device</Button>
             </div>
-            <TabsContent value="first-floor" className="w-full h-full relative">
+            <TabsContent value="1" className="w-full h-full relative">
               <img
                 src={EPSON_FL}
                 alt="First Floor"
                 className="w-full h-full object-contain"
               />
               <div className="grid grid-cols-2 absolute inset-0">
-                {[
-                  { name: "Area I", id: "area1", devices: 0 },
-                  { name: "Area II", id: "area2", devices: 0 },
-                  { name: "Area III", id: "area3", devices: 0 },
-                  { name: "Area IV", id: "area4", devices: 0 },
-                ].map((area) => (
+                {deviceCounts.perArea.map((area) => (
                   <div
                     key={area.id}
                     className="w-full h-full relative bg-[#F7FAFF]/90 hover:bg-[#003f98]/90 cursor-pointer transition ease-in-out duration-300 text-primary hover:text-white border border-primary p-5 group"
                   >
                     <p className=" text-3xl font-bold">{area.name}</p>
-                    <p className=" text-md ">Devices: {area.devices}</p>
+                    <p className=" text-md ">Devices: {area.deviceCount}</p>
                     <ZoomIn
                       size={50}
                       className="absolute bottom-[43%] left-[43%] hidden group-hover:block"
@@ -611,21 +612,18 @@ function RouteComponent() {
                 ))}
               </div>
             </TabsContent>
-            <TabsContent
-              value="second-floor"
-              className="w-full h-full relative"
-            >
+            <TabsContent value="2" className="w-full h-full relative">
               <img
                 src={EPSON_SL}
-                alt="First Floor"
+                alt="Second Floor"
                 className="w-full h-full object-contain"
               />
               <div className="grid grid-cols-2 absolute inset-0">
                 {[
-                  { name: "Area I", id: "area1", devices: 0 },
-                  { name: "Area II", id: "area2", devices: 0 },
-                  { name: "Area III", id: "area3", devices: 0 },
-                  { name: "Area IV", id: "area4", devices: 0 },
+                  { name: "Area I", id: "1", devices: 0 },
+                  { name: "Area II", id: "2", devices: 0 },
+                  { name: "Area III", id: "3", devices: 0 },
+                  { name: "Area IV", id: "4", devices: 0 },
                 ].map((area) => (
                   <div
                     key={area.id}
