@@ -292,7 +292,7 @@ const AssignPersonnelDialog = ({
               register={register}
               errors={formState?.errors}
               required
-              readOnly={false}
+              readOnly={Boolean(employee?.FirstName)}
             />
             <TextInput
               label="Last Name"
@@ -301,7 +301,7 @@ const AssignPersonnelDialog = ({
               register={register}
               errors={formState?.errors}
               required
-              readOnly={false}
+              readOnly={Boolean(employee?.LastName)}
             />
 
             <TextInput
@@ -311,7 +311,7 @@ const AssignPersonnelDialog = ({
               register={register}
               errors={formState?.errors}
               required
-              readOnly={false}
+              readOnly={Boolean(employee?.EmailAddress)}
             />
 
             <TextInput
@@ -343,6 +343,7 @@ const AssignPersonnelDialog = ({
               errors={formState?.errors}
               required
               readOnly={false}
+              // suggestions={["test", "test2"]}
             />
           </div>
 
