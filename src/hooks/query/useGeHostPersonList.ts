@@ -1,10 +1,13 @@
 import api from "@/config/axiosInstance";
+import { getIsEVS } from "@/utils/env";
 import { useQuery } from "@tanstack/react-query";
+
+const isEVS = getIsEVS();
 
 const getHostPerson = async (hostPerson: string) => {
   try {
     const response = await api.get(
-      `/api/vms/hostperson?HostPerson=${hostPerson}`
+      `/api/${isEVS ? "evs" : "vms"}/hostperson?HostPerson=${hostPerson}`
     );
 
     return response.data.data.map((item: any) => ({
