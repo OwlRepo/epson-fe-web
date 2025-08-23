@@ -15,6 +15,8 @@ import { unparse } from "papaparse";
 import dayjs from "dayjs";
 import { useGetDepartmentList } from "@/hooks/query/useGetDepartmentList";
 import EVSCounts from "@/components/ui/evs-counts";
+import type { SummaryCountData } from "@/hooks/useSocket";
+import { useGetEVSReports } from "@/hooks/query/useGetEVSReport";
 
 export interface EmployeeReport {
   EmployeeNo: string;
@@ -45,18 +47,17 @@ function ReportsDataTable() {
   const [data, setData] = useState<EmployeeReport[]>([]);
   const [totalPages, setTotalPages] = useState(10);
   const [totalItems, setTotalItems] = useState(10);
+  const [totalLogs, setTotalLogs] = useState<Partial<SummaryCountData>>({});
 
   const {
     data: reportList,
-    isLoading,
+    isFetching: isLoading,
     refetch,
-  } = useGetEmployeeReports(objToParams(search) as any);
-
-  //deparment list
-  const { data: departments } = useGetDepartmentList();
+  } = useGetEVSReports(objToParams(search) as any);
 
   useEffect(() => {
     if (Array.isArray(reportList?.data)) {
+      const { Overall, Safe, Injured, GoHome, Missing } = reportList;
       const data = reportList?.data.map((item: EmployeeReport) => ({
         ...item,
         ClockedIN: item.ClockedIN
@@ -67,6 +68,13 @@ function ReportsDataTable() {
           : null,
       }));
       setData(data);
+      setTotalLogs({
+        all: Overall,
+        safe: Safe,
+        injured: Injured,
+        home: GoHome,
+        missing: Missing,
+      });
       setTotalPages(reportList?.pagination?.totalPages ?? 10);
       setTotalItems(reportList?.pagination?.totalItems ?? 10);
     }
@@ -96,7 +104,7 @@ function ReportsDataTable() {
 
   // Define columns
   const columns = [
-    { key: "EmployeeNo", label: "EMPLOYEE NO." },
+    { key: "EmployeeNo", label: "ID" },
     { key: "Name", label: "Name" },
     { key: "Type", label: "Type" },
     { key: "Status", label: "Status" },
@@ -141,7 +149,7 @@ function ReportsDataTable() {
     {
       key: "Department",
       label: "Department",
-      options: departments ?? [],
+      options: [],
     },
   ];
 
@@ -225,8 +233,8 @@ function ReportsDataTable() {
 
   return (
     <div>
-      <div className="mt-2 mb-4">
-        <EVSCounts countData={{}} type="compact" />
+      <div className="mt-2 mb-4 flex justify-end">
+        <EVSCounts countData={totalLogs} type="compact" />
       </div>
       <DynamicTable
         columns={columns}
@@ -236,6 +244,7 @@ function ReportsDataTable() {
         onSearch={handleSearch}
         routeSearch={search}
         exportTableData={{
+          type: "EVS",
           exportOptions: [
             {
               label: "Export Page",
