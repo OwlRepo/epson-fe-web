@@ -80,9 +80,9 @@ export function EvacuationMonitoringLayout({
     </div>
   );
 
-  const { emitData } = useSocket({
-    room: "evac_complete",
-  });
+  // const { emitData } = useSocket({
+  //   room: "evac_complete",
+  // });
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
@@ -93,14 +93,14 @@ export function EvacuationMonitoringLayout({
         logo={logo}
         collapsedLogo={collapsedLogo}
         className="bg-primary-evs"
-        onEvacComplete={() => {
-          emitData("evac_complete", {
-            email: JSON.parse(localStorage.getItem("user") || "{}")[
-              "EmailAddress"
-            ],
-            date: new Date(),
-          });
-        }}
+        // onEvacComplete={() => {
+        //   emitData("evac_complete", {
+        //     email: JSON.parse(localStorage.getItem("user") || "{}")[
+        //       "EmailAddress"
+        //     ],
+        //     date: new Date(),
+        //   });
+        // }}
       />
 
       {/* Main content */}
