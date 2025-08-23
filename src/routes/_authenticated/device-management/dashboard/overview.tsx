@@ -27,7 +27,7 @@ function RouteComponent() {
     Partial<Device> | undefined
   >();
   const [deviceIds, setDeviceIds] = useState([]);
-  const [deviceList, setDeviceList] = useState([]);
+  // const [deviceList, setDeviceList] = useState([]);
 
   const data = device.map((apiDevice: any) => ({
     id: apiDevice.ID ?? "",
@@ -82,7 +82,9 @@ function RouteComponent() {
           <Button
             onClick={() => {
               setOpen(true);
+
               setDeviceIds(
+                //@ts-ignore
                 (data ?? [])
                   .filter((item) => item.name === "")
                   .map((item) => item.id)
@@ -100,6 +102,7 @@ function RouteComponent() {
               onClick={() => {
                 setOpen(true);
                 setSelectedDevice(item);
+                //@ts-ignore
                 setDeviceIds(data.map((item) => item.id));
               }}
               key={index}

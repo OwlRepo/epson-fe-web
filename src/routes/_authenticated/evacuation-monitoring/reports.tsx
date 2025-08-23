@@ -9,11 +9,10 @@ import { useEffect, useMemo, useState } from "react";
 import { DynamicTable } from "@/components/ui/dynamic-table";
 import useTableSelectionStore from "@/store/tableSelectionStore";
 
-import { useGetEmployeeReports } from "@/hooks/query/useGetAttendaceReports";
 import { objToParams } from "@/utils/objToParams";
 import { unparse } from "papaparse";
 import dayjs from "dayjs";
-import { useGetDepartmentList } from "@/hooks/query/useGetDepartmentList";
+
 import EVSCounts from "@/components/ui/evs-counts";
 import type { SummaryCountData } from "@/hooks/useSocket";
 import { useGetEVSReports } from "@/hooks/query/useGetEVSReport";

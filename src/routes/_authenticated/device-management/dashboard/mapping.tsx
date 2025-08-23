@@ -1,5 +1,4 @@
 import { EPSON_FL, EPSON_SL, ONE_FLOOR_AREA_FOUR } from "@/assets/images";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
