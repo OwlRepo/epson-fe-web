@@ -58,6 +58,7 @@ const EvacueeInfoDialog = ({
   }, [evacuee, reset]);
 
   const currentStatus = watch("status");
+  const isHome = evacuee?.raw_status === "Home";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -98,28 +99,30 @@ const EvacueeInfoDialog = ({
           </div>
 
           {/* Switch now toggles between Safe and Injured */}
-          <div className="flex items-center mt-4 gap-4">
-            <Controller
-              control={control}
-              name="status"
-              render={({ field }) => (
-                <Switch
-                  checked={field.value === "Safe"}
-                  onCheckedChange={(checked) =>
-                    field.onChange(checked ? "Safe" : "Injured")
-                  }
-                  className={cn(
-                    "data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
-                  )}
-                />
-              )}
-            />
-            <p className="text-sm">
-              {currentStatus === "Safe"
-                ? "Evacuee is Safe"
-                : "Evacuee is Injured"}
-            </p>
-          </div>
+          {!isHome && (
+            <div className="flex items-center mt-4 gap-4">
+              <Controller
+                control={control}
+                name="status"
+                render={({ field }) => (
+                  <Switch
+                    checked={field.value === "Safe"}
+                    onCheckedChange={(checked) =>
+                      field.onChange(checked ? "Safe" : "Injured")
+                    }
+                    className={cn(
+                      "data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
+                    )}
+                  />
+                )}
+              />
+              <p className="text-sm">
+                {currentStatus === "Safe"
+                  ? "Evacuee is Safe"
+                  : "Evacuee is Injured"}
+              </p>
+            </div>
+          )}
 
           {/* Remarks */}
           <div className="space-y-1 col-span-2 flex-1 mt-4">
@@ -129,11 +132,11 @@ const EvacueeInfoDialog = ({
             >
               Remarks
             </label>
-            <Textarea id="remarks" {...register("remarks")} />
+            <Textarea disabled={isHome} id="remarks" {...register("remarks")} />
           </div>
 
           <div className="flex justify-end mt-4">
-            <Button type="submit" disabled={!formState.isDirty}>
+            <Button type="submit" disabled={!formState.isDirty || isHome}>
               Save Changes
             </Button>
           </div>
