@@ -17,18 +17,18 @@ import { useCurrentPath } from "@/hooks/useCurrentPath";
 import { EPSON_LOGO_WHITE } from "@/assets/images";
 import { VerifyiLogoLight, VerifyiVLogo } from "@/assets/svgs";
 import { getIsEVS } from "@/utils/env";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Input } from "./input";
+// import {
+//   AlertDialog,
+//   AlertDialogAction,
+//   AlertDialogCancel,
+//   AlertDialogContent,
+//   AlertDialogDescription,
+//   AlertDialogFooter,
+//   AlertDialogHeader,
+//   AlertDialogTitle,
+//   AlertDialogTrigger,
+// } from "@/components/ui/alert-dialog";
+// import { Input } from "./input";
 
 interface SubItem {
   label: string;
@@ -492,7 +492,7 @@ export function Sidebar({
 
       {/* Footer */}
       <div className="py-6 flex flex-col items-center justify-center space-y-5">
-        {onEvacComplete && (
+        {/* {onEvacComplete && (
           <div className="w-full flex items-center justify-center">
             <AlertDialog>
               <AlertDialogTrigger asChild>
@@ -541,7 +541,7 @@ export function Sidebar({
               </AlertDialogContent>
             </AlertDialog>
           </div>
-        )}
+        )} */}
         {!collapsed ? (
           <div className="flex flex-col items-center justify-center gap-3">
             <VerifyiLogoLight className="w-full px-16 opacity-70 h-fit" />
