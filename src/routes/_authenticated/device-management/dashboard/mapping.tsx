@@ -28,9 +28,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ZoomIn } from "lucide-react";
+import { ArrowLeft, ZoomIn } from "lucide-react";
 import type { Device as DeviceType } from "@/components/dialogs/DeviceInfoDialog";
 import useDeviceMappingData from "@/hooks/useDeviceMappingData";
+import Spinner from "@/components/ui/spinner";
 
 export const Route = createFileRoute(
   "/_authenticated/device-management/dashboard/mapping"
@@ -442,13 +443,63 @@ function RouteComponent() {
     area?: string;
   } | null>({ floor: "1" });
 
-  const { deviceCounts, deviceList } = useDeviceMappingData({
+  const { deviceCounts, deviceList, isConnected } = useDeviceMappingData({
     floor: deviceLocation?.floor || "1",
     area: deviceLocation?.area,
   });
-
+  if (!isConnected) {
+    return (
+      <div className="flex flex-col justify-center items-center h-full">
+        <Spinner message="Connecting to server..." />
+      </div>
+    );
+  }
   return deviceLocation?.floor && deviceLocation.area ? (
-    <Card className="flex flex-col gap-4 p-5 h-auto">
+    <CardSection
+      headerLeft={
+        <div
+          className="flex flex-col cursor-pointer"
+          onClick={() => setDeviceLocation({ floor: "1" })}
+        >
+          <b className="flex items-center space-x-2 text-xl ">
+            <span className="cursor-pointer">
+              <ArrowLeft className="mr-2" />
+            </span>
+            {deviceLocation.floor === "1" ? "First" : "Second"} Floor
+            <span>
+              {`> Area ${deviceLocation.area === "1" ? "I" : deviceLocation.area === "2" ? "II" : deviceLocation.area === "3" ? "III" : "IV"}`}
+            </span>
+          </b>
+          <p className="text-sm text-gray-400 ml-8">
+            Manage Device Locations on the Map
+          </p>
+        </div>
+      }
+      headerRight={
+        <div className="flex items-center space-x-5">
+          <div className="flex items-center space-x-2">
+            <p>
+              Online:{" "}
+              <span className="font-bold text-green-400">
+                {deviceCounts.perFloor.active}
+              </span>
+            </p>
+            <p>
+              Offline:{" "}
+              <span className="font-bold text-red-400">
+                {deviceCounts.perFloor.inactive}
+              </span>
+            </p>
+            <p>
+              No Location:{" "}
+              <span className="font-bold text-gray-400">
+                {deviceCounts.perFloor.noLocation}
+              </span>
+            </p>
+          </div>
+        </div>
+      }
+    >
       <div ref={containerRef} className="w-full relative">
         <img
           src={ONE_FLOOR_AREA_FOUR}
@@ -500,7 +551,7 @@ function RouteComponent() {
           </div>
         )}
       </div>
-    </Card>
+    </CardSection>
   ) : (
     <CardSection
       headerLeft={
@@ -600,6 +651,9 @@ function RouteComponent() {
                 {deviceCounts.perArea.map((area) => (
                   <div
                     key={area.id}
+                    onClick={() =>
+                      setDeviceLocation({ floor: "1", area: area.id })
+                    }
                     className="w-full h-full relative bg-[#F7FAFF]/90 hover:bg-[#003f98]/90 cursor-pointer transition ease-in-out duration-300 text-primary hover:text-white border border-primary p-5 group"
                   >
                     <p className=" text-3xl font-bold">{area.name}</p>
@@ -619,18 +673,16 @@ function RouteComponent() {
                 className="w-full h-full object-contain"
               />
               <div className="grid grid-cols-2 absolute inset-0">
-                {[
-                  { name: "Area I", id: "1", devices: 0 },
-                  { name: "Area II", id: "2", devices: 0 },
-                  { name: "Area III", id: "3", devices: 0 },
-                  { name: "Area IV", id: "4", devices: 0 },
-                ].map((area) => (
+                {deviceCounts.perArea.map((area) => (
                   <div
                     key={area.id}
+                    onClick={() =>
+                      setDeviceLocation({ floor: "2", area: area.id })
+                    }
                     className="w-full h-full relative bg-[#F7FAFF]/90 hover:bg-[#003f98]/90 cursor-pointer transition ease-in-out duration-300 text-primary hover:text-white border border-primary p-5 group"
                   >
                     <p className=" text-3xl font-bold">{area.name}</p>
-                    <p className=" text-md ">Devices: {area.devices}</p>
+                    <p className=" text-md ">Devices: {area.deviceCount}</p>
                     <ZoomIn
                       size={50}
                       className="absolute bottom-[43%] left-[43%] hidden group-hover:block"

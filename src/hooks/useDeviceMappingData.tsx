@@ -4,7 +4,11 @@ export default function useDeviceMappingData(props: {
   floor: string;
   area?: string;
 }) {
-  const { data: device, emitData } = useSocket<any>({
+  const {
+    data: device,
+    emitData,
+    isConnected,
+  } = useSocket<any>({
     room: "view_device_controller",
     dataType: "live",
   });
@@ -94,5 +98,5 @@ export default function useDeviceMappingData(props: {
     [device, props.floor]
   );
 
-  return { deviceList, deviceCounts, emitData };
+  return { deviceList, deviceCounts, emitData, isConnected };
 }
