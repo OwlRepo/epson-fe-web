@@ -1,10 +1,13 @@
 import api from "@/config/axiosInstance";
+import { getIsEVS } from "@/utils/env";
 import { useQuery } from "@tanstack/react-query";
+
+const isEVS = getIsEVS();
 
 const getEmployeeByNo = async (employeeNo: string) => {
   try {
     const response = await api.get(
-      `api/employees/getByEmployeeNo/${employeeNo}`
+      `api/${isEVS ? "evs" : "employees"}/getByEmployeeNo/${employeeNo}`
     );
     return response.data;
   } catch (error) {
