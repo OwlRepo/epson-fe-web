@@ -118,7 +118,7 @@ function RouteComponent() {
       { key: "Missing", value: totalLogs?.missing },
     ];
 
-    const mapData = data.map(({ employee_id, ...rest }) => ({
+    const mapData = data.map(({ employee_id,department,division,section, ...rest }) => ({
       ...rest,
       id: employee_id,
     }));

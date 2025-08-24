@@ -126,12 +126,16 @@ function RouteComponent() {
       { key: "Missing", value: countData?.missing },
     ];
 
-    const filteredData = liveData.filter((item) =>
+    const mapData = liveData.map(({employee_id, ...rest})=> ({...rest,
+      id: employee_id,
+    }))
+
+    const filteredData = mapData.filter((item) =>
       filterByStatus.includes(item.eva_status)
     );
 
     const summaryCsv = unparse(summary, { header: false });
-    const data = unparse(filterByStatus === "all" ? liveData : filteredData, {
+    const data = unparse(filterByStatus === "all" ? mapData : filteredData, {
       header: true,
     });
 
