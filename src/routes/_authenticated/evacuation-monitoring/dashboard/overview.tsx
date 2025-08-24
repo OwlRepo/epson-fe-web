@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 
 import VisitorEvacueeInfoDialog from "@/components/dialogs/VisitorEvacueeInfoDialog";
 import EvacueeInfoDialog from "@/components/dialogs/EvacueeInfoDialog";
+import { unparse } from "papaparse";
 
 interface SearchParams {
   pageSize?: string;
@@ -115,6 +116,38 @@ function RouteComponent() {
     dataType: "live",
     statusFilter: flaggedRecords,
   });
+
+  const handleExport = (filterByStatus: string[] | "all") => {
+    const summary = [
+      { key: "Overall", value: countData?.total },
+      { key: "Safe", value: countData?.safe },
+      { key: "Injured", value: countData?.injured },
+      { key: "Go Home", value: countData?.home },
+      { key: "Missing", value: countData?.missing },
+    ];
+
+    const filteredData = liveData.filter((item) =>
+      filterByStatus.includes(item.eva_status)
+    );
+
+    const summaryCsv = unparse(summary, { header: false });
+    const data = unparse(filterByStatus === "all" ? liveData : filteredData, {
+      header: true,
+    });
+
+    const csvContent = `\n${summaryCsv}\n\n${data}`;
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", "report.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="space-y-8">
       <EVSCounts countData={countData} />
@@ -328,15 +361,27 @@ function RouteComponent() {
                 exportBtnLabel: "Evacuated",
                 exportOptions: [
                   {
+                    label: "Overall",
+                    onClick: () => {
+                      handleExport("all");
+                    },
+                  },
+                  {
                     label: "Evacuated",
                     onClick: () => {
-                      console.log(liveData);
+                      handleExport(["Safe", "Injured"]);
+                    },
+                  },
+                  {
+                    label: "Home",
+                    onClick: () => {
+                      handleExport(["Home"]);
                     },
                   },
                   {
                     label: "Inside Premises(Missing)",
                     onClick: () => {
-                      console.log(Object.values(liveData));
+                      handleExport(["Missing"]);
                     },
                   },
                 ],

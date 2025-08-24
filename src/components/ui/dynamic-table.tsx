@@ -1211,7 +1211,7 @@ export function DynamicTable({
                     className={cn(
                       "h-9",
                       exportTableData.type === "EVS" &&
-                        "bg-primary-evs text-white"
+                        "bg-primary-evs text-white hover:bg-primary-evs"
                     )}
                   >
                     {exportTableData.exportBtnLabel || "Export Records"}
