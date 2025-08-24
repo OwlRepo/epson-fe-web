@@ -16,6 +16,7 @@ import dayjs from "dayjs";
 import EVSCounts from "@/components/ui/evs-counts";
 import type { SummaryCountData } from "@/hooks/useSocket";
 import { useGetEVSReports } from "@/hooks/query/useGetEVSReport";
+import { useGetTypeList } from "@/hooks/query/useGetTypeList";
 
 export interface EmployeeReport {
   EmployeeNo: string;
@@ -78,6 +79,9 @@ function ReportsDataTable() {
       setTotalItems(reportList?.pagination?.totalItems ?? 10);
     }
   }, [reportList]);
+
+
+  const {data: typeList} = useGetTypeList()
 
   useEffect(() => {
     refetch();
@@ -146,10 +150,20 @@ function ReportsDataTable() {
 
   const filters = [
     {
-      key: "Department",
-      label: "Department",
-      options: [],
+      key: "Type",
+      label: "Type",
+      options: typeList ?? [],
     },
+     {
+      key: "Status",
+      label: "Status",
+      options: ["Safe", "Injured", "Home", "Missing"].map(
+        (item) => ({
+          label: item,
+          value: item,
+        })
+      ),
+      },
   ];
 
   const handleExport = (exportData: any) => {

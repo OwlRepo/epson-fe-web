@@ -118,8 +118,13 @@ function RouteComponent() {
       { key: "Missing", value: totalLogs?.missing },
     ];
 
+    const mapData = data.map(({ employee_id, ...rest }) => ({
+      ...rest,
+      id: employee_id,
+    }));
+
     const summaryCsv = unparse(summary, { header: false });
-    const liveData = unparse(data, { header: true });
+    const liveData = unparse(mapData, { header: true });
 
     const csvContent = `\n${summaryCsv}\n\n${liveData}`;
 
