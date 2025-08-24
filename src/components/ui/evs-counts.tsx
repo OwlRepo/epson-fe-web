@@ -28,7 +28,7 @@ export default function EVSCounts(props: EVSCountsProps) {
             <Users className="w-3.5 h-3.5 text-white bg-gray-500 rounded-full p-[2px]" />
           ),
           label: "Overall",
-          count: countData?.all ? formatCountWithCommas(countData.all) : 0,
+          count: countData.all,
           bgColor: "bg-gray-50",
           textColor: "text-gray-700",
           borderColor: "border-gray-200",
@@ -36,9 +36,7 @@ export default function EVSCounts(props: EVSCountsProps) {
         {
           icon: <EvacuatedIcon className="w-3.5 h-3.5" />,
           label: "Safe",
-          count: countData?.safe
-            ? parseInt(formatCountWithCommas(countData.safe))
-            : 0,
+          count: countData?.safe,
           bgColor: "bg-green-50",
           textColor: "text-green-700",
           borderColor: "border-green-200",
@@ -46,9 +44,7 @@ export default function EVSCounts(props: EVSCountsProps) {
         {
           icon: <InjuredIcon className="w-3.5 h-3.5" />,
           label: "Injured",
-          count: countData?.injured
-            ? formatCountWithCommas(countData.injured)
-            : 0,
+          count: countData?.injured,
           bgColor: "bg-amber-50",
           textColor: "text-amber-700",
           borderColor: "border-amber-200",
@@ -56,7 +52,7 @@ export default function EVSCounts(props: EVSCountsProps) {
         {
           icon: <HomeIcon className="w-3.5 h-3.5" />,
           label: "Go Home",
-          count: countData?.home ? formatCountWithCommas(countData.home) : 0,
+          count: countData?.home,
           bgColor: "bg-blue-50",
           textColor: "text-blue-700",
           borderColor: "border-blue-200",
@@ -64,9 +60,7 @@ export default function EVSCounts(props: EVSCountsProps) {
         {
           icon: <InPremisesEvsIcon className="w-3.5 h-3.5" />,
           label: "Missing",
-          count: countData?.missing
-            ? formatCountWithCommas(countData.missing)
-            : 0,
+          count: countData?.missing,
           bgColor: "bg-red-50",
           textColor: "text-red-700",
           borderColor: "border-red-200",
@@ -78,7 +72,7 @@ export default function EVSCounts(props: EVSCountsProps) {
             <Users className="w-3.5 h-3.5 text-white bg-gray-500 rounded-full p-[2px]" />
           ),
           label: "Overall",
-          count: countData?.all ? formatCountWithCommas(countData.all) : 0,
+          count: countData?.all,
           bgColor: "bg-gray-50",
           textColor: "text-gray-700",
           borderColor: "border-gray-200",
@@ -86,9 +80,7 @@ export default function EVSCounts(props: EVSCountsProps) {
         {
           icon: <EvacuatedIcon className="w-3.5 h-3.5" />,
           label: "Active",
-          count: countData?.active
-            ? parseInt(formatCountWithCommas(countData.active))
-            : 0,
+          count: countData?.active,
           bgColor: "bg-green-50",
           textColor: "text-green-700",
           borderColor: "border-green-200",
@@ -96,9 +88,7 @@ export default function EVSCounts(props: EVSCountsProps) {
         {
           icon: <InPremisesEvsIcon className="w-3.5 h-3.5" />,
           label: "Inactive",
-          count: countData?.inactive
-            ? formatCountWithCommas(countData.inactive)
-            : 0,
+          count: countData?.inactive,
           bgColor: "bg-red-50",
           textColor: "text-red-700",
           borderColor: "border-red-200",
