@@ -24,17 +24,17 @@ export interface SummaryData extends DeviceData {
 }
 
 export interface SummaryCountData {
-  in: number; // Total Count
-  out: number; // Total Count
-  total?: number; // Optional, only for summary data
-  inside?: number; // Optional, only for summary data
-  safe?: number;
-  injured?: number;
-  home?: number;
-  missing?: number;
-  all?: number;
-  active?: number;
-  inactive?: number;
+  in: number | string; // Total Count
+  out: number | string; // Total Count
+  total?: number | string; // Optional, only for summary data
+  inside?: number | string; // Optional, only for summary data
+  safe?: number | string;
+  injured?: number | string;
+  home?: number | string;
+  missing?: number | string;
+  all?: number | string;
+  active?: number | string;
+  inactive?: number | string;
 }
 
 export interface DeviceData {
