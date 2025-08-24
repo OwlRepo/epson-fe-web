@@ -28,7 +28,7 @@ export default function EVSCounts(props: EVSCountsProps) {
             <Users className="w-3.5 h-3.5 text-white bg-gray-500 rounded-full p-[2px]" />
           ),
           label: "Overall",
-          count: countData.all,
+          count: countData?.all,
           bgColor: "bg-gray-50",
           textColor: "text-gray-700",
           borderColor: "border-gray-200",
