@@ -10,6 +10,14 @@ const getDepartmentList = async () => {
     const response = await api.get(
       `api/${isEVS ? "evs" : "employees"}/getDepartmentList`
     );
+
+    if (isEVS) {
+      data = response.data?.data?.map((item: any) => ({
+        label: item.Name,
+        value: item.Name,
+      }));
+    }
+
     if (Array.isArray(response?.data)) {
       data = response.data.map((item) => ({
         label: item.DepartmentName,

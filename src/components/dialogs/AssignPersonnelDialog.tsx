@@ -17,6 +17,8 @@ import { readRFIDData } from "@/utils/rfidReaderCommand";
 import { useGetDepartmentList } from "@/hooks/query/useGetDepartmentList";
 import { useGetEmployeeByNo } from "@/hooks/query/useGetEmployeeById";
 import { ConfirmationDialog } from "./ConfirmationDialog";
+import { AutoSuggest } from "../inputs/AutoSuggest";
+import { useGetERTList } from "@/hooks/query/useGetERTList";
 
 interface AssignPersonnelDialogProps extends DialogProps {
   assignedPersonnel?: any;
@@ -36,7 +38,8 @@ const AssignPersonnelDialog = ({
   emitData,
 }: AssignPersonnelDialogProps) => {
   const form = useForm();
-  const { register, reset, formState, setValue, watch, handleSubmit } = form;
+  const { control, register, reset, formState, setValue, watch, handleSubmit } =
+    form;
 
   const { errorStyle, infoStyle } = useToastStyleTheme();
 
@@ -48,6 +51,7 @@ const AssignPersonnelDialog = ({
   );
 
   const { data: departmentList } = useGetDepartmentList();
+  const { data: ERTList } = useGetERTList();
 
   const { data: employee } = useGetEmployeeByNo(watch("EmployeeNo") ?? "");
 
@@ -323,7 +327,8 @@ const AssignPersonnelDialog = ({
               required
               readOnly={false}
             />
-
+          </div>
+          <div className="flex flex-col gap-4 mt-4">
             <AutoComplete
               label="Department"
               name={"Department"}
@@ -335,15 +340,12 @@ const AssignPersonnelDialog = ({
               list={departmentList ?? []}
             />
 
-            <TextInput
+            <AutoSuggest
               label="Emergency Response Team (ERT)"
-              id="emergency-response-team"
+              control={control}
               name="EmergencyResponseTeam"
-              register={register}
+              options={ERTList ?? []}
               errors={formState?.errors}
-              required
-              readOnly={false}
-              // suggestions={["test", "test2"]}
             />
           </div>
 
