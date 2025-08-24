@@ -1,12 +1,7 @@
 import { useState, useEffect } from "react";
 import { Controller, type FieldErrors } from "react-hook-form";
 import { Input } from "@/components/ui/input";
-import {
-  Command,
-  CommandList,
-  CommandItem,
-  CommandEmpty,
-} from "@/components/ui/command";
+import { Command, CommandList, CommandItem } from "@/components/ui/command";
 
 type Option = { label: string; value: string };
 
