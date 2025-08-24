@@ -263,7 +263,7 @@ const AssignPersonnelDialog = ({
       {open && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"></div>
       )}
-      <DialogContent className="sm:max-w-[600px] p-8 bg-white rounded-lg shadow-xl">
+      <DialogContent className="sm:max-w-[800px] p-8 bg-white rounded-lg shadow-xl">
         <DialogHeader className="flex flex-row justify-between items-center mb-6">
           <DialogTitle className="text-xl font-semibold text-gray-800">
             Assigned Personnel
@@ -327,8 +327,7 @@ const AssignPersonnelDialog = ({
               required
               readOnly={false}
             />
-          </div>
-          <div className="flex flex-col gap-4 mt-4">
+
             <AutoComplete
               label="Department"
               name={"Department"}
