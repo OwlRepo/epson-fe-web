@@ -4,7 +4,6 @@ import { Sidebar } from "@/components/ui/sidebar";
 import { Header } from "@/components/ui/header";
 import { LayoutDashboard, FileText, ShieldPlus } from "lucide-react";
 import { EpsonLogoWhite } from "@/assets/svgs";
-import { useSocket } from "@/hooks";
 
 interface EvacuationMonitoringLayoutProps {
   children: React.ReactNode;
