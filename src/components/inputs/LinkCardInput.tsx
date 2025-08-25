@@ -116,7 +116,7 @@ export const LinkCardInput = forwardRef(
                 onClick={onStopReading}
                 className=" text-white px-4 py-2 rounded text-sm font-semibold self-end w-32"
               >
-                <Spinner size={15} color="white" containerClassName="w-auto" />
+                <Spinner type={'button'} size={15} color="white"  containerClassName="w-auto" />
                 Stop
               </Button>
             </>

@@ -146,10 +146,12 @@ function RouteComponent() {
                   key: "Status",
                   label: "",
                 },
-                {
-                  key: "ID",
-                  label: "ID",
+               
+                 {
+                  key: "EmployeeID",
+                  label: "Employee No",
                 },
+                {key: "Type", label:"Type"},
                 {
                   key: "FullName",
                   label: "NAME",
@@ -190,11 +192,12 @@ function RouteComponent() {
                     EmailAddress,
                     ERT,
                     Department,
-                    EmployeeID,
+                    EmployeeID: EmployeeID || '--',
                     RowID: ID,
                     EM,
                     MIFARE,
                     UHF,
+                    Type: EmployeeID ? 'Employee' : 'Contractor'
                   };
                 })
                 .filter((item) => {

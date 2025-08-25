@@ -7,6 +7,7 @@ interface SpinnerProps {
   message?: string;
   containerClassName?: string;
   spinnerClassName?: string;
+  type?:'button' | 'table'
 }
 
 export default function Spinner({
@@ -15,6 +16,7 @@ export default function Spinner({
   message,
   containerClassName,
   spinnerClassName,
+  type='table'
 }: SpinnerProps) {
   const location = useLocation();
   return (
@@ -26,7 +28,7 @@ export default function Spinner({
     >
       <BounceLoader
         color={
-          location.pathname.includes("evacuation-monitoring")
+          location.pathname.includes("evacuation-monitoring") && type !=='button'
             ? "#980000"
             : color
         }

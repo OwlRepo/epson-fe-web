@@ -58,9 +58,11 @@ export const AutoComplete = ({
             )}
             disabled={readOnly}
           >
+          <span className="truncate block max-w-[calc(100%-24px)] text-left">
             {value
               ? list?.find((framework) => framework.value === value)?.label
               : "Select..."}
+           </span>
             <ChevronsUpDown className="opacity-50" />
           </Button>
         </PopoverTrigger>

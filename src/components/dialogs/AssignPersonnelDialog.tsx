@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 
 import { useGetHostPerson } from "@/hooks/query/useGeHostPersonList";
 import { AsyncAutoComplete } from "../inputs/AsyncAutoComplete";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import TextInput from "../inputs/TextInput";
 import { AutoComplete } from "../inputs/AutoComplete";
 import { LinkCardInput, type CardType } from "../inputs/LinkCardInput";
@@ -43,7 +43,6 @@ const AssignPersonnelDialog = ({
 
   const { errorStyle, infoStyle } = useToastStyleTheme();
 
-  const [isUHFLinking, setIsUHFLinking] = useState(false);
   const [isLinking, setIsLinking] = useState<CardType>(null);
   const { port, setPort } = usePortStore((store) => store);
   const [openDialog, setOpenDialog] = useState<"remove" | "update" | null>(
@@ -161,7 +160,8 @@ const AssignPersonnelDialog = ({
       const data = await readRFIDData(newPort);
 
       if (UHFLength === data?.epc?.length) {
-        setValue("UHF", data?.epc ?? "");
+        setValue("UHF", data?.epc ?? "", {shouldValidate: true});
+      
       } else {
         toast.error("Oops! Card is not valid", {
           description: "Please make sure your card is valid and try again.",
@@ -172,7 +172,11 @@ const AssignPersonnelDialog = ({
     } catch (error) {
       console.error("Error reading RFID data:", error);
     }
+    finally {
+        setIsLinking(null)
+    }
   };
+
 
   useEffect(() => {
     if (!open) return;
@@ -296,7 +300,7 @@ const AssignPersonnelDialog = ({
               register={register}
               errors={formState?.errors}
               required
-              readOnly={Boolean(employee?.FirstName)}
+              readOnly={Boolean(employee?.FirstName) || assignedPersonnel?.Type === 'Employee'}
             />
             <TextInput
               label="Last Name"
@@ -305,7 +309,7 @@ const AssignPersonnelDialog = ({
               register={register}
               errors={formState?.errors}
               required
-              readOnly={Boolean(employee?.LastName)}
+              readOnly={Boolean(employee?.LastName) || assignedPersonnel?.Type === 'Employee'}
             />
 
             <TextInput
@@ -315,7 +319,7 @@ const AssignPersonnelDialog = ({
               register={register}
               errors={formState?.errors}
               required
-              readOnly={Boolean(employee?.EmailAddress)}
+              readOnly={Boolean(employee?.EmailAddress) || assignedPersonnel?.Type === 'Employee'}
             />
 
             <TextInput
@@ -352,17 +356,28 @@ const AssignPersonnelDialog = ({
           <h2 className="font-bold text-lg">Assign RFID Cards</h2>
 
           <div className="flex flex-col gap-4 mt-4">
-            <LinkCardInput
-              readOnly={Boolean(watch("UHF")) && !assignedPersonnel}
-              label="UHF Card"
-              variant={"evacuation"}
-              value={watch("UHF")}
-              isLinking={isUHFLinking}
-              isDeviceConnected={!!port}
-              onLinkCard={handleLinkCard}
-              onStopReading={() => setIsUHFLinking(false)}
-              onUnlinkCard={() => setValue("UHF", "", { shouldDirty: true })}
-            />
+
+             <Controller
+                name="UHF"
+                control={control}
+                rules={{ required: "UHF Card is required" }} // ✅ required rule
+                render={({ field, fieldState }) => (  <div>
+                      <LinkCardInput
+                        readOnly={Boolean(watch("UHF")) && !assignedPersonnel}
+                        label="UHF Card"
+                        variant={"evacuation"}
+                        value={watch("UHF")}
+                        isLinking={isLinking === "UHF"}
+                        isDeviceConnected={!!port}
+                        onLinkCard={handleLinkCard}
+                        onStopReading={() => setIsLinking(null)}
+                        onUnlinkCard={() => field.onChange("")}
+                      />
+                        {fieldState.error && (
+                      <p className="text-red-500 text-sm">{fieldState.error.message}</p>
+                    )}
+                  </div>
+                )}/>
 
             <LinkCardInput
               readOnly={Boolean(watch("MIFARE")) && !assignedPersonnel}
