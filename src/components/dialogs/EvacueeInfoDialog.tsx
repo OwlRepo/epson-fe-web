@@ -74,40 +74,37 @@ const EvacueeInfoDialog = ({
             <h1 className="text-3xl font-bold text-[#980000]">
               {evacuee?.name}
             </h1>
-            <div className="flex gap-2 py-2">
-              <p>Status: </p>
+          </div>
+          <p className="text-sm">{evacuee?.section}</p>
+
+          <div>
+            <div className="flex gap-2 items-center mt-2">
+              <p className="text-lg font-semibold text-[#980000]">Status:</p>
               <Badge
                 className={cn(
-                  `rounded-full border`,
-                  evacuee.raw_status === "Missing" &&
+                  `rounded-full border `,
+                  evacuee?.raw_status === "Missing" &&
                     "border-red-200 border  bg-red-50 text-red-500",
-                  evacuee.raw_status === "Safe" &&
+                  evacuee?.raw_status === "Safe" &&
                     "border-green-200 border  bg-green-50 text-green-500",
-                  evacuee.raw_status === "Injured" &&
+                  evacuee?.raw_status === "Injured" &&
                     "border-yellow-200 border  bg-yellow-50 text-yellow-500",
-                  evacuee.raw_status === "Home" &&
+                  evacuee?.raw_status === "Home" &&
                     "border-blue-200 border  bg-blue-50 text-blue-500"
                 )}
                 variant="default"
               >
-                {evacuee.raw_status || "Unknown"}
+                {evacuee?.raw_status || "Unknown"}
               </Badge>
             </div>
           </div>
-          <p className="text-sm">{evacuee?.section}</p>
+
+          {/* Switch now toggles between Safe and Injured */}
           {!isHome && (
             <>
-              <div>
-                <p className="text-lg font-semibold mt-4 text-[#980000]">
-                  Status:
-                </p>
-                <p className="text-sm">
-                  Kindly confirm the status of the evacuee
-                </p>
-              </div>
-
-              {/* Switch now toggles between Safe and Injured */}
-
+              <p className="text-sm mt-2">
+                Kindly confirm the status of the evacuee
+              </p>
               <div className="flex items-center mt-4 gap-4">
                 <Controller
                   control={control}

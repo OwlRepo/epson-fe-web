@@ -87,29 +87,26 @@ const VisitorEvacueeInfoDialog = ({
           <form onSubmit={handleSubmit(onSubmit)}>
             <div>
               <p className="text-sm">Card ID: 000000481</p>
-              <div className="flex-col items-center gap-4 mt-4">
+              <div className="flex items-center gap-4 mt-4">
                 <h1 className="text-3xl font-bold text-[#980000]">
                   {live_data?.Name}
                 </h1>
-                <div className="flex gap-2 py-2">
-                  <p>Status: </p>
-                  <Badge
-                    className={cn(
-                      `rounded-full border`,
-                      live_data?.Status === "Missing" &&
-                        "border-red-200 border  bg-red-50 text-red-500",
-                      live_data?.Status === "Safe" &&
-                        "border-green-200 border  bg-green-50 text-green-500",
-                      live_data?.Status === "Injured" &&
-                        "border-yellow-200 border  bg-yellow-50 text-yellow-500",
-                      live_data?.Status === "Home" &&
-                        "border-blue-200 border  bg-blue-50 text-blue-500"
-                    )}
-                    variant="default"
-                  >
-                    {live_data?.Status || "Unknown"}
-                  </Badge>
-                </div>
+                <Badge
+                  className={cn(
+                    `rounded-full border`,
+                    live_data?.Status === "Missing" &&
+                      "border-red-200 border  bg-red-50 text-red-500",
+                    live_data?.Status === "Safe" &&
+                      "border-green-200 border  bg-green-50 text-green-500",
+                    live_data?.Status === "Injured" &&
+                      "border-yellow-200 border  bg-yellow-50 text-yellow-500",
+                    live_data?.Status === "Home" &&
+                      "border-blue-200 border  bg-blue-50 text-blue-500"
+                  )}
+                  variant="default"
+                >
+                  {live_data?.Status || "Unknown"}
+                </Badge>
               </div>
 
               <div className="grid grid-cols-2 gap-4 mt-2">

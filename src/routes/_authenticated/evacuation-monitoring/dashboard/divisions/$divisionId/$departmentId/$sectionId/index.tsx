@@ -163,7 +163,7 @@ function RouteComponent() {
               columns={[
                 {
                   key: "employee_id",
-                  label: "ID",
+                  label: "Employee No",
                 },
                 {
                   key: "name",
