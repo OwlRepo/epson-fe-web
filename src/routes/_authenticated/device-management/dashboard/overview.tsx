@@ -26,7 +26,11 @@ function RouteComponent() {
   const [selectedDevice, setSelectedDevice] = useState<
     Partial<Device> | undefined
   >();
-  const [deviceIds, setDeviceIds] = useState([]);
+
+  const [deviceIds, setDeviceIds] = useState<
+    { id: string; controllertype: string }[]
+  >([]);
+
   // const [deviceList, setDeviceList] = useState([]);
 
   const data = device.map((apiDevice: any) => ({
@@ -87,7 +91,7 @@ function RouteComponent() {
                 //@ts-ignore
                 (data ?? [])
                   .filter((item) => item.name === "")
-                  .map((item) => item.id)
+                  .map(({ id, controllertype }) => ({ id, controllertype }))
               );
             }}
           >
@@ -103,7 +107,12 @@ function RouteComponent() {
                 setOpen(true);
                 setSelectedDevice(item);
                 //@ts-ignore
-                setDeviceIds(data.map((item) => item.id));
+                setDeviceIds(
+                  data.map(({ id, controllertype }) => ({
+                    id,
+                    controllertype,
+                  })) ?? []
+                );
               }}
               key={index}
               index={index}
@@ -116,7 +125,7 @@ function RouteComponent() {
       {open && (
         <DeviceInfoDialog
           deviceList={data}
-          deviceIds={deviceIds}
+          deviceIds={deviceIds as any}
           emitData={emitData}
           open={open}
           onOpenChange={() => {
@@ -138,7 +147,7 @@ function DeviceButton({
   onClick,
 }: {
   index: number;
-  variant: string | null;
+  variant: string;
   deviceName: string | null;
   onClick?: () => void;
 }) {
@@ -160,8 +169,8 @@ function DeviceButton({
     },
   };
 
-  const { bgColor, hoverColor, iconColor } =
-    variantStyles[variant ?? "unknown"];
+  const style = variantStyles[variant] ?? variantStyles["unknown"] ?? {};
+  const { bgColor, hoverColor, iconColor } = style;
 
   return (
     <div className="flex flex-1  justify-center">

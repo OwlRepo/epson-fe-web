@@ -136,14 +136,20 @@ const DeviceInfoDialog = ({
                       disabled={Boolean(deviceInfo)}
                     >
                       <SelectTrigger className="w-full h-[44px]">
-                        <SelectValue placeholder="Select a Device ID" />
+                        <SelectValue placeholder="Select a Device ID">
+                          {id} {/* force only the ID in trigger */}
+                        </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
                           <SelectLabel>Device IDs</SelectLabel>
-                          {deviceIds?.map((item, i) => (
-                            <SelectItem value={item} key={i}>
-                              {item}
+                          {deviceIds?.map((item: any, i) => (
+                            <SelectItem value={item?.id} key={i}>
+                              {/* Dropdown display */}
+                              <div className="flex justify-between w-full">
+                                <p>{item?.id}</p>
+                                <p>{item?.controllertype}</p>
+                              </div>
                             </SelectItem>
                           ))}
                         </SelectGroup>
