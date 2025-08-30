@@ -8,22 +8,22 @@ export default function useDeviceMappingData(props: {
     data: device,
     emitData,
     isConnected,
+    joinRoom,
   } = useSocket<any>({
     room: "view_device_controller",
     dataType: "live",
   });
-  //   emitData("device_update", {
-  //     id: "Elid_Home",
-  //     name: "Elid_Home",
-  //     controllertype: "Safe",
-  //     description: "Active",
-  //     status: "In Active",
-  //     floor: "2",
-  //     area: "1",
-  //     xaxis: "10",
-  //     yaxis: "10",
-  //     archive: 0,
-  //   });
+  const handleDeviceUpdate = (device: any) => {
+    emitData("device_update", device);
+  };
+
+  const refreshRoom = () => {
+    // Leave current room and rejoin after delay to get fresh preload data
+    emitData("leave", "view_device_controller");
+    setTimeout(() => {
+      emitData("join", "view_device_controller");
+    }, 500);
+  };
   const deviceList = useMemo(() => {
     return {
       "1": device?.filter(
@@ -40,6 +40,25 @@ export default function useDeviceMappingData(props: {
       ),
     };
   }, [device, props.floor]);
+
+  const deviceListByArea = useMemo(() => {
+    return {
+      "1": device?.filter(
+        (device: any) =>
+          device.Floor === props.floor &&
+          device.DeviceName !== "" &&
+          device.DeviceName !== null &&
+          device.Area === props.area
+      ),
+      "2": device?.filter(
+        (device: any) =>
+          device.Floor === props.floor &&
+          device.DeviceName !== "" &&
+          device.DeviceName !== null &&
+          device.Area === props.area
+      ),
+    };
+  }, [device, props.floor, props.area]);
 
   const deviceCounts = useMemo(
     () => ({
@@ -98,5 +117,5 @@ export default function useDeviceMappingData(props: {
     [device, props.floor]
   );
 
-  return { deviceList, deviceCounts, emitData, isConnected };
+  return { deviceList, deviceListByArea, deviceCounts, emitData, isConnected, handleDeviceUpdate, joinRoom, refreshRoom };
 }

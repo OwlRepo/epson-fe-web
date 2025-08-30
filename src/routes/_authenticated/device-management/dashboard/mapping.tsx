@@ -16,7 +16,7 @@ import {
 } from "@dnd-kit/core";
 import { useDraggable } from "@dnd-kit/core";
 import type { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
-import { useState, useRef, useLayoutEffect } from "react";
+import { useState, useRef, useLayoutEffect, useMemo } from "react";
 import CardSection from "@/components/layouts/CardSection";
 import CardHeaderLeft from "@/components/ui/card-header-left";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -44,56 +44,55 @@ interface PercentPosition {
 }
 
 export interface Device extends DeviceType {
-  id: string; // internal unique id
-  deviceId: string; // shown Device ID
-  name: string;
+  id: string; // internal unique id (maps to ID from API)
+  deviceId: string; // shown Device ID (maps to ID from API)
+  name: string; // maps to DeviceName from API
   type: "controller" | "printer" | "scanner";
   deviceType: string; // e.g., "ELID Controller"
-  controllerType: string; // e.g., "Entry"
-  status: "online" | "offline" | "maintenance";
-  description: string;
-  x: number; // percent (0-100)
-  y: number; // percent (0-100)
+  controllerType: string; // maps to ControllerType from API
+  status: "online" | "offline" | "maintenance"; // derived from Status
+  description: string; // maps to Description from API
+  x: number; // percent (0-100) - maps to XAxis from API
+  y: number; // percent (0-100) - maps to YAxis from API
 }
 
-const DRAGGABLES: Device[] = [
-  {
-    id: "device1",
-    deviceId: "000000481",
-    name: "Entry A1",
-    type: "controller",
-    deviceType: "ELID Controller",
-    controllerType: "Entry",
-    status: "online",
-    description: "Morem ipsum dolor sit amet, consectetur adipiscing elit.",
-    x: 10,
-    y: 20,
-    floor: "first-floor",
-    area: "Area I",
-    xaxis: "10",
-    yaxis: "20",
-    controllertype: "Entry",
+// Transform API data to Device format
+const transformApiDataToDevice = (apiDevice: any): Device => {
+  const getDeviceType = (controllerType: string): "controller" | "printer" | "scanner" => {
+    if (controllerType?.toLowerCase().includes('in') || controllerType?.toLowerCase().includes('out') || controllerType?.toLowerCase().includes('entry') || controllerType?.toLowerCase().includes('exit')) {
+      return "controller";
+    }
+    if (controllerType?.toLowerCase().includes('printer')) {
+      return "printer";
+    }
+    return "scanner";
+  };
+
+  const getStatus = (status: string): "online" | "offline" | "maintenance" => {
+    if (status === "Active") return "online";
+    if (status === "Inactive" || status === "In Active") return "offline";
+    return "maintenance";
+  };
+
+  return {
+    id: apiDevice.ID,
+    deviceId: apiDevice.ID,
+    name: apiDevice.DeviceName || apiDevice.ID,
+    type: getDeviceType(apiDevice.ControllerType),
+    deviceType: apiDevice.DeviceType || "ELID Controller",
+    controllerType: apiDevice.ControllerType || "",
+    status: getStatus(apiDevice.Status),
+    description: apiDevice.Description || "",
+    x: parseFloat(apiDevice.XAxis) || 10,
+    y: parseFloat(apiDevice.YAxis) || 10,
+    floor: apiDevice.Floor,
+    area: apiDevice.Area,
+    xaxis: apiDevice.XAxis,
+    yaxis: apiDevice.YAxis,
+    controllertype: apiDevice.ControllerType,
     archive: 0,
-  },
-  {
-    id: "device2",
-    deviceId: "000000482",
-    name: "Printer B2",
-    type: "printer",
-    deviceType: "ELID Printer",
-    controllerType: "Printer",
-    status: "online",
-    description: "Morem ipsum dolor sit amet, consectetur adipiscing elit.",
-    x: 30,
-    y: 40,
-    floor: "first-floor",
-    area: "Area I",
-    xaxis: "30",
-    yaxis: "40",
-    controllertype: "Printer",
-    archive: 0,
-  },
-];
+  };
+};
 
 function DraggableText({
   id,
@@ -106,6 +105,7 @@ function DraggableText({
   onConfirm,
   onCancel,
   activeId,
+  device,
 }: {
   id: string;
   percentPosition: PercentPosition;
@@ -120,12 +120,12 @@ function DraggableText({
   originalPosition: PercentPosition | null;
   activeId: string | null;
   interactionDisabled: boolean;
+  device: Device;
 }) {
   const [open, setOpen] = useState(false);
   const closeTimeout = useRef<NodeJS.Timeout | null>(null);
   const isRelocating = relocatingId === id;
   const isConfirmPopover = confirmPopoverId === id && !activeId;
-  const device = DRAGGABLES.find((d) => d.id === id);
   const {
     attributes,
     listeners,
@@ -315,14 +315,41 @@ function DraggableText({
 }
 
 function RouteComponent() {
+  const [deviceLocation, setDeviceLocation] = useState<{
+    floor: string;
+    area?: string;
+  } | null>({ floor: "1" });
+
+  const { deviceCounts, deviceList, isConnected, deviceListByArea, emitData, refreshRoom } = useDeviceMappingData({
+    floor: deviceLocation?.floor || "1",
+    area: deviceLocation?.area || "1",
+  });
+
+  // Transform API data to Device format for current area
+  const currentAreaDevices: Device[] = useMemo(() => {
+    if (!deviceLocation?.area || !deviceListByArea[deviceLocation.floor as keyof typeof deviceListByArea]) {
+      return [];
+    }
+    return deviceListByArea[deviceLocation.floor as keyof typeof deviceListByArea]?.map(transformApiDataToDevice) || [];
+  }, [deviceListByArea, deviceLocation]);
+
   // Use device.x and device.y for initial positions
-  const initialPositions: Record<string, PercentPosition> = Object.fromEntries(
-    DRAGGABLES.map((d) => [d.id, { x: d.x, y: d.y }])
+  const initialPositions: Record<string, PercentPosition> = useMemo(() => 
+    Object.fromEntries(
+      currentAreaDevices.map((d) => [d.id, { x: d.x, y: d.y }])
+    ), [currentAreaDevices]
   );
+  
   const [positions, setPositions] =
-    useState<Record<string, PercentPosition>>(initialPositions);
+    useState<Record<string, PercentPosition>>({});
   const [defaultPositions, setDefaultPositions] =
-    useState<Record<string, PercentPosition>>(initialPositions);
+    useState<Record<string, PercentPosition>>({});
+
+  // Update positions when device data changes
+  useLayoutEffect(() => {
+    setPositions(initialPositions);
+    setDefaultPositions(initialPositions);
+  }, [initialPositions]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [relocatingId, setRelocatingId] = useState<string | null>(null);
   const [confirmPopoverId, setConfirmPopoverId] = useState<string | null>(null);
@@ -359,23 +386,25 @@ function RouteComponent() {
       setInitialized(true);
       hasInitialized.current = true;
     }
-  }, [containerRect, imageLoaded]);
+  }, [containerRect, imageLoaded, initialPositions]);
 
   // If container size changes after init, clamp positions to bounds
   useLayoutEffect(() => {
     if (!containerRect || !initialized) return;
     setPositions((old) => {
       const updated: Record<string, PercentPosition> = { ...old };
-      DRAGGABLES.forEach((d) => {
+      currentAreaDevices.forEach((d) => {
         const pos = old[d.id];
-        updated[d.id] = {
-          x: Math.max(0, Math.min(pos.x, 100)),
-          y: Math.max(0, Math.min(pos.y, 100)),
-        };
+        if (pos) {
+          updated[d.id] = {
+            x: Math.max(0, Math.min(pos.x, 100)),
+            y: Math.max(0, Math.min(pos.y, 100)),
+          };
+        }
       });
       return updated;
     });
-  }, [containerRect, initialized]);
+  }, [containerRect, initialized, currentAreaDevices]);
 
   // DnD sensors
   const sensors = useSensors(
@@ -415,6 +444,28 @@ function RouteComponent() {
 
   const handleConfirm = () => {
     if (confirmPopoverId) {
+      const device = currentAreaDevices.find(d => d.id === confirmPopoverId);
+      const newPosition = positions[confirmPopoverId];
+      
+      if (device && newPosition) {
+        // Update device position via socket
+        emitData("device_update", {
+          id: device.deviceId,
+          name: device.name,
+          controllertype: device.controllerType,
+          description: device.description,
+          status: device.status === "online" ? "Active" : device.status === "offline" ? "Inactive" : "In Active",
+          floor: device.floor,
+          area: device.area,
+          xaxis: newPosition.x.toString(),
+          yaxis: newPosition.y.toString(),
+          archive: 0,
+        });
+
+        // Refresh room connection to get latest data after successful update
+        refreshRoom();
+      }
+      
       setDefaultPositions((old) => ({
         ...old,
         [confirmPopoverId]: positions[confirmPopoverId],
@@ -436,16 +487,6 @@ function RouteComponent() {
   };
 
   const dndReady = imageLoaded && containerRect && containerRect.height > 0;
-
-  const [deviceLocation, setDeviceLocation] = useState<{
-    floor: string;
-    area?: string;
-  } | null>({ floor: "1" });
-
-  const { deviceCounts, deviceList, isConnected } = useDeviceMappingData({
-    floor: deviceLocation?.floor || "1",
-    area: deviceLocation?.area,
-  });
   if (!isConnected) {
     return (
       <div className="flex flex-col justify-center items-center h-full">
@@ -505,19 +546,18 @@ function RouteComponent() {
           alt="One Floor Area Four"
           className="w-full h-full object-contain"
           onLoad={() => setImageLoaded(true)}
-        />
-        {dndReady ? (
+        />{dndReady ? (
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
           >
-            {DRAGGABLES.map((d) => (
+            {currentAreaDevices.map((d) => (
               <DraggableText
                 key={d.id}
                 id={d.id}
-                percentPosition={positions[d.id]}
+                percentPosition={positions[d.id] || { x: d.x, y: d.y }}
                 isDragging={activeId === d.id}
                 containerRect={containerRect}
                 relocatingId={relocatingId}
@@ -531,12 +571,13 @@ function RouteComponent() {
                 originalPosition={originalPosition}
                 activeId={activeId}
                 interactionDisabled={!initialized || !containerRect}
+                device={d}
               />
             ))}
             <DragOverlay>
               {activeId ? (
                 <div className="cursor-move select-none p-2 bg-white/90 rounded-md border border-gray-400 shadow-lg text-gray-900 font-bold">
-                  {DRAGGABLES.find((d) => d.id === activeId)?.name ||
+                  {currentAreaDevices.find((d) => d.id === activeId)?.name ||
                     `Device ${activeId}`}
                 </div>
               ) : null}
