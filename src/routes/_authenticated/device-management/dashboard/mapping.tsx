@@ -282,10 +282,11 @@ function DraggableText({
               <div className="text-2xl font-extrabold text-gray-900">
                 {device?.name}
               </div>
-              <div className="text-lg font-bold text-blue-800">
-                {device?.type
-                  ? device.type.charAt(0).toUpperCase() + device.type.slice(1)
-                  : ""}
+              <div className="text-md font-bold text-blue-800">
+                {device?.type}
+              </div>
+              <div className="text-lg text-gray-400 my-3">
+                {device?.description}
               </div>
             </div>
             <div
@@ -299,9 +300,6 @@ function DraggableText({
             >
               {device?.status.toUpperCase()}
             </div>
-          </div>
-          <div className="text-gray-400 text-xl font-medium">
-            {device?.description}
           </div>
           <div className="flex gap-4 mt-2">
             <Button
@@ -759,19 +757,39 @@ function RouteComponent() {
                     <SelectValue placeholder="Select Device" />
                   </SelectTrigger>
                   <SelectContent>
-                    {deviceList[
-                      deviceLocation?.floor as keyof typeof deviceList
-                    ] ? (
-                      deviceList[
+                    <SelectGroup>
+                      <SelectLabel>Registered</SelectLabel>
+                      {deviceList[
                         deviceLocation?.floor as keyof typeof deviceList
-                      ].map((device: any) => (
-                        <SelectItem key={device.ID} value={device.ID}>
-                          {device.DeviceName}
-                        </SelectItem>
-                      ))
-                    ) : (
-                      <SelectItem value="No devices">No devices</SelectItem>
-                    )}
+                      ]
+                        .filter((device: any) => device.XAxis && device.YAxis)
+                        .map((device: any) => (
+                          <SelectItem key={device.ID} value={device.ID}>
+                            {device.DeviceName}
+                          </SelectItem>
+                        ))}
+                      {deviceList[
+                        deviceLocation?.floor as keyof typeof deviceList
+                      ].filter(
+                        (device: any) => !device.XAxis && !device.YAxis
+                      ) && (
+                        <>
+                          <Separator />
+                          <SelectLabel>No Location</SelectLabel>
+                          {deviceList[
+                            deviceLocation?.floor as keyof typeof deviceList
+                          ]
+                            .filter(
+                              (device: any) => !device.XAxis && !device.YAxis
+                            )
+                            .map((device: any) => (
+                              <SelectItem key={device.ID} value={device.ID}>
+                                {device.DeviceName}
+                              </SelectItem>
+                            ))}
+                        </>
+                      )}
+                    </SelectGroup>
                   </SelectContent>
                 </Select>
               </div>
