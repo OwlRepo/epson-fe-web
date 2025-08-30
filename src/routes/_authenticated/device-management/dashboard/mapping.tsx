@@ -23,7 +23,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -31,6 +33,7 @@ import { ArrowLeft, ZoomIn } from "lucide-react";
 import type { Device as DeviceType } from "@/components/dialogs/DeviceInfoDialog";
 import useDeviceMappingData from "@/hooks/useDeviceMappingData";
 import Spinner from "@/components/ui/spinner";
+import { Separator } from "@/components/ui/separator";
 
 export const Route = createFileRoute(
   "/_authenticated/device-management/dashboard/mapping"
@@ -58,11 +61,18 @@ export interface Device extends DeviceType {
 
 // Transform API data to Device format
 const transformApiDataToDevice = (apiDevice: any): Device => {
-  const getDeviceType = (controllerType: string): "controller" | "printer" | "scanner" => {
-    if (controllerType?.toLowerCase().includes('in') || controllerType?.toLowerCase().includes('out') || controllerType?.toLowerCase().includes('entry') || controllerType?.toLowerCase().includes('exit')) {
+  const getDeviceType = (
+    controllerType: string
+  ): "controller" | "printer" | "scanner" => {
+    if (
+      controllerType?.toLowerCase().includes("in") ||
+      controllerType?.toLowerCase().includes("out") ||
+      controllerType?.toLowerCase().includes("entry") ||
+      controllerType?.toLowerCase().includes("exit")
+    ) {
       return "controller";
     }
-    if (controllerType?.toLowerCase().includes('printer')) {
+    if (controllerType?.toLowerCase().includes("printer")) {
       return "printer";
     }
     return "scanner";
@@ -320,30 +330,48 @@ function RouteComponent() {
     area?: string;
   } | null>({ floor: "1" });
 
-  const { deviceCounts, deviceList, isConnected, deviceListByArea, emitData, refreshRoom } = useDeviceMappingData({
+  const {
+    deviceCounts,
+    deviceList,
+    isConnected,
+    deviceListByArea,
+    emitData,
+    refreshRoom,
+  } = useDeviceMappingData({
     floor: deviceLocation?.floor || "1",
     area: deviceLocation?.area || "1",
   });
 
   // Transform API data to Device format for current area
   const currentAreaDevices: Device[] = useMemo(() => {
-    if (!deviceLocation?.area || !deviceListByArea[deviceLocation.floor as keyof typeof deviceListByArea]) {
+    if (
+      !deviceLocation?.area ||
+      !deviceListByArea[deviceLocation.floor as keyof typeof deviceListByArea]
+    ) {
       return [];
     }
-    return deviceListByArea[deviceLocation.floor as keyof typeof deviceListByArea]?.map(transformApiDataToDevice) || [];
+    return (
+      deviceListByArea[
+        deviceLocation.floor as keyof typeof deviceListByArea
+      ]?.map(transformApiDataToDevice) || []
+    );
   }, [deviceListByArea, deviceLocation]);
 
   // Use device.x and device.y for initial positions
-  const initialPositions: Record<string, PercentPosition> = useMemo(() => 
-    Object.fromEntries(
-      currentAreaDevices.map((d) => [d.id, { x: d.x, y: d.y }])
-    ), [currentAreaDevices]
+  const initialPositions: Record<string, PercentPosition> = useMemo(
+    () =>
+      Object.fromEntries(
+        currentAreaDevices.map((d) => [d.id, { x: d.x, y: d.y }])
+      ),
+    [currentAreaDevices]
   );
-  
-  const [positions, setPositions] =
-    useState<Record<string, PercentPosition>>({});
-  const [defaultPositions, setDefaultPositions] =
-    useState<Record<string, PercentPosition>>({});
+
+  const [positions, setPositions] = useState<Record<string, PercentPosition>>(
+    {}
+  );
+  const [defaultPositions, setDefaultPositions] = useState<
+    Record<string, PercentPosition>
+  >({});
 
   // Update positions when device data changes
   useLayoutEffect(() => {
@@ -444,9 +472,9 @@ function RouteComponent() {
 
   const handleConfirm = () => {
     if (confirmPopoverId) {
-      const device = currentAreaDevices.find(d => d.id === confirmPopoverId);
+      const device = currentAreaDevices.find((d) => d.id === confirmPopoverId);
       const newPosition = positions[confirmPopoverId];
-      
+
       if (device && newPosition) {
         // Update device position via socket
         emitData("device_update", {
@@ -454,7 +482,12 @@ function RouteComponent() {
           name: device.name,
           controllertype: device.controllerType,
           description: device.description,
-          status: device.status === "online" ? "Active" : device.status === "offline" ? "Inactive" : "In Active",
+          status:
+            device.status === "online"
+              ? "Active"
+              : device.status === "offline"
+                ? "Inactive"
+                : "In Active",
           floor: device.floor,
           area: device.area,
           xaxis: newPosition.x.toString(),
@@ -465,7 +498,7 @@ function RouteComponent() {
         // Refresh room connection to get latest data after successful update
         refreshRoom();
       }
-      
+
       setDefaultPositions((old) => ({
         ...old,
         [confirmPopoverId]: positions[confirmPopoverId],
@@ -521,32 +554,95 @@ function RouteComponent() {
             <p>
               Online:{" "}
               <span className="font-bold text-green-400">
-                {deviceCounts.perFloor.active}
+                {
+                  deviceListByArea[
+                    deviceLocation?.floor as keyof typeof deviceList
+                  ].filter((device: any) => device.Status === "Active").length
+                }
               </span>
             </p>
             <p>
               Offline:{" "}
               <span className="font-bold text-red-400">
-                {deviceCounts.perFloor.inactive}
+                {
+                  deviceListByArea[
+                    deviceLocation?.floor as keyof typeof deviceList
+                  ].filter((device: any) => device.Status === "Inactive").length
+                }
               </span>
             </p>
             <p>
               No Location:{" "}
               <span className="font-bold text-gray-400">
-                {deviceCounts.perFloor.noLocation}
+                {
+                  deviceListByArea[
+                    deviceLocation?.floor as keyof typeof deviceList
+                  ].filter((device: any) => !device.XAxis && !device.YAxis)
+                    .length
+                }
               </span>
             </p>
           </div>
         </div>
       }
     >
+      <div className="flex items-stretch justify-between space-x-5 my-5 px-[1px]">
+        <Select>
+          <SelectTrigger
+            className="h-[50px] w-[245px]"
+            disabled={
+              !deviceListByArea[
+                deviceLocation?.floor as keyof typeof deviceList
+              ].filter((device: any) => device.XAxis && device.YAxis).length
+            }
+          >
+            <SelectValue placeholder="Select Device" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectLabel>Registered</SelectLabel>
+              {deviceListByArea[
+                deviceLocation?.floor as keyof typeof deviceList
+              ]
+                .filter((device: any) => device.XAxis && device.YAxis)
+                .map((device: any) => (
+                  <SelectItem key={device.ID} value={device.ID}>
+                    {device.DeviceName}
+                  </SelectItem>
+                ))}
+            </SelectGroup>
+            {deviceListByArea[
+              deviceLocation?.floor as keyof typeof deviceList
+            ].filter((device: any) => !device.XAxis && !device.YAxis).length >
+              0 && (
+              <>
+                <Separator />
+                <SelectGroup>
+                  <SelectLabel>No Location</SelectLabel>
+                  {deviceListByArea[
+                    deviceLocation?.floor as keyof typeof deviceList
+                  ]
+                    .filter((device: any) => !device.XAxis && !device.YAxis)
+                    .map((device: any) => (
+                      <SelectItem key={device.ID} value={device.ID}>
+                        {device.DeviceName}
+                      </SelectItem>
+                    ))}
+                </SelectGroup>
+              </>
+            )}
+          </SelectContent>
+        </Select>
+        <Button className="h-[50px] w-[145px]">Register Device</Button>
+      </div>
       <div ref={containerRef} className="w-full relative">
         <img
           src={ONE_FLOOR_AREA_FOUR}
           alt="One Floor Area Four"
           className="w-full h-full object-contain"
           onLoad={() => setImageLoaded(true)}
-        />{dndReady ? (
+        />
+        {dndReady ? (
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}

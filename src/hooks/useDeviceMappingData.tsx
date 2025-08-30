@@ -82,6 +82,38 @@ export default function useDeviceMappingData(props: {
         noLocation: device?.filter(
           (device: any) => !device.XAxis && !device.YAxis
         ).length,
+        perArea: {
+          total: device?.filter(
+            (device: any) =>
+              device.Floor === props.floor && device.Area === props.area
+          ).length,
+          active: device?.filter(
+            (device: any) =>
+              device.Floor === props.floor &&
+              device.Status === "Active" &&
+              device.Area === props.area
+          ).length,
+          inactive: device?.filter(
+            (device: any) =>
+              device.Floor === props.floor &&
+              device.Status === "Inactive" &&
+              device.Area === props.area
+          ).length,
+          unregistered: device?.filter(
+            (device: any) =>
+              device.Floor === props.floor &&
+              !device.DeviceName &&
+              !device.ControllerType &&
+              device.Area === props.area
+          ).length,
+          noLocation: device?.filter(
+            (device: any) =>
+              device.Floor === props.floor &&
+              !device.XAxis &&
+              !device.YAxis &&
+              device.Area === props.area
+          ).length,
+        },
       },
       perArea: [
         {
@@ -117,5 +149,14 @@ export default function useDeviceMappingData(props: {
     [device, props.floor]
   );
 
-  return { deviceList, deviceListByArea, deviceCounts, emitData, isConnected, handleDeviceUpdate, joinRoom, refreshRoom };
+  return {
+    deviceList,
+    deviceListByArea,
+    deviceCounts,
+    emitData,
+    isConnected,
+    handleDeviceUpdate,
+    joinRoom,
+    refreshRoom,
+  };
 }
