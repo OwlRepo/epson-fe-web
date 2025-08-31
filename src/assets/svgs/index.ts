@@ -17,3 +17,6 @@ export { default as InPremisesEvsIcon } from "./in-premises-evs-icon.svg?react";
 export { default as EpsonEvsFlame } from "./epson-evs-flame.svg?react";
 export { default as HomeIcon } from "./home-icon.svg?react";
 export { default as InjuredIcon } from "./injured-icon.svg?react";
+export { default as DeviceEdit } from "./device-edit.svg?react";
+export { default as DeviceEvac } from "./device-evac.svg?react";
+export { default as DeviceOnline } from "./device-online.svg?react";

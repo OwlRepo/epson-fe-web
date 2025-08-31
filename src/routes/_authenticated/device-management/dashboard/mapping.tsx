@@ -1,10 +1,29 @@
-import { EPSON_FL, EPSON_SL, ONE_FLOOR_AREA_FOUR } from "@/assets/images";
+import {
+  EPSON_FL,
+  EPSON_SL,
+  EPSON_F1_A1,
+  EPSON_F1_A2,
+  EPSON_F1_A3,
+  EPSON_F1_A4,
+  EPSON_F2_A1,
+  EPSON_F2_A2,
+  EPSON_F2_A3,
+  EPSON_F2_A4,
+} from "@/assets/images";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { createFileRoute } from "@tanstack/react-router";
 import {
   DndContext,
@@ -34,6 +53,8 @@ import type { Device as DeviceType } from "@/components/dialogs/DeviceInfoDialog
 import useDeviceMappingData from "@/hooks/useDeviceMappingData";
 import Spinner from "@/components/ui/spinner";
 import { Separator } from "@/components/ui/separator";
+import { DeviceEdit, DeviceEvac, DeviceOnline } from "@/assets/svgs";
+import { toast } from "sonner";
 
 export const Route = createFileRoute(
   "/_authenticated/device-management/dashboard/mapping"
@@ -104,6 +125,214 @@ const transformApiDataToDevice = (apiDevice: any): Device => {
   };
 };
 
+// Device Info Modal Component
+function DeviceInfoModal({
+  device,
+  isOpen,
+  onClose,
+  onSave,
+  onRelocate,
+}: {
+  device: Device | null;
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (updatedDevice: any) => void;
+  onRelocate: (device: Device) => void;
+}) {
+  const [formData, setFormData] = useState({
+    deviceId: "",
+    deviceType: "",
+    deviceName: "",
+    controllerType: "",
+    description: "",
+    status: false,
+  });
+
+  const [originalData, setOriginalData] = useState({
+    deviceId: "",
+    deviceType: "",
+    deviceName: "",
+    controllerType: "",
+    description: "",
+    status: false,
+  });
+
+  // Update form data when device changes
+  useLayoutEffect(() => {
+    if (device) {
+      const initialData = {
+        deviceId: device.deviceId || "",
+        deviceType: device.deviceType || "",
+        deviceName: device.name || "",
+        controllerType: device.controllerType || "",
+        description: device.description || "",
+        status: device.status === "online",
+      };
+      setFormData(initialData);
+      setOriginalData(initialData);
+    }
+  }, [device]);
+
+  // Check if form has changes
+  const hasChanges = JSON.stringify(formData) !== JSON.stringify(originalData);
+
+  const handleSave = () => {
+    if (device) {
+      onSave({
+        ...device,
+        deviceId: formData.deviceId,
+        deviceType: formData.deviceType,
+        name: formData.deviceName,
+        controllerType: formData.controllerType,
+        description: formData.description,
+        status: formData.status ? "online" : "offline",
+      });
+    }
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-bold">Device Info</DialogTitle>
+        </DialogHeader>
+
+        <div className="grid grid-cols-2 gap-6 py-4">
+          {/* Device ID */}
+          <div className="space-y-2">
+            <div className="text-sm font-medium text-gray-600">Device ID</div>
+            <Input
+              value={formData.deviceId}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, deviceId: e.target.value }))
+              }
+              className="bg-gray-100"
+              disabled
+            />
+          </div>
+
+          {/* Status */}
+          {/* <div className="space-y-2">
+            <div className="text-sm font-medium text-gray-600">Status</div>
+            <div className="flex items-center space-x-3 mt-2">
+              <Switch
+                checked={formData.status}
+                onCheckedChange={(checked) =>
+                  setFormData((prev) => ({ ...prev, status: checked }))
+                }
+              />
+              <span className="text-sm font-medium">
+                {formData.status ? "Active Device" : "Inactive Device"}
+              </span>
+            </div>
+          </div> */}
+
+          {/* Device Type */}
+          <div className="space-y-2">
+            <div className="text-sm font-medium text-gray-600">Device Type</div>
+            <Input
+              value={formData.deviceType}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, deviceType: e.target.value }))
+              }
+              className="bg-gray-100"
+            />
+          </div>
+
+          {/* Device Name */}
+          <div className="space-y-2">
+            <div className="text-sm font-medium text-gray-600">Device Name</div>
+            <Input
+              value={formData.deviceName}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, deviceName: e.target.value }))
+              }
+            />
+          </div>
+
+          {/* Controller Type */}
+          <div className="space-y-2 col-span-1">
+            <div className="text-sm font-medium text-gray-600">
+              Controller Type
+            </div>
+            <Select
+              value={formData.controllerType}
+              onValueChange={(value) =>
+                setFormData((prev) => ({ ...prev, controllerType: value }))
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select controller type" />
+              </SelectTrigger>
+              <SelectContent>
+                {device?.deviceType === "EVS" ? (
+                  <>
+                    <SelectItem value="Safe">Safe</SelectItem>
+                    <SelectItem value="Home">Home</SelectItem>
+                  </>
+                ) : (
+                  <>
+                    <SelectItem value="In">In</SelectItem>
+                    <SelectItem value="Out">Out</SelectItem>
+                  </>
+                )}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Description */}
+          <div className="space-y-2 col-span-2">
+            <div className="text-sm font-medium text-gray-600">Description</div>
+            <Textarea
+              value={formData.description}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  description: e.target.value,
+                }))
+              }
+              className="min-h-[100px] resize-none"
+              placeholder="Enter device description..."
+            />
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex justify-between pt-4">
+          <Button
+            variant="outline"
+            className="border-2 border-blue-900 text-blue-900 font-bold hover:bg-blue-50"
+          >
+            View Device Logs
+          </Button>
+
+          <div className="flex space-x-3">
+            <Button
+              variant="outline"
+              className="border-2 border-blue-900 text-blue-900 font-bold hover:bg-blue-50"
+              onClick={() => {
+                if (device) {
+                  onRelocate(device);
+                  onClose();
+                }
+              }}
+            >
+              Re-locate
+            </Button>
+            <Button
+              onClick={handleSave}
+              disabled={!hasChanges}
+              className="bg-blue-900 text-white font-bold hover:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Save Changes
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function DraggableText({
   id,
   percentPosition,
@@ -112,10 +341,12 @@ function DraggableText({
   relocatingId,
   setRelocatingId,
   confirmPopoverId,
-  onConfirm,
   onCancel,
   activeId,
   device,
+  onEditInfo,
+  deviceLocation,
+  onConfirmWithLocation,
 }: {
   id: string;
   percentPosition: PercentPosition;
@@ -125,17 +356,33 @@ function DraggableText({
   setRelocatingId: (id: string | null) => void;
   confirmPopoverId: string | null;
   setConfirmPopoverId: (id: string | null) => void;
-  onConfirm: () => void;
   onCancel: () => void;
   originalPosition: PercentPosition | null;
   activeId: string | null;
   interactionDisabled: boolean;
   device: Device;
+  onEditInfo: (device: Device) => void;
+  deviceLocation: { floor: string; area?: string } | null;
+  onConfirmWithLocation: (newFloor: string, newArea: string) => void;
 }) {
   const [open, setOpen] = useState(false);
   const closeTimeout = useRef<NodeJS.Timeout | null>(null);
   const isRelocating = relocatingId === id;
   const isConfirmPopover = confirmPopoverId === id && !activeId;
+
+  // Local state for floor/area selection in confirm popover
+  const [selectedFloor, setSelectedFloor] = useState(
+    deviceLocation?.floor || "1"
+  );
+  const [selectedArea, setSelectedArea] = useState(deviceLocation?.area || "1");
+
+  // Reset local state when confirm popover opens
+  useLayoutEffect(() => {
+    if (isConfirmPopover) {
+      setSelectedFloor(deviceLocation?.floor || "1");
+      setSelectedArea(deviceLocation?.area || "1");
+    }
+  }, [isConfirmPopover, deviceLocation]);
   const {
     attributes,
     listeners,
@@ -187,11 +434,25 @@ function DraggableText({
           <div
             ref={setNodeRef}
             style={{ position: "absolute", ...style }}
-            className="cursor-move select-none p-2 bg-primary rounded-md border border-primary-300 shadow-sm hover:shadow-md transition-shadow duration-200 text-white font-bold"
+            className="cursor-move select-none relative"
             {...listeners}
             {...attributes}
           >
-            {device?.name || `Device ${id}`}
+            {/* Success glow effect for confirm state */}
+            <div className="absolute inset-0 -m-3 bg-green-400/40 rounded-full animate-pulse"></div>
+            <div className="absolute inset-0 -m-1 bg-green-300/30 rounded-full blur-sm"></div>
+
+            {/* Device icon with confirm styling */}
+            <div className="relative z-10 transform scale-110 drop-shadow-lg">
+              <DeviceEdit />
+            </div>
+
+            {/* Confirm indicator badge */}
+            <div className="absolute -top-2 -right-2 z-20">
+              <div className="bg-green-600 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg">
+                ✓
+              </div>
+            </div>
           </div>
         </PopoverTrigger>
         <PopoverContent
@@ -202,30 +463,60 @@ function DraggableText({
         >
           <div className="w-full text-left">
             <div className="text-2xl font-extrabold mb-1">{device?.name}</div>
-            <div className="text-md text-gray-400 font-medium mb-6">
-              Drag me to the area that fits your layout.
+            <div className="text-sm text-gray-400 font-medium mb-4">
+              Drag me to the area that fits your layout or select floor & area
+              below.
             </div>
           </div>
-          <div className="flex w-full gap-4 mt-2 justify-between">
-            <Button
-              variant="outline"
-              className="flex-1 border-2 border-blue-900 text-blue-900 font-bold hover:bg-blue-50 py-5"
-            >
-              Select Floor & Area
-            </Button>
-            <div className=" flex">
+
+          <div className="w-full space-y-4">
+            {/* Floor & Area Selection */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <div className="text-sm font-medium text-gray-700">Floor</div>
+                <Select value={selectedFloor} onValueChange={setSelectedFloor}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select Floor" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">First Floor</SelectItem>
+                    <SelectItem value="2">Second Floor</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <div className="text-sm font-medium text-gray-700">Area</div>
+                <Select value={selectedArea} onValueChange={setSelectedArea}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select Area" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">Area I</SelectItem>
+                    <SelectItem value="2">Area II</SelectItem>
+                    <SelectItem value="3">Area III</SelectItem>
+                    <SelectItem value="4">Area IV</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-3 pt-2">
               <Button
                 type="button"
-                variant="destructive"
-                className="flex-1 bg-red-600 text-white font-bold hover:bg-red-700 py-5"
+                variant="ghost"
+                className="flex-1 text-gray-600 hover:text-gray-800 hover:bg-gray-100"
                 onClick={onCancel}
               >
                 Cancel
               </Button>
               <Button
                 type="button"
-                className="flex-1 bg-blue-900 text-white font-bold hover:bg-blue-800 py-5"
-                onClick={onConfirm}
+                className="flex-1 bg-blue-900 text-white font-bold hover:bg-blue-800"
+                onClick={() =>
+                  onConfirmWithLocation(selectedFloor, selectedArea)
+                }
               >
                 Confirm
               </Button>
@@ -241,12 +532,49 @@ function DraggableText({
     return (
       <div
         ref={setNodeRef}
-        style={{ position: "absolute", ...style }}
-        className="group cursor-move select-none p-2 bg-primary rounded-md border border-primary-300 shadow-sm hover:shadow-md transition-shadow duration-200 text-white font-bold"
+        style={{
+          position: "absolute",
+          ...style,
+          // Hide the original device when it's being actively dragged
+          opacity: isDraggableDragging ? 0 : 1,
+        }}
+        className="group cursor-move select-none relative"
         {...(isRelocating ? listeners : {})}
         {...(isRelocating ? attributes : {})}
       >
-        {device?.name || `Device ${id}`}
+        {/* Pulsing background effect for relocation mode */}
+        {isRelocating && !isDraggableDragging && (
+          <>
+            {/* Outer pulsing ring */}
+            <div className="absolute inset-0 -m-4 bg-blue-500/30 rounded-full animate-ping"></div>
+            {/* Inner pulsing ring */}
+            <div className="absolute inset-0 -m-2 bg-blue-400/40 rounded-full animate-pulse"></div>
+            {/* Glow effect */}
+            <div className="absolute inset-0 -m-1 bg-blue-300/50 rounded-full blur-sm"></div>
+          </>
+        )}
+
+        {/* Device icon with enhanced styling for relocation mode */}
+        <div
+          className={`relative z-10 ${isRelocating ? "transform scale-110 drop-shadow-lg" : ""}`}
+        >
+          {isRelocating ? (
+            <DeviceEdit />
+          ) : device?.deviceType === "EVS Controller" ? (
+            <DeviceEvac />
+          ) : (
+            <DeviceOnline />
+          )}
+        </div>
+
+        {/* Relocation indicator badge */}
+        {isRelocating && !isDraggableDragging && (
+          <div className="absolute -top-2 -right-2 z-20">
+            <div className="bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg animate-bounce">
+              MOVE
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -261,13 +589,17 @@ function DraggableText({
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <div
-            className="cursor-pointer select-none p-2 bg-primary rounded-md border border-primary-300 shadow-sm hover:shadow-md transition-shadow duration-200 text-white font-bold"
+            className="cursor-pointer"
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             onFocus={handleMouseEnter}
             onBlur={handleMouseLeave}
           >
-            {device?.name || `Device ${id}`}
+            {device?.deviceType === "EVS Controller" ? (
+              <DeviceEvac />
+            ) : (
+              <DeviceOnline />
+            )}
           </div>
         </PopoverTrigger>
         <PopoverContent
@@ -285,7 +617,7 @@ function DraggableText({
               <div className="text-md font-bold text-blue-800">
                 {device?.type}
               </div>
-              <div className="text-lg text-gray-400 my-3">
+              <div className="text-sm text-gray-400 my-3">
                 {device?.description}
               </div>
             </div>
@@ -312,7 +644,13 @@ function DraggableText({
             >
               Re-locate
             </Button>
-            <Button className="flex-1 bg-blue-900 text-white font-bold text-lg hover:bg-blue-800">
+            <Button
+              className="flex-1 bg-blue-900 text-white font-bold text-lg hover:bg-blue-800"
+              onClick={() => {
+                onEditInfo(device);
+                setOpen(false);
+              }}
+            >
               Edit Info
             </Button>
           </div>
@@ -386,6 +724,15 @@ function RouteComponent() {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [initialized, setInitialized] = useState(false);
   const hasInitialized = useRef(false);
+
+  // Device Info Modal state
+  const [deviceInfoModal, setDeviceInfoModal] = useState<{
+    isOpen: boolean;
+    device: Device | null;
+  }>({ isOpen: false, device: null });
+
+  // Selected device from dropdown
+  const [selectedDeviceId, setSelectedDeviceId] = useState<string>("");
 
   // Only measure container after image is loaded
   useLayoutEffect(() => {
@@ -468,13 +815,18 @@ function RouteComponent() {
     setConfirmPopoverId(id);
   };
 
-  const handleConfirm = () => {
+  const handleConfirmWithLocation = (newFloor: string, newArea: string) => {
     if (confirmPopoverId) {
       const device = currentAreaDevices.find((d) => d.id === confirmPopoverId);
       const newPosition = positions[confirmPopoverId];
 
       if (device && newPosition) {
-        // Update device position via socket
+        // Check if floor or area changed
+        const floorChanged = newFloor !== device.floor;
+        const areaChanged = newArea !== device.area;
+        const locationChanged = floorChanged || areaChanged;
+
+        // Update device position and floor/area via socket
         emitData("device_update", {
           id: device.deviceId,
           name: device.name,
@@ -486,12 +838,21 @@ function RouteComponent() {
               : device.status === "offline"
                 ? "Inactive"
                 : "In Active",
-          floor: device.floor,
-          area: device.area,
+          floor: newFloor,
+          area: newArea,
           xaxis: newPosition.x.toString(),
           yaxis: newPosition.y.toString(),
           archive: 0,
         });
+
+        if (locationChanged) {
+          // Floor/area changed - keep relocation mode active for positioning on new map
+          setDeviceLocation({ floor: newFloor, area: newArea });
+          setRelocatingId(device.id);
+        } else {
+          // Only position changed - end relocation mode
+          setRelocatingId(null);
+        }
 
         // Refresh room connection to get latest data after successful update
         refreshRoom();
@@ -503,7 +864,6 @@ function RouteComponent() {
       }));
     }
     setConfirmPopoverId(null);
-    setRelocatingId(null);
   };
 
   const handleCancel = () => {
@@ -515,6 +875,110 @@ function RouteComponent() {
     }
     setConfirmPopoverId(null);
     setRelocatingId(null);
+  };
+
+  const handleDeviceSelect = (deviceId: string) => {
+    setSelectedDeviceId(deviceId);
+
+    // Find the selected device in the current area's device list
+    const selectedDevice = deviceListByArea[
+      deviceLocation?.floor as keyof typeof deviceListByArea
+    ]?.find((device: any) => device.ID === deviceId);
+
+    if (selectedDevice) {
+      const transformedDevice = transformApiDataToDevice(selectedDevice);
+
+      if (!selectedDevice.XAxis || !selectedDevice.YAxis) {
+        // Device has no location - place it in the middle of the map and enter relocation mode
+        const centerPosition = { x: 50, y: 50 }; // Center of the map (50%, 50%)
+
+        // Add device to positions with center coordinates
+        setPositions((prev) => ({
+          ...prev,
+          [transformedDevice.id]: centerPosition,
+        }));
+
+        setDefaultPositions((prev) => ({
+          ...prev,
+          [transformedDevice.id]: centerPosition,
+        }));
+
+        // Enter relocation mode immediately
+        setRelocatingId(transformedDevice.id);
+
+        toast.info("Device placed on map", {
+          description: "Position the device where you want it to be located.",
+        });
+      } else {
+        // Device already has location - just enter relocation mode
+        setRelocatingId(transformedDevice.id);
+
+        toast.info("Device selected for relocation", {
+          description: "You can now drag the device to a new position.",
+        });
+      }
+    }
+  };
+
+  const handleDeviceInfoSave = (updatedDevice: Device) => {
+    // Update device via socket using the same format as device relocation
+    emitData("device_update", {
+      id: updatedDevice.deviceId,
+      name: updatedDevice.name,
+      controllertype: updatedDevice.controllerType,
+      description: updatedDevice.description,
+      status:
+        updatedDevice.status === "online"
+          ? "Active"
+          : updatedDevice.status === "offline"
+            ? "Inactive"
+            : "In Active",
+      floor: updatedDevice.floor,
+      area: updatedDevice.area,
+      xaxis: updatedDevice.x.toString(),
+      yaxis: updatedDevice.y.toString(),
+      archive: 0,
+    });
+
+    // Close modal and refresh data
+    setDeviceInfoModal({ isOpen: false, device: null });
+    refreshRoom();
+  };
+
+  // Get dynamic image based on floor and area
+  const getMapImage = () => {
+    const floor = deviceLocation?.floor;
+    const area = deviceLocation?.area;
+
+    if (floor === "1") {
+      switch (area) {
+        case "1":
+          return EPSON_F1_A1;
+        case "2":
+          return EPSON_F1_A2;
+        case "3":
+          return EPSON_F1_A3;
+        case "4":
+          return EPSON_F1_A4;
+        default:
+          return EPSON_F1_A1;
+      }
+    } else if (floor === "2") {
+      switch (area) {
+        case "1":
+          return EPSON_F2_A1;
+        case "2":
+          return EPSON_F2_A2;
+        case "3":
+          return EPSON_F2_A3;
+        case "4":
+          return EPSON_F2_A4;
+        default:
+          return EPSON_F2_A1;
+      }
+    }
+
+    return EPSON_F1_A1; // fallback
   };
 
   const dndReady = imageLoaded && containerRect && containerRect.height > 0;
@@ -585,13 +1049,13 @@ function RouteComponent() {
       }
     >
       <div className="flex items-stretch justify-between space-x-5 my-5 px-[1px]">
-        <Select>
+        <Select value={selectedDeviceId} onValueChange={handleDeviceSelect}>
           <SelectTrigger
             className="h-[50px] w-[245px]"
             disabled={
               !deviceListByArea[
                 deviceLocation?.floor as keyof typeof deviceList
-              ].filter((device: any) => device.XAxis && device.YAxis).length
+              ]?.length
             }
           >
             <SelectValue placeholder="Select Device" />
@@ -602,7 +1066,7 @@ function RouteComponent() {
               {deviceListByArea[
                 deviceLocation?.floor as keyof typeof deviceList
               ]
-                .filter((device: any) => device.XAxis && device.YAxis)
+                ?.filter((device: any) => device.XAxis && device.YAxis)
                 .map((device: any) => (
                   <SelectItem key={device.ID} value={device.ID}>
                     {device.DeviceName}
@@ -611,7 +1075,7 @@ function RouteComponent() {
             </SelectGroup>
             {deviceListByArea[
               deviceLocation?.floor as keyof typeof deviceList
-            ].filter((device: any) => !device.XAxis && !device.YAxis).length >
+            ]?.filter((device: any) => !device.XAxis && !device.YAxis).length >
               0 && (
               <>
                 <Separator />
@@ -620,7 +1084,7 @@ function RouteComponent() {
                   {deviceListByArea[
                     deviceLocation?.floor as keyof typeof deviceList
                   ]
-                    .filter((device: any) => !device.XAxis && !device.YAxis)
+                    ?.filter((device: any) => !device.XAxis && !device.YAxis)
                     .map((device: any) => (
                       <SelectItem key={device.ID} value={device.ID}>
                         {device.DeviceName}
@@ -635,8 +1099,8 @@ function RouteComponent() {
       </div>
       <div ref={containerRef} className="w-full relative">
         <img
-          src={ONE_FLOOR_AREA_FOUR}
-          alt="One Floor Area Four"
+          src={getMapImage()}
+          alt={`Floor ${deviceLocation?.floor} Area ${deviceLocation?.area}`}
           className="w-full h-full object-contain"
           onLoad={() => setImageLoaded(true)}
         />
@@ -660,19 +1124,36 @@ function RouteComponent() {
                 setConfirmPopoverId={
                   initialized ? setConfirmPopoverId : () => {}
                 }
-                onConfirm={initialized ? handleConfirm : () => {}}
                 onCancel={initialized ? handleCancel : () => {}}
                 originalPosition={originalPosition}
                 activeId={activeId}
                 interactionDisabled={!initialized || !containerRect}
                 device={d}
+                onEditInfo={(device) =>
+                  setDeviceInfoModal({ isOpen: true, device })
+                }
+                deviceLocation={deviceLocation}
+                onConfirmWithLocation={handleConfirmWithLocation}
               />
             ))}
             <DragOverlay>
               {activeId ? (
-                <div className="cursor-move select-none p-2 bg-white/90 rounded-md border border-gray-400 shadow-lg text-gray-900 font-bold">
-                  {currentAreaDevices.find((d) => d.id === activeId)?.name ||
-                    `Device ${activeId}`}
+                <div className="cursor-move select-none relative">
+                  {/* Dragging glow effect */}
+                  <div className="absolute inset-0 -m-4 bg-blue-500/50 rounded-full animate-ping"></div>
+                  <div className="absolute inset-0 -m-2 bg-blue-400/60 rounded-full animate-pulse"></div>
+
+                  {/* Device icon with dragging styling */}
+                  <div className="relative z-10 transform scale-125 drop-shadow-xl">
+                    <DeviceEdit />
+                  </div>
+
+                  {/* Dragging indicator */}
+                  <div className="absolute -top-3 -right-3 z-20">
+                    <div className="bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg animate-bounce">
+                      DRAG
+                    </div>
+                  </div>
                 </div>
               ) : null}
             </DragOverlay>
@@ -684,6 +1165,18 @@ function RouteComponent() {
             </span>
           </div>
         )}
+
+        {/* Device Info Modal */}
+        <DeviceInfoModal
+          device={deviceInfoModal.device}
+          isOpen={deviceInfoModal.isOpen}
+          onClose={() => setDeviceInfoModal({ isOpen: false, device: null })}
+          onSave={handleDeviceInfoSave}
+          onRelocate={(device) => {
+            setRelocatingId(device.id);
+            setDeviceInfoModal({ isOpen: false, device: null });
+          }}
+        />
       </div>
     </CardSection>
   ) : (
@@ -746,7 +1239,7 @@ function RouteComponent() {
                     Second Floor
                   </TabsTrigger>
                 </TabsList>
-                <Select
+                {/* <Select
                   disabled={
                     !deviceList[
                       deviceLocation?.floor as keyof typeof deviceList
@@ -791,7 +1284,7 @@ function RouteComponent() {
                       )}
                     </SelectGroup>
                   </SelectContent>
-                </Select>
+                </Select> */}
               </div>
               <Button className="h-[50px] w-[145px]">Register Device</Button>
             </div>
