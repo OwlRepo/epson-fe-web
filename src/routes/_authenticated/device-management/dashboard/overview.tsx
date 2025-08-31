@@ -1,8 +1,11 @@
+import { InPremisesEvsIcon } from "@/assets/svgs";
 import DeviceInfoDialog, {
   type Device,
 } from "@/components/dialogs/DeviceInfoDialog";
 import CardSection from "@/components/layouts/CardSection";
 import { Button } from "@/components/ui/button";
+import type { countDetails } from "@/components/ui/compact-count";
+import CompactCount from "@/components/ui/compact-count";
 import { useSocket } from "@/hooks";
 import { createFileRoute } from "@tanstack/react-router";
 import { Monitor } from "lucide-react";
@@ -17,7 +20,11 @@ export const Route = createFileRoute(
 function RouteComponent() {
   const [isController, setIsController] = useState(true);
 
-  const { data: device, emitData } = useSocket<Device>({
+  const {
+    data: device,
+    countData,
+    emitData,
+  } = useSocket<Device>({
     room: isController ? "view_device_controller" : "view_device_chainway",
     dataType: "live",
   });
@@ -46,6 +53,40 @@ function RouteComponent() {
     archive: 0,
   }));
 
+  const countDetails: countDetails[] = [
+    {
+      // icon: <HomeIcon className="w-3.5 h-3.5" />,
+      label: "Online",
+      count: countData?.online,
+      bgColor: "bg-green-50",
+      textColor: "text-green-700",
+      borderColor: "border-green-200",
+    },
+    {
+      label: "Offline",
+      count: countData?.offline,
+      bgColor: "bg-red-50",
+      textColor: "text-red-700",
+      borderColor: "border-red-200",
+    },
+    {
+      // icon: <InPremisesEvsIcon className="w-3.5 h-3.5" />,
+      label: "Unregistered",
+      count: countData?.unregister,
+      bgColor: "bg-primary-50",
+      textColor: "text-primary-700",
+      borderColor: "border-primary-200",
+    },
+    {
+      // icon: <InPremisesEvsIcon className="w-3.5 h-3.5" />,
+      label: "No Location",
+      count: countData?.nolocation,
+      bgColor: "bg-primary-50",
+      textColor: "text-primary-700",
+      borderColor: "border-primary-200",
+    },
+  ];
+
   return (
     <>
       <CardSection
@@ -57,6 +98,7 @@ function RouteComponent() {
             </p>
           </div>
         }
+        headerRight={<CompactCount countData={countDetails} />}
       >
         <div className="flex justify-between items-center mb-4">
           <div className="flex gap-2">

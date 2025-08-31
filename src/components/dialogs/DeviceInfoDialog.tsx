@@ -96,7 +96,6 @@ const DeviceInfoDialog = ({
   useEffect(() => {
     if (id) {
       const deviceDetails = deviceList?.filter((item) => item?.id === id)[0];
-      console.log(deviceDetails);
       setValue(
         "controllertype",
         deviceDetails?.controllertype ?? "ELID Controller"
@@ -165,6 +164,7 @@ const DeviceInfoDialog = ({
                 name="controllertype"
                 register={register}
                 errors={formState.errors}
+                required={false}
               />
 
               <TextInput

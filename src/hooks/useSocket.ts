@@ -35,6 +35,10 @@ export interface SummaryCountData {
   all?: number | string;
   active?: number | string;
   inactive?: number | string;
+  online?: number | string;
+  offline?: number | string;
+  unregister?: number | string;
+  nolocation?: number | string;
 }
 
 export interface DeviceData {
@@ -351,6 +355,25 @@ export const useSocket = <
       }, 100);
     });
 
+    socketInstance.on("device_update_response", (data) => {
+      if (data.includes("already")) {
+        toast.error(data, {
+          style: errorStyle,
+        });
+        setResponseStatus("fail");
+      } else {
+        toast.success(data, {
+          style: successStyle,
+        });
+        setResponseStatus("success");
+      }
+
+      console.log("device_update_response", data);
+      setTimeout(() => {
+        setResponseStatus("");
+      }, 100);
+    });
+
     //Listen for get_user  data
     socketInstance.on("cdepro_remove_response", (data) => {
       console.log("cdepro_remove_resppose", data);
@@ -379,7 +402,7 @@ export const useSocket = <
       console.log("📈 Raw count data:", countData);
 
       setCountData((prevData) => {
-        const updatedData = {
+        const updatedData: SummaryCountData = {
           ...prevData,
           in: countData.in,
           out: countData.out,
@@ -392,6 +415,10 @@ export const useSocket = <
           all: countData.all,
           active: countData.active,
           inactive: countData.inactive,
+          online: countData.online,
+          offline: countData.offline,
+          nolocation: countData.nolocation,
+          unregister: countData.unregister,
         };
         console.log("✅ Count data updated in state:", updatedData);
         return updatedData;
