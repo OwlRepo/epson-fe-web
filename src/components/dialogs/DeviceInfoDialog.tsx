@@ -145,7 +145,7 @@ const DeviceInfoDialog = ({
                           {deviceIds?.map((item: any, i) => (
                             <SelectItem value={item?.id} key={i}>
                               {/* Dropdown display */}
-                              <div className="flex justify-between w-full">
+                              <div className="flex justify-between min-w-48">
                                 <p>{item?.id}</p>
                                 <p>{item?.controllertype}</p>
                               </div>
