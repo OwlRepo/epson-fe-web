@@ -764,47 +764,13 @@ function RouteComponent() {
     area: deviceLocation?.area || "1",
   });
 
-  // Transform API data to Device format for current area
-  const currentAreaDevices: Device[] = useMemo(() => {
-    if (
-      !deviceLocation?.area ||
-      !deviceListByArea[deviceLocation.floor as keyof typeof deviceListByArea]
-    ) {
-      return [];
-    }
-    return (
-      deviceListByArea[
-        deviceLocation.floor as keyof typeof deviceListByArea
-      ]?.map(transformApiDataToDevice) || []
-    );
-  }, [deviceListByArea, deviceLocation]);
-
-  // Use device.x and device.y for initial positions
-  const initialPositions: Record<string, PercentPosition> = useMemo(
-    () =>
-      Object.fromEntries(
-        currentAreaDevices.map((d) => [d.id, { x: d.x, y: d.y }])
-      ),
-    [currentAreaDevices]
-  );
-
-  const [positions, setPositions] = useState<Record<string, PercentPosition>>(
-    {}
-  );
-  const [defaultPositions, setDefaultPositions] = useState<
-    Record<string, PercentPosition>
-  >({});
-
-  // Update positions when device data changes
-  useLayoutEffect(() => {
-    setPositions(initialPositions);
-    setDefaultPositions(initialPositions);
-  }, [initialPositions]);
+  // State declarations first
+  const [positions, setPositions] = useState<Record<string, PercentPosition>>({});
+  const [defaultPositions, setDefaultPositions] = useState<Record<string, PercentPosition>>({});
   const [activeId, setActiveId] = useState<string | null>(null);
   const [relocatingId, setRelocatingId] = useState<string | null>(null);
   const [confirmPopoverId, setConfirmPopoverId] = useState<string | null>(null);
-  const [originalPosition, setOriginalPosition] =
-    useState<PercentPosition | null>(null);
+  const [originalPosition, setOriginalPosition] = useState<PercentPosition | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerRect, setContainerRect] = useState<DOMRect | null>(null);
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -825,6 +791,42 @@ function RouteComponent() {
     isOpen: boolean;
     device: any | null;
   }>({ isOpen: false, device: null });
+
+  // Manually placed devices (for no-location devices that get placed)
+  const [manuallyPlacedDevices, setManuallyPlacedDevices] = useState<Device[]>([]);
+
+  // Transform API data to Device format for current area
+  const currentAreaDevices: Device[] = useMemo(() => {
+    let devices: Device[] = [];
+    
+    // Get devices from current area
+    if (deviceLocation?.area && deviceListByArea[deviceLocation.floor as keyof typeof deviceListByArea]) {
+      devices = deviceListByArea[deviceLocation.floor as keyof typeof deviceListByArea]?.map(transformApiDataToDevice) || [];
+    }
+    
+    // Add manually placed devices for current floor/area
+    const placedForCurrentArea = manuallyPlacedDevices.filter(
+      (d: Device) => d.floor === deviceLocation?.floor && d.area === deviceLocation?.area
+    );
+    devices = [...devices, ...placedForCurrentArea];
+    
+    return devices;
+  }, [deviceListByArea, deviceLocation, manuallyPlacedDevices]);
+
+  // Use device.x and device.y for initial positions
+  const initialPositions: Record<string, PercentPosition> = useMemo(
+    () =>
+      Object.fromEntries(
+        currentAreaDevices.map((d) => [d.id, { x: d.x, y: d.y }])
+      ),
+    [currentAreaDevices]
+  );
+
+  // Update positions when device data changes
+  useLayoutEffect(() => {
+    setPositions(initialPositions);
+    setDefaultPositions(initialPositions);
+  }, [initialPositions]);
 
   // Only measure container after image is loaded
   useLayoutEffect(() => {
@@ -937,6 +939,15 @@ function RouteComponent() {
           archive: 0,
         });
 
+        // Update manually placed device position if it exists
+        setManuallyPlacedDevices(prev => 
+          prev.map(d => 
+            d.id === device.id 
+              ? { ...d, x: newPosition.x, y: newPosition.y, floor: newFloor, area: newArea }
+              : d
+          )
+        );
+
         if (locationChanged) {
           // Floor/area changed - keep relocation mode active for positioning on new map
           setDeviceLocation({ floor: newFloor, area: newArea });
@@ -972,6 +983,16 @@ function RouteComponent() {
   const handleFloorAreaDeviceSelect = (deviceId: string) => {
     setSelectedDeviceId(deviceId);
 
+    // Check for no-location device first
+    const noLocationDevice = deviceList["no-location"]?.find(
+      (device: any) => device.ID === deviceId
+    );
+    if (noLocationDevice) {
+      // Show floor/area picker modal for no-location device
+      setFloorAreaPickerModal({ isOpen: true, device: noLocationDevice });
+      return;
+    }
+
     // Find device in registered devices (current floor only)
     const registeredDevice = deviceList[
       deviceLocation?.floor as keyof typeof deviceList
@@ -1000,34 +1021,30 @@ function RouteComponent() {
   };
 
   const handleFloorAreaConfirm = (selectedFloor: string, selectedArea: string, device: any) => {
+    // Transform device and add to manually placed devices
+    const transformedDevice = transformApiDataToDevice({
+      ...device,
+      Floor: selectedFloor,
+      Area: selectedArea,
+      XAxis: "50",
+      YAxis: "50"
+    });
+    
+    // Add to manually placed devices
+    setManuallyPlacedDevices(prev => [...prev, transformedDevice]);
+    
     // Update deviceLocation to show the selected floor/area
     setDeviceLocation({ floor: selectedFloor, area: selectedArea });
     
-    // Transform device for positioning
-    const transformedDevice = transformApiDataToDevice(device);
-    
-    // Place device in center of the map
-    const centerPosition = { x: 50, y: 50 };
-    
-    setPositions((prev) => ({
-      ...prev,
-      [transformedDevice.id]: centerPosition,
-    }));
-    
-    setDefaultPositions((prev) => ({
-      ...prev,
-      [transformedDevice.id]: centerPosition,
-    }));
-    
-    // Enter relocation mode
-    setRelocatingId(transformedDevice.id);
-    
-    // Close modal
+    // Close modal and enter relocation mode after map loads
     setFloorAreaPickerModal({ isOpen: false, device: null });
     
-    toast.info("Device placed on map", {
-      description: "Position the device where you want it to be located.",
-    });
+    setTimeout(() => {
+      setRelocatingId(transformedDevice.id);
+      toast.info("Device placed on map", {
+        description: "Position the device where you want it to be located.",
+      });
+    }, 200);
   };
 
   const handleDeviceInfoSave = (updatedDevice: Device) => {
@@ -1266,14 +1283,6 @@ function RouteComponent() {
             setDeviceInfoModal({ isOpen: false, device: null });
           }}
         />
-
-        {/* Floor/Area Picker Modal */}
-        <FloorAreaPickerModal
-          device={floorAreaPickerModal.device}
-          isOpen={floorAreaPickerModal.isOpen}
-          onClose={() => setFloorAreaPickerModal({ isOpen: false, device: null })}
-          onConfirm={handleFloorAreaConfirm}
-        />
       </div>
     </CardSection>
   ) : (
@@ -1315,6 +1324,13 @@ function RouteComponent() {
         </div>
       }
     >
+      {/* Floor/Area Picker Modal */}
+      <FloorAreaPickerModal
+        device={floorAreaPickerModal.device}
+        isOpen={floorAreaPickerModal.isOpen}
+        onClose={() => setFloorAreaPickerModal({ isOpen: false, device: null })}
+        onConfirm={handleFloorAreaConfirm}
+      />
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-5">
           <Tabs defaultValue="1">
@@ -1360,19 +1376,19 @@ function RouteComponent() {
                             {device.DeviceName}
                           </SelectItem>
                         ))}
-                      {deviceList["no-location"].length > 0 && (
-                        <>
-                          <Separator className="mt-1"/>
-                          <SelectLabel className="text-red-400">No Location</SelectLabel>
-                          {deviceList["no-location"]
-                            .map((device: any) => (
-                              <SelectItem key={device.ID} value={device.ID}>
-                                {device.DeviceName}
-                              </SelectItem>
-                            ))}
-                        </>
-                      )}
                     </SelectGroup>
+                    {deviceList["no-location"]?.length > 0 && (
+                      <SelectGroup>
+                        <Separator className="mt-1"/>
+                        <SelectLabel className="text-red-400">No Location</SelectLabel>
+                        {deviceList["no-location"]
+                          .map((device: any) => (
+                            <SelectItem key={device.ID} value={device.ID}>
+                              {device.DeviceName}
+                            </SelectItem>
+                          ))}
+                      </SelectGroup>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
