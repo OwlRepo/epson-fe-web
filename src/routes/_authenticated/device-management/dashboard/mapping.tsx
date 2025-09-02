@@ -955,6 +955,11 @@ function RouteComponent() {
           area: newArea,
           xaxis: newPosition.x.toString(),
           yaxis: newPosition.y.toString(),
+
+          // floor: "",
+          // area: "",
+          // xaxis: "",
+          // yaxis: "",
           archive: 0,
         });
 
