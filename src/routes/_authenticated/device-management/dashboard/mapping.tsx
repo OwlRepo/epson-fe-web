@@ -53,9 +53,9 @@ import type { Device as DeviceType } from "@/components/dialogs/DeviceInfoDialog
 import useDeviceMappingData from "@/hooks/useDeviceMappingData";
 import Spinner from "@/components/ui/spinner";
 import { Separator } from "@/components/ui/separator";
-import { DeviceEdit, DeviceChainway, DeviceOnline } from "@/assets/svgs";
 import { toast } from "sonner";
 import DeviceIcons from "@/components/ui/device-icons";
+import EVSCounts from "@/components/ui/evs-counts";
 
 export const Route = createFileRoute(
   "/_authenticated/device-management/dashboard/mapping"
@@ -1149,6 +1149,7 @@ function RouteComponent() {
       </div>
     );
   }
+
   return deviceLocation?.floor && deviceLocation.area ? (
     <CardSection
       headerLeft={
@@ -1171,41 +1172,17 @@ function RouteComponent() {
         </div>
       }
       headerRight={
-        <div className="flex items-center space-x-5">
-          <div className="flex items-center space-x-2">
-            <p>
-              Online:{" "}
-              <span className="font-bold text-green-400">
-                {
-                  deviceListByArea[
-                    deviceLocation?.floor as keyof typeof deviceList
-                  ].filter((device: any) => device.Status === "Active").length
-                }
-              </span>
-            </p>
-            <p>
-              Offline:{" "}
-              <span className="font-bold text-red-400">
-                {
-                  deviceListByArea[
-                    deviceLocation?.floor as keyof typeof deviceList
-                  ].filter((device: any) => device.Status === "Inactive").length
-                }
-              </span>
-            </p>
-            <p>
-              No Location:{" "}
-              <span className="font-bold text-gray-400">
-                {
-                  deviceListByArea[
-                    deviceLocation?.floor as keyof typeof deviceList
-                  ].filter((device: any) => !device.XAxis && !device.YAxis)
-                    .length
-                }
-              </span>
-            </p>
-          </div>
-        </div>
+        <EVSCounts
+          countData={{
+            active: deviceCounts.perFloor.perArea.active,
+            inactive: deviceCounts.perFloor.perArea.inactive,
+            unregistered: deviceCounts.perFloor.perArea.unregistered,
+            noLocation: deviceCounts.perFloor.perArea.noLocation,
+            count: deviceCounts.perFloor.perArea.total,
+          }}
+          type="compact"
+          countType="deviceManagement"
+        />
       }
     >
       <div className="flex items-stretch justify-between space-x-5 my-5 px-[1px]">
@@ -1340,34 +1317,17 @@ function RouteComponent() {
         />
       }
       headerRight={
-        <div className="flex items-center space-x-5">
-          <div className="flex items-center space-x-2">
-            <p>
-              Online:{" "}
-              <span className="font-bold text-green-400">
-                {deviceCounts.perFloor.active}
-              </span>
-            </p>
-            <p>
-              Offline:{" "}
-              <span className="font-bold text-red-400">
-                {deviceCounts.perFloor.inactive}
-              </span>
-            </p>
-            <p>
-              Unregistered:{" "}
-              <span className="font-bold text-yellow-400">
-                {deviceCounts.perFloor.unregistered}
-              </span>
-            </p>
-            <p>
-              No Location:{" "}
-              <span className="font-bold text-gray-400">
-                {deviceCounts.perFloor.noLocation}
-              </span>
-            </p>
-          </div>
-        </div>
+        <EVSCounts
+          countData={{
+            active: deviceCounts.perFloor.active,
+            inactive: deviceCounts.perFloor.inactive,
+            unregistered: deviceCounts.perFloor.unregistered,
+            noLocation: deviceCounts.perFloor.noLocation,
+            count: deviceCounts.perFloor.total,
+          }}
+          type="compact"
+          countType="deviceManagement"
+        />
       }
     >
       {/* Floor/Area Picker Modal */}

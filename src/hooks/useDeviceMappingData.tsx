@@ -38,9 +38,7 @@ export default function useDeviceMappingData(props: {
           device.DeviceName !== "" &&
           device.DeviceName !== null
       ),
-      "no-location": device?.filter(
-        (device: any) => !device.Floor
-      ),
+      "no-location": device?.filter((device: any) => !device.Floor),
     };
   }, [device, props.floor]);
 
@@ -60,9 +58,7 @@ export default function useDeviceMappingData(props: {
           device.DeviceName !== null &&
           device.Area === props.area
       ),
-      "no-location": device?.filter(
-        (device: any) => !device.Floor
-      ),
+      "no-location": device?.filter((device: any) => !device.Floor),
     };
   }, [device, props.floor, props.area]);
 
@@ -80,14 +76,9 @@ export default function useDeviceMappingData(props: {
             device.Floor === props.floor
         ).length,
         unregistered: device?.filter(
-          (device: any) =>
-            !device.DeviceName &&
-            !device.ControllerType &&
-            device.Floor === props.floor
+          (device: any) => !device.DeviceName && device.Floor === props.floor
         ).length,
-        noLocation: device?.filter(
-          (device: any) => !device.Floor
-        ).length,
+        noLocation: device?.filter((device: any) => !device.Floor).length,
         perArea: {
           total: device?.filter(
             (device: any) =>
@@ -102,21 +93,19 @@ export default function useDeviceMappingData(props: {
           inactive: device?.filter(
             (device: any) =>
               device.Floor === props.floor &&
-              device.Status === "Inactive" &&
+              (device.Status === "Inactive" || device.Status === "In Active") &&
               device.Area === props.area
           ).length,
           unregistered: device?.filter(
             (device: any) =>
               device.Floor === props.floor &&
               !device.DeviceName &&
-              !device.ControllerType &&
               device.Area === props.area
           ).length,
           noLocation: device?.filter(
             (device: any) =>
               device.Floor === props.floor &&
               !device.XAxis &&
-              !device.YAxis &&
               device.Area === props.area
           ).length,
         },
@@ -152,7 +141,7 @@ export default function useDeviceMappingData(props: {
         },
       ],
     }),
-    [device, props.floor]
+    [device, props.floor, props.area]
   );
 
   return {

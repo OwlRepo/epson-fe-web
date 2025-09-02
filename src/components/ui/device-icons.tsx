@@ -102,7 +102,7 @@ export default function DeviceIcons({
   ) {
     return <ControllerDevice status={status} />;
   }
-  if (deviceType.toLowerCase() !== "chainway") {
+  if (deviceType.toLowerCase() === "chainway") {
     return <ChainwayDevice status={status} />;
   }
 

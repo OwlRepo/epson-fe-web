@@ -13,7 +13,7 @@ import CardHeaderLeft from "./card-header-left";
 export interface EVSCountsProps {
   countData?: any;
   type?: "card" | "compact";
-  countType?: "default" | "cdepro";
+  countType?: "default" | "cdepro" | "deviceManagement";
 }
 
 export default function EVSCounts(props: EVSCountsProps) {
@@ -92,6 +92,41 @@ export default function EVSCounts(props: EVSCountsProps) {
           bgColor: "bg-red-50",
           textColor: "text-red-700",
           borderColor: "border-red-200",
+        },
+      ],
+      deviceManagement: [
+        {
+          icon: <></>,
+          label: "Online",
+          count: countData?.active,
+          bgColor: "bg-green-50",
+          textColor: "text-green-700",
+          borderColor: "border-green-200",
+        },
+        {
+          icon: <></>,
+          label: "Offline",
+          count: countData?.inactive,
+          bgColor: "bg-red-50",
+          textColor: "text-red-700",
+          borderColor: "border-red-200",
+        },
+        {
+          icon: <></>,
+          label: "Unregistered",
+          count: countData?.unregistered,
+          bgColor: "bg-primary-50",
+          textColor: "text-primary-700",
+          borderColor: "border-primary-200",
+        },
+
+        {
+          icon: <></>,
+          label: "No Location",
+          count: countData?.noLocation,
+          bgColor: "bg-primary-50",
+          textColor: "text-primary-700",
+          borderColor: "border-primary-200",
         },
       ],
     };
