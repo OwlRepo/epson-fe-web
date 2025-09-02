@@ -1,4 +1,3 @@
-import { InPremisesEvsIcon } from "@/assets/svgs";
 import DeviceInfoDialog, {
   type Device,
 } from "@/components/dialogs/DeviceInfoDialog";
