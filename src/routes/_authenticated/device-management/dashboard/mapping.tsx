@@ -55,6 +55,7 @@ import Spinner from "@/components/ui/spinner";
 import { Separator } from "@/components/ui/separator";
 import { DeviceEdit, DeviceChainway, DeviceOnline } from "@/assets/svgs";
 import { toast } from "sonner";
+import DeviceIcons from "@/components/ui/device-icons";
 
 export const Route = createFileRoute(
   "/_authenticated/device-management/dashboard/mapping"
@@ -358,12 +359,14 @@ function FloorAreaPickerModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold">{device?.DeviceName}</DialogTitle>
+          <DialogTitle className="text-2xl font-bold">
+            {device?.DeviceName}
+          </DialogTitle>
           <div className="text-sm text-gray-400 font-medium">
             Pick a floor and area to place the device
           </div>
         </DialogHeader>
-        
+
         <div className="grid grid-cols-2 gap-4 py-4">
           {/* Floor Selection */}
           <div className="space-y-2">
@@ -378,7 +381,7 @@ function FloorAreaPickerModal({
               </SelectContent>
             </Select>
           </div>
-          
+
           {/* Area Selection */}
           <div className="space-y-2">
             <div className="text-sm font-medium text-gray-700">Area</div>
@@ -528,7 +531,11 @@ function DraggableText({
 
             {/* Device icon with confirm styling */}
             <div className="relative z-10 transform scale-110 drop-shadow-lg">
-              <DeviceEdit />
+              <DeviceIcons
+                deviceType={device?.deviceType || ""}
+                controllerType={device?.controllerType || ""}
+                status={"relocating"}
+              />
             </div>
 
             {/* Confirm indicator badge */}
@@ -642,13 +649,11 @@ function DraggableText({
         <div
           className={`relative z-10 ${isRelocating ? "transform scale-110 drop-shadow-lg" : ""}`}
         >
-          {isRelocating ? (
-            <DeviceEdit />
-          ) : device?.deviceType === "EVS Controller" ? (
-            <DeviceChainway />
-          ) : (
-            <DeviceOnline />
-          )}
+          <DeviceIcons
+            deviceType={device?.deviceType}
+            controllerType={device?.controllerType}
+            status={device?.status}
+          />
         </div>
 
         {/* Relocation indicator badge */}
@@ -681,11 +686,11 @@ function DraggableText({
             onBlur={handleMouseLeave}
             onClick={handleMouseEnter}
           >
-            {device?.deviceType === "EVS Controller" ? (
-              <DeviceChainway />
-            ) : (
-              <DeviceOnline />
-            )}
+            <DeviceIcons
+              deviceType={device?.deviceType}
+              controllerType={device?.controllerType}
+              status={device?.status}
+            />
           </div>
         </PopoverTrigger>
         <PopoverContent
@@ -765,12 +770,17 @@ function RouteComponent() {
   });
 
   // State declarations first
-  const [positions, setPositions] = useState<Record<string, PercentPosition>>({});
-  const [defaultPositions, setDefaultPositions] = useState<Record<string, PercentPosition>>({});
+  const [positions, setPositions] = useState<Record<string, PercentPosition>>(
+    {}
+  );
+  const [defaultPositions, setDefaultPositions] = useState<
+    Record<string, PercentPosition>
+  >({});
   const [activeId, setActiveId] = useState<string | null>(null);
   const [relocatingId, setRelocatingId] = useState<string | null>(null);
   const [confirmPopoverId, setConfirmPopoverId] = useState<string | null>(null);
-  const [originalPosition, setOriginalPosition] = useState<PercentPosition | null>(null);
+  const [originalPosition, setOriginalPosition] =
+    useState<PercentPosition | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerRect, setContainerRect] = useState<DOMRect | null>(null);
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -785,7 +795,7 @@ function RouteComponent() {
 
   // Selected device from dropdown
   const [selectedDeviceId, setSelectedDeviceId] = useState<string>("");
-  
+
   // Floor/Area picker modal for unlocated devices
   const [floorAreaPickerModal, setFloorAreaPickerModal] = useState<{
     isOpen: boolean;
@@ -793,23 +803,32 @@ function RouteComponent() {
   }>({ isOpen: false, device: null });
 
   // Manually placed devices (for no-location devices that get placed)
-  const [manuallyPlacedDevices, setManuallyPlacedDevices] = useState<Device[]>([]);
+  const [manuallyPlacedDevices, setManuallyPlacedDevices] = useState<Device[]>(
+    []
+  );
 
   // Transform API data to Device format for current area
   const currentAreaDevices: Device[] = useMemo(() => {
     let devices: Device[] = [];
-    
+
     // Get devices from current area
-    if (deviceLocation?.area && deviceListByArea[deviceLocation.floor as keyof typeof deviceListByArea]) {
-      devices = deviceListByArea[deviceLocation.floor as keyof typeof deviceListByArea]?.map(transformApiDataToDevice) || [];
+    if (
+      deviceLocation?.area &&
+      deviceListByArea[deviceLocation.floor as keyof typeof deviceListByArea]
+    ) {
+      devices =
+        deviceListByArea[
+          deviceLocation.floor as keyof typeof deviceListByArea
+        ]?.map(transformApiDataToDevice) || [];
     }
-    
+
     // Add manually placed devices for current floor/area
     const placedForCurrentArea = manuallyPlacedDevices.filter(
-      (d: Device) => d.floor === deviceLocation?.floor && d.area === deviceLocation?.area
+      (d: Device) =>
+        d.floor === deviceLocation?.floor && d.area === deviceLocation?.area
     );
     devices = [...devices, ...placedForCurrentArea];
-    
+
     return devices;
   }, [deviceListByArea, deviceLocation, manuallyPlacedDevices]);
 
@@ -940,10 +959,16 @@ function RouteComponent() {
         });
 
         // Update manually placed device position if it exists
-        setManuallyPlacedDevices(prev => 
-          prev.map(d => 
-            d.id === device.id 
-              ? { ...d, x: newPosition.x, y: newPosition.y, floor: newFloor, area: newArea }
+        setManuallyPlacedDevices((prev) =>
+          prev.map((d) =>
+            d.id === device.id
+              ? {
+                  ...d,
+                  x: newPosition.x,
+                  y: newPosition.y,
+                  floor: newFloor,
+                  area: newArea,
+                }
               : d
           )
         );
@@ -996,49 +1021,57 @@ function RouteComponent() {
     // Find device in registered devices (current floor only)
     const registeredDevice = deviceList[
       deviceLocation?.floor as keyof typeof deviceList
-    ]?.find((device: any) => device.ID === deviceId && device.XAxis && device.YAxis);
+    ]?.find(
+      (device: any) => device.ID === deviceId && device.XAxis && device.YAxis
+    );
 
     if (registeredDevice) {
       // Device is registered - navigate to its floor/area and show device details
-      setDeviceLocation({ 
-        floor: registeredDevice.Floor, 
-        area: registeredDevice.Area 
+      setDeviceLocation({
+        floor: registeredDevice.Floor,
+        area: registeredDevice.Area,
       });
-      
+
       // Show device popover after navigation
       setTimeout(() => {
         const transformedDevice = transformApiDataToDevice(registeredDevice);
-        const deviceElement = document.querySelector(`[data-device-id="${transformedDevice.id}"]`);
+        const deviceElement = document.querySelector(
+          `[data-device-id="${transformedDevice.id}"]`
+        );
         if (deviceElement) {
           (deviceElement as HTMLElement).click();
         }
       }, 100);
-      
+
       toast.info("Device selected", {
         description: "Showing device location and details.",
       });
     }
   };
 
-  const handleFloorAreaConfirm = (selectedFloor: string, selectedArea: string, device: any) => {
+  const handleFloorAreaConfirm = (
+    selectedFloor: string,
+    selectedArea: string,
+    device: any
+  ) => {
     // Transform device and add to manually placed devices
     const transformedDevice = transformApiDataToDevice({
       ...device,
       Floor: selectedFloor,
       Area: selectedArea,
       XAxis: "50",
-      YAxis: "50"
+      YAxis: "50",
     });
-    
+
     // Add to manually placed devices
-    setManuallyPlacedDevices(prev => [...prev, transformedDevice]);
-    
+    setManuallyPlacedDevices((prev) => [...prev, transformedDevice]);
+
     // Update deviceLocation to show the selected floor/area
     setDeviceLocation({ floor: selectedFloor, area: selectedArea });
-    
+
     // Close modal and enter relocation mode after map loads
     setFloorAreaPickerModal({ isOpen: false, device: null });
-    
+
     setTimeout(() => {
       setRelocatingId(transformedDevice.id);
       toast.info("Device placed on map", {
@@ -1176,7 +1209,10 @@ function RouteComponent() {
       }
     >
       <div className="flex items-stretch justify-between space-x-5 my-5 px-[1px]">
-        <Select value={selectedDeviceId} onValueChange={handleFloorAreaDeviceSelect}>
+        <Select
+          value={selectedDeviceId}
+          onValueChange={handleFloorAreaDeviceSelect}
+        >
           <SelectTrigger
             className="h-[50px] w-[245px]"
             disabled={
@@ -1251,7 +1287,17 @@ function RouteComponent() {
 
                   {/* Device icon with dragging styling */}
                   <div className="relative z-10 transform scale-125 drop-shadow-xl">
-                    <DeviceEdit />
+                    <DeviceIcons
+                      deviceType={
+                        currentAreaDevices.find((d) => d.id === activeId)
+                          ?.deviceType || ""
+                      }
+                      controllerType={
+                        currentAreaDevices.find((d) => d.id === activeId)
+                          ?.controllerType || ""
+                      }
+                      status={"relocating"}
+                    />
                   </div>
 
                   {/* Dragging indicator */}
@@ -1366,7 +1412,9 @@ function RouteComponent() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
-                      <SelectLabel className="text-green-400">Registered</SelectLabel>
+                      <SelectLabel className="text-green-400">
+                        Registered
+                      </SelectLabel>
                       {deviceList[
                         deviceLocation?.floor as keyof typeof deviceList
                       ]
@@ -1379,14 +1427,15 @@ function RouteComponent() {
                     </SelectGroup>
                     {deviceList["no-location"]?.length > 0 && (
                       <SelectGroup>
-                        <Separator className="mt-1"/>
-                        <SelectLabel className="text-red-400">No Location</SelectLabel>
-                        {deviceList["no-location"]
-                          .map((device: any) => (
-                            <SelectItem key={device.ID} value={device.ID}>
-                              {device.DeviceName}
-                            </SelectItem>
-                          ))}
+                        <Separator className="mt-1" />
+                        <SelectLabel className="text-red-400">
+                          No Location
+                        </SelectLabel>
+                        {deviceList["no-location"].map((device: any) => (
+                          <SelectItem key={device.ID} value={device.ID}>
+                            {device.DeviceName}
+                          </SelectItem>
+                        ))}
                       </SelectGroup>
                     )}
                   </SelectContent>

@@ -20,3 +20,4 @@ export { default as InjuredIcon } from "./injured-icon.svg?react";
 export { default as DeviceEdit } from "./device-edit.svg?react";
 export { default as DeviceChainway } from "./device-chainway.svg?react";
 export { default as DeviceOnline } from "./device-online.svg?react";
+export { default as ChainwayIcon } from "./chainway-icon.svg?react";
