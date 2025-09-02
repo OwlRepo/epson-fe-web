@@ -53,7 +53,7 @@ import type { Device as DeviceType } from "@/components/dialogs/DeviceInfoDialog
 import useDeviceMappingData from "@/hooks/useDeviceMappingData";
 import Spinner from "@/components/ui/spinner";
 import { Separator } from "@/components/ui/separator";
-import { DeviceEdit, DeviceEvac, DeviceOnline } from "@/assets/svgs";
+import { DeviceEdit, DeviceChainway, DeviceOnline } from "@/assets/svgs";
 import { toast } from "sonner";
 
 export const Route = createFileRoute(
@@ -333,6 +333,90 @@ function DeviceInfoModal({
   );
 }
 
+// Floor/Area Picker Modal Component
+function FloorAreaPickerModal({
+  device,
+  isOpen,
+  onClose,
+  onConfirm,
+}: {
+  device: any | null;
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: (floor: string, area: string, device: any) => void;
+}) {
+  const [selectedFloor, setSelectedFloor] = useState("1");
+  const [selectedArea, setSelectedArea] = useState("1");
+
+  const handleConfirm = () => {
+    if (device) {
+      onConfirm(selectedFloor, selectedArea, device);
+    }
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[500px]">
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-bold">{device?.DeviceName}</DialogTitle>
+          <div className="text-sm text-gray-400 font-medium">
+            Pick a floor and area to place the device
+          </div>
+        </DialogHeader>
+        
+        <div className="grid grid-cols-2 gap-4 py-4">
+          {/* Floor Selection */}
+          <div className="space-y-2">
+            <div className="text-sm font-medium text-gray-700">Floor</div>
+            <Select value={selectedFloor} onValueChange={setSelectedFloor}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select Floor" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1">First Floor</SelectItem>
+                <SelectItem value="2">Second Floor</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
+          {/* Area Selection */}
+          <div className="space-y-2">
+            <div className="text-sm font-medium text-gray-700">Area</div>
+            <Select value={selectedArea} onValueChange={setSelectedArea}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select Area" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1">Area I</SelectItem>
+                <SelectItem value="2">Area II</SelectItem>
+                <SelectItem value="3">Area III</SelectItem>
+                <SelectItem value="4">Area IV</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex gap-3 pt-4">
+          <Button
+            variant="ghost"
+            className="flex-1 text-gray-600 hover:text-gray-800 hover:bg-gray-100"
+            onClick={onClose}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleConfirm}
+            className="flex-1 bg-blue-900 text-white font-bold hover:bg-blue-800"
+          >
+            Confirm
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function DraggableText({
   id,
   percentPosition,
@@ -561,7 +645,7 @@ function DraggableText({
           {isRelocating ? (
             <DeviceEdit />
           ) : device?.deviceType === "EVS Controller" ? (
-            <DeviceEvac />
+            <DeviceChainway />
           ) : (
             <DeviceOnline />
           )}
@@ -589,14 +673,16 @@ function DraggableText({
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <div
+            data-device-id={device?.id}
             className="cursor-pointer"
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             onFocus={handleMouseEnter}
             onBlur={handleMouseLeave}
+            onClick={handleMouseEnter}
           >
             {device?.deviceType === "EVS Controller" ? (
-              <DeviceEvac />
+              <DeviceChainway />
             ) : (
               <DeviceOnline />
             )}
@@ -733,6 +819,12 @@ function RouteComponent() {
 
   // Selected device from dropdown
   const [selectedDeviceId, setSelectedDeviceId] = useState<string>("");
+  
+  // Floor/Area picker modal for unlocated devices
+  const [floorAreaPickerModal, setFloorAreaPickerModal] = useState<{
+    isOpen: boolean;
+    device: any | null;
+  }>({ isOpen: false, device: null });
 
   // Only measure container after image is loaded
   useLayoutEffect(() => {
@@ -877,47 +969,65 @@ function RouteComponent() {
     setRelocatingId(null);
   };
 
-  const handleDeviceSelect = (deviceId: string) => {
+  const handleFloorAreaDeviceSelect = (deviceId: string) => {
     setSelectedDeviceId(deviceId);
 
-    // Find the selected device in the current area's device list
-    const selectedDevice = deviceListByArea[
-      deviceLocation?.floor as keyof typeof deviceListByArea
-    ]?.find((device: any) => device.ID === deviceId);
+    // Find device in registered devices (current floor only)
+    const registeredDevice = deviceList[
+      deviceLocation?.floor as keyof typeof deviceList
+    ]?.find((device: any) => device.ID === deviceId && device.XAxis && device.YAxis);
 
-    if (selectedDevice) {
-      const transformedDevice = transformApiDataToDevice(selectedDevice);
-
-      if (!selectedDevice.XAxis || !selectedDevice.YAxis) {
-        // Device has no location - place it in the middle of the map and enter relocation mode
-        const centerPosition = { x: 50, y: 50 }; // Center of the map (50%, 50%)
-
-        // Add device to positions with center coordinates
-        setPositions((prev) => ({
-          ...prev,
-          [transformedDevice.id]: centerPosition,
-        }));
-
-        setDefaultPositions((prev) => ({
-          ...prev,
-          [transformedDevice.id]: centerPosition,
-        }));
-
-        // Enter relocation mode immediately
-        setRelocatingId(transformedDevice.id);
-
-        toast.info("Device placed on map", {
-          description: "Position the device where you want it to be located.",
-        });
-      } else {
-        // Device already has location - just enter relocation mode
-        setRelocatingId(transformedDevice.id);
-
-        toast.info("Device selected for relocation", {
-          description: "You can now drag the device to a new position.",
-        });
-      }
+    if (registeredDevice) {
+      // Device is registered - navigate to its floor/area and show device details
+      setDeviceLocation({ 
+        floor: registeredDevice.Floor, 
+        area: registeredDevice.Area 
+      });
+      
+      // Show device popover after navigation
+      setTimeout(() => {
+        const transformedDevice = transformApiDataToDevice(registeredDevice);
+        const deviceElement = document.querySelector(`[data-device-id="${transformedDevice.id}"]`);
+        if (deviceElement) {
+          (deviceElement as HTMLElement).click();
+        }
+      }, 100);
+      
+      toast.info("Device selected", {
+        description: "Showing device location and details.",
+      });
     }
+  };
+
+  const handleFloorAreaConfirm = (selectedFloor: string, selectedArea: string, device: any) => {
+    // Update deviceLocation to show the selected floor/area
+    setDeviceLocation({ floor: selectedFloor, area: selectedArea });
+    
+    // Transform device for positioning
+    const transformedDevice = transformApiDataToDevice(device);
+    
+    // Place device in center of the map
+    const centerPosition = { x: 50, y: 50 };
+    
+    setPositions((prev) => ({
+      ...prev,
+      [transformedDevice.id]: centerPosition,
+    }));
+    
+    setDefaultPositions((prev) => ({
+      ...prev,
+      [transformedDevice.id]: centerPosition,
+    }));
+    
+    // Enter relocation mode
+    setRelocatingId(transformedDevice.id);
+    
+    // Close modal
+    setFloorAreaPickerModal({ isOpen: false, device: null });
+    
+    toast.info("Device placed on map", {
+      description: "Position the device where you want it to be located.",
+    });
   };
 
   const handleDeviceInfoSave = (updatedDevice: Device) => {
@@ -1049,7 +1159,7 @@ function RouteComponent() {
       }
     >
       <div className="flex items-stretch justify-between space-x-5 my-5 px-[1px]">
-        <Select value={selectedDeviceId} onValueChange={handleDeviceSelect}>
+        <Select value={selectedDeviceId} onValueChange={handleFloorAreaDeviceSelect}>
           <SelectTrigger
             className="h-[50px] w-[245px]"
             disabled={
@@ -1066,36 +1176,15 @@ function RouteComponent() {
               {deviceListByArea[
                 deviceLocation?.floor as keyof typeof deviceList
               ]
-                ?.filter((device: any) => device.XAxis && device.YAxis)
+                ?.filter((device: any) => device.Floor)
                 .map((device: any) => (
                   <SelectItem key={device.ID} value={device.ID}>
                     {device.DeviceName}
                   </SelectItem>
                 ))}
             </SelectGroup>
-            {deviceListByArea[
-              deviceLocation?.floor as keyof typeof deviceList
-            ]?.filter((device: any) => !device.XAxis && !device.YAxis).length >
-              0 && (
-              <>
-                <Separator />
-                <SelectGroup>
-                  <SelectLabel>No Location</SelectLabel>
-                  {deviceListByArea[
-                    deviceLocation?.floor as keyof typeof deviceList
-                  ]
-                    ?.filter((device: any) => !device.XAxis && !device.YAxis)
-                    .map((device: any) => (
-                      <SelectItem key={device.ID} value={device.ID}>
-                        {device.DeviceName}
-                      </SelectItem>
-                    ))}
-                </SelectGroup>
-              </>
-            )}
           </SelectContent>
         </Select>
-        <Button className="h-[50px] w-[145px]">Register Device</Button>
       </div>
       <div ref={containerRef} className="w-full relative">
         <img
@@ -1177,6 +1266,14 @@ function RouteComponent() {
             setDeviceInfoModal({ isOpen: false, device: null });
           }}
         />
+
+        {/* Floor/Area Picker Modal */}
+        <FloorAreaPickerModal
+          device={floorAreaPickerModal.device}
+          isOpen={floorAreaPickerModal.isOpen}
+          onClose={() => setFloorAreaPickerModal({ isOpen: false, device: null })}
+          onConfirm={handleFloorAreaConfirm}
+        />
       </div>
     </CardSection>
   ) : (
@@ -1239,11 +1336,13 @@ function RouteComponent() {
                     Second Floor
                   </TabsTrigger>
                 </TabsList>
-                {/* <Select
+                <Select
+                  value={selectedDeviceId}
+                  onValueChange={handleFloorAreaDeviceSelect}
                   disabled={
                     !deviceList[
                       deviceLocation?.floor as keyof typeof deviceList
-                    ].length
+                    ]?.length && !deviceList["no-location"]?.length
                   }
                 >
                   <SelectTrigger className="h-[50px] w-[145px]">
@@ -1251,30 +1350,21 @@ function RouteComponent() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
-                      <SelectLabel>Registered</SelectLabel>
+                      <SelectLabel className="text-green-400">Registered</SelectLabel>
                       {deviceList[
                         deviceLocation?.floor as keyof typeof deviceList
                       ]
-                        .filter((device: any) => device.XAxis && device.YAxis)
+                        .filter((device: any) => device.Floor)
                         .map((device: any) => (
                           <SelectItem key={device.ID} value={device.ID}>
                             {device.DeviceName}
                           </SelectItem>
                         ))}
-                      {deviceList[
-                        deviceLocation?.floor as keyof typeof deviceList
-                      ].filter(
-                        (device: any) => !device.XAxis && !device.YAxis
-                      ) && (
+                      {deviceList["no-location"].length > 0 && (
                         <>
-                          <Separator />
-                          <SelectLabel>No Location</SelectLabel>
-                          {deviceList[
-                            deviceLocation?.floor as keyof typeof deviceList
-                          ]
-                            .filter(
-                              (device: any) => !device.XAxis && !device.YAxis
-                            )
+                          <Separator className="mt-1"/>
+                          <SelectLabel className="text-red-400">No Location</SelectLabel>
+                          {deviceList["no-location"]
                             .map((device: any) => (
                               <SelectItem key={device.ID} value={device.ID}>
                                 {device.DeviceName}
@@ -1284,9 +1374,8 @@ function RouteComponent() {
                       )}
                     </SelectGroup>
                   </SelectContent>
-                </Select> */}
+                </Select>
               </div>
-              <Button className="h-[50px] w-[145px]">Register Device</Button>
             </div>
             <TabsContent value="1" className="w-full h-full relative">
               <img

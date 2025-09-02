@@ -38,6 +38,9 @@ export default function useDeviceMappingData(props: {
           device.DeviceName !== "" &&
           device.DeviceName !== null
       ),
+      "no-location": device?.filter(
+        (device: any) => !device.Floor
+      ),
     };
   }, [device, props.floor]);
 
@@ -56,6 +59,9 @@ export default function useDeviceMappingData(props: {
           device.DeviceName !== "" &&
           device.DeviceName !== null &&
           device.Area === props.area
+      ),
+      "no-location": device?.filter(
+        (device: any) => !device.Floor
       ),
     };
   }, [device, props.floor, props.area]);
@@ -80,7 +86,7 @@ export default function useDeviceMappingData(props: {
             device.Floor === props.floor
         ).length,
         noLocation: device?.filter(
-          (device: any) => !device.XAxis && !device.YAxis
+          (device: any) => !device.Floor
         ).length,
         perArea: {
           total: device?.filter(
