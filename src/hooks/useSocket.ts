@@ -230,7 +230,19 @@ export const useSocket = <
           const addItem = () => {
             return [...prevData, newData as T];
           };
-          //TODO: use XAxis and YAxis to use the upcoming data and update that existing object(e.g status) in the array of Devices in the Device Management Mapping Page
+
+          if (
+            Object.keys(prevData[0]).includes("XAxis") ||
+            Object.keys(prevData[0]).includes("xaxis")
+          ) {
+            const exists = prevData.some((item: any) => item.ID === newData.ID);
+            return exists
+              ? prevData.map((item: any) =>
+                  item.ID === newData.ID ? updateItem(item) : item
+                )
+              : addItem();
+          }
+
           if (Object.keys(prevData[0]).includes("DeviceId")) {
             const deviceId = (newData as DeviceData).DeviceId;
             const exists = prevData.some(
