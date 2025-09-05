@@ -40,8 +40,7 @@ export function Header({ userProfile, className }: HeaderProps) {
     : "";
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    localStorage.clear();
     navigate({ to: "/" });
   };
 
