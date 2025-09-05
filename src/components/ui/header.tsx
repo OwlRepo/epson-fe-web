@@ -29,14 +29,14 @@ export function Header({ userProfile, className }: HeaderProps) {
   const navigate = useNavigate();
 
   const userName =
-    JSON.parse(localStorage.getItem("user")!).Name ??
-    JSON.parse(localStorage.getItem("user")!).EmailAddress;
+    JSON.parse(localStorage.getItem("user")!)?.Name ??
+    JSON.parse(localStorage.getItem("user")!)?.EmailAddress;
 
   const userInitials =
-    JSON.parse(localStorage.getItem("user")!).Initials ?? "-";
+    JSON.parse(localStorage.getItem("user")!)?.Initials ?? "-";
 
   const userRole = localStorage.getItem("user")
-    ? JSON.parse(localStorage.getItem("user")!).Role
+    ? JSON.parse(localStorage.getItem("user")!)?.Role
     : "";
 
   const handleLogout = () => {
