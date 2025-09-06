@@ -28,7 +28,7 @@ const getDeviceLogs = async ({
   pageParam = 1,
   params,
 }: {
-  pageParam?: number;
+  pageParam?: any;
   params?: string;
 }): Promise<DeviceLogResponse> => {
   try {
