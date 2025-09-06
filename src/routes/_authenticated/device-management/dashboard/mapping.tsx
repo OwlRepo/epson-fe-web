@@ -56,6 +56,7 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import DeviceIcons from "@/components/ui/device-icons";
 import EVSCounts from "@/components/ui/evs-counts";
+import DeviceLogsDialog from "@/components/dialogs/DeviceLogsDialog";
 
 export const Route = createFileRoute(
   "/_authenticated/device-management/dashboard/mapping"
@@ -190,13 +191,19 @@ function DeviceInfoModal({
       });
     }
   };
-
+  const [openLogs, setOpenLogs] = useState(false);
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">Device Info</DialogTitle>
         </DialogHeader>
+        <DeviceLogsDialog
+          open={openLogs}
+          onOpenChange={setOpenLogs}
+          deviceId={device?.id}
+          deviceName={device?.name}
+        />
 
         <div className="grid grid-cols-2 gap-6 py-4">
           {/* Device ID */}
@@ -303,6 +310,7 @@ function DeviceInfoModal({
           <Button
             variant="outline"
             className="border-2 border-blue-900 text-blue-900 font-bold hover:bg-blue-50"
+            onClick={() => setOpenLogs(true)}
           >
             View Device Logs
           </Button>
