@@ -35,6 +35,7 @@ export function DatePickerWithRange({
   isError = false,
   isWarning = false,
 }: DatePickerWithRangeProps) {
+  const [open, setOpen] = React.useState(false);
   const [date, setDate] = React.useState<DateRange | undefined>({
     from: value?.from || new Date(),
     to: value?.to || addDays(new Date(), 20),
@@ -45,6 +46,9 @@ export function DatePickerWithRange({
     if (onSelect) {
       onSelect(selectedDate);
     }
+    if (selectedDate?.from && selectedDate?.to) {
+      setOpen(false);
+    }
   };
 
   React.useEffect(() => {
@@ -53,7 +57,7 @@ export function DatePickerWithRange({
 
   return (
     <div className={cn("grid gap-2", className)}>
-      <Popover>
+      <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             id="date"
@@ -83,7 +87,7 @@ export function DatePickerWithRange({
             <CalendarIcon />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
+        <PopoverContent className="w-auto p-0 z-[9999]" align="start">
           <Calendar
             initialFocus
             mode="range"

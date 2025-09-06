@@ -306,7 +306,14 @@ const DeviceInfoDialog = ({
           )}
         </DialogContent>
       </Dialog>
-      <DeviceLogsDialog open={openLogs} onOpenChange={setOpenLogs} />
+      {openLogs && (
+        <DeviceLogsDialog
+          open={openLogs}
+          onOpenChange={setOpenLogs}
+          deviceId={deviceInfo?.id}
+          deviceName={deviceInfo?.name}
+        />
+      )}
     </>
   );
 };
