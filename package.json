@@ -12,7 +12,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "pm2:start": "npm run build && pm2 start start.js --name epson-fe-web-evs",
+    "pm2:start": "pm2 delete epson-fe-web-evs && npm run build && pm2 start start.js --name epson-fe-web-evs",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "format": "prettier --write \"src/**/*.{ts,tsx}\"",
     "docker:build:up": "docker compose up --build -d",
