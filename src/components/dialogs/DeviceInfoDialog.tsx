@@ -29,6 +29,7 @@ export interface Device {
   yaxis: string;
   controllertype: string;
   archive: number;
+  deviceType?: string;
 }
 
 export interface DeviceInfoDialogProps extends DialogProps {
@@ -70,6 +71,7 @@ const DeviceInfoDialog = ({
         yaxis: deviceInfo?.yaxis ?? "",
         controllertype: deviceInfo?.controllertype ?? "",
         archive: deviceInfo?.archive ?? 0,
+        deviceType: deviceInfo?.deviceType,
       },
     });
 
@@ -86,12 +88,14 @@ const DeviceInfoDialog = ({
         yaxis: deviceInfo.yaxis ?? "",
         controllertype: deviceInfo.controllertype ?? "",
         archive: deviceInfo.archive ?? 0,
+        deviceType: deviceInfo?.deviceType,
       });
     }
   }, [deviceInfo, reset]);
 
   const id = watch("id");
   const controllertype = watch("controllertype");
+  const deviceType = watch("deviceType");
 
   useEffect(() => {
     if (id) {
@@ -160,11 +164,10 @@ const DeviceInfoDialog = ({
               <TextInput
                 readOnly={Boolean(deviceInfo)}
                 label="Device Type"
-                id="controllertype"
-                name="controllertype"
+                id="deviceType"
+                name="deviceType"
                 register={register}
                 errors={formState.errors}
-                required={false}
               />
 
               <TextInput
@@ -197,10 +200,10 @@ const DeviceInfoDialog = ({
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
-                          {deviceInfo?.controllertype === "EVS" ||
-                          controllertype === "EVS" ||
-                          controllertype === "Chainway" ||
-                          deviceInfo?.controllertype === "Chainway"
+                          {deviceInfo?.deviceType === "EVS" ||
+                          deviceType === "EVS" ||
+                          deviceType === "Chainway" ||
+                          deviceInfo?.deviceType === "Chainway"
                             ? homeSafe.map((item, i) => (
                                 <SelectItem value={item.value} key={i}>
                                   {item.label}
@@ -280,7 +283,7 @@ const DeviceInfoDialog = ({
                   Re-locate
                 </Button>
                 <Button
-                  disabled={!formState.isDirty}
+                  disabled={!formState.isValid || !formState.isDirty}
                   onClick={handleSubmit((data) =>
                     emitData("device_update", data)
                   )}

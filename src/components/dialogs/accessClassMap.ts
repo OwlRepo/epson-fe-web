@@ -4,4 +4,5 @@ export const accessClassMap = {
   EVS: "bg-[#BC00031C] text-[#BC0003]",
   DMG: "bg-[#BCA6001C] text-[#BCA600]",
   UMG: "bg-[#7400BC1C] text-[#7400BC]",
+  CNW: "bg-[#BC00031C] text-[#BC0003]",
 };
