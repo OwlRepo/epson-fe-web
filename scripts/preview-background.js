@@ -66,7 +66,7 @@ async function startPreview() {
     
     // Use vite directly with --host flag for better control
     const viteCommand = isWindows ? 'npx.cmd' : 'npx';
-    const args = ['vite', 'preview', '--port', port.toString(), '--host'];
+    const args = ['vite', 'start', '--port', port.toString(), '--host'];
     
     // Start the preview process with proper detachment and --host flag
     const previewProcess = spawn(viteCommand, args, {
