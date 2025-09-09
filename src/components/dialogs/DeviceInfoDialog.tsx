@@ -94,7 +94,7 @@ const DeviceInfoDialog = ({
   }, [deviceInfo, reset]);
 
   const id = watch("id");
-  const controllertype = watch("controllertype");
+
   const deviceType = watch("deviceType");
 
   useEffect(() => {
