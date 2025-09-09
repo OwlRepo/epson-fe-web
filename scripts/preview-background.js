@@ -63,10 +63,13 @@ async function startPreview() {
     
     // Determine the correct command for the platform
     const isWindows = process.platform === 'win32';
-    const command = isWindows ? 'npm.cmd' : 'npm';
     
-    // Start the preview process with proper detachment
-    const previewProcess = spawn(command, ['run', 'preview'], {
+    // Use vite directly with --host flag for better control
+    const viteCommand = isWindows ? 'npx.cmd' : 'npx';
+    const args = ['vite', 'preview', '--host', '--port', port.toString()];
+    
+    // Start the preview process with proper detachment and --host flag
+    const previewProcess = spawn(viteCommand, args, {
       cwd: projectRoot,
       detached: !isWindows, // Windows doesn't support detached properly
       stdio: 'ignore',
