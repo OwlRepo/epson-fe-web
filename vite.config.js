@@ -4,6 +4,17 @@ import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
 import { resolve } from "node:path";
 import { writeFileSync, readFileSync, existsSync } from "node:fs";
 import svgr from "vite-plugin-svgr";
+
+// Read .env file to determine port
+function getPreviewPort() {
+  const envPath = resolve(process.cwd(), '.env');
+  if (existsSync(envPath)) {
+    const envContent = readFileSync(envPath, 'utf8');
+    const isEVS = envContent.includes('VITE_IS_EVS=true');
+    return isEVS ? 8766 : 8765;
+  }
+  return 8765; // default
+}
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
@@ -61,7 +72,7 @@ export default defineConfig({
     host: true,
   },
   preview: {
-    port: 8766,
+    port: getPreviewPort(),
     host: true,
   },
 });

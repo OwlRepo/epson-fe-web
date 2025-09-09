@@ -9,6 +9,8 @@
     "start": "npm run setup-env:once && npm run vite --port 3000",
     "build": "npm run setup-env:prod && vite build && tsc",
     "preview": "vite preview",
+    "preview:prod": "npm run build && node scripts/preview-background.js",
+    "preview:stop": "node scripts/preview-stop.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
