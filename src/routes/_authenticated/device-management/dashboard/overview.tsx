@@ -8,7 +8,7 @@ import CompactCount from "@/components/ui/compact-count";
 import { useSocket } from "@/hooks";
 import { createFileRoute } from "@tanstack/react-router";
 import { Monitor } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export const Route = createFileRoute(
   "/_authenticated/device-management/dashboard/overview"
@@ -22,6 +22,7 @@ function RouteComponent() {
   const {
     data: device,
     countData,
+    responseStatus,
     emitData,
   } = useSocket<Device>({
     room: isController ? "view_device_controller" : "view_device_chainway",
@@ -37,6 +38,11 @@ function RouteComponent() {
     { id: string; controllertype: string }[]
   >([]);
 
+  useEffect(() => {
+    if (responseStatus === "success") {
+      setOpen(false);
+    }
+  }, [responseStatus]);
   // const [deviceList, setDeviceList] = useState([]);
 
   const data = device.map((apiDevice: any) => ({
@@ -48,8 +54,9 @@ function RouteComponent() {
     area: apiDevice.Area ?? "",
     xaxis: apiDevice.XAxis ?? "",
     yaxis: apiDevice.YAxis ?? "",
-    controllertype: apiDevice.DeviceType ?? "",
+    controllertype: apiDevice?.ControllerType ?? "",
     archive: 0,
+    deviceType: apiDevice.DeviceType ?? "",
   }));
 
   const countDetails: countDetails[] = [
@@ -157,7 +164,9 @@ function RouteComponent() {
               }}
               key={index}
               index={index}
-              variant={item?.status}
+              variant={
+                item.deviceType || item.controllertype ? item.status : "unknown"
+              }
               deviceName={item?.name}
             />
           ))}
