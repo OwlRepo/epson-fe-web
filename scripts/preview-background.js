@@ -44,7 +44,7 @@ async function startPreview() {
   console.log(`📡 Accessible on network at: http://${ip}:${port}`);
   
   // Start the preview process with proper detachment
-  const previewProcess = spawn('bun', ['run', 'preview'], {
+  const previewProcess = spawn('npm', ['run', 'preview'], {
     cwd: projectRoot,
     detached: true,
     stdio: 'ignore'
@@ -61,7 +61,7 @@ async function startPreview() {
   
   console.log(`✅ Preview server started in background`);
   console.log(`🔗 Access your app at: http://${ip}:${port}`);
-  console.log(`⏹️  To stop: bun run preview:stop`);
+  console.log(`⏹️  To stop: npm run preview:stop`);
   
   // Exit the script but keep the preview running
   process.exit(0);
