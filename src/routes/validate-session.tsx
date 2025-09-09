@@ -12,7 +12,8 @@ export const Route = createFileRoute("/validate-session")({
           token: search.token,
         })
         .then((res) => {
-          const { token, refreshToken, user } = res.data.data;
+          const { accessToken: token, refreshToken, user } = res.data.data;
+          console.log(res.data.data);
           if (res && res.status === 200) {
             localStorage.setItem("token", token);
             localStorage.setItem("refreshToken", refreshToken);
