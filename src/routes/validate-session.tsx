@@ -13,8 +13,8 @@ export const Route = createFileRoute("/validate-session")({
         })
         .then((res) => {
           const { accessToken: token, refreshToken, user } = res.data.data;
-          console.log(res.data.data);
           if (res && res.status === 200) {
+            console.log(res.data.data);
             localStorage.setItem("token", token);
             localStorage.setItem("refreshToken", refreshToken);
             localStorage.setItem("user", JSON.stringify(user));
@@ -30,7 +30,6 @@ export const Route = createFileRoute("/validate-session")({
           });
         });
     } else {
-      localStorage.clear();
       throw redirect({
         to: "/",
       });
