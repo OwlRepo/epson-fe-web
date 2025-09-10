@@ -24,11 +24,13 @@ export const Route = createFileRoute("/validate-session")({
           }
         })
         .catch(async () => {
+          localStorage.clear();
           throw redirect({
             to: "/",
           });
         });
     } else {
+      localStorage.clear();
       throw redirect({
         to: "/",
       });
