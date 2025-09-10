@@ -146,12 +146,12 @@ function RouteComponent() {
                   key: "Status",
                   label: "",
                 },
-               
-                 {
+
+                {
                   key: "EmployeeID",
                   label: "Employee No",
                 },
-                {key: "Type", label:"Type"},
+                { key: "Type", label: "Type" },
                 {
                   key: "FullName",
                   label: "NAME",
@@ -192,12 +192,12 @@ function RouteComponent() {
                     EmailAddress,
                     ERT,
                     Department,
-                    EmployeeID: EmployeeID || '--',
+                    EmployeeID: EmployeeID || "--",
                     RowID: ID,
                     EM,
                     MIFARE,
                     UHF,
-                    Type: EmployeeID ? 'Employee' : 'Contractor'
+                    Type: EmployeeID ? "Employee" : "Contractor",
                   };
                 })
                 .filter((item) => {
@@ -251,6 +251,7 @@ function RouteComponent() {
           assignedPersonnel={assignedPersonnel}
           emitData={emitData}
           modal={false}
+          controllerId={params.controllerId}
         />
       )}
     </>
