@@ -14,7 +14,7 @@ export const Route = createFileRoute("/validate-session")({
         .then((res) => {
           const { accessToken: token, refreshToken, user } = res.data.data;
           if (res && res.status === 200) {
-            console.log(res.data.data);
+            console.log("TOKEN LOGIN SUCCESS");
             localStorage.setItem("token", token);
             localStorage.setItem("refreshToken", refreshToken);
             localStorage.setItem("user", JSON.stringify(user));
@@ -24,12 +24,15 @@ export const Route = createFileRoute("/validate-session")({
           }
         })
         .catch(async () => {
+          console.log("TOKEN LOGIN ERROR");
           localStorage.clear();
           throw redirect({
             to: "/",
           });
         });
     } else {
+      console.log("TOKEN LOGIN ERROR");
+      localStorage.clear();
       throw redirect({
         to: "/",
       });
