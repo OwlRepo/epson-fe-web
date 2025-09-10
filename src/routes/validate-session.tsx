@@ -22,14 +22,14 @@ export const Route = createFileRoute("/validate-session")({
               to: "/evacuation-monitoring/dashboard/overview",
             });
           }
+          else {
+            console.log("TOKEN LOGIN ERROR");
+            localStorage.clear();
+            throw redirect({
+              to: "/",
+            });
+          }
         })
-        .catch(async () => {
-          console.log("TOKEN LOGIN ERROR");
-          localStorage.clear();
-          throw redirect({
-            to: "/",
-          });
-        });
     } else {
       console.log("TOKEN LOGIN ERROR");
       localStorage.clear();
