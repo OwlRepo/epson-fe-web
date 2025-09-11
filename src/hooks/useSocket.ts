@@ -232,6 +232,17 @@ export const useSocket = <
           };
 
           if (
+            Object.keys(prevData[0]).includes("Department") && location.pathname.includes("cdepro")
+          ) {
+            const exists = prevData.some((item: any) => item.Department === newData.Department);
+            return exists
+              ? prevData.map((item: any) =>
+                  item.Department === newData.Department ? updateItem(item) : item
+                )
+              : addItem();
+          }
+
+          if (
             Object.keys(prevData[0]).includes("XAxis") ||
             Object.keys(prevData[0]).includes("xaxis")
           ) {
