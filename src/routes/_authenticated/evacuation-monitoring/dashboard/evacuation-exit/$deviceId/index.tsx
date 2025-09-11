@@ -157,11 +157,11 @@ function RouteComponent() {
             ]}
             data={data
               .map((employeeData) => {
-                const { id, name, user_type, eva_status, log_time } =
+                const { employee_id, full_name, user_type, eva_status, log_time } =
                   employeeData;
                 return {
-                  id: id,
-                  name: name,
+                  id: employee_id,
+                  name: full_name,
                   user_type: user_type,
                   eva_status: eva_status,
                   log_time: log_time,
