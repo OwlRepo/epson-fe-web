@@ -345,7 +345,7 @@ const AssignPersonnelDialog = ({
             />
 
             <AutoComplete
-              readOnly={Boolean(controllerId)}
+              readOnly={!assignedPersonnel && Boolean(controllerId)}
               label="Department"
               name={"Department"}
               id="employee-type"
