@@ -102,11 +102,10 @@ const AssignPersonnelDialog = ({
 
   useEffect(() => {
     if (employee) {
+      // console.log("Employee Data:", JSON.stringify(employee, null, 2));
       setValue("FirstName", employee.FirstName);
       setValue("LastName", employee.LastName);
       setValue("EmailAddress", employee.EmailAddress);
-      setValue("ContactNo", employee.ContactNo);
-      setValue("Department", employee.DepartmentName);
       setValue("UHF", employee.UHF || "");
       setValue("MIFARE", employee.MIFARE || "");
       setValue("EM", employee.EM || "");
@@ -115,7 +114,7 @@ const AssignPersonnelDialog = ({
 
   useEffect(() => {
     if (assignedPersonnel) {
-      console.log("Assigned Personnel Data:", assignedPersonnel);
+      // console.log("Assigned Personnel Data:", assignedPersonnel);
       reset({
         LastName: assignedPersonnel.LastName || "",
         FirstName: assignedPersonnel.FirstName || "",
