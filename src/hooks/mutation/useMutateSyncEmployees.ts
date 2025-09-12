@@ -1,5 +1,7 @@
 import api from "@/config/axiosInstance";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import useToastStyleTheme from "../useToastStyleTheme";
 
 const syncEmployees = async () => {
   try {
@@ -16,6 +18,8 @@ const syncEmployees = async () => {
 export const useMutateSyncEmployees = () => {
   const queryClient = useQueryClient();
 
+  const { errorStyle } = useToastStyleTheme();
+  
   return useMutation({
     mutationFn: syncEmployees,
     onSuccess: (data) => {
@@ -24,7 +28,16 @@ export const useMutateSyncEmployees = () => {
       });
       console.log("Employee data synced successfully:", data);
     },
-    onError: (error) => {
+    onError: (error: any) => {
+      if(error?.response?.data?.message){
+        toast.error(error?.response?.data?.message, {
+          style: errorStyle,
+        });
+      } else {
+        toast.error("Error syncing employee data", {
+          style: errorStyle,
+        });
+      }
       console.error("Error syncing employee data:", error);
     },
   });

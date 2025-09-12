@@ -114,12 +114,6 @@ const SettingTab = () => {
   }, [search]);
 
   useEffect(() => {
-    if (isError) {
-      toast.error("Error syncing employees", {
-        description: "Please try again later.",
-        style: errorStyle,
-      });
-    }
     if (isSuccess) {
       toast.success("Success syncing employees", {
         description: "Your Employee List  has been synced. You're all set!",
