@@ -20,6 +20,7 @@ import { useMutateSyncSchedule } from "@/hooks/mutation/useMutateSyncSchedule";
 import { useGetSyncingSchedule } from "@/hooks/query/useGetSyncingSchedule";
 import { Input } from "../ui/input";
 import { useUploadCards } from "@/hooks/mutation/useUploadCards";
+import { useSocket } from "@/hooks";
 
 interface SyncActivity {
   ID: number;
@@ -43,6 +44,8 @@ const SettingTab = () => {
     am: "",
     pm: "",
   });
+
+  const { emitData } = useSocket({ room: "updates" });
 
   const [timeKey, setTimeKey] = useState<"am" | "pm">("am");
 
@@ -171,6 +174,7 @@ const SettingTab = () => {
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
+      emitData("users");
     }
     if (isUploading) {
       toast.info("Uploading Cards", {
