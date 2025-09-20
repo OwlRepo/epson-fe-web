@@ -70,8 +70,6 @@ api.interceptors.response.use(
 
     if (toastConfig) {
       if (error.response?.status === 401 && window.location.pathname !== "/") {
-        localStorage.removeItem("token");
-        window.location.href = "/";
         toast.error(toastConfig.title || "Request failed", {
           description: errorMessage || "Please login again",
           className: "bg-red-50 border-red-200 text-red-800",

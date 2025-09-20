@@ -683,6 +683,243 @@ bun run deploy:both
 | Build fails | Run `docker system prune` to clean up and try again |
 | Service not accessible | Check firewall settings and ensure ports 8765/8766 are open |
 
+## 🚀 PM2 Deployment
+
+This project includes PM2 configuration for production deployment with process management, auto-restart capabilities, and clustering support. The PM2 setup is optimized for Windows Server 2016 Standard but works seamlessly on macOS and Linux.
+
+### 📋 Prerequisites
+
+1. **Install PM2 globally:**
+
+   ```bash
+   npm install -g pm2
+   ```
+
+2. **Install project dependencies:**
+
+   ```bash
+   npm install
+   ```
+
+### ⚙️ PM2 Configuration
+
+The project includes an `ecosystem.config.js` file with the following features:
+
+- **Multi-core support:** Uses 2 CPU cores minimum in cluster mode
+- **Auto-restart:** Automatically restarts if the application crashes
+- **Memory management:** Restarts if memory usage exceeds 1GB
+- **Cross-platform compatibility:** Works on Windows Server 2016, macOS, and Linux
+- **Logging:** Comprehensive logging with rotation
+- **Port configuration:** Serves on port 8766 as specified
+
+### 🚀 Quick Start
+
+**Start the application:**
+
+```bash
+npm run pm2:start
+```
+
+This command will:
+
+1. Stop any existing PM2 instance (if running)
+2. Build the application for production
+3. Start the PM2 process with the ecosystem configuration
+
+### 📋 Available PM2 Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm run pm2:start` | Build and start the application with PM2 |
+| `npm run pm2:stop` | Stop the PM2 process |
+| `npm run pm2:restart` | Restart the PM2 process |
+| `npm run pm2:delete` | Delete the PM2 process |
+| `npm run pm2:logs` | View application logs |
+| `npm run pm2:monit` | Open PM2 monitoring dashboard |
+| `npm run pm2:install-logrotate` | Install PM2 log rotation module |
+| `npm run pm2:flush-logs` | Clear/flush all PM2 logs |
+
+### 🔧 Manual PM2 Commands
+
+You can also use PM2 commands directly:
+
+```bash
+# Start with ecosystem file
+pm2 start ecosystem.config.js
+
+# View process status
+pm2 status
+
+# View logs
+pm2 logs epson-fe-web-evs
+
+# Monitor processes
+pm2 monit
+
+# Restart application
+pm2 restart epson-fe-web-evs
+
+# Stop application
+pm2 stop epson-fe-web-evs
+
+# Delete application
+pm2 delete epson-fe-web-evs
+
+# Save PM2 process list
+pm2 save
+
+# Resurrect saved processes (useful after server restart)
+pm2 resurrect
+```
+
+### 🖥️ Windows Server 2016 Specific Setup
+
+For Windows Server 2016 deployment:
+
+1. **Install Node.js LTS** (recommended version 18 or higher)
+2. **Install PM2 globally:**
+
+   ```cmd
+   npm install -g pm2
+   npm install -g pm2-windows-startup
+   ```
+
+3. **Setup PM2 to start on Windows boot:**
+
+   ```cmd
+   pm2-startup install
+   npm run pm2:start
+   pm2 save
+   ```
+
+### 📊 Process Monitoring
+
+The application runs with the following specifications:
+
+- **Process Name:** `epson-fe-web-evs`
+- **Instances:** 2 (cluster mode)
+- **Port:** 8766
+- **Memory Limit:** 1GB per instance
+- **Auto Restart:** Yes
+- **Max Restarts:** 10 within restart delay period
+- **Restart Delay:** 4 seconds
+
+### 📝 Logging & Log Rotation
+
+PM2 logs are stored in the `./logs/` directory with automatic rotation:
+
+- **Combined logs:** `./logs/epson-fe-web-combined.log`
+- **Output logs:** `./logs/epson-fe-web-out.log`
+- **Error logs:** `./logs/epson-fe-web-error.log`
+
+#### Log Rotation Configuration
+
+The application includes built-in log rotation to prevent disk space issues:
+
+- **Max file size:** 10MB per log file
+- **Retention:** 30 rotated log files
+- **Compression:** Rotated logs are compressed to save space
+- **Format:** JSON format for better parsing
+
+#### Setting Up Log Rotation
+
+1. **Install PM2 log rotation module (one-time setup):**
+
+   ```bash
+   npm run pm2:install-logrotate
+   ```
+
+2. **Configure log rotation settings (optional):**
+
+   ```bash
+   # Set max file size (default: 10M)
+   pm2 set pm2-logrotate:max_size 10M
+   
+   # Set number of files to retain (default: 30)
+   pm2 set pm2-logrotate:retain 30
+   
+   # Enable compression (default: false)
+   pm2 set pm2-logrotate:compress true
+   
+   # Set rotation interval (default: daily at midnight)
+   pm2 set pm2-logrotate:rotateInterval '0 0 * * *'
+   ```
+
+3. **Manual log management:**
+
+   ```bash
+   # Clear all logs immediately
+   npm run pm2:flush-logs
+   
+   # View log rotation status
+   pm2 describe pm2-logrotate
+   ```
+
+### 🔧 Configuration Customization
+
+To modify PM2 settings, edit the `ecosystem.config.js` file:
+
+```javascript
+module.exports = {
+  apps: [{
+    name: 'epson-fe-web-evs',
+    script: './start.js',
+    instances: 2, // Adjust number of instances
+    max_memory_restart: '1G', // Adjust memory limit
+    env: {
+      PORT: 8766 // Change port if needed
+    }
+    // ... other configurations
+  }]
+};
+```
+
+### 🚨 Troubleshooting PM2
+
+| Issue | Solution |
+|-------|---------|
+| PM2 command not found | Install PM2 globally: `npm install -g pm2` |
+| Port 8766 already in use | Check running processes: `pm2 status` or change port in ecosystem.config.js |
+| Application not starting | Check logs: `npm run pm2:logs` |
+| High memory usage | Reduce `max_memory_restart` in ecosystem.config.js |
+| Process keeps restarting | Check error logs and fix application issues |
+| Windows service not starting on boot | Run `pm2-startup install` and `pm2 save` |
+
+### 🌐 Accessing the Application
+
+After successful deployment, the application will be available at:
+
+- **Local:** <http://localhost:8766>
+- **Network:** http://[server-ip]:8766
+
+### 🔄 Deployment Workflow
+
+For production deployment:
+
+1. **Initial deployment:**
+
+   ```bash
+   npm run pm2:start
+   ```
+
+2. **Updates/redeploy:**
+
+   ```bash
+   npm run pm2:restart
+   ```
+
+3. **View status:**
+
+   ```bash
+   pm2 status
+   ```
+
+4. **Monitor performance:**
+
+   ```bash
+   npm run pm2:monit
+   ```
+
 ## 🧹 Demo Files
 
 Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.

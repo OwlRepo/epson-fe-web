@@ -21,8 +21,7 @@ export const Route = createFileRoute("/validate-session")({
             throw redirect({
               to: "/evacuation-monitoring/dashboard/overview",
             });
-          }
-          else {
+          } else {
             console.log("TOKEN LOGIN ERROR");
             localStorage.clear();
             throw redirect({
@@ -30,6 +29,14 @@ export const Route = createFileRoute("/validate-session")({
             });
           }
         })
+        .catch((err) => {
+          console.log("TOKEN LOGIN ERROR", err);
+          alert("TOKEN LOGIN ERROR: " + JSON.stringify(err));
+          localStorage.clear();
+          throw redirect({
+            to: "/",
+          });
+        });
     } else {
       console.log("TOKEN LOGIN ERROR");
       localStorage.clear();
