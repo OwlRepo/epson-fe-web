@@ -67,7 +67,7 @@ api.interceptors.response.use(
       error.response?.message ||
       error.message ||
       "An error occurred";
-
+    console.log("AXIOS ERROR", JSON.stringify(error, null, 2));
     if (toastConfig) {
       if (error.response?.status === 401 && window.location.pathname !== "/") {
         toast.error(toastConfig.title || "Request failed", {
