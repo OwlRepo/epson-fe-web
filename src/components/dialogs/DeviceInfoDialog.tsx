@@ -12,8 +12,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { Switch } from "../ui/switch";
-import { cn } from "@/lib/utils";
 import { Textarea } from "../ui/textarea";
 import { useEffect, useState } from "react";
 import DeviceLogsDialog from "./DeviceLogsDialog";
