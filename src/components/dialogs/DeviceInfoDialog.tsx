@@ -233,22 +233,17 @@ const DeviceInfoDialog = ({
                   Status
                 </label>
                 <div className="flex mt-4 gap-4 items-center">
-                  <Controller
-                    control={control}
-                    name="status"
-                    render={({ field }) => (
-                      <Switch
-                        checked={field.value === "Active"}
-                        onCheckedChange={(checked) =>
-                          field.onChange(checked ? "Active" : "In Active")
-                        }
-                        className={cn(
-                          "data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
-                        )}
-                      />
-                    )}
-                  />
-                  <p className="text-sm">Active Device</p>
+                  {watch("status") === "Active" ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 bg-green-500 rounded-full" />
+                      <p className="text-sm">Online</p>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 bg-red-500 rounded-full" />
+                      <p className="text-sm">Offline</p>
+                    </div>
+                  )}
                 </div>
               </div>
 
