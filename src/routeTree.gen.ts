@@ -27,6 +27,7 @@ import { Route as AuthenticatedAttendanceMonitoringRouteImport } from './routes/
 import { Route as AuthenticatedVisitorManagementReportsImport } from './routes/_authenticated/visitor-management/reports'
 import { Route as AuthenticatedUserManagementListOfUsersImport } from './routes/_authenticated/user-management/list-of-users'
 import { Route as AuthenticatedEvacuationMonitoringReportsImport } from './routes/_authenticated/evacuation-monitoring/reports'
+import { Route as AuthenticatedEvacuationMonitoringOverviewImport } from './routes/_authenticated/evacuation-monitoring/overview'
 import { Route as AuthenticatedAttendanceMonitoringSettingsImport } from './routes/_authenticated/attendance-monitoring/settings'
 import { Route as AuthenticatedAttendanceMonitoringReportsImport } from './routes/_authenticated/attendance-monitoring/reports'
 import { Route as AuthenticatedAttendanceMonitoringEmployeesImport } from './routes/_authenticated/attendance-monitoring/employees'
@@ -36,7 +37,7 @@ import { Route as AuthenticatedVisitorManagementReservedGuestGuestListImport } f
 import { Route as AuthenticatedVisitorManagementDashboardOverviewImport } from './routes/_authenticated/visitor-management/dashboard/overview'
 import { Route as AuthenticatedVisitorManagementDashboardCheckInVisitorImport } from './routes/_authenticated/visitor-management/dashboard/check-in-visitor'
 import { Route as AuthenticatedEvacuationMonitoringDashboardVisitorGuestImport } from './routes/_authenticated/evacuation-monitoring/dashboard/visitor-guest'
-import { Route as AuthenticatedEvacuationMonitoringDashboardOverviewImport } from './routes/_authenticated/evacuation-monitoring/dashboard/overview'
+import { Route as AuthenticatedEvacuationMonitoringDashboardRealtimeImport } from './routes/_authenticated/evacuation-monitoring/dashboard/realtime'
 import { Route as AuthenticatedDeviceManagementDashboardOverviewImport } from './routes/_authenticated/device-management/dashboard/overview'
 import { Route as AuthenticatedDeviceManagementDashboardMappingImport } from './routes/_authenticated/device-management/dashboard/mapping'
 import { Route as AuthenticatedAttendanceMonitoringDashboardOverviewImport } from './routes/_authenticated/attendance-monitoring/dashboard/overview'
@@ -159,6 +160,13 @@ const AuthenticatedEvacuationMonitoringReportsRoute =
     getParentRoute: () => AuthenticatedEvacuationMonitoringRouteRoute,
   } as any)
 
+const AuthenticatedEvacuationMonitoringOverviewRoute =
+  AuthenticatedEvacuationMonitoringOverviewImport.update({
+    id: '/overview',
+    path: '/overview',
+    getParentRoute: () => AuthenticatedEvacuationMonitoringRouteRoute,
+  } as any)
+
 const AuthenticatedAttendanceMonitoringSettingsRoute =
   AuthenticatedAttendanceMonitoringSettingsImport.update({
     id: '/settings',
@@ -222,10 +230,10 @@ const AuthenticatedEvacuationMonitoringDashboardVisitorGuestRoute =
     getParentRoute: () => AuthenticatedEvacuationMonitoringRouteRoute,
   } as any)
 
-const AuthenticatedEvacuationMonitoringDashboardOverviewRoute =
-  AuthenticatedEvacuationMonitoringDashboardOverviewImport.update({
-    id: '/dashboard/overview',
-    path: '/dashboard/overview',
+const AuthenticatedEvacuationMonitoringDashboardRealtimeRoute =
+  AuthenticatedEvacuationMonitoringDashboardRealtimeImport.update({
+    id: '/dashboard/realtime',
+    path: '/dashboard/realtime',
     getParentRoute: () => AuthenticatedEvacuationMonitoringRouteRoute,
   } as any)
 
@@ -473,6 +481,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAttendanceMonitoringSettingsImport
       parentRoute: typeof AuthenticatedAttendanceMonitoringRouteImport
     }
+    '/_authenticated/evacuation-monitoring/overview': {
+      id: '/_authenticated/evacuation-monitoring/overview'
+      path: '/overview'
+      fullPath: '/evacuation-monitoring/overview'
+      preLoaderRoute: typeof AuthenticatedEvacuationMonitoringOverviewImport
+      parentRoute: typeof AuthenticatedEvacuationMonitoringRouteImport
+    }
     '/_authenticated/evacuation-monitoring/reports': {
       id: '/_authenticated/evacuation-monitoring/reports'
       path: '/reports'
@@ -515,11 +530,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDeviceManagementDashboardOverviewImport
       parentRoute: typeof AuthenticatedDeviceManagementRouteImport
     }
-    '/_authenticated/evacuation-monitoring/dashboard/overview': {
-      id: '/_authenticated/evacuation-monitoring/dashboard/overview'
-      path: '/dashboard/overview'
-      fullPath: '/evacuation-monitoring/dashboard/overview'
-      preLoaderRoute: typeof AuthenticatedEvacuationMonitoringDashboardOverviewImport
+    '/_authenticated/evacuation-monitoring/dashboard/realtime': {
+      id: '/_authenticated/evacuation-monitoring/dashboard/realtime'
+      path: '/dashboard/realtime'
+      fullPath: '/evacuation-monitoring/dashboard/realtime'
+      preLoaderRoute: typeof AuthenticatedEvacuationMonitoringDashboardRealtimeImport
       parentRoute: typeof AuthenticatedEvacuationMonitoringRouteImport
     }
     '/_authenticated/evacuation-monitoring/dashboard/visitor-guest': {
@@ -721,8 +736,9 @@ const AuthenticatedDeviceManagementRouteRouteWithChildren =
   )
 
 interface AuthenticatedEvacuationMonitoringRouteRouteChildren {
+  AuthenticatedEvacuationMonitoringOverviewRoute: typeof AuthenticatedEvacuationMonitoringOverviewRoute
   AuthenticatedEvacuationMonitoringReportsRoute: typeof AuthenticatedEvacuationMonitoringReportsRoute
-  AuthenticatedEvacuationMonitoringDashboardOverviewRoute: typeof AuthenticatedEvacuationMonitoringDashboardOverviewRoute
+  AuthenticatedEvacuationMonitoringDashboardRealtimeRoute: typeof AuthenticatedEvacuationMonitoringDashboardRealtimeRoute
   AuthenticatedEvacuationMonitoringDashboardVisitorGuestRoute: typeof AuthenticatedEvacuationMonitoringDashboardVisitorGuestRoute
   AuthenticatedEvacuationMonitoringCdeproIndexRoute: typeof AuthenticatedEvacuationMonitoringCdeproIndexRoute
   AuthenticatedEvacuationMonitoringCdeproControllerIdIndexRoute: typeof AuthenticatedEvacuationMonitoringCdeproControllerIdIndexRoute
@@ -736,10 +752,12 @@ interface AuthenticatedEvacuationMonitoringRouteRouteChildren {
 
 const AuthenticatedEvacuationMonitoringRouteRouteChildren: AuthenticatedEvacuationMonitoringRouteRouteChildren =
   {
+    AuthenticatedEvacuationMonitoringOverviewRoute:
+      AuthenticatedEvacuationMonitoringOverviewRoute,
     AuthenticatedEvacuationMonitoringReportsRoute:
       AuthenticatedEvacuationMonitoringReportsRoute,
-    AuthenticatedEvacuationMonitoringDashboardOverviewRoute:
-      AuthenticatedEvacuationMonitoringDashboardOverviewRoute,
+    AuthenticatedEvacuationMonitoringDashboardRealtimeRoute:
+      AuthenticatedEvacuationMonitoringDashboardRealtimeRoute,
     AuthenticatedEvacuationMonitoringDashboardVisitorGuestRoute:
       AuthenticatedEvacuationMonitoringDashboardVisitorGuestRoute,
     AuthenticatedEvacuationMonitoringCdeproIndexRoute:
@@ -852,13 +870,14 @@ export interface FileRoutesByFullPath {
   '/attendance-monitoring/employees': typeof AuthenticatedAttendanceMonitoringEmployeesRoute
   '/attendance-monitoring/reports': typeof AuthenticatedAttendanceMonitoringReportsRoute
   '/attendance-monitoring/settings': typeof AuthenticatedAttendanceMonitoringSettingsRoute
+  '/evacuation-monitoring/overview': typeof AuthenticatedEvacuationMonitoringOverviewRoute
   '/evacuation-monitoring/reports': typeof AuthenticatedEvacuationMonitoringReportsRoute
   '/user-management/list-of-users': typeof AuthenticatedUserManagementListOfUsersRoute
   '/visitor-management/reports': typeof AuthenticatedVisitorManagementReportsRoute
   '/attendance-monitoring/dashboard/overview': typeof AuthenticatedAttendanceMonitoringDashboardOverviewRoute
   '/device-management/dashboard/mapping': typeof AuthenticatedDeviceManagementDashboardMappingRoute
   '/device-management/dashboard/overview': typeof AuthenticatedDeviceManagementDashboardOverviewRoute
-  '/evacuation-monitoring/dashboard/overview': typeof AuthenticatedEvacuationMonitoringDashboardOverviewRoute
+  '/evacuation-monitoring/dashboard/realtime': typeof AuthenticatedEvacuationMonitoringDashboardRealtimeRoute
   '/evacuation-monitoring/dashboard/visitor-guest': typeof AuthenticatedEvacuationMonitoringDashboardVisitorGuestRoute
   '/visitor-management/dashboard/check-in-visitor': typeof AuthenticatedVisitorManagementDashboardCheckInVisitorRoute
   '/visitor-management/dashboard/overview': typeof AuthenticatedVisitorManagementDashboardOverviewRoute
@@ -897,13 +916,14 @@ export interface FileRoutesByTo {
   '/attendance-monitoring/employees': typeof AuthenticatedAttendanceMonitoringEmployeesRoute
   '/attendance-monitoring/reports': typeof AuthenticatedAttendanceMonitoringReportsRoute
   '/attendance-monitoring/settings': typeof AuthenticatedAttendanceMonitoringSettingsRoute
+  '/evacuation-monitoring/overview': typeof AuthenticatedEvacuationMonitoringOverviewRoute
   '/evacuation-monitoring/reports': typeof AuthenticatedEvacuationMonitoringReportsRoute
   '/user-management/list-of-users': typeof AuthenticatedUserManagementListOfUsersRoute
   '/visitor-management/reports': typeof AuthenticatedVisitorManagementReportsRoute
   '/attendance-monitoring/dashboard/overview': typeof AuthenticatedAttendanceMonitoringDashboardOverviewRoute
   '/device-management/dashboard/mapping': typeof AuthenticatedDeviceManagementDashboardMappingRoute
   '/device-management/dashboard/overview': typeof AuthenticatedDeviceManagementDashboardOverviewRoute
-  '/evacuation-monitoring/dashboard/overview': typeof AuthenticatedEvacuationMonitoringDashboardOverviewRoute
+  '/evacuation-monitoring/dashboard/realtime': typeof AuthenticatedEvacuationMonitoringDashboardRealtimeRoute
   '/evacuation-monitoring/dashboard/visitor-guest': typeof AuthenticatedEvacuationMonitoringDashboardVisitorGuestRoute
   '/visitor-management/dashboard/check-in-visitor': typeof AuthenticatedVisitorManagementDashboardCheckInVisitorRoute
   '/visitor-management/dashboard/overview': typeof AuthenticatedVisitorManagementDashboardOverviewRoute
@@ -943,13 +963,14 @@ export interface FileRoutesById {
   '/_authenticated/attendance-monitoring/employees': typeof AuthenticatedAttendanceMonitoringEmployeesRoute
   '/_authenticated/attendance-monitoring/reports': typeof AuthenticatedAttendanceMonitoringReportsRoute
   '/_authenticated/attendance-monitoring/settings': typeof AuthenticatedAttendanceMonitoringSettingsRoute
+  '/_authenticated/evacuation-monitoring/overview': typeof AuthenticatedEvacuationMonitoringOverviewRoute
   '/_authenticated/evacuation-monitoring/reports': typeof AuthenticatedEvacuationMonitoringReportsRoute
   '/_authenticated/user-management/list-of-users': typeof AuthenticatedUserManagementListOfUsersRoute
   '/_authenticated/visitor-management/reports': typeof AuthenticatedVisitorManagementReportsRoute
   '/_authenticated/attendance-monitoring/dashboard/overview': typeof AuthenticatedAttendanceMonitoringDashboardOverviewRoute
   '/_authenticated/device-management/dashboard/mapping': typeof AuthenticatedDeviceManagementDashboardMappingRoute
   '/_authenticated/device-management/dashboard/overview': typeof AuthenticatedDeviceManagementDashboardOverviewRoute
-  '/_authenticated/evacuation-monitoring/dashboard/overview': typeof AuthenticatedEvacuationMonitoringDashboardOverviewRoute
+  '/_authenticated/evacuation-monitoring/dashboard/realtime': typeof AuthenticatedEvacuationMonitoringDashboardRealtimeRoute
   '/_authenticated/evacuation-monitoring/dashboard/visitor-guest': typeof AuthenticatedEvacuationMonitoringDashboardVisitorGuestRoute
   '/_authenticated/visitor-management/dashboard/check-in-visitor': typeof AuthenticatedVisitorManagementDashboardCheckInVisitorRoute
   '/_authenticated/visitor-management/dashboard/overview': typeof AuthenticatedVisitorManagementDashboardOverviewRoute
@@ -990,13 +1011,14 @@ export interface FileRouteTypes {
     | '/attendance-monitoring/employees'
     | '/attendance-monitoring/reports'
     | '/attendance-monitoring/settings'
+    | '/evacuation-monitoring/overview'
     | '/evacuation-monitoring/reports'
     | '/user-management/list-of-users'
     | '/visitor-management/reports'
     | '/attendance-monitoring/dashboard/overview'
     | '/device-management/dashboard/mapping'
     | '/device-management/dashboard/overview'
-    | '/evacuation-monitoring/dashboard/overview'
+    | '/evacuation-monitoring/dashboard/realtime'
     | '/evacuation-monitoring/dashboard/visitor-guest'
     | '/visitor-management/dashboard/check-in-visitor'
     | '/visitor-management/dashboard/overview'
@@ -1034,13 +1056,14 @@ export interface FileRouteTypes {
     | '/attendance-monitoring/employees'
     | '/attendance-monitoring/reports'
     | '/attendance-monitoring/settings'
+    | '/evacuation-monitoring/overview'
     | '/evacuation-monitoring/reports'
     | '/user-management/list-of-users'
     | '/visitor-management/reports'
     | '/attendance-monitoring/dashboard/overview'
     | '/device-management/dashboard/mapping'
     | '/device-management/dashboard/overview'
-    | '/evacuation-monitoring/dashboard/overview'
+    | '/evacuation-monitoring/dashboard/realtime'
     | '/evacuation-monitoring/dashboard/visitor-guest'
     | '/visitor-management/dashboard/check-in-visitor'
     | '/visitor-management/dashboard/overview'
@@ -1078,13 +1101,14 @@ export interface FileRouteTypes {
     | '/_authenticated/attendance-monitoring/employees'
     | '/_authenticated/attendance-monitoring/reports'
     | '/_authenticated/attendance-monitoring/settings'
+    | '/_authenticated/evacuation-monitoring/overview'
     | '/_authenticated/evacuation-monitoring/reports'
     | '/_authenticated/user-management/list-of-users'
     | '/_authenticated/visitor-management/reports'
     | '/_authenticated/attendance-monitoring/dashboard/overview'
     | '/_authenticated/device-management/dashboard/mapping'
     | '/_authenticated/device-management/dashboard/overview'
-    | '/_authenticated/evacuation-monitoring/dashboard/overview'
+    | '/_authenticated/evacuation-monitoring/dashboard/realtime'
     | '/_authenticated/evacuation-monitoring/dashboard/visitor-guest'
     | '/_authenticated/visitor-management/dashboard/check-in-visitor'
     | '/_authenticated/visitor-management/dashboard/overview'
@@ -1198,8 +1222,9 @@ export const routeTree = rootRoute
       "filePath": "_authenticated/evacuation-monitoring/route.tsx",
       "parent": "/_authenticated",
       "children": [
+        "/_authenticated/evacuation-monitoring/overview",
         "/_authenticated/evacuation-monitoring/reports",
-        "/_authenticated/evacuation-monitoring/dashboard/overview",
+        "/_authenticated/evacuation-monitoring/dashboard/realtime",
         "/_authenticated/evacuation-monitoring/dashboard/visitor-guest",
         "/_authenticated/evacuation-monitoring/cdepro/",
         "/_authenticated/evacuation-monitoring/cdepro/$controllerId/",
@@ -1249,6 +1274,10 @@ export const routeTree = rootRoute
       "filePath": "_authenticated/attendance-monitoring/settings.tsx",
       "parent": "/_authenticated/attendance-monitoring"
     },
+    "/_authenticated/evacuation-monitoring/overview": {
+      "filePath": "_authenticated/evacuation-monitoring/overview.tsx",
+      "parent": "/_authenticated/evacuation-monitoring"
+    },
     "/_authenticated/evacuation-monitoring/reports": {
       "filePath": "_authenticated/evacuation-monitoring/reports.tsx",
       "parent": "/_authenticated/evacuation-monitoring"
@@ -1273,8 +1302,8 @@ export const routeTree = rootRoute
       "filePath": "_authenticated/device-management/dashboard/overview.tsx",
       "parent": "/_authenticated/device-management"
     },
-    "/_authenticated/evacuation-monitoring/dashboard/overview": {
-      "filePath": "_authenticated/evacuation-monitoring/dashboard/overview.tsx",
+    "/_authenticated/evacuation-monitoring/dashboard/realtime": {
+      "filePath": "_authenticated/evacuation-monitoring/dashboard/realtime.tsx",
       "parent": "/_authenticated/evacuation-monitoring"
     },
     "/_authenticated/evacuation-monitoring/dashboard/visitor-guest": {

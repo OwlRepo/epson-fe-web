@@ -35,7 +35,7 @@ interface SearchParams {
 }
 
 export const Route = createFileRoute(
-  "/_authenticated/evacuation-monitoring/dashboard/overview"
+  "/_authenticated/evacuation-monitoring/dashboard/realtime"
 )({
   validateSearch: (search: Record<string, unknown>): SearchParams => ({
     pageSize: search.pageSize as string,

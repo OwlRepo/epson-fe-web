@@ -32,12 +32,17 @@ export function EvacuationMonitoringLayout({
   const navItems = [
     {
       icon: <LayoutDashboard />,
+      label: "Overview",
+      href: "/evacuation-monitoring/overview",
+    },
+    {
+      icon: <LayoutDashboard />,
       label: "Dashboard",
       href: "/evacuation-monitoring/dashboard",
       subItems: [
         {
-          label: "Overview",
-          href: "/evacuation-monitoring/dashboard/overview",
+          label: "Realtime",
+          href: "/evacuation-monitoring/dashboard/realtime",
         },
         {
           label: "Divisions",

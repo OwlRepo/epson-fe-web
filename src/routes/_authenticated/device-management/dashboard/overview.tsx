@@ -128,7 +128,7 @@ function RouteComponent() {
                   : "border-primary text-primary hover:text-primary"
               }
             >
-              Chainway (Mobile)
+              Mobile Evacuation Device
             </Button>
           </div>
           <Button
