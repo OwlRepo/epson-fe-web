@@ -91,7 +91,7 @@ export interface LiveData extends DeviceData, VisitorData {
   Status: string;
   remarks?: string;
   controller_type?: string;
-  datetime?: string;
+  date_receive?: string;
 }
 
 type DataType = "summary" | "live";

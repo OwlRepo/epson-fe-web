@@ -32,7 +32,7 @@ const EMPLOYEE_NAME_TABLE_KEY = "full_name";
 const EMPLOYEE_SECTION_TABLE_KEY = "section";
 const EMPLOYEE_CLOCKED_IN_TABLE_KEY = "clocked_in";
 const EMPLOYEE_CONTROLLER_TYPE = "controller_type";
-const EMPLOYEE_DATE_TIME = "datetime";
+const EMPLOYEE_DATE_TIME = "date_receive";
 
 function RouteComponent() {
   const navigate = useNavigate({
@@ -209,7 +209,7 @@ function RouteComponent() {
                     key: EMPLOYEE_DATE_TIME,
                     label: "Time Out",
                     options: Array.from(
-                      new Set(liveData.map((item) => item.datetime ?? "-"))
+                      new Set(liveData.map((item) => item.date_receive ?? "-"))
                     ).map((item) => ({
                       label: item,
                       value: item,
@@ -222,7 +222,7 @@ function RouteComponent() {
                       [EMPLOYEE_NO_TABLE_KEY]: employee_id,
                       [EMPLOYEE_SECTION_TABLE_KEY]: section,
                       [EMPLOYEE_CLOCKED_IN_TABLE_KEY]: clocked_in,
-                      [EMPLOYEE_DATE_TIME]: datetime,
+                      [EMPLOYEE_DATE_TIME]: date_receive,
                       [EMPLOYEE_NAME_TABLE_KEY]: full_name,
                       [EMPLOYEE_CONTROLLER_TYPE]: controller_type,
                     } = employeeData;
@@ -231,7 +231,7 @@ function RouteComponent() {
                       [EMPLOYEE_SECTION_TABLE_KEY]: section,
                       [EMPLOYEE_NAME_TABLE_KEY]: full_name,
                       [EMPLOYEE_CLOCKED_IN_TABLE_KEY]: clocked_in,
-                      [EMPLOYEE_DATE_TIME]: datetime,
+                      [EMPLOYEE_DATE_TIME]: date_receive,
                       [EMPLOYEE_CONTROLLER_TYPE]: controller_type,
                     };
                   })
@@ -253,8 +253,8 @@ function RouteComponent() {
                       item[EMPLOYEE_CLOCKED_IN_TABLE_KEY] ===
                         search.filter_clocked_in;
                     const matchesTimeOut =
-                      !search.filter_datetime ||
-                      item[EMPLOYEE_DATE_TIME] === search.filter_datetime;
+                      !search.filter_date_receive ||
+                      item[EMPLOYEE_DATE_TIME] === search.filter_date_receive;
 
                     return (
                       matchesSection &&
