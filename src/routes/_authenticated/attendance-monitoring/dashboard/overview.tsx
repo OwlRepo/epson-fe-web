@@ -31,7 +31,8 @@ const EMPLOYEE_NO_TABLE_KEY = "employee_no";
 const EMPLOYEE_NAME_TABLE_KEY = "full_name";
 const EMPLOYEE_SECTION_TABLE_KEY = "section";
 const EMPLOYEE_CLOCKED_IN_TABLE_KEY = "clocked_in";
-const EMPLOYEE_CLOCKED_OUT_TABLE_KEY = "clocked_out";
+const EMPLOYEE_CONTROLLER_TYPE = "controller_type";
+const EMPLOYEE_DATE_TIME = "datetime";
 
 function RouteComponent() {
   const navigate = useNavigate({
@@ -155,12 +156,12 @@ function RouteComponent() {
                     label: "Section",
                   },
                   {
-                    key: EMPLOYEE_CLOCKED_IN_TABLE_KEY,
-                    label: "Time In",
+                    key: EMPLOYEE_CONTROLLER_TYPE,
+                    label: "Type",
                   },
                   {
-                    key: EMPLOYEE_CLOCKED_OUT_TABLE_KEY,
-                    label: "Time Out",
+                    key: EMPLOYEE_DATE_TIME,
+                    label: "Date Time",
                   },
                 ]}
                 filters={[
@@ -205,10 +206,10 @@ function RouteComponent() {
                     })),
                   },
                   {
-                    key: EMPLOYEE_CLOCKED_OUT_TABLE_KEY,
+                    key: EMPLOYEE_DATE_TIME,
                     label: "Time Out",
                     options: Array.from(
-                      new Set(liveData.map((item) => item.clocked_out ?? "-"))
+                      new Set(liveData.map((item) => item.datetime ?? "-"))
                     ).map((item) => ({
                       label: item,
                       value: item,
@@ -221,15 +222,17 @@ function RouteComponent() {
                       [EMPLOYEE_NO_TABLE_KEY]: employee_id,
                       [EMPLOYEE_SECTION_TABLE_KEY]: section,
                       [EMPLOYEE_CLOCKED_IN_TABLE_KEY]: clocked_in,
-                      [EMPLOYEE_CLOCKED_OUT_TABLE_KEY]: clocked_out,
+                      [EMPLOYEE_DATE_TIME]: datetime,
                       [EMPLOYEE_NAME_TABLE_KEY]: full_name,
+                      [EMPLOYEE_CONTROLLER_TYPE]: controller_type,
                     } = employeeData;
                     return {
                       [EMPLOYEE_NO_TABLE_KEY]: employee_id,
                       [EMPLOYEE_SECTION_TABLE_KEY]: section,
                       [EMPLOYEE_NAME_TABLE_KEY]: full_name,
                       [EMPLOYEE_CLOCKED_IN_TABLE_KEY]: clocked_in,
-                      [EMPLOYEE_CLOCKED_OUT_TABLE_KEY]: clocked_out,
+                      [EMPLOYEE_DATE_TIME]: datetime,
+                      [EMPLOYEE_CONTROLLER_TYPE]: controller_type,
                     };
                   })
                   .filter((item) => {
@@ -250,9 +253,8 @@ function RouteComponent() {
                       item[EMPLOYEE_CLOCKED_IN_TABLE_KEY] ===
                         search.filter_clocked_in;
                     const matchesTimeOut =
-                      !search.filter_clocked_out ||
-                      item[EMPLOYEE_CLOCKED_OUT_TABLE_KEY] ===
-                        search.filter_clocked_out;
+                      !search.filter_datetime ||
+                      item[EMPLOYEE_DATE_TIME] === search.filter_datetime;
 
                     return (
                       matchesSection &&

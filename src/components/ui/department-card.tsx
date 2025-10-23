@@ -29,29 +29,25 @@ export function DepartmentCard({
       onClick={onClick}
     >
       <div className="flex flex-col space-y-2">
-        <h3 className="font-bold mb-1 text-2xl break-words">{title}</h3>
+        <h3 className="font-bold mb-1 text-3xl break-words">{title}</h3>
         {/* <p className="text-xs text-gray-500 mb-10">{title}</p> */}
       </div>
 
       <div className="flex justify-between mt-auto">
         {clockedIn !== undefined && (
-          <div className="flex flex-col">
-            <span className="text-2xl font-bold">
+          <div className="flex flex-col text-[#0F0098]">
+            <span className="text-5xl font-bold ">
               {formatCountWithCommas(clockedIn)}
             </span>
-            <span className="text-xs text-gray-600">
-              {countLabelLeft ? countLabelLeft : "Time In"}
-            </span>
+            <span>{countLabelLeft ? countLabelLeft : "Time In"}</span>
           </div>
         )}
         {clockedOut !== undefined && (
-          <div className="flex flex-col">
-            <span className="text-2xl font-bold">
+          <div className="flex flex-col text-[#980000]">
+            <span className="text-5xl font-bold">
               {formatCountWithCommas(clockedOut)}
             </span>
-            <span className="text-xs text-gray-600">
-              {countLabelRight ? countLabelRight : "Time Out"}
-            </span>
+            <span>{countLabelRight ? countLabelRight : "Time Out"}</span>
           </div>
         )}
       </div>
