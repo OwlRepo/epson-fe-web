@@ -294,7 +294,7 @@ export const useSocket = <
         setData((prevData) => {
           const newLiveData = newData as LiveData;
 
-          if (Object.keys(prevData[0]).includes("controller_type")) {
+          if (Object.keys(prevData?.[0] ?? []).includes("controller_type")) {
             return [...prevData, newData as T];
           } else {
             // Find existing record with same employee_id AND clocked_in
