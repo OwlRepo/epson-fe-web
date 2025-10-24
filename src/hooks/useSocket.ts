@@ -92,6 +92,9 @@ export interface LiveData extends DeviceData, VisitorData {
   remarks?: string;
   controller_type?: string;
   date_receive?: string;
+  type?: string;
+  evacuated?: string;
+  missing?: string;
 }
 
 type DataType = "summary" | "live";
@@ -113,6 +116,10 @@ export const useSocket = <
 }: UseSocketProps) => {
   const [data, setData] = useState<T[]>([]);
   const [countData, setCountData] = useState<SummaryCountData | null>(null);
+  const [overallCountData, setOverallCountData] = useState<{
+    employee: string;
+    visitor: string;
+  } | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [socket, setSocket] = useState<Socket | null>(null);
@@ -410,6 +417,12 @@ export const useSocket = <
       }, 100);
     });
 
+    //Listen to overall count data
+    socketInstance.on("overall_count", (overallCountData) => {
+      console.log("overall_count", overallCountData);
+      setOverallCountData(overallCountData);
+    });
+
     //Listen for get_user  data
     socketInstance.on("cdepro_remove_response", (data) => {
       console.log("cdepro_remove_resppose", data);
@@ -589,6 +602,7 @@ export const useSocket = <
     searchTerm,
     response,
     responseStatus,
+    overallCountData,
     searchData,
     clearSearch,
     joinRoom,

@@ -59,10 +59,10 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
   const navigate = useNavigate({
-    from: "/evacuation-monitoring/dashboard/overview",
+    from: "/evacuation-monitoring/dashboard/realtime",
   });
   const search = useSearch({
-    from: "/_authenticated/evacuation-monitoring/dashboard/overview",
+    from: "/_authenticated/evacuation-monitoring/dashboard/realtime",
   });
 
   //employee data
@@ -126,9 +126,10 @@ function RouteComponent() {
       { key: "Missing", value: countData?.missing },
     ];
 
-    const mapData = liveData.map(({employee_id, ...rest})=> ({...rest,
+    const mapData = liveData.map(({ employee_id, ...rest }) => ({
+      ...rest,
       id: employee_id,
-    }))
+    }));
 
     const filteredData = mapData.filter((item) =>
       filterByStatus.includes(item.eva_status)
