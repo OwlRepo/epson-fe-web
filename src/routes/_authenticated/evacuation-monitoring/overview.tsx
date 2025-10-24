@@ -82,7 +82,7 @@ const Overview = () => {
         {/* 2nd row */}
         <div className="col-span-2 grid grid-cols-2 gap-4">
           <div className="col-span-3">
-            <p className="text-2xl font-bold">Employee Division</p>
+            <p className="text-2xl font-bold">Visitor/Services</p>
             <p className=" text-gray-600">
               TOTAL: {overallCountData?.visitor ?? 0}
             </p>
