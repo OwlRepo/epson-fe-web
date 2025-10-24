@@ -37,7 +37,11 @@ const Overview = () => {
   return (
     <div className="flex flex-col p-8">
       <div className="self-end mb-8">
-        <EVSCounts type="compact" countData={countData} />
+        <EVSCounts
+          type="compact"
+          countType="overview_evs"
+          countData={countData}
+        />
       </div>
       {/* two col */}
       <div className="grid grid-cols-5 gap-8 mt-4 items-start">

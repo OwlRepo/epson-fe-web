@@ -13,7 +13,7 @@ import CardHeaderLeft from "./card-header-left";
 export interface EVSCountsProps {
   countData?: any;
   type?: "card" | "compact";
-  countType?: "default" | "cdepro" | "deviceManagement";
+  countType?: "default" | "cdepro" | "deviceManagement" | "overview_evs";
 }
 
 export default function EVSCounts(props: EVSCountsProps) {
@@ -36,6 +36,50 @@ export default function EVSCounts(props: EVSCountsProps) {
         {
           icon: <EvacuatedIcon className="w-3.5 h-3.5" />,
           label: "Safe",
+          count: countData?.safe,
+          bgColor: "bg-green-50",
+          textColor: "text-green-700",
+          borderColor: "border-green-200",
+        },
+        {
+          icon: <InjuredIcon className="w-3.5 h-3.5" />,
+          label: "Injured",
+          count: countData?.injured,
+          bgColor: "bg-amber-50",
+          textColor: "text-amber-700",
+          borderColor: "border-amber-200",
+        },
+        {
+          icon: <HomeIcon className="w-3.5 h-3.5" />,
+          label: "Go Home",
+          count: countData?.home,
+          bgColor: "bg-blue-50",
+          textColor: "text-blue-700",
+          borderColor: "border-blue-200",
+        },
+        {
+          icon: <InPremisesEvsIcon className="w-3.5 h-3.5" />,
+          label: "Missing",
+          count: countData?.missing,
+          bgColor: "bg-red-50",
+          textColor: "text-red-700",
+          borderColor: "border-red-200",
+        },
+      ],
+      overview_evs: [
+        {
+          icon: (
+            <Users className="w-3.5 h-3.5 text-white bg-gray-500 rounded-full p-[2px]" />
+          ),
+          label: "Total Man Power",
+          count: countData?.all,
+          bgColor: "bg-gray-50",
+          textColor: "text-gray-700",
+          borderColor: "border-gray-200",
+        },
+        {
+          icon: <EvacuatedIcon className="w-3.5 h-3.5" />,
+          label: "Total Evacuees",
           count: countData?.safe,
           bgColor: "bg-green-50",
           textColor: "text-green-700",
@@ -94,6 +138,7 @@ export default function EVSCounts(props: EVSCountsProps) {
           borderColor: "border-red-200",
         },
       ],
+
       deviceManagement: [
         {
           icon: <></>,
