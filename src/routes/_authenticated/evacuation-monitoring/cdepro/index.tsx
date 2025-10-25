@@ -53,7 +53,7 @@ function RouteComponent() {
             Assign Personnel
           </Button>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {isConnected && !isLoading ? (
             data
               .filter((d) => d.Department)

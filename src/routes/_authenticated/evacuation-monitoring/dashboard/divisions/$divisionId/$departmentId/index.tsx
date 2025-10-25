@@ -32,7 +32,7 @@ function RouteComponent() {
       headerRight={<EVSCounts type="compact" countData={totalLogs} />}
     >
       <h2 className="text-2xl font-bold my-5">Sections</h2>
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {isConnected && !isLoading ? (
           data
             .filter((d) => d.name)

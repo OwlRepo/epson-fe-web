@@ -36,7 +36,7 @@ function RouteComponent() {
       headerRight={<EVSCounts countData={totalLogs} type="compact" />}
     >
       <h2 className="text-2xl font-bold my-5">Evacuation Exit</h2>
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {isConnected && !isLoading ? (
           data
             .filter((d) => d.DeviceName)
