@@ -202,48 +202,48 @@ function RouteComponent() {
                     label: "CHECKED OUT",
                   },
                 ]}
-                filters={[
-                  // {
-                  //   key: "employee_id",
-                  //   label: "ID",
-                  //   options: Array.from(
-                  //     new Set(liveData.map((item) => item.ID))
-                  //   ).map((item) => ({
-                  //     label: item,
-                  //     value: item,
-                  //   })),
-                  // },
-                  // {
-                  //   key: "Name",
-                  //   label: "Name",
-                  //   options: Array.from(
-                  //     new Set(liveData.map((item) => item.Name))
-                  //   ).map((item) => ({
-                  //     label: item,
-                  //     value: item,
-                  //   })),
-                  // },
-                  {
-                    key: "clocked_in",
-                    label: "Checked In",
-                    options: Array.from(
-                      new Set(liveData.map((item) => item.clocked_in ?? "-"))
-                    ).map((item) => ({
-                      label: item,
-                      value: item,
-                    })),
-                  },
-                  {
-                    key: "clocked_out",
-                    label: "Checked Out",
-                    options: Array.from(
-                      new Set(liveData.map((item) => item.clocked_out ?? "-"))
-                    ).map((item) => ({
-                      label: item,
-                      value: item,
-                    })),
-                  },
-                ]}
+                // filters={[
+                //   // {
+                //   //   key: "employee_id",
+                //   //   label: "ID",
+                //   //   options: Array.from(
+                //   //     new Set(liveData.map((item) => item.ID))
+                //   //   ).map((item) => ({
+                //   //     label: item,
+                //   //     value: item,
+                //   //   })),
+                //   // },
+                //   // {
+                //   //   key: "Name",
+                //   //   label: "Name",
+                //   //   options: Array.from(
+                //   //     new Set(liveData.map((item) => item.Name))
+                //   //   ).map((item) => ({
+                //   //     label: item,
+                //   //     value: item,
+                //   //   })),
+                //   // },
+                //   {
+                //     key: "clocked_in",
+                //     label: "Checked In",
+                //     options: Array.from(
+                //       new Set(liveData.map((item) => item.clocked_in ?? "-"))
+                //     ).map((item) => ({
+                //       label: item,
+                //       value: item,
+                //     })),
+                //   },
+                //   {
+                //     key: "clocked_out",
+                //     label: "Checked Out",
+                //     options: Array.from(
+                //       new Set(liveData.map((item) => item.clocked_out ?? "-"))
+                //     ).map((item) => ({
+                //       label: item,
+                //       value: item,
+                //     })),
+                //   },
+                // ]}
                 data={liveData
                   .map((visitorData) => {
                     const {

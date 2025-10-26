@@ -195,26 +195,26 @@ function RouteComponent() {
                   //     value: item,
                   //   })),
                   // },
-                  {
-                    key: EMPLOYEE_CLOCKED_IN_TABLE_KEY,
-                    label: "Time In",
-                    options: Array.from(
-                      new Set(liveData.map((item) => item.clocked_in ?? "-"))
-                    ).map((item) => ({
-                      label: item,
-                      value: item,
-                    })),
-                  },
-                  {
-                    key: EMPLOYEE_DATE_TIME,
-                    label: "Time Out",
-                    options: Array.from(
-                      new Set(liveData.map((item) => item.date_receive ?? "-"))
-                    ).map((item) => ({
-                      label: item,
-                      value: item,
-                    })),
-                  },
+                  // {
+                  //   key: EMPLOYEE_CLOCKED_IN_TABLE_KEY,
+                  //   label: "Time In",
+                  //   options: Array.from(
+                  //     new Set(liveData.map((item) => item.clocked_in ?? "-"))
+                  //   ).map((item) => ({
+                  //     label: item,
+                  //     value: item,
+                  //   })),
+                  // },
+                  // {
+                  //   key: EMPLOYEE_DATE_TIME,
+                  //   label: "Time Out",
+                  //   options: Array.from(
+                  //     new Set(liveData.map((item) => item.date_receive ?? "-"))
+                  //   ).map((item) => ({
+                  //     label: item,
+                  //     value: item,
+                  //   })),
+                  // },
                 ]}
                 data={liveData
                   .map((employeeData) => {

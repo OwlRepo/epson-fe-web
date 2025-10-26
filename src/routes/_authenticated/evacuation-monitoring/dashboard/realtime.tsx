@@ -265,16 +265,16 @@ function RouteComponent() {
                     })
                   ),
                 },
-                {
-                  key: "date_time",
-                  label: "Date",
-                  options: Array.from(
-                    new Set(liveData.map((item) => item.date_time ?? "-"))
-                  ).map((item) => ({
-                    label: item,
-                    value: item,
-                  })),
-                },
+                // {
+                //   key: "date_time",
+                //   label: "Date",
+                //   options: Array.from(
+                //     new Set(liveData.map((item) => item.date_time ?? "-"))
+                //   ).map((item) => ({
+                //     label: item,
+                //     value: item,
+                //   })),
+                // },
               ]}
               data={liveData
                 .map((employeeData) => {
