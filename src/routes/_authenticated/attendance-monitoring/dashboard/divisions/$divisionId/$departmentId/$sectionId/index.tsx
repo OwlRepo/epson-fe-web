@@ -107,12 +107,12 @@ function RouteComponent() {
                 label: "SECTION",
               },
               {
-                key: "clocked_in",
-                label: "Time In",
+                key: "controller_type",
+                label: "TYPE",
               },
               {
                 key: "clocked_out",
-                label: "Time Out",
+                label: "DATE TIME",
               },
             ]}
             filters={[
@@ -175,6 +175,8 @@ function RouteComponent() {
                   clocked_in,
                   clocked_out,
                   full_name,
+                  controller_type,
+                  date_receive,
                 } = employeeData;
                 return {
                   employee_no: employee_no,
@@ -182,6 +184,8 @@ function RouteComponent() {
                   name: full_name,
                   clocked_in: clocked_in,
                   clocked_out: clocked_out,
+                  controller_type: controller_type,
+                  date_receive: date_receive,
                 };
               })
               .filter((item) => {

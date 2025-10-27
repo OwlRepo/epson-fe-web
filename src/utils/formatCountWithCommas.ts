@@ -9,7 +9,7 @@ export default function formatCountWithCommas(count: string | number) {
       return "Invalid Number"; // Or throw an error, depending on desired behavior
     }
   } else {
-    numericCount = count;
+    numericCount = count ?? 0;
   }
 
   // Use toLocaleString for comma formatting

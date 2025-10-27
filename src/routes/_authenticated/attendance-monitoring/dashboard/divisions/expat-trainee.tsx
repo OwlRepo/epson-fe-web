@@ -115,7 +115,7 @@ function RouteComponent() {
               },
               {
                 key: "date_received",
-                label: "Date Time",
+                label: "DATE TIME",
               },
             ]}
             filters={[
