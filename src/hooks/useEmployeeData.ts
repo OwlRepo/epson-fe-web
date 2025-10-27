@@ -31,6 +31,8 @@ export const useEmployeeData = (options?: UseEmployeeDataOptions) => {
 
   const [roomName, setRoomName] = useState(urlDerivedRoom);
 
+  console.log("useEmployeeData - roomName:", roomName);
+
   // Update roomName when URL params change
   useEffect(() => {
     if (urlDerivedRoom) {

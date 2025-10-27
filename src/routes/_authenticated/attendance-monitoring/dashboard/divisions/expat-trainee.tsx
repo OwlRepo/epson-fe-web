@@ -5,7 +5,7 @@ import {
   useNavigate,
   useSearch,
 } from "@tanstack/react-router";
-import { useEmployeeData } from "@/hooks";
+import { useOverviewCountData, useSocket } from "@/hooks";
 import { EpsonFlame } from "@/assets/svgs";
 import Spinner from "@/components/ui/spinner";
 import { LiveDataTable } from "@/components/ui/live-data-table";
@@ -13,7 +13,7 @@ import CardHeaderRight from "@/components/ui/card-header-right";
 import matchesFilter from "@/utils/matchesFilter";
 
 export const Route = createFileRoute(
-  "/_authenticated/attendance-monitoring/dashboard/divisions/$divisionId/$departmentId/$sectionId/"
+  "/_authenticated/attendance-monitoring/dashboard/divisions/expat-trainee"
 )({
   component: RouteComponent,
 });
@@ -29,14 +29,17 @@ function RouteComponent() {
     searchData,
     clearSearch,
     searchTerm,
-  } = useEmployeeData();
+  } = useOverviewCountData({
+    room: "Expat-TraineeExpat-TraineeExpat-Trainee",
+    dataType: "live",
+  });
 
   const navigate = useNavigate({
-    from: "/attendance-monitoring/dashboard/divisions/$divisionId/$departmentId/$sectionId",
+    from: "/attendance-monitoring/dashboard/divisions/expat-trainee",
   });
 
   const search = useSearch({
-    from: "/_authenticated/attendance-monitoring/dashboard/divisions/$divisionId/$departmentId/$sectionId/",
+    from: "/_authenticated/attendance-monitoring/dashboard/divisions/expat-trainee",
   });
   // Handle filter changes
   const handleFilter = (key: string, value: string) => {
@@ -111,7 +114,7 @@ function RouteComponent() {
                 label: "TYPE",
               },
               {
-                key: "date_receive",
+                key: "date_received",
                 label: "DATE TIME",
               },
             ]}
@@ -130,7 +133,7 @@ function RouteComponent() {
                 key: "section",
                 label: "Section",
                 options: Array.from(
-                  new Set(data.map((item) => item.section))
+                  new Set(data.map((item: any) => item.section))
                 ).map((item) => ({
                   label: item,
                   value: item,
@@ -173,10 +176,10 @@ function RouteComponent() {
                   employee_no,
                   section,
                   clocked_in,
+                  date_receive,
+                  controller_type,
                   clocked_out,
                   full_name,
-                  controller_type,
-                  date_receive,
                 } = employeeData;
                 return {
                   employee_no: employee_no,

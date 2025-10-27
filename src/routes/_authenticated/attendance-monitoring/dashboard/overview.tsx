@@ -232,7 +232,7 @@ function RouteComponent() {
                       [EMPLOYEE_NAME_TABLE_KEY]: full_name,
                       [EMPLOYEE_CLOCKED_IN_TABLE_KEY]: clocked_in,
                       [EMPLOYEE_DATE_TIME]: date_receive,
-                      [EMPLOYEE_CONTROLLER_TYPE]: controller_type,
+                      [EMPLOYEE_CONTROLLER_TYPE]: "Time " + controller_type,
                     };
                   })
                   .filter((item) => {
