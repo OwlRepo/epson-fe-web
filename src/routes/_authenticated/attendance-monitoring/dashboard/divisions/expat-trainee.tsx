@@ -30,7 +30,7 @@ function RouteComponent() {
     clearSearch,
     searchTerm,
   } = useOverviewCountData({
-    room: "AMS",
+    room: "Expat-TraineeExpat-TraineeExpat-Trainee",
     dataType: "live",
   });
 
