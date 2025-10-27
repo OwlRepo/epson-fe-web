@@ -111,7 +111,7 @@ function RouteComponent() {
                 label: "TYPE",
               },
               {
-                key: "clocked_out",
+                key: "date_receive",
                 label: "DATE TIME",
               },
             ]}
@@ -184,7 +184,7 @@ function RouteComponent() {
                   name: full_name,
                   clocked_in: clocked_in,
                   clocked_out: clocked_out,
-                  controller_type: controller_type,
+                  controller_type: "Time " + controller_type,
                   date_receive: date_receive,
                 };
               })
