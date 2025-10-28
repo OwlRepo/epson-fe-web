@@ -129,7 +129,7 @@ export const useSocket = <
   const [responseStatus, setResponseStatus] = useState<"success" | "fail" | "">(
     ""
   );
-  const [asofData, setAsofData] = useState<string>("");
+  const [asofData, setAsofData] = useState<string>("---");
   const { successStyle, errorStyle } = useToastStyleTheme();
 
   // Connect to socket and join room
@@ -474,11 +474,10 @@ export const useSocket = <
       });
     });
 
-    socketInstance.on("asof",(asofData) => {
+    socketInstance.on("asof", (asofData) => {
       console.log("asof", asofData);
       setAsofData(asofData);
     });
-
 
     setSocket(socketInstance);
 
