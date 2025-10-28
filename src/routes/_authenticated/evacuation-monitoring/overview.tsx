@@ -1,5 +1,5 @@
 import EVSCounts from "@/components/ui/evs-counts";
-import { useOverviewCountData, useSocket } from "@/hooks";
+import { useOverviewCountData } from "@/hooks";
 import { cn } from "@/lib/utils";
 import { createFileRoute } from "@tanstack/react-router";
 
@@ -16,15 +16,8 @@ function RouteComponent() {
 const Overview = () => {
   const {
     data: liveData,
-    isLoading: isLiveDataLoading,
-    isConnected: isLiveDataConnected,
     overallCountData,
     countData,
-    clearData,
-    searchData,
-    clearSearch,
-    searchTerm,
-    emitData,
   } = useOverviewCountData({
     room: "overall",
     dataType: "live",

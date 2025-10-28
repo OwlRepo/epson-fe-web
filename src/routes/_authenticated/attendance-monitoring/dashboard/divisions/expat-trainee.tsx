@@ -5,7 +5,7 @@ import {
   useNavigate,
   useSearch,
 } from "@tanstack/react-router";
-import { useOverviewCountData, useSocket } from "@/hooks";
+import { useOverviewCountData } from "@/hooks";
 import { EpsonFlame } from "@/assets/svgs";
 import Spinner from "@/components/ui/spinner";
 import { LiveDataTable } from "@/components/ui/live-data-table";
