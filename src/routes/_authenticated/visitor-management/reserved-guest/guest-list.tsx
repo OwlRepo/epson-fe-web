@@ -15,6 +15,7 @@ import { useGetVisitorById } from "@/hooks/query/useGetVisitorById";
 import { useGetVisitors } from "@/hooks/query/useGetVisitors";
 import { useGetVisitorsStatistics } from "@/hooks/query/useGetVisitorsStatistics";
 import { useGetVisitorTypes } from "@/hooks/query/useGetVisitorTypes";
+import { getApiSocketBaseUrl } from "@/utils/env";
 import formatCountWithCommas from "@/utils/formatCountWithCommas";
 import { objToParams } from "@/utils/objToParams";
 
@@ -25,6 +26,7 @@ import {
 } from "@tanstack/react-router";
 import { Star } from "lucide-react";
 import { useEffect, useState } from "react";
+import { io, type Socket } from "socket.io-client";
 
 export const Route = createFileRoute(
   "/_authenticated/visitor-management/reserved-guest/guest-list"
@@ -192,10 +194,32 @@ function RouteComponent() {
     });
   };
 
+  let socketInstance: Socket;
+  const [asofData, setAsofData] = useState<string>("");
+  const SOCKET_URL = getApiSocketBaseUrl();
+
+  socketInstance = io(SOCKET_URL, {
+    extraHeaders: {
+      "ngrok-skip-browser-warning": "true",
+    },
+    transports: ["websocket"],
+    reconnection: true,
+    reconnectionAttempts: 5,
+    reconnectionDelay: 1000,
+    timeout: 10000,
+  });
+
+  socketInstance.on("asof", (asofData) => {
+    console.log("asof", asofData);
+    setAsofData(asofData as string);
+  });
+
   return (
     <>
       <div className="space-y-8">
-        <CardSection headerLeft={<CardHeaderLeft />}>
+        <CardSection
+          headerLeft={<CardHeaderLeft subtitle={`As of ${asofData}`} />}
+        >
           <div className="flex flex-col lg:flex-row justify-between gap-4">
             <AttendanceCountCard
               count={

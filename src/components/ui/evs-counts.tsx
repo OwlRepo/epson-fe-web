@@ -9,6 +9,9 @@ import { Users } from "lucide-react";
 import AttendanceCountCard from "./attendance-count-card";
 import CardSection from "../layouts/CardSection";
 import CardHeaderLeft from "./card-header-left";
+import { io, type Socket } from "socket.io-client";
+import { getApiSocketBaseUrl } from "@/utils/env";
+import { useState } from "react";
 
 export interface EVSCountsProps {
   countData?: any;
@@ -195,10 +198,31 @@ export default function EVSCounts(props: EVSCountsProps) {
       </div>
     );
   }
+  let socketInstance: Socket;
+  const [asofData, setAsofData] = useState<string>("");
+  const SOCKET_URL = getApiSocketBaseUrl();
+
+  socketInstance = io(SOCKET_URL, {
+    extraHeaders: {
+      "ngrok-skip-browser-warning": "true",
+    },
+    transports: ["websocket"],
+    reconnection: true,
+    reconnectionAttempts: 5,
+    reconnectionDelay: 1000,
+    timeout: 10000,
+  });
+
+  socketInstance.on("asof", (asofData: string) => {
+    console.log("asof", asofData);
+    setAsofData(asofData);
+  });
 
   if (type === "card") {
     return (
-      <CardSection headerLeft={<CardHeaderLeft />}>
+      <CardSection
+        headerLeft={<CardHeaderLeft subtitle={`As of ${asofData}`} />}
+      >
         <div className="flex flex-col lg:flex-row justify-between gap-4">
           <AttendanceCountCard
             count={countData?.safe ? formatCountWithCommas(countData.safe) : 0}
