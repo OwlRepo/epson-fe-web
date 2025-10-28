@@ -19,6 +19,7 @@ function RouteComponent() {
     isLoading,
     isConnected,
     countData: totalLogs,
+    asofData,
   } = useEvacuationExitsData({
     room: "evs_device",
     dataType: "summary",
@@ -32,7 +33,7 @@ function RouteComponent() {
 
   return (
     <CardSection
-      headerLeft={<CardHeaderLeft />}
+      headerLeft={<CardHeaderLeft subtitle={`As of ${asofData}`} />}
       headerRight={<EVSCounts countData={totalLogs} type="compact" />}
     >
       <h2 className="text-2xl font-bold my-5">Evacuation Exit</h2>

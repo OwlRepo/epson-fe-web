@@ -21,6 +21,7 @@ function RouteComponent() {
     isLoading,
     isConnected,
     countData: totalLogs,
+    asofData,
   } = useDepartmentData({
     useSearchFrom:
       "/_authenticated/evacuation-monitoring/dashboard/divisions/$divisionId/",
@@ -28,7 +29,7 @@ function RouteComponent() {
 
   return (
     <CardSection
-      headerLeft={<CardHeaderLeft />}
+      headerLeft={<CardHeaderLeft subtitle={`As of ${asofData}`} />}
       headerRight={<EVSCounts type="compact" countData={totalLogs} />}
     >
       <h2 className="text-2xl font-bold my-5">Departments</h2>

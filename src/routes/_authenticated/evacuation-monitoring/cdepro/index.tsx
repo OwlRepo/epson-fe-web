@@ -23,6 +23,7 @@ function RouteComponent() {
     countData: totalLogs,
     responseStatus,
     emitData,
+    asofData,
   } = useCDEPROData();
 
   const [open, setOpen] = useState(false);
@@ -36,7 +37,7 @@ function RouteComponent() {
   return (
     <>
       <CardSection
-        headerLeft={<CardHeaderLeft />}
+        headerLeft={<CardHeaderLeft subtitle={`As of ${asofData}`} />}
         headerRight={
           <EVSCounts countData={totalLogs} type="compact" countType="cdepro" />
         }

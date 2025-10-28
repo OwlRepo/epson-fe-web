@@ -95,6 +95,7 @@ function RouteComponent() {
     searchData,
     clearSearch,
     searchTerm,
+    asofData,
   } = useOverviewCountData({
     room: "VMS",
     dataType: "live",
@@ -104,7 +105,9 @@ function RouteComponent() {
   return (
     <>
       <div className="space-y-8">
-        <CardSection headerLeft={<CardHeaderLeft />}>
+        <CardSection
+          headerLeft={<CardHeaderLeft subtitle={`As of ${asofData}`} />}
+        >
           <div className="flex flex-col lg:flex-row justify-between gap-4">
             <AttendanceCountCard
               count={

@@ -29,6 +29,7 @@ function RouteComponent() {
     searchData,
     clearSearch,
     searchTerm,
+    asofData,
   } = useEmployeeData();
 
   const navigate = useNavigate({
@@ -81,6 +82,7 @@ function RouteComponent() {
               <b className="text-[20px] text-primary">Live Data</b>
             </div>
           }
+          subtitle={`As of ${asofData}`}
         />
       }
     >

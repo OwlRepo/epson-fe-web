@@ -18,11 +18,12 @@ function RouteComponent() {
     isLoading,
     isConnected,
     countData: totalLogs,
+    asofData,
   } = useDivisionData();
 
   return (
     <CardSection
-      headerLeft={<CardHeaderLeft />}
+      headerLeft={<CardHeaderLeft subtitle={`As of ${asofData}`} />}
       headerRight={<EVSCounts type="compact" countData={totalLogs} />}
     >
       <h2 className="text-2xl font-bold my-5">Divisions</h2>

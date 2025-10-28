@@ -19,6 +19,7 @@ function RouteComponent() {
     isLoading,
     isConnected,
     countData: totalLogs,
+    asofData,
   } = useEntryExitPointsData({
     room: "VIEW_CONTROLLER",
     dataType: "summary",
@@ -32,7 +33,7 @@ function RouteComponent() {
 
   return (
     <CardSection
-      headerLeft={<CardHeaderLeft />}
+      headerLeft={<CardHeaderLeft subtitle={`As of ${asofData}`} />}
       headerRight={
         <CardHeaderRight
           clockedOut={totalLogs?.out}

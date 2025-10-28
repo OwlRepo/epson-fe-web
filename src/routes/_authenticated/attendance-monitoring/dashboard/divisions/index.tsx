@@ -18,11 +18,12 @@ function RouteComponent() {
     isLoading,
     isConnected,
     countData: totalLogs,
+    asofData,
   } = useDivisionData();
 
   return (
     <CardSection
-      headerLeft={<CardHeaderLeft />}
+      headerLeft={<CardHeaderLeft subtitle={`As of ${asofData}`} />}
       headerRight={
         <CardHeaderRight
           clockedOut={totalLogs?.out}
