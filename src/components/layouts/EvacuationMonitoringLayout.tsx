@@ -104,7 +104,7 @@ export function EvacuationMonitoringLayout({
             email: JSON.parse(localStorage.getItem("user") || "{}")[
               "EmailAddress"
             ],
-            date: dayjs().format("YYYY-MM-DD HH:mm:ss"),
+            date: dayjs().format("YYYY-MM-DD hh:mm:ss A"),
           });
         }}
       />
