@@ -20,3 +20,19 @@ export const STATIC_ENVS: Record<string, string> = {
   VITE_EM_LENGTH: "0",
   VITE_IS_SERIAL_CONNECTION: "0",
 };
+
+const NUMERIC_ENV_KEYS = new Set<string>([
+  "VITE_UHF_LENGTH",
+  "VITE_MIFARE_LENGTH",
+  "VITE_EM_LENGTH",
+  "VITE_IS_SERIAL_CONNECTION",
+]);
+
+export const getStaticEnvVar = (key: string): string => {
+  const value = STATIC_ENVS[key] ?? "";
+  if (NUMERIC_ENV_KEYS.has(key)) {
+    const parsed = parseInt(value, 10);
+    return Number.isFinite(parsed) ? String(parsed) : "0";
+  }
+  return value;
+};

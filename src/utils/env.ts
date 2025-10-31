@@ -4,7 +4,11 @@ declare global {
   }
 }
 
-import { USE_STATIC_ENVS, STATIC_ENVS } from "../constants/staticEnvs";
+import {
+  USE_STATIC_ENVS,
+  STATIC_ENVS,
+  getStaticEnvVar,
+} from "../constants/staticEnvs";
 
 export const getEnvVar = (key: string): string => {
   // Optional static override
@@ -12,7 +16,7 @@ export const getEnvVar = (key: string): string => {
     USE_STATIC_ENVS &&
     Object.prototype.hasOwnProperty.call(STATIC_ENVS, key)
   ) {
-    return STATIC_ENVS[key] || "";
+    return getStaticEnvVar(key);
   }
 
   // In development, use import.meta.env
