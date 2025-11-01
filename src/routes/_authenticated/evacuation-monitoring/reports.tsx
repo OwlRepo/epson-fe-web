@@ -17,6 +17,12 @@ import EVSCounts from "@/components/ui/evs-counts";
 import type { SummaryCountData } from "@/hooks/useSocket";
 import { useGetEVSReports } from "@/hooks/query/useGetEVSReport";
 import { useGetTypeList } from "@/hooks/query/useGetTypeList";
+import { Button } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
+import { Calendar } from "@/components/ui/calendar";
+import { ConfirmationDialog } from "@/components/dialogs/ConfirmationDialog";
+import { getApiRESTBaseUrl } from "@/utils/env";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 export interface EmployeeReport {
   EmployeeNo: string;
@@ -80,8 +86,7 @@ function ReportsDataTable() {
     }
   }, [reportList]);
 
-
-  const {data: typeList} = useGetTypeList()
+  const { data: typeList } = useGetTypeList();
 
   useEffect(() => {
     refetch();
@@ -154,16 +159,14 @@ function ReportsDataTable() {
       label: "Type",
       options: typeList ?? [],
     },
-     {
+    {
       key: "Status",
       label: "Status",
-      options: ["Safe", "Injured", "Home", "Missing"].map(
-        (item) => ({
-          label: item,
-          value: item,
-        })
-      ),
-      },
+      options: ["Safe", "Injured", "Home", "Missing"].map((item) => ({
+        label: item,
+        value: item,
+      })),
+    },
   ];
 
   const handleExport = (exportData: any) => {
@@ -244,9 +247,62 @@ function ReportsDataTable() {
     });
   };
 
+  const activeFilter = search.evacuationStatus || "current";
+
+  const handleEvacuationStatusFilter = (value: string) => {
+    navigate({
+      search: (prev) => ({
+        ...prev,
+        evacuationStatus: value || undefined,
+      }),
+      replace: true,
+    });
+  };
+
+  useEffect(() => {
+    if (!search.evacuationStatus) {
+      handleEvacuationStatusFilter("current");
+    }
+  }, [search.evacuationStatus]);
+
+  const handleConfirmDownload = () => {
+    if (search.completedEvacuationDate) {
+      const baseUrl = getApiRESTBaseUrl();
+      const formattedDate = dayjs(search.completedEvacuationDate).format(
+        "YYYY-MM-DD"
+      );
+      const downloadUrl = `${baseUrl}/api/evs/download/report?evacuationStatus=completed&date=${formattedDate}&token=${localStorage.getItem("token")}`;
+      window.open(downloadUrl, "_blank");
+    }
+  };
+
   return (
     <div>
-      <div className="mt-2 mb-4 flex justify-end">
+      <div className="mt-2 mb-10 flex justify-between items-center">
+        <ButtonGroup>
+          <Button
+            variant={activeFilter === "current" ? "default" : "outline"}
+            className={
+              activeFilter === "current"
+                ? "bg-primary-evs text-white hover:bg-primary-evs"
+                : "bg-white hover:bg-primary-evs hover:text-white"
+            }
+            onClick={() => handleEvacuationStatusFilter("current")}
+          >
+            Current
+          </Button>
+          <Button
+            variant={activeFilter === "completed" ? "default" : "outline"}
+            className={
+              activeFilter === "completed"
+                ? "bg-primary-evs text-white hover:bg-primary-evs"
+                : "bg-white hover:bg-primary-evs hover:text-white"
+            }
+            onClick={() => handleEvacuationStatusFilter("completed")}
+          >
+            Completed
+          </Button>
+        </ButtonGroup>
         <EVSCounts countData={totalLogs} type="compact" />
       </div>
       <DynamicTable
@@ -259,6 +315,17 @@ function ReportsDataTable() {
         exportTableData={{
           type: "EVS",
           exportOptions: [
+            ...(search.evacuationStatus === "completed"
+              ? [
+                  {
+                    label: "Export All",
+                    onClick: () => {
+                      handleConfirmDownload();
+                    },
+                    disabled: !search.completedEvacuationDate,
+                  },
+                ]
+              : []),
             {
               label: "Export Page",
               onClick: () => {
