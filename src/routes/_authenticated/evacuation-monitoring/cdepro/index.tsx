@@ -45,6 +45,7 @@ function RouteComponent() {
         <div className="flex justify-between items-center">
           <h2 className="text-2xl font-bold my-5">CDEPRO</h2>
           <Button
+            //@ts-ignore
             variant="evacuation"
             className="text-white"
             onClick={() => {

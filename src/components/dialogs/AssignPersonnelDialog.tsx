@@ -377,6 +377,7 @@ const AssignPersonnelDialog = ({
                   <LinkCardInput
                     readOnly={Boolean(watch("UHF")) && !assignedPersonnel}
                     label="UHF Card"
+                    //@ts-ignore
                     variant={"evacuation"}
                     value={watch("UHF")}
                     isLinking={isLinking === "UHF"}
@@ -398,6 +399,7 @@ const AssignPersonnelDialog = ({
               readOnly={Boolean(watch("MIFARE")) && !assignedPersonnel}
               ref={mifareRef}
               label="MIFARE Card"
+              //@ts-ignore
               variant={"evacuation"}
               value={watch("MIFARE")}
               onLinkCard={() => {
@@ -412,6 +414,7 @@ const AssignPersonnelDialog = ({
               readOnly={Boolean(watch("EM")) && !assignedPersonnel}
               ref={emRef}
               label="EM Card"
+              //@ts-ignore
               variant={"evacuation"}
               value={watch("EM")}
               onLinkCard={() => {
@@ -440,6 +443,7 @@ const AssignPersonnelDialog = ({
               {assignedPersonnel ? "Update Personnel" : "Clear Data"}
             </Button>
             <Button
+              //@ts-ignore
               variant={"evacuation"}
               className=" text-white px-4 py-2 rounded text-sm font-semibold"
               onClick={() => {

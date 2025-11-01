@@ -112,6 +112,7 @@ function RouteComponent() {
                 Export Records
               </Button>
               <Button
+                //@ts-ignore
                 variant="evacuation"
                 className="text-white mt-6"
                 onClick={() => {

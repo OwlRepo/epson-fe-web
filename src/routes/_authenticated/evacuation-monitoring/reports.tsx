@@ -19,10 +19,6 @@ import { useGetEVSReports } from "@/hooks/query/useGetEVSReport";
 import { useGetTypeList } from "@/hooks/query/useGetTypeList";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
-import { Calendar } from "@/components/ui/calendar";
-import { ConfirmationDialog } from "@/components/dialogs/ConfirmationDialog";
-import { getApiRESTBaseUrl } from "@/utils/env";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
 import reportExportAll from "@/utils/reportExportAll";
 import { useGetCompletedList } from "@/hooks/query/useGetCompletedList";
 
