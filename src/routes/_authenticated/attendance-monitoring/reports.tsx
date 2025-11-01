@@ -13,6 +13,7 @@ import { useGetEmployeeReports } from "@/hooks/query/useGetAttendaceReports";
 import { objToParams } from "@/utils/objToParams";
 import { unparse } from "papaparse";
 import { useGetDepartmentList } from "@/hooks/query/useGetDepartmentList";
+import reportExportAll from "@/utils/reportExportAll";
 
 export interface EmployeeReport {
   EmployeeNo: string;
@@ -221,6 +222,15 @@ function ReportsDataTable() {
         routeSearch={search}
         exportTableData={{
           exportOptions: [
+            {
+              label: "Export All",
+              onClick: () => {
+                reportExportAll({
+                  search,
+                  module: "ams",
+                });
+              },
+            },
             {
               label: "Export Page",
               onClick: () => {

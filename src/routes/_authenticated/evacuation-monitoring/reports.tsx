@@ -23,6 +23,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { ConfirmationDialog } from "@/components/dialogs/ConfirmationDialog";
 import { getApiRESTBaseUrl } from "@/utils/env";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import reportExportAll from "@/utils/reportExportAll";
 
 export interface EmployeeReport {
   EmployeeNo: string;
@@ -265,17 +266,6 @@ function ReportsDataTable() {
     }
   }, [search.evacuationStatus]);
 
-  const handleExportAll = () => {
-    if (search.completedEvacuationDate) {
-      const baseUrl = getApiRESTBaseUrl();
-      const formattedDate = dayjs(search.completedEvacuationDate).format(
-        "YYYY-MM-DD"
-      );
-      const downloadUrl = `${baseUrl}/api/evs/download/report?evacuationStatus=completed&date=${formattedDate}&token=${localStorage.getItem("token")}`;
-      window.open(downloadUrl, "_blank");
-    }
-  };
-
   return (
     <div>
       <div className="mt-2 mb-10 flex justify-between items-center">
@@ -320,9 +310,11 @@ function ReportsDataTable() {
                   {
                     label: "Export All",
                     onClick: () => {
-                      handleExportAll();
+                      reportExportAll({
+                        search,
+                        module: "evs",
+                      });
                     },
-                    disabled: !search.completedEvacuationDate,
                   },
                 ]
               : []),

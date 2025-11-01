@@ -12,6 +12,7 @@ import useTableSelectionStore from "@/store/tableSelectionStore";
 import { objToParams } from "@/utils/objToParams";
 import { unparse } from "papaparse";
 import { useGetVisitorReports } from "@/hooks/query/useGetVisitorReports";
+import reportExportAll from "@/utils/reportExportAll";
 
 export interface VisitorReport {
   VisitorID: string;
@@ -208,6 +209,15 @@ function ReportsDataTable() {
         routeSearch={search}
         exportTableData={{
           exportOptions: [
+            {
+              label: "Export All",
+              onClick: () => {
+                reportExportAll({
+                  search,
+                  module: "vms",
+                });
+              },
+            },
             {
               label: "Export Page",
               onClick: () => {
