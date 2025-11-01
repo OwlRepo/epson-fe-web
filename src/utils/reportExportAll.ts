@@ -15,29 +15,21 @@ export default function reportExportAll(props: {
 
   let downloadUrl = "";
 
-  switch (module) {
-    case "evs": {
-      const params = new URLSearchParams();
-      appendIfPresent(params, "module", module);
-      appendIfPresent(params, "token", localStorage.getItem("token"));
-      appendIfPresent(params, "evacuationStatus", search.evacuationStatus);
-      Object.keys(search).forEach((key) => {
-        appendIfPresent(params, key, search[key]);
-      });
+  const params = new URLSearchParams();
+  appendIfPresent(params, "module", module);
+  appendIfPresent(params, "token", localStorage.getItem("token"));
 
-      downloadUrl = `${baseUrl}/api/evs/report/export?${params.toString()}`;
-      break;
-    }
-    default: {
-      const params = new URLSearchParams();
-      appendIfPresent(params, "module", module);
-      appendIfPresent(params, "token", localStorage.getItem("token"));
-      Object.keys(search).forEach((key) => {
-        appendIfPresent(params, key, search[key]);
-      });
-      downloadUrl = `${baseUrl}/api/report/export?${params.toString()}`;
-      break;
-    }
+  if (module === "evs") {
+    appendIfPresent(params, "evacuationStatus", search.evacuationStatus);
+    Object.entries(search).forEach(([key, value]) => {
+      appendIfPresent(params, key, value);
+    });
+    downloadUrl = `${baseUrl}/api/evs/report/export?${params.toString()}`;
+  } else {
+    Object.entries(search).forEach(([key, value]) => {
+      appendIfPresent(params, key, value);
+    });
+    downloadUrl = `${baseUrl}/api/report/export?${params.toString()}`;
   }
 
   window.open(downloadUrl, "_blank");
