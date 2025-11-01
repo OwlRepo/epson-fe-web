@@ -34,5 +34,11 @@ export default function reportExportAll(props: {
 
   downloadUrl = `${baseUrl}${downloadEndpoint}?${params.toString()}`;
 
-  window.open(downloadUrl, "_blank", "noopener,noreferrer");
+  const link = document.createElement("a");
+  link.href = downloadUrl;
+  link.download = "";
+  link.target = "_blank";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 }
