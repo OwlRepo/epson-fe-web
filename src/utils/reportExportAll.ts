@@ -21,37 +21,23 @@ export default function reportExportAll(props: {
       appendIfPresent(params, "module", module);
       appendIfPresent(params, "token", localStorage.getItem("token"));
       appendIfPresent(params, "evacuationStatus", search.evacuationStatus);
-      appendIfPresent(
-        params,
-        "completedEvacuationDate",
-        search.completedEvacuationDate
-      );
+      Object.keys(search).forEach((key) => {
+        appendIfPresent(params, key, search[key]);
+      });
 
       downloadUrl = `${baseUrl}/api/evs/report/export?${params.toString()}`;
       break;
     }
-    case "ams": {
+    default: {
       const params = new URLSearchParams();
       appendIfPresent(params, "module", module);
       appendIfPresent(params, "token", localStorage.getItem("token"));
-      appendIfPresent(params, "fromDate", search.fromDate);
-      appendIfPresent(params, "toDate", search.toDate);
-
+      Object.keys(search).forEach((key) => {
+        appendIfPresent(params, key, search[key]);
+      });
       downloadUrl = `${baseUrl}/api/report/export?${params.toString()}`;
       break;
     }
-    case "vms": {
-      const params = new URLSearchParams();
-      appendIfPresent(params, "module", module);
-      appendIfPresent(params, "token", localStorage.getItem("token"));
-      appendIfPresent(params, "fromDate", search.fromDate);
-      appendIfPresent(params, "toDate", search.toDate);
-
-      downloadUrl = `${baseUrl}/api/report/export?${params.toString()}`;
-      break;
-    }
-    default:
-      throw new Error("Invalid module");
   }
 
   window.open(downloadUrl, "_blank");
