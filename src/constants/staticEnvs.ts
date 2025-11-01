@@ -1,4 +1,4 @@
-export const USE_STATIC_ENVS = true; // Set to true to use static environment variables which are the ones defined in the STATIC_ENVS object below
+export const USE_STATIC_ENVS = false; // Set to true to use static environment variables which are the ones defined in the STATIC_ENVS object below
 
 export const STATIC_ENVS: Record<string, string> = {
   // Core toggles and URLs
