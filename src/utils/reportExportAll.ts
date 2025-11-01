@@ -14,23 +14,25 @@ export default function reportExportAll(props: {
   const baseUrl = getApiRESTBaseUrl();
 
   let downloadUrl = "";
+  let downloadEndpoint = "";
+
+  if (module === "evs") {
+    downloadEndpoint = "/api/evs/reports/export";
+  } else if (module === "ams") {
+    downloadEndpoint = "/api/employees/reports/export";
+  } else if (module === "vms") {
+    downloadEndpoint = "/api/vms/reports/export";
+  }
 
   const params = new URLSearchParams();
   appendIfPresent(params, "module", module);
   appendIfPresent(params, "token", localStorage.getItem("token"));
 
-  if (module === "evs") {
-    appendIfPresent(params, "evacuationStatus", search.evacuationStatus);
-    Object.entries(search).forEach(([key, value]) => {
-      appendIfPresent(params, key, value);
-    });
-    downloadUrl = `${baseUrl}/api/evs/report/export?${params.toString()}`;
-  } else {
-    Object.entries(search).forEach(([key, value]) => {
-      appendIfPresent(params, key, value);
-    });
-    downloadUrl = `${baseUrl}/api/report/export?${params.toString()}`;
-  }
+  Object.entries(search).forEach(([key, value]) => {
+    appendIfPresent(params, key, value);
+  });
+
+  downloadUrl = `${baseUrl}${downloadEndpoint}?${params.toString()}`;
 
   window.open(downloadUrl, "_blank");
 }
