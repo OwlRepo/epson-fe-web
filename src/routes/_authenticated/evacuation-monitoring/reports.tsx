@@ -305,19 +305,15 @@ function ReportsDataTable() {
         exportTableData={{
           type: "EVS",
           exportOptions: [
-            ...(search.evacuationStatus === "completed"
-              ? [
-                  {
-                    label: "Export All",
-                    onClick: () => {
-                      reportExportAll({
-                        search,
-                        module: "evs",
-                      });
-                    },
-                  },
-                ]
-              : []),
+            {
+              label: "Export All",
+              onClick: () => {
+                reportExportAll({
+                  search,
+                  module: "evs",
+                });
+              },
+            },
             {
               label: "Export Page",
               onClick: () => {
