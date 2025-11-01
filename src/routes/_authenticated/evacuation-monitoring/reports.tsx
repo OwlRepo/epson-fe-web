@@ -24,6 +24,7 @@ import { ConfirmationDialog } from "@/components/dialogs/ConfirmationDialog";
 import { getApiRESTBaseUrl } from "@/utils/env";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import reportExportAll from "@/utils/reportExportAll";
+import { useGetCompletedList } from "@/hooks/query/useGetCompletedList";
 
 export interface EmployeeReport {
   EmployeeNo: string;
@@ -88,6 +89,7 @@ function ReportsDataTable() {
   }, [reportList]);
 
   const { data: typeList } = useGetTypeList();
+  const { data: completedList } = useGetCompletedList();
 
   useEffect(() => {
     refetch();
@@ -167,6 +169,11 @@ function ReportsDataTable() {
         label: item,
         value: item,
       })),
+    },
+    {
+      key: "completeEvacuationDate",
+      label: "Completed Date",
+      options: completedList ?? [],
     },
   ];
 
