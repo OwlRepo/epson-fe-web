@@ -1,5 +1,11 @@
 import { getApiRESTBaseUrl } from "./env";
 
+function appendIfPresent(params: URLSearchParams, key: string, value: any) {
+  if (value !== undefined && value !== null && value !== "") {
+    params.append(key, value);
+  }
+}
+
 export default function reportExportAll(props: {
   search: any;
   module: "evs" | "ams" | "vms";
@@ -10,15 +16,40 @@ export default function reportExportAll(props: {
   let downloadUrl = "";
 
   switch (module) {
-    case "evs":
-      downloadUrl = `${baseUrl}/api/evs/download/report?module=${module}&evacuationStatus=${search.evacuationStatus}&completedEvacuationDate=${search.completedEvacuationDate}&token=${localStorage.getItem("token")}`;
+    case "evs": {
+      const params = new URLSearchParams();
+      appendIfPresent(params, "module", module);
+      appendIfPresent(params, "token", localStorage.getItem("token"));
+      appendIfPresent(params, "evacuationStatus", search.evacuationStatus);
+      appendIfPresent(
+        params,
+        "completedEvacuationDate",
+        search.completedEvacuationDate
+      );
+
+      downloadUrl = `${baseUrl}/api/evs/download/report?${params.toString()}`;
       break;
-    case "ams":
-      downloadUrl = `${baseUrl}/api/download/report?module=${module}&token=${localStorage.getItem("token")}&fromDate=${search.fromDate}&toDate=${search.toDate}`;
+    }
+    case "ams": {
+      const params = new URLSearchParams();
+      appendIfPresent(params, "module", module);
+      appendIfPresent(params, "token", localStorage.getItem("token"));
+      appendIfPresent(params, "fromDate", search.fromDate);
+      appendIfPresent(params, "toDate", search.toDate);
+
+      downloadUrl = `${baseUrl}/api/download/report?${params.toString()}`;
       break;
-    case "vms":
-      downloadUrl = `${baseUrl}/api/download/report?module=${module}&token=${localStorage.getItem("token")}&fromDate=${search.fromDate}&toDate=${search.toDate}`;
+    }
+    case "vms": {
+      const params = new URLSearchParams();
+      appendIfPresent(params, "module", module);
+      appendIfPresent(params, "token", localStorage.getItem("token"));
+      appendIfPresent(params, "fromDate", search.fromDate);
+      appendIfPresent(params, "toDate", search.toDate);
+
+      downloadUrl = `${baseUrl}/api/download/report?${params.toString()}`;
       break;
+    }
     default:
       throw new Error("Invalid module");
   }
