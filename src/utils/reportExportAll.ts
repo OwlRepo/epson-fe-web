@@ -27,7 +27,7 @@ export default function reportExportAll(props: {
         search.completedEvacuationDate
       );
 
-      downloadUrl = `${baseUrl}/api/evs/download/report?${params.toString()}`;
+      downloadUrl = `${baseUrl}/api/evs/report/export?${params.toString()}`;
       break;
     }
     case "ams": {
@@ -37,7 +37,7 @@ export default function reportExportAll(props: {
       appendIfPresent(params, "fromDate", search.fromDate);
       appendIfPresent(params, "toDate", search.toDate);
 
-      downloadUrl = `${baseUrl}/api/download/report?${params.toString()}`;
+      downloadUrl = `${baseUrl}/api/report/export?${params.toString()}`;
       break;
     }
     case "vms": {
@@ -47,7 +47,7 @@ export default function reportExportAll(props: {
       appendIfPresent(params, "fromDate", search.fromDate);
       appendIfPresent(params, "toDate", search.toDate);
 
-      downloadUrl = `${baseUrl}/api/download/report?${params.toString()}`;
+      downloadUrl = `${baseUrl}/api/report/export?${params.toString()}`;
       break;
     }
     default:
