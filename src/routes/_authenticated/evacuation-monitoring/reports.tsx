@@ -265,7 +265,7 @@ function ReportsDataTable() {
     }
   }, [search.evacuationStatus]);
 
-  const handleConfirmDownload = () => {
+  const handleExportAll = () => {
     if (search.completedEvacuationDate) {
       const baseUrl = getApiRESTBaseUrl();
       const formattedDate = dayjs(search.completedEvacuationDate).format(
@@ -289,7 +289,7 @@ function ReportsDataTable() {
             }
             onClick={() => handleEvacuationStatusFilter("current")}
           >
-            Current
+            All
           </Button>
           <Button
             variant={activeFilter === "completed" ? "default" : "outline"}
@@ -320,7 +320,7 @@ function ReportsDataTable() {
                   {
                     label: "Export All",
                     onClick: () => {
-                      handleConfirmDownload();
+                      handleExportAll();
                     },
                     disabled: !search.completedEvacuationDate,
                   },
