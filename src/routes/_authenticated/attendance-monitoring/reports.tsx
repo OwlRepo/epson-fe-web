@@ -96,8 +96,8 @@ function ReportsDataTable() {
     { key: "EmployeeNo", label: "EMPLOYEE NO." },
     { key: "Name", label: "Name" },
     { key: "DepartmentName", label: "Department" },
-    { key: "ClockedIN", label: "Time In" },
-    { key: "ClockedOUT", label: "Time Out" },
+    { key: "Type", label: "Type" },
+    { key: "DateTime", label: "Date Time" },
   ];
 
   const filters = [
