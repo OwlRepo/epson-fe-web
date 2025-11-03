@@ -307,6 +307,7 @@ const SettingTab = () => {
                 ref={fileInputRef}
                 onChange={handleFileChange}
                 className="cursor-pointer"
+                accept=".csv"
               />
               {!isUploading && (
                 <Button
