@@ -166,11 +166,15 @@ function ReportsDataTable() {
         value: item,
       })),
     },
-    {
-      key: "completeEvacuationDate",
-      label: "Completed Date",
-      options: completedList ?? [],
-    },
+    ...(search.evacuationStatus === "completed"
+      ? [
+          {
+            key: "completeEvacuationDate",
+            label: "Completed Date",
+            options: completedList ?? [],
+          },
+        ]
+      : []),
   ];
 
   const handleExport = (exportData: any) => {
