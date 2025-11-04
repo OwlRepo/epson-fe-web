@@ -5,7 +5,7 @@ import {
   type Filter,
 } from "@/components/ui/dynamic-table";
 import { useNavigate, useSearch } from "@tanstack/react-router";
-import { Moon, RefreshCw, SunMedium, Upload } from "lucide-react";
+import { Moon, RefreshCw, SunMedium, Timer, Upload } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import SyncTimeInput from "./SyncTimeInput";
 import TimePickerModal from "./TimePickerModal";
@@ -21,6 +21,9 @@ import { useGetSyncingSchedule } from "@/hooks/query/useGetSyncingSchedule";
 import { Input } from "../ui/input";
 import { useUploadCards } from "@/hooks/mutation/useUploadCards";
 import { useSocket } from "@/hooks";
+import { DateTimePicker } from "@/components/ui/date-time-picker";
+import { io, Socket } from "socket.io-client";
+import { getApiSocketBaseUrl } from "@/utils/env";
 
 interface SyncActivity {
   ID: number;
@@ -77,6 +80,7 @@ const SettingTab = () => {
 
   const [fileName, setFileName] = useState<File>();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [syncDateTime, setSyncDateTime] = useState<string>("");
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -256,6 +260,27 @@ const SettingTab = () => {
     setTimeKey(key);
   };
 
+  let socketInstance: Socket;
+  const SOCKET_URL = getApiSocketBaseUrl();
+
+  socketInstance = io(SOCKET_URL, {
+    extraHeaders: {
+      "ngrok-skip-browser-warning": "true",
+    },
+    transports: ["websocket"],
+    reconnection: true,
+    reconnectionAttempts: 5,
+    reconnectionDelay: 1000,
+    timeout: 10000,
+  });
+
+  const handleSyncTime = () => {
+    console.log("🚀 Socket emitting to room:", "sync_time");
+    console.log("📦 Socket payload:", syncDateTime);
+    socketInstance.emit("sync_time", syncDateTime);
+    console.log("✨ Socket emission sent successfully");
+  };
+
   return (
     <>
       <div className="grid grid-cols-3 gap-2 grid-rows-[auto_1fr] h-full">
@@ -298,7 +323,7 @@ const SettingTab = () => {
           <div className="bg-white p-4 rounded-lg shadow-md self-start mt-4 ">
             <p className="font-bold flex gap-2">
               <Upload />
-              Upload Bulk Enrolment File
+              Upload Bulk Enrollment File
             </p>
             <div className="grid gap-2 mt-6">
               <Input
@@ -333,6 +358,18 @@ const SettingTab = () => {
                   Uploading Now
                 </Button>
               )}
+            </div>
+          </div>
+          <div className="bg-white p-4 rounded-lg shadow-md self-start mt-4 ">
+            <p className="font-bold flex gap-2">
+              <RefreshCw />
+              Sync Time
+            </p>
+            <div className="grid gap-2 mt-6">
+              <DateTimePicker value={syncDateTime} onChange={setSyncDateTime} />
+              <Button onClick={handleSyncTime} disabled={!syncDateTime}>
+                Sync Now
+              </Button>
             </div>
           </div>
         </div>
