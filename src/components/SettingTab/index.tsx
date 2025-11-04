@@ -5,7 +5,7 @@ import {
   type Filter,
 } from "@/components/ui/dynamic-table";
 import { useNavigate, useSearch } from "@tanstack/react-router";
-import { Moon, RefreshCw, SunMedium, Timer, Upload } from "lucide-react";
+import { Moon, RefreshCw, SunMedium, Upload } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import SyncTimeInput from "./SyncTimeInput";
 import TimePickerModal from "./TimePickerModal";
