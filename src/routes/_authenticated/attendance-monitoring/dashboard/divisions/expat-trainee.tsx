@@ -114,7 +114,7 @@ function RouteComponent() {
                 label: "TYPE",
               },
               {
-                key: "date_received",
+                key: "date_receive",
                 label: "DATE TIME",
               },
             ]}
