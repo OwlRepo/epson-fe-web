@@ -62,6 +62,7 @@ function RouteComponent() {
     searchTerm,
     emitData,
     response,
+    asofData,
   } = useVisitorsGuestData({
     room: "evs_visitor",
     dataType: "live",
@@ -118,10 +119,12 @@ function RouteComponent() {
       { key: "Missing", value: totalLogs?.missing },
     ];
 
-    const mapData = data.map(({ employee_id,department,division,section, ...rest }) => ({
-      ...rest,
-      id: employee_id,
-    }));
+    const mapData = data.map(
+      ({ employee_id, department, division, section, ...rest }) => ({
+        ...rest,
+        id: employee_id,
+      })
+    );
 
     const summaryCsv = unparse(summary, { header: false });
     const liveData = unparse(mapData, { header: true });
@@ -151,6 +154,7 @@ function RouteComponent() {
                 <b className="text-[20px] text-primary">Live Data</b>
               </div>
             }
+            subtitle={`As of ${asofData}`}
           />
         }
       >
