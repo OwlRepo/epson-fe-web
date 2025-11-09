@@ -44,5 +44,7 @@ export const getMIFARELength = () => parseInt(getEnvVar("VITE_MIFARE_LENGTH"));
 export const getEMLength = () => parseInt(getEnvVar("VITE_EM_LENGTH"));
 export const getIsSerialConnection = () =>
   parseInt(getEnvVar("VITE_IS_SERIAL_CONNECTION"));
+export const getSyncStatusCheckInterval = () =>
+  parseInt(getEnvVar("VITE_SYNC_STATUS_CHECK_INTERVAL"));
 
 // Add other env variable getters as needed

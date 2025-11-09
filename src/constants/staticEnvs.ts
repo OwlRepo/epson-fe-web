@@ -8,6 +8,7 @@ export const STATIC_ENVS: Record<string, string> = {
   VITE_API_SOCKET_URL: "",
   VITE_API_REST_EVS_URL: "",
   VITE_API_REST_URL: "",
+  VITE_SYNC_STATUS_CHECK_INTERVAL: "5000",
 
   // Auth / Valid IDs
   VITE_VALID_USER_CARD_ID: "", // e.g. "123|456|789"
