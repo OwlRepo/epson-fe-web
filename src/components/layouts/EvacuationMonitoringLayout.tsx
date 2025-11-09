@@ -101,7 +101,7 @@ export function EvacuationMonitoringLayout({
         className="bg-primary-evs"
         onEvacComplete={() => {
           emitData?.("evac_complete", {
-            email: JSON.parse(localStorage.getItem("user") || "{}")[
+            trigger_by: JSON.parse(localStorage.getItem("user") || "{}")[
               "EmailAddress"
             ],
             date: dayjs().format("YYYY-MM-DD hh:mm:ss A"),
