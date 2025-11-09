@@ -122,16 +122,9 @@ const SettingTab = () => {
 
   useEffect(() => {
     if (isSuccess) {
-      toast.success("Success syncing employees", {
-        description: "Your Employee List  has been synced. You're all set!",
+      toast.success("Sync Request Sent", {
+        description: "Your Sync Request has been sent.",
         style: successStyle,
-      });
-    }
-    if (isPending) {
-      toast.info("Syncing employee list", {
-        description:
-          "Please Wait. Your Employee List is syncing. This will take time!",
-        style: infoStyle,
       });
     }
   }, [isError, isSuccess, isPending]);
