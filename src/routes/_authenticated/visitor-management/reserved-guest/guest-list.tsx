@@ -210,7 +210,6 @@ function RouteComponent() {
   });
 
   socketInstance.on("asof", (asofData) => {
-    console.log("asof", asofData);
     setAsofData(asofData as string);
   });
 

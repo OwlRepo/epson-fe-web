@@ -24,6 +24,8 @@ import { useSocket } from "@/hooks";
 import { DateTimePicker } from "@/components/ui/date-time-picker";
 import { io, Socket } from "socket.io-client";
 import { getApiSocketBaseUrl } from "@/utils/env";
+import { useGetSyncStatus } from "@/hooks/query/useGetSyncStatus";
+import { cn } from "@/lib/utils";
 
 interface SyncActivity {
   ID: number;
@@ -69,6 +71,37 @@ const SettingTab = () => {
     isError: isUploadError,
   } = useUploadCards();
 
+  const handleSyncData = () => {
+    setIsCheckSyncStatusEnabled(true);
+    mutate();
+  };
+
+  const [isCheckSyncStatusEnabled, setIsCheckSyncStatusEnabled] =
+    useState(false);
+  const {
+    data: syncStatus,
+    isFetched: isFetchedSyncStatus,
+    refetch: refetchSyncStatus,
+  } = useGetSyncStatus({ enabled: isCheckSyncStatusEnabled });
+
+  useEffect(() => {
+    refetchSyncStatus();
+  }, []);
+
+  useEffect(() => {
+    if (isFetchedSyncStatus) {
+      switch (syncStatus) {
+        case "completed":
+          setIsCheckSyncStatusEnabled(false);
+          break;
+        case "pending":
+          setIsCheckSyncStatusEnabled(true);
+          break;
+        default:
+          break;
+      }
+    }
+  }, [isFetchedSyncStatus, syncStatus]);
   // Get pagination values from URL params
   const [totalPages, setTotalPages] = useState(10);
   const [totalItems, setTotalItems] = useState(10);
@@ -280,10 +313,24 @@ const SettingTab = () => {
         {/* First Column (Auto Height) */}
         <div>
           <div className="bg-white p-4 rounded-lg shadow-md self-start">
-            <p className="font-bold flex gap-2">
-              <RefreshCw />
-              Scheduled Syncing
-            </p>
+            <div className="flex justify-between items-center">
+              <p className="font-bold flex gap-2">
+                <RefreshCw />
+                Scheduled Syncing
+              </p>
+              <div
+                className={cn(
+                  "w-3 h-3 rounded-full",
+                  syncStatus?.status?.toLowerCase() === "pending" &&
+                    "bg-amber-400",
+                  syncStatus?.status?.toLowerCase() === "completed" &&
+                    "bg-green-400",
+                  syncStatus?.status?.toLowerCase() === "failed" &&
+                    "bg-red-400",
+                  !syncStatus?.status && "bg-gray-400"
+                )}
+              />
+            </div>
             <SyncTimeInput
               icon={<SunMedium />}
               onEdit={() => handleOpenModal("am")}
@@ -297,16 +344,16 @@ const SettingTab = () => {
 
             <p className="mt-4 font-bold text-center">or</p>
             {!isPending && (
-              <Button className="w-full mt-4" onClick={() => mutate()}>
+              <Button
+                className="w-full mt-4"
+                disabled={syncStatus?.status?.toLowerCase() === "pending"}
+                onClick={handleSyncData}
+              >
                 Sync Now
               </Button>
             )}
             {isPending && (
-              <Button
-                className="w-full mt-4  gap-2"
-                onClick={() => mutate()}
-                disabled
-              >
+              <Button className="w-full mt-4  gap-2" disabled>
                 <Spinner size={15} color="white" containerClassName="w-6" />
                 Syncing Now
               </Button>
@@ -353,6 +400,7 @@ const SettingTab = () => {
               )}
             </div>
           </div>
+
           <div className="bg-white p-4 rounded-lg shadow-md self-start mt-4 ">
             <p className="font-bold flex gap-2">
               <RefreshCw />

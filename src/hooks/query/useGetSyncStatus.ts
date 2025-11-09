@@ -12,10 +12,10 @@ const getSyncStatus = async () => {
   }
 };
 
-export const useGetSyncStatus = () =>
+export const useGetSyncStatus = (props: { enabled: boolean }) =>
   useQuery({
-    queryKey: ["sync-status"],
+    queryKey: ["sync-status", props.enabled],
     queryFn: () => getSyncStatus(),
-    refetchOnWindowFocus: false,
-    refetchInterval: getSyncStatusCheckInterval(),
+    refetchInterval: props.enabled ? getSyncStatusCheckInterval() : false,
+    enabled: props.enabled,
   });

@@ -475,7 +475,6 @@ export const useSocket = <
     });
 
     socketInstance.on("asof", (asofData) => {
-      console.log("asof", asofData);
       setAsofData(asofData);
     });
 

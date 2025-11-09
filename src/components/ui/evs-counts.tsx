@@ -214,7 +214,6 @@ export default function EVSCounts(props: EVSCountsProps) {
   });
 
   socketInstance.on("asof", (asofData: string) => {
-    console.log("asof", asofData);
     setAsofData(asofData);
   });
 
