@@ -92,9 +92,6 @@ const SettingTab = () => {
   useEffect(() => {
     if (isFetchedSyncStatus) {
       switch (syncStatus) {
-        case "completed":
-          setIsCheckSyncStatusEnabled(false);
-          break;
         case "inprogress":
           setIsCheckSyncStatusEnabled(true);
           break;
