@@ -11,6 +11,7 @@ import {
   ChevronDown,
   ArrowLeft,
   ArrowRight,
+  ShieldCheck,
 } from "lucide-react";
 import { Link, useRouter } from "@tanstack/react-router";
 import { useCurrentPath } from "@/hooks/useCurrentPath";
@@ -509,7 +510,7 @@ export function Sidebar({
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button variant="secondary" className="w-[90%] text-white">
-                  Evacuation Complete
+                  {collapsed ? <ShieldCheck /> : "Evacuation Complete"}
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent className="w-[700px] flex flex-col">
