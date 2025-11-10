@@ -166,7 +166,7 @@ function ReportsDataTable() {
         value: item,
       })),
     },
-    ...(search.evacuationStatus === "completed"
+    ...(search.EvacuationStatus === "completed"
       ? [
           {
             key: "completeEvacuationDate",
@@ -255,23 +255,23 @@ function ReportsDataTable() {
     });
   };
 
-  const activeFilter = search.evacuationStatus || "all";
+  const activeFilter = search.EvacuationStatus || "all";
 
   const handleEvacuationStatusFilter = (value: string) => {
     navigate({
       search: (prev) => ({
         ...prev,
-        evacuationStatus: value || undefined,
+        EvacuationStatus: value || undefined,
       }),
       replace: true,
     });
   };
 
   useEffect(() => {
-    if (!search.evacuationStatus) {
+    if (!search.EvacuationStatus) {
       handleEvacuationStatusFilter("all");
     }
-  }, [search.evacuationStatus]);
+  }, [search.EvacuationStatus]);
 
   return (
     <div>
