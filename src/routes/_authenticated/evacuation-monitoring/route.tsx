@@ -21,7 +21,7 @@ export const Route = createFileRoute("/_authenticated/evacuation-monitoring")({
       location.pathname === "/evacuation-monitoring/dashboard"
     ) {
       throw redirect({
-        to: "/evacuation-monitoring/dashboard/realtime",
+        to: "/evacuation-monitoring/overview",
         replace: true,
       });
     }
