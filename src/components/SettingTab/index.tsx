@@ -319,15 +319,23 @@ const SettingTab = () => {
                 <RefreshCw />
                 Scheduled Syncing
               </p>
-              <div
-                className={cn(
-                  "w-3 h-3 rounded-full",
-                  syncStatus === "inprogress" && "bg-amber-400",
-                  syncStatus === "completed" && "bg-green-400",
-                  syncStatus === "failed" && "bg-red-400",
-                  !syncStatus && "bg-gray-400"
-                )}
-              />
+              {syncStatus && (
+                <div className="flex gap-2 items-center">
+                  <div
+                    className={cn(
+                      "w-3 h-3 rounded-full",
+                      syncStatus === "inprogress" && "bg-amber-400",
+                      syncStatus === "completed" && "bg-green-400",
+                      syncStatus === "failed" && "bg-red-400",
+                      !syncStatus && "bg-gray-400"
+                    )}
+                  />
+                  <small className="text-gray-500 capitalize">
+                    Status:{" "}
+                    {syncStatus === "inprogress" ? "In Progress" : syncStatus}
+                  </small>
+                </div>
+              )}
             </div>
             <SyncTimeInput
               icon={<SunMedium />}
