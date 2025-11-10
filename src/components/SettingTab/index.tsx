@@ -71,9 +71,10 @@ const SettingTab = () => {
     isError: isUploadError,
   } = useUploadCards();
 
-  const handleSyncData = () => {
+  const handleSyncData = async () => {
     setIsCheckSyncStatusEnabled(true);
-    mutate();
+    await mutate();
+    await refetchSyncStatus();
   };
 
   const [isCheckSyncStatusEnabled, setIsCheckSyncStatusEnabled] =
@@ -94,7 +95,7 @@ const SettingTab = () => {
         case "completed":
           setIsCheckSyncStatusEnabled(false);
           break;
-        case "pending":
+        case "inprogress":
           setIsCheckSyncStatusEnabled(true);
           break;
         default:
@@ -321,13 +322,10 @@ const SettingTab = () => {
               <div
                 className={cn(
                   "w-3 h-3 rounded-full",
-                  syncStatus?.status?.toLowerCase() === "pending" &&
-                    "bg-amber-400",
-                  syncStatus?.status?.toLowerCase() === "completed" &&
-                    "bg-green-400",
-                  syncStatus?.status?.toLowerCase() === "failed" &&
-                    "bg-red-400",
-                  !syncStatus?.status && "bg-gray-400"
+                  syncStatus === "inprogress" && "bg-amber-400",
+                  syncStatus === "completed" && "bg-green-400",
+                  syncStatus === "failed" && "bg-red-400",
+                  !syncStatus && "bg-gray-400"
                 )}
               />
             </div>
@@ -346,7 +344,7 @@ const SettingTab = () => {
             {!isPending && (
               <Button
                 className="w-full mt-4"
-                disabled={syncStatus?.status?.toLowerCase() === "pending"}
+                disabled={syncStatus === "inprogress"}
                 onClick={handleSyncData}
               >
                 Sync Now
