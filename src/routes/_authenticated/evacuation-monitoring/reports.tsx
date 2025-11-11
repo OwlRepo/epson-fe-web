@@ -175,11 +175,6 @@ function ReportsDataTable() {
           },
         ]
       : []),
-    {
-      key: "evs_reports_date",
-      label: "Date",
-      isDateRangePicker: true,
-    },
     ...(search.EvacuationStatus === "all"
       ? [
           {
