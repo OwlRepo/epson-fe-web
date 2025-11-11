@@ -2,7 +2,7 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 import { Sidebar } from "@/components/ui/sidebar";
 import { Header } from "@/components/ui/header";
-import { LayoutDashboard, FileText, ShieldPlus } from "lucide-react";
+import { LayoutDashboard, FileText, ShieldPlus, Monitor } from "lucide-react";
 import { EpsonLogoWhite } from "@/assets/svgs";
 import { useSocket } from "@/hooks";
 import dayjs from "dayjs";
@@ -33,7 +33,7 @@ export function EvacuationMonitoringLayout({
   // Default nav items for the sidebar
   const navItems = [
     {
-      icon: <LayoutDashboard />,
+      icon: <Monitor />,
       label: "Overview",
       href: "/evacuation-monitoring/overview",
     },
@@ -102,7 +102,7 @@ export function EvacuationMonitoringLayout({
         onEvacComplete={() => {
           emitData?.("evac_complete", {
             trigger_by: JSON.parse(localStorage.getItem("user") || "{}")[
-              "EmailAddress"
+              "Name"
             ],
             date: dayjs().format("YYYY-MM-DD hh:mm:ss A"),
           });

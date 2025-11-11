@@ -1325,7 +1325,11 @@ export function DynamicTable({
                             : ""
                         )}
                       >
-                        {column.render ? column.render(row) : row[column.key]}
+                        {column.render
+                          ? column.render(row)
+                          : row[column.key]
+                            ? row[column.key]
+                            : "--"}
                       </TableCell>
                     ))}
                   </TableRow>

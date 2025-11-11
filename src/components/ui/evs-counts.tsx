@@ -30,7 +30,7 @@ export default function EVSCounts(props: EVSCountsProps) {
           icon: (
             <Users className="w-3.5 h-3.5 text-white bg-gray-500 rounded-full p-[2px]" />
           ),
-          label: "Overall",
+          label: "Total Record",
           count: countData?.all,
           bgColor: "bg-gray-50",
           textColor: "text-gray-700",

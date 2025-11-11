@@ -115,7 +115,7 @@ function ReportsDataTable() {
     { key: "Name", label: "Name" },
     { key: "Type", label: "Type" },
     { key: "Status", label: "Status" },
-    { key: "EvacuationTime", label: "Evacution Time" },
+    { key: "EvacuationTime", label: "Evacuation Date and Time" },
   ];
 
   // const mockedData = {
@@ -172,6 +172,20 @@ function ReportsDataTable() {
             key: "completeEvacuationDate",
             label: "Completed Date",
             options: completedList ?? [],
+          },
+        ]
+      : []),
+    {
+      key: "evs_reports_date",
+      label: "Date",
+      isDateRangePicker: true,
+    },
+    ...(search.EvacuationStatus === "all"
+      ? [
+          {
+            key: "evs_reports_date",
+            label: "Date",
+            isDateRangePicker: true,
           },
         ]
       : []),
