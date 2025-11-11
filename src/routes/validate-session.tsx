@@ -18,9 +18,7 @@ export const Route = createFileRoute("/validate-session")({
             localStorage.setItem("token", token);
             localStorage.setItem("refreshToken", refreshToken);
             localStorage.setItem("user", JSON.stringify(user));
-            throw redirect({
-              to: "/evacuation-monitoring/overview",
-            });
+            window.location.href = "/evacuation-monitoring/overview";
           } else {
             console.log("TOKEN LOGIN ERROR");
             localStorage.clear();
