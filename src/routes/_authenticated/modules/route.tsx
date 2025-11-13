@@ -10,7 +10,7 @@ import {
 import { EPSON_LOGO_NORMAL } from "@/assets/images";
 import { ModuleCard } from "@/components/ui/module-card";
 import UserProfile from "@/components/ui/user-profile";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { getEVSAppBaseUrl, getIsEVS } from "@/utils/env";
 
 export const Route = createFileRoute("/_authenticated/modules")({
@@ -22,7 +22,55 @@ export const Route = createFileRoute("/_authenticated/modules")({
   },
 });
 
-const moduleRoutes = [
+// const moduleRoutes = [
+//   {
+//     path: "/attendance-monitoring/dashboard/overview",
+//     title: "Attendance",
+//     icon: AttendanceMonitoring,
+//     subtitle: "Monitoring",
+//     key: "AMS",
+//     external: false,
+//   },
+//   {
+//     path: "/visitor-management",
+//     title: "Visitor",
+//     icon: VisitorManagement,
+//     subtitle: "Management",
+//     key: "VMS",
+//     external: false,
+//   },
+//   {
+//     path: `${getEVSAppBaseUrl()}/validate-session?token=${encodeURIComponent(
+//       localStorage.getItem("token")!
+//     )}`,
+//     title: "Evacuation",
+//     icon: EvacuationMonitoring,
+//     subtitle: "Monitoring",
+//     key: "EVS",
+//     external: true,
+//   },
+//   {
+//     path: "/user-management",
+//     title: "User",
+//     icon: UserManagement,
+//     subtitle: "Management",
+//     key: "UMG",
+//     external: false,
+//   },
+//   {
+//     path: "/device-management",
+//     title: "Device",
+//     icon: DeviceManagement,
+//     subtitle: "Management",
+//     key: "DMG",
+//     external: false,
+//   },
+// ];
+
+function RouteComponent() {
+
+
+  const moduleRoutes =useMemo(()=>[
   {
     path: "/attendance-monitoring/dashboard/overview",
     title: "Attendance",
@@ -65,9 +113,8 @@ const moduleRoutes = [
     key: "DMG",
     external: false,
   },
-];
+], [localStorage.getItem('token')]);
 
-function RouteComponent() {
   const navigate = useNavigate();
   const userName =
     JSON.parse(localStorage.getItem("user")!)?.Name ??
