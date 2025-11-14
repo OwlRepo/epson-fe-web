@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import reportExportAll from "@/utils/reportExportAll";
 import { useGetCompletedList } from "@/hooks/query/useGetCompletedList";
+import { useGetDeviceList } from "@/hooks/query/useGetDeviceList";
 
 export interface EmployeeReport {
   EmployeeNo: string;
@@ -86,6 +87,7 @@ function ReportsDataTable() {
 
   const { data: typeList } = useGetTypeList();
   const { data: completedList } = useGetCompletedList();
+  const { data: deviceList } = useGetDeviceList();
 
   useEffect(() => {
     refetch();
@@ -116,6 +118,8 @@ function ReportsDataTable() {
     { key: "Type", label: "Type" },
     { key: "Status", label: "Status" },
     { key: "EvacuationTime", label: "Evacuation Date and Time" },
+    { key: "DeviceName", label: "Device Name" },
+    { key: "Remarks", label: "Remarks" },
   ];
 
   // const mockedData = {
@@ -166,6 +170,12 @@ function ReportsDataTable() {
         value: item,
       })),
     },
+    {
+      key: "DeviceName",
+      label: "Device Name",
+      options: deviceList ?? [],
+    },
+
     ...(search.EvacuationStatus === "completed"
       ? [
           {
