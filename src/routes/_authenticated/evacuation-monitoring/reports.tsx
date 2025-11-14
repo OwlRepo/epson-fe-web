@@ -63,13 +63,19 @@ function ReportsDataTable() {
   useEffect(() => {
     if (Array.isArray(reportList?.data)) {
       const { Overall, Safe, Injured, GoHome, Missing } = reportList;
-      const data = reportList?.data.map((item: EmployeeReport) => ({
+      const data = reportList?.data.map((item: any) => ({
         ...item,
         ClockedIN: item.ClockedIN
-          ? dayjs(item.ClockedIN).format("hh:mm:ss A")
+          ? dayjs(item.ClockedIN).format("hh:mm a")
           : null,
         ClockedOUT: item.ClockedOUT
-          ? dayjs(item.ClockedOUT).format("hh:mm:ss A")
+          ? dayjs(item.ClockedOUT).format("hh:mm a")
+          : null,
+        EvacuationTime: item.EvacuationTime
+          ? dayjs(item.EvacuationTime).format("MMM D, YYYY hh:mm a")
+          : null,
+        Completed: item.Completed
+          ? dayjs(item.Completed).format("MMM D, YYYY hh:mm a")
           : null,
       }));
       setData(data);
@@ -113,13 +119,16 @@ function ReportsDataTable() {
 
   // Define columns
   const columns = [
-    { key: "EmployeeNo", label: "ID" },
+    { key: "ID", label: "ID" },
+    { key: "EmployeeNo", label: "Employee No" },
     { key: "Name", label: "Name" },
     { key: "Type", label: "Type" },
     { key: "Status", label: "Status" },
+    { key: "Remarks", label: "Remarks" },
     { key: "EvacuationTime", label: "Evacuation Date and Time" },
     { key: "DeviceName", label: "Device Name" },
-    { key: "Remarks", label: "Remarks" },
+    { key: "Completed", label: "Evacuation Completed At" },
+    { key: "Trigger_by", label: "EC Trigger By" },
   ];
 
   // const mockedData = {
