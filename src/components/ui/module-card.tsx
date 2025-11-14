@@ -10,6 +10,7 @@ interface ModuleCardProps {
   href: string;
   className?: string;
   external?: boolean;
+  onHover?: () => void;
 }
 
 export function ModuleCard({
@@ -19,6 +20,7 @@ export function ModuleCard({
   href,
   className,
   external,
+  onHover,
 }: ModuleCardProps) {
   return (
     <Link
@@ -30,6 +32,7 @@ export function ModuleCard({
       )}
       target={external ? "_blank" : undefined}
       rel={external ? "noopener noreferrer" : undefined}
+      onMouseEnter={onHover}
     >
       {typeof icon === "string" ? (
         <img

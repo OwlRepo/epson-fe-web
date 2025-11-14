@@ -10,8 +10,9 @@ import {
 import { EPSON_LOGO_NORMAL } from "@/assets/images";
 import { ModuleCard } from "@/components/ui/module-card";
 import UserProfile from "@/components/ui/user-profile";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getEVSAppBaseUrl, getIsEVS } from "@/utils/env";
+import { validateSession } from "../route";
 
 export const Route = createFileRoute("/_authenticated/modules")({
   component: RouteComponent,
@@ -68,52 +69,77 @@ export const Route = createFileRoute("/_authenticated/modules")({
 // ];
 
 function RouteComponent() {
+  const [evsUrl, setEvsUrl] = useState<string | null>(
+    localStorage.getItem("evsURL") ?? null
+  );
+  const moduleRoutes = useMemo(
+    () => [
+      {
+        path: "/attendance-monitoring/dashboard/overview",
+        title: "Attendance",
+        icon: AttendanceMonitoring,
+        subtitle: "Monitoring",
+        key: "AMS",
+        external: false,
+      },
+      {
+        path: "/visitor-management",
+        title: "Visitor",
+        icon: VisitorManagement,
+        subtitle: "Management",
+        key: "VMS",
+        external: false,
+      },
+      {
+        path: evsUrl,
+        title: "Evacuation",
+        icon: EvacuationMonitoring,
+        subtitle: "Monitoring",
+        key: "EVS",
+        external: true,
+      },
+      {
+        path: "/user-management",
+        title: "User",
+        icon: UserManagement,
+        subtitle: "Management",
+        key: "UMG",
+        external: false,
+      },
+      {
+        path: "/device-management",
+        title: "Device",
+        icon: DeviceManagement,
+        subtitle: "Management",
+        key: "DMG",
+        external: false,
+      },
+    ],
+    [evsUrl]
+  );
 
+  useEffect(() => {
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === "evsURL") {
+        setEvsUrl(event.newValue);
+      }
+    };
 
-  const moduleRoutes =useMemo(()=>[
-  {
-    path: "/attendance-monitoring/dashboard/overview",
-    title: "Attendance",
-    icon: AttendanceMonitoring,
-    subtitle: "Monitoring",
-    key: "AMS",
-    external: false,
-  },
-  {
-    path: "/visitor-management",
-    title: "Visitor",
-    icon: VisitorManagement,
-    subtitle: "Management",
-    key: "VMS",
-    external: false,
-  },
-  {
-    path: `${getEVSAppBaseUrl()}/validate-session?token=${encodeURIComponent(
-      localStorage.getItem("token")!
-    )}`,
-    title: "Evacuation",
-    icon: EvacuationMonitoring,
-    subtitle: "Monitoring",
-    key: "EVS",
-    external: true,
-  },
-  {
-    path: "/user-management",
-    title: "User",
-    icon: UserManagement,
-    subtitle: "Management",
-    key: "UMG",
-    external: false,
-  },
-  {
-    path: "/device-management",
-    title: "Device",
-    icon: DeviceManagement,
-    subtitle: "Management",
-    key: "DMG",
-    external: false,
-  },
-], [localStorage.getItem('token')]);
+    window.addEventListener("storage", handleStorageChange);
+
+    const originalSetItem = localStorage.setItem;
+    localStorage.setItem = function (key: string, value: string) {
+      originalSetItem.apply(this, [key, value]);
+      if (key === "evsURL") {
+        setEvsUrl(value);
+      }
+    };
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      localStorage.setItem = originalSetItem;
+    };
+  }, []);
 
   const navigate = useNavigate();
   const userName =
@@ -137,7 +163,6 @@ function RouteComponent() {
     navigate({ to: "/" });
   };
 
-  // Set document title for modules page
   useEffect(() => {
     document.title = "Smart Management Modules";
   }, []);
@@ -173,9 +198,14 @@ function RouteComponent() {
               key={module.path}
               icon={module.icon}
               title={module.title}
-              subtitle={module.subtitle}
-              href={module.path}
+              subtitle={module.subtitle ?? ""}
+              href={module.path ?? ""}
               external={module.external}
+              onHover={() => {
+                if (module.path === evsUrl) {
+                  validateSession();
+                }
+              }}
               className="w-full lg:w-[320px] border border-gray-200 rounded-2xl hover:border-gray-300 transition-colors"
             />
           ))}

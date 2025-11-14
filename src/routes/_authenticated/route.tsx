@@ -1,33 +1,39 @@
 import api from "@/config/axiosInstance";
-import { getIsEVS } from "@/utils/env";
+import { getEVSAppBaseUrl, getIsEVS } from "@/utils/env";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 
+export const validateSession = async () => {
+  await api
+    .post(`/api/${getIsEVS() ? "evs" : "users"}/validate`)
+    .catch(async () => {
+      await api
+        .post(`/api/${getIsEVS() ? "evs" : "users"}/refresh-token`, {
+          refreshToken: localStorage.getItem("refreshToken"),
+        })
+        .then((res) => {
+          if (res.status === 200 && res.data.success) {
+            localStorage.setItem("token", res.data.data.token);
+            localStorage.setItem("refreshToken", res.data.data.refreshToken);
+            localStorage.setItem(
+              "evsURL",
+              `${getEVSAppBaseUrl()}/validate-session?token=${res.data.data.token}`
+            );
+            validateSession();
+          }
+        })
+        .catch(() => {
+          localStorage.clear();
+          throw redirect({
+            to: "/",
+            replace: true,
+          });
+        });
+    });
+};
 export const Route = createFileRoute("/_authenticated")({
   component: RouteComponent,
   loader: () => {
-    const validateSession = async () => {
-      await api
-        .post(`/api/${getIsEVS() ? "evs" : "users"}/validate`)
-        .catch(async () => {
-          const { data: refreshData, status } = await api
-            .post(`/api/${getIsEVS() ? "evs" : "users"}/refresh-token`, {
-              refreshToken: localStorage.getItem("refreshToken"),
-            })
-            .catch(() => {
-              localStorage.clear();
-              throw redirect({
-                to: "/",
-                replace: true,
-              });
-            });
-          if (status === 200 && refreshData.success) {
-            localStorage.setItem("token", refreshData.data.token);
-            localStorage.setItem("refreshToken", refreshData.data.refreshToken);
-            validateSession();
-          }
-        });
-    };
-    validateSession();
+    return validateSession();
   },
 });
 
