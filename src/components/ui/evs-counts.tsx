@@ -30,7 +30,11 @@ export default function EVSCounts(props: EVSCountsProps) {
           icon: (
             <Users className="w-3.5 h-3.5 text-white bg-gray-500 rounded-full p-[2px]" />
           ),
-          label: "Total Record",
+          label: !window.location.pathname.includes(
+            "evacuation-monitoring/reports"
+          )
+            ? "Total Man Power"
+            : "Total Record",
           count: countData?.all,
           bgColor: "bg-gray-50",
           textColor: "text-gray-700",
@@ -38,7 +42,7 @@ export default function EVSCounts(props: EVSCountsProps) {
         },
         {
           icon: <EvacuatedIcon className="w-3.5 h-3.5" />,
-          label: "Safe",
+          label: "Total Evacuees",
           count: countData?.safe,
           bgColor: "bg-green-50",
           textColor: "text-green-700",
@@ -226,7 +230,7 @@ export default function EVSCounts(props: EVSCountsProps) {
           <AttendanceCountCard
             count={countData?.safe ? formatCountWithCommas(countData.safe) : 0}
             icon={<EvacuatedIcon />}
-            subtitle="Safe"
+            subtitle="Total Evacuees"
             variant="success"
           />
 

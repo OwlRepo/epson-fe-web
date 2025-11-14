@@ -120,7 +120,7 @@ function RouteComponent() {
   const handleExport = (filterByStatus: string[] | "all") => {
     const summary = [
       { key: "Overall", value: countData?.total },
-      { key: "Safe", value: countData?.safe },
+      { key: "Total Evacuees", value: countData?.safe },
       { key: "Injured", value: countData?.injured },
       { key: "Go Home", value: countData?.home },
       { key: "Missing", value: countData?.missing },
@@ -258,7 +258,7 @@ function RouteComponent() {
                 {
                   key: "status",
                   label: "Status",
-                  options: ["Safe", "Injured", "Home", "Missing"].map(
+                  options: ["Total Evacuees", "Injured", "Home", "Missing"].map(
                     (item) => ({
                       label: item,
                       value: item,
