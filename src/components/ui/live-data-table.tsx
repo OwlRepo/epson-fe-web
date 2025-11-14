@@ -123,32 +123,6 @@ export function LiveDataTable({
     }
   };
 
-  const handlePageSizeChange = (newPageSize: number) => {
-    // Update URL params
-    if (routeSearch) {
-      navigate({
-        // @ts-ignore
-        search: (prev) => ({
-          ...prev,
-          pageSize: String(newPageSize),
-        }),
-        replace: true,
-      });
-    }
-    // Call the provided callback
-    onPageSizeChange?.(newPageSize);
-  };
-
-  // Slice the data based on page size
-  const slicedData = data.slice(0, pageSize);
-
-  const paginationConfig = {
-    pageSize: Number(routeSearch?.pageSize || pageSize),
-    currentPage: 1,
-    totalItems: data.length,
-    totalPages: 1,
-  };
-
   return (
     <DynamicTable
       {...props}
@@ -157,10 +131,8 @@ export function LiveDataTable({
       clearButtonLabel={clearButtonConfig?.label}
       searchTerm={searchTerm}
       onClearSearch={onClearSearch}
-      data={slicedData}
+      data={data}
       isLiveData={true}
-      pagination={paginationConfig}
-      onPageSizeChange={handlePageSizeChange}
       exportTableData={exportTableData}
     />
   );

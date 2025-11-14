@@ -26,7 +26,6 @@ const Overview = () => {
   const employeeDivisions = liveData.filter((item) => item.type === "1");
   const visitorsDivisions = liveData.filter((item) => item.type === "2");
 
-  console.log("employeeDivisions", employeeDivisions, visitorsDivisions);
   return (
     <div className="flex flex-col p-8">
       <div className="self-end mb-8">

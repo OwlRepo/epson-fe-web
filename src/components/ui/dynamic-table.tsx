@@ -697,8 +697,12 @@ export function DynamicTable({
     data.every((row) => isSelected(tableId, String(row[rowIdField])));
 
   return (
-    <div className="w-full">
-      <div className="flex flex-col gap-4 mb-4">
+    <div className={cn("w-full relative")}>
+      <div
+        className={cn(
+          "flex flex-col w-full gap-4 pb-4 sticky top-0 z-10 bg-white pb-3"
+        )}
+      >
         <div
           className={cn(
             "flex flex-col sm:flex-row gap-2 sm:gap-0 items-center",
