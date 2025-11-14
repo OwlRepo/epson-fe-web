@@ -168,6 +168,7 @@ function RouteComponent() {
                 item.deviceType || item.controllertype ? item.status : "unknown"
               }
               deviceName={item?.name}
+              description={item?.description}
             />
           ))}
         </div>
@@ -194,11 +195,13 @@ function DeviceButton({
   index,
   variant,
   deviceName,
+  description,
   onClick,
 }: {
   index: number;
   variant: string;
   deviceName: string | null;
+  description: string | null;
   onClick?: () => void;
 }) {
   const variantStyles: any = {
@@ -235,6 +238,7 @@ function DeviceButton({
           <Monitor />
         </div>
         <p className="text-black text-xl font-bold">{deviceName}</p>
+        <p className="text-sm text-slate-400">{description}</p>
       </Button>
     </div>
   );
