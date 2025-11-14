@@ -237,8 +237,10 @@ function DeviceButton({
         >
           <Monitor />
         </div>
-        <p className="text-black text-xl font-bold">{deviceName}</p>
-        <p className="text-sm text-slate-400">{description}</p>
+        <div className="flex flex-col items-start">
+          <p className="text-black text-xl font-bold">{deviceName?.trim()}</p>
+          <p className="text-xs text-black">{description}</p>
+        </div>
       </Button>
     </div>
   );
