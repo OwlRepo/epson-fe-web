@@ -1054,18 +1054,21 @@ export function DynamicTable({
                                             }}
                                             initialFocus
                                             disabled={(date) => {
-                                              // Disable dates before the "from" date
-                                              if (
-                                                tempFilters[filter.key]?.[0]
-                                              ) {
-                                                return (
-                                                  date <
-                                                  new Date(
-                                                    tempFilters[filter.key][0]
-                                                  )
-                                                );
-                                              }
-                                              return false;
+                                              const fromDateStr =
+                                                tempFilters[filter.key]?.[0];
+                                              if (!fromDateStr) return false; // No "from" date selected
+
+                                              const fromDate = new Date(
+                                                fromDateStr
+                                              );
+                                              // Normalize time to midnight for safe comparison
+                                              fromDate.setHours(0, 0, 0, 0);
+                                              const compareDate = new Date(
+                                                date
+                                              );
+                                              compareDate.setHours(0, 0, 0, 0);
+
+                                              return compareDate < fromDate; // Disable dates before "from"
                                             }}
                                             className="pointer-events-auto"
                                           />

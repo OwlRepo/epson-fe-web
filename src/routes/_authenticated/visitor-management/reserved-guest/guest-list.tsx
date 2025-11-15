@@ -25,7 +25,7 @@ import {
   useSearch,
 } from "@tanstack/react-router";
 import { Star } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { io, type Socket } from "socket.io-client";
 
 export const Route = createFileRoute(
@@ -212,6 +212,7 @@ function RouteComponent() {
   socketInstance.on("asof", (asofData) => {
     setAsofData(asofData as string);
   });
+  const memoVisitor = useMemo(() => visitor, [visitor?.ID]);
 
   return (
     <>
@@ -296,7 +297,7 @@ function RouteComponent() {
       </div>
       {isOpen && (
         <ReservedGuestInfoDialog
-          visitor={visitor}
+          visitor={memoVisitor}
           isLoading={isVisitorLoading}
           open={isOpen}
           onOpenChange={setIsOpen}

@@ -6,7 +6,7 @@ import BasicInfromationForm from "../BasicInformationForm";
 import { useUpdateReservedGuest } from "@/hooks/mutation/useUpdateReservedGuest";
 import Spinner from "./spinner";
 import { format } from "date-fns";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { toast } from "sonner";
 import useToastStyleTheme from "@/hooks/useToastStyleTheme";
 import { useSocket } from "@/hooks";
@@ -32,6 +32,17 @@ export const ReservedGuestInfoDialog = ({
 
   const { errorStyle, successStyle } = useToastStyleTheme();
   const { emitData } = useSocket({ room: "updates" });
+
+  const memoizedInitialData = useMemo(() => {
+    if (!visitor) return undefined;
+    return {
+      ...visitor,
+      Date: {
+        from: visitor.DateFrom,
+        to: visitor.DateTo,
+      },
+    };
+  }, [visitor?.ID, visitor?.DateFrom, visitor?.DateTo]);
 
   const handleSubmit = (data: Partial<VisitorData>) => {
     switch (data.type) {
@@ -122,15 +133,7 @@ export const ReservedGuestInfoDialog = ({
         {!isLoading && (
           <BasicInfromationForm
             isDialog
-            initialData={
-              visitor && {
-                ...visitor,
-                Date: {
-                  from: visitor.DateFrom,
-                  to: visitor.DateTo,
-                },
-              }
-            }
+            initialData={memoizedInitialData}
             type="register-vip"
             onSubmitData={handleSubmit}
             onUnlinkSubmit={() =>
