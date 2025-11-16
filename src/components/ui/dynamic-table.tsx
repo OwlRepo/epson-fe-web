@@ -145,6 +145,8 @@ interface DynamicTableProps {
   exportTableData?: ExportTableData; // Optional export options
   onClearTable?: () => void; // Optional clear table function
   clearButtonLabel?: string; // Optional clear button label
+  // When true, show pagination buttons even if isLiveData is true
+  showPaginationForLive?: boolean;
 }
 
 export function DynamicTable({
@@ -172,6 +174,7 @@ export function DynamicTable({
   exportTableData,
   onClearTable,
   clearButtonLabel,
+  showPaginationForLive = false,
 }: DynamicTableProps) {
   const navigate = useNavigate();
   const [filterSearches, setFilterSearches] = React.useState<
@@ -1413,7 +1416,7 @@ export function DynamicTable({
           </div>
 
           {/* Pagination navigation - only show when not live data */}
-          {!isLiveData && (
+          {(!isLiveData || showPaginationForLive) && (
             <div className="flex items-center gap-2">
               <button
                 className="inline-flex items-center justify-center whitespace-nowrap rounded text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"

@@ -22,6 +22,8 @@ import { ButtonGroup } from "@/components/ui/button-group";
 import reportExportAll from "@/utils/reportExportAll";
 import { useGetCompletedList } from "@/hooks/query/useGetCompletedList";
 import { useGetDeviceList } from "@/hooks/query/useGetDeviceList";
+import { usePaginatedTableSocket } from "@/hooks/socket/usePaginatedTableSocket";
+import SocketDynamicTable from "@/components/ui/socket-dynamic-table";
 
 export interface EmployeeReport {
   EmployeeNo: string;
@@ -94,6 +96,39 @@ function ReportsDataTable() {
   const { data: typeList } = useGetTypeList();
   const { data: completedList } = useGetCompletedList();
   const { data: deviceList } = useGetDeviceList();
+
+  const activeFilter = search.EvacuationStatus || "current";
+
+  // Socket data source for CURRENT tab
+  const {
+    data: socketRows,
+    counts: socketCounts,
+    meta: socketMeta,
+    isLoading: isSocketLoading,
+  } = usePaginatedTableSocket<any>({
+    room: "evs_reports",
+    routeSearch: search as Record<string, string | undefined>,
+    rowId: "EmployeeNo",
+    normalizeParams: (p) => {
+      // Normalize params so server receives consistent keys
+      // Keep existing keys: page, limit, search, filters, date ranges
+      const payload: Record<string, unknown> = {
+        EvacuationStatus: p.EvacuationStatus || "current",
+        page: p.page ? Number(p.page) : 1,
+        limit: p.limit ? Number(p.limit) : 10,
+        search: p.search || "",
+        Type: p.Type,
+        Status: p.Status,
+        DeviceName: p.DeviceName,
+      };
+      // Date range params (current tab)
+      if (p.from_evs_reports_date || p.to_evs_reports_date) {
+        payload.from_evs_reports_date = p.from_evs_reports_date;
+        payload.to_evs_reports_date = p.to_evs_reports_date;
+      }
+      return payload;
+    },
+  });
 
   useEffect(() => {
     refetch();
@@ -283,8 +318,6 @@ function ReportsDataTable() {
     });
   };
 
-  const activeFilter = search.EvacuationStatus || "current";
-
   const handleEvacuationStatusFilter = (value: string) => {
     navigate({
       search: (prev) => ({
@@ -328,59 +361,130 @@ function ReportsDataTable() {
             Completed
           </Button>
         </ButtonGroup>
-        <EVSCounts countData={totalLogs} type="compact" />
+        <EVSCounts
+          countData={
+            activeFilter === "current" ? socketCounts || {} : totalLogs
+          }
+          type="compact"
+        />
       </div>
-      <DynamicTable
-        columns={columns}
-        data={data ? data : []}
-        isLoading={isLoading}
-        onRowClick={handleRowClick}
-        onSearch={handleSearch}
-        routeSearch={search}
-        exportTableData={{
-          type: "EVS",
-          exportOptions: [
-            {
-              label: "Export All",
-              onClick: () => {
-                reportExportAll({
-                  search,
-                  module: "evs",
-                });
+      {activeFilter === "current" ? (
+        <SocketDynamicTable
+          columns={columns}
+          data={(socketRows || []).map((item: any) => ({
+            ...item,
+            ClockedIN: item.ClockedIN
+              ? dayjs(item.ClockedIN).format("hh:mm a")
+              : null,
+            ClockedOUT: item.ClockedOUT
+              ? dayjs(item.ClockedOUT).format("hh:mm a")
+              : null,
+            EvacuationTime: item.EvacuationTime
+              ? dayjs(item.EvacuationTime).format("MMM D, YYYY hh:mm a")
+              : null,
+            Completed: item.Completed
+              ? dayjs(item.Completed).format("MMM D, YYYY hh:mm a")
+              : null,
+          }))}
+          isLoading={isSocketLoading}
+          onRowClick={handleRowClick}
+          onSearch={handleSearch}
+          routeSearch={search}
+          exportTableData={{
+            type: "EVS",
+            exportOptions: [
+              {
+                label: "Export All",
+                onClick: () => {
+                  reportExportAll({
+                    search,
+                    module: "evs",
+                  });
+                },
               },
-            },
-            {
-              label: "Export Page",
-              onClick: () => {
-                handleExport(data);
+              {
+                label: "Export Page",
+                onClick: () => {
+                  handleExport(socketRows);
+                },
               },
-            },
-            {
-              label: "Export Selected Data",
-              onClick: () => {
-                handleExport(Object.values(selectedRows));
+              {
+                label: "Export Selected Data",
+                onClick: () => {
+                  handleExport(Object.values(selectedRows));
+                },
+                disabled: Object.values(selectedRows).length === 0,
               },
-              disabled: Object.values(selectedRows).length === 0,
-            },
-          ],
-        }}
-        // Multi-select configuration
-        enableRowSelection={true}
-        tableId={tableId}
-        rowIdField="EmployeeNo"
-        onRowSelectionChange={handleRowSelectionChange}
-        filters={filters}
-        // Other optional props
-        onPageChange={handlePageChange}
-        onPageSizeChange={handlePageSizeChange}
-        onFilter={handleFilter}
-        pagination={{
-          currentPage,
-          pageSize,
-          totalPages,
-          totalItems,
-        }}
-      />
+            ],
+          }}
+          enableRowSelection={true}
+          tableId={tableId}
+          rowIdField="EmployeeNo"
+          onRowSelectionChange={handleRowSelectionChange}
+          filters={filters}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+          onFilter={handleFilter}
+          pagination={{
+            currentPage,
+            pageSize,
+            totalPages: socketMeta?.totalPages ?? totalPages,
+            totalItems: socketMeta?.totalItems ?? totalItems,
+          }}
+        />
+      ) : (
+        <DynamicTable
+          columns={columns}
+          data={data ? data : []}
+          isLoading={isLoading}
+          onRowClick={handleRowClick}
+          onSearch={handleSearch}
+          routeSearch={search}
+          exportTableData={{
+            type: "EVS",
+            exportOptions: [
+              {
+                label: "Export All",
+                onClick: () => {
+                  reportExportAll({
+                    search,
+                    module: "evs",
+                  });
+                },
+              },
+              {
+                label: "Export Page",
+                onClick: () => {
+                  handleExport(data);
+                },
+              },
+              {
+                label: "Export Selected Data",
+                onClick: () => {
+                  handleExport(Object.values(selectedRows));
+                },
+                disabled: Object.values(selectedRows).length === 0,
+              },
+            ],
+          }}
+          // Multi-select configuration
+          enableRowSelection={true}
+          tableId={tableId}
+          rowIdField="EmployeeNo"
+          onRowSelectionChange={handleRowSelectionChange}
+          filters={filters}
+          // Other optional props
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+          onFilter={handleFilter}
+          pagination={{
+            currentPage,
+            pageSize,
+            totalPages,
+            totalItems,
+          }}
+        />
+      )}
     </div>
   );
 }
