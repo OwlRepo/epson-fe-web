@@ -194,7 +194,7 @@ function ReportsDataTable() {
           },
         ]
       : []),
-    ...(search.EvacuationStatus === "all"
+    ...(search.EvacuationStatus === "current"
       ? [
           {
             key: "evs_reports_date",
@@ -283,7 +283,7 @@ function ReportsDataTable() {
     });
   };
 
-  const activeFilter = search.EvacuationStatus || "all";
+  const activeFilter = search.EvacuationStatus || "current";
 
   const handleEvacuationStatusFilter = (value: string) => {
     navigate({
@@ -297,7 +297,7 @@ function ReportsDataTable() {
 
   useEffect(() => {
     if (!search.EvacuationStatus) {
-      handleEvacuationStatusFilter("all");
+      handleEvacuationStatusFilter("current");
     }
   }, [search.EvacuationStatus]);
 
@@ -306,13 +306,13 @@ function ReportsDataTable() {
       <div className="mt-2 mb-10 flex justify-between items-center">
         <ButtonGroup>
           <Button
-            variant={activeFilter === "all" ? "default" : "outline"}
+            variant={activeFilter === "current" ? "default" : "outline"}
             className={
-              activeFilter === "all"
+              activeFilter === "current"
                 ? "bg-primary-evs text-white hover:bg-primary-evs"
                 : "bg-white hover:bg-primary-evs hover:text-white"
             }
-            onClick={() => handleEvacuationStatusFilter("all")}
+            onClick={() => handleEvacuationStatusFilter("current")}
           >
             Current
           </Button>
