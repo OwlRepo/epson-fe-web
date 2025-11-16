@@ -112,7 +112,7 @@ function ReportsDataTable() {
       ? (search as Record<string, string | undefined>)
       : {},
     rowId: "EmployeeNo",
-    emitEvent: "evs_reports_filters",
+    emitEvent: "evs_reports",
     normalizeParams: (p) => {
       if (!isCurrentTab) return {};
       // Normalize params so server receives consistent keys
