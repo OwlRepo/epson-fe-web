@@ -48,7 +48,7 @@ function ReportsDataTable() {
 
   const {
     data: reportList,
-    isLoading,
+    isFetching: isLoading,
     refetch,
   } = useGetEmployeeReports(objToParams(search) as any);
 
@@ -106,20 +106,20 @@ function ReportsDataTable() {
       label: "Department",
       options: departments ?? [],
     },
-    // {
-    //   key: "Type",
-    //   label: "Type",
-    //   options: [
-    //     {
-    //       label: "Time In",
-    //       value: "Time In",
-    //     },
-    //     {
-    //       label: "Time Out",
-    //       value: "Time Out",
-    //     },
-    //   ],
-    // },
+    {
+      key: "Type",
+      label: "Type",
+      options: [
+        {
+          label: "Time In",
+          value: "Time In",
+        },
+        {
+          label: "Time Out",
+          value: "Time Out",
+        },
+      ],
+    },
     // {
     //   key: "EmployeeNo",
     //   label: "ID",
