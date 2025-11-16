@@ -314,7 +314,7 @@ function ReportsDataTable() {
             }
             onClick={() => handleEvacuationStatusFilter("all")}
           >
-            All
+            Current
           </Button>
           <Button
             variant={activeFilter === "completed" ? "default" : "outline"}
