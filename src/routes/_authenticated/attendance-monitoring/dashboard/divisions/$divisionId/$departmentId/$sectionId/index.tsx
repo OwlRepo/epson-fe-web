@@ -138,6 +138,16 @@ function RouteComponent() {
                   value: item,
                 })),
               },
+              {
+                key: "controller_type",
+                label: "Type",
+                options: Array.from(
+                  new Set(data.map((item) => item.controller_type))
+                ).map((item) => ({
+                  label: item,
+                  value: item,
+                })),
+              },
               // {
               //   key: "name",
               //   label: "Name",

@@ -188,6 +188,18 @@ function RouteComponent() {
                       value: item,
                     })),
                   },
+                  {
+                    key: "controller_type",
+                    label: "Type",
+                    options: Array.from(
+                      new Set(
+                        liveData.map((item) => `Time ${item.controller_type}`)
+                      )
+                    ).map((item) => ({
+                      label: item,
+                      value: item,
+                    })),
+                  },
                   // {
                   //   key: EMPLOYEE_NAME_TABLE_KEY,
                   //   label: "Name",

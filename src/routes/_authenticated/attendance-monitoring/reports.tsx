@@ -107,6 +107,20 @@ function ReportsDataTable() {
       options: departments ?? [],
     },
     // {
+    //   key: "Type",
+    //   label: "Type",
+    //   options: [
+    //     {
+    //       label: "Time In",
+    //       value: "Time In",
+    //     },
+    //     {
+    //       label: "Time Out",
+    //       value: "Time Out",
+    //     },
+    //   ],
+    // },
+    // {
     //   key: "EmployeeNo",
     //   label: "ID",
     //   options: Array.from(
