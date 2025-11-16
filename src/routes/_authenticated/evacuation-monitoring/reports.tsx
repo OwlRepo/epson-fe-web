@@ -167,8 +167,12 @@ function ReportsDataTable() {
     { key: "Remarks", label: "Remarks" },
     { key: "EvacuationTime", label: "Evacuation Date and Time" },
     { key: "DeviceName", label: "Device Name" },
-    { key: "Completed", label: "Evacuation Completed At" },
-    { key: "Trigger_by", label: "EC Trigger By" },
+    ...(search.EvacuationStatus === "completed"
+      ? [
+          { key: "Completed", label: "Evacuation Completed At" },
+          { key: "Trigger_by", label: "EC Trigger By" },
+        ]
+      : []),
   ];
 
   // const mockedData = {
