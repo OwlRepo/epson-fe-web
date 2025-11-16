@@ -55,7 +55,7 @@ export function createTableSocket({
   });
 
   socket.on("disconnect", () => {
-    console.log("🔌 [TableSocket] Disconnected");
+    console.log("🔌 Socket disconnected from server");
     handlers?.onDisconnect?.();
   });
 

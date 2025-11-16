@@ -80,7 +80,7 @@ export function usePaginatedTableSocket<T extends Record<string, any>>({
           setIsLoading(false);
         },
         onDisconnect: () => {
-          console.log("🔌 [usePaginatedTableSocket] Socket disconnected");
+          console.log("🔌 Socket disconnected from server");
           setIsConnected(false);
         },
         onConnectError: () => {
