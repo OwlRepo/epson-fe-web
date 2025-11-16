@@ -54,6 +54,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./dropdown-menu";
+import { getIsEVS } from "@/utils/env";
 
 /**
  * DynamicTable Component Guide:
@@ -775,13 +776,23 @@ export function DynamicTable({
                       key={filter.key}
                       className="overflow-hidden rounded-lg border border-[#e5e7eb] data-[state=open]:border-0"
                     >
-                      <CollapsibleTrigger className="flex items-center justify-between w-full p-4 hover:bg-accent data-[state=open]:bg-[#1e40af] data-[state=open]:text-white transition-colors duration-200 group">
+                      <CollapsibleTrigger
+                        className={cn(
+                          "flex items-center justify-between w-full p-4 hover:bg-accent data-[state=open]:text-white transition-colors duration-200 group",
+                          getIsEVS()
+                            ? "data-[state=open]:bg-primary-evs"
+                            : "data-[state=open]:bg-[#1e40af]"
+                        )}
+                      >
                         <div className="flex items-center gap-2">
                           <span className="font-medium">{filter.label}</span>
                           {getActiveFilters(filter.key).length > 0 && (
                             <span
                               className={cn(
-                                "rounded-full bg-primary text-primary-foreground px-1.5 text-xs data-[state=open]:bg-[#1e40af] data-[state=open]:text-white"
+                                "rounded-full text-primary-foreground px-1.5 text-xs data-[state=open]:bg-[#1e40af] data-[state=open]:text-white",
+                                getIsEVS()
+                                  ? "data-[state=open]:bg-primary-evs"
+                                  : "data-[state=open]:bg-[#1e40af]"
                               )}
                             >
                               {getActiveFilters(filter.key).length}
@@ -1172,6 +1183,11 @@ export function DynamicTable({
                       Reset
                     </Button>
                     <Button
+                      className={cn(
+                        getIsEVS()
+                          ? "bg-primary-evs text-white hover:bg-primary-evs"
+                          : "bg-[#1e40af] text-white hover:bg-[#1e40af]"
+                      )}
                       onClick={() => {
                         filters.forEach((filter) =>
                           handleApplyFilter(filter.key)

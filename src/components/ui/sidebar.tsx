@@ -285,8 +285,9 @@ const NavItem = ({
         <div
           ref={submenuContainerRef}
           className={cn(
-            "fixed z-50 left-[105px] bg-[#1E3A8A] border border-white/20 rounded shadow-md py-2 px-1 max-w-[300px] max-h-[calc(100vh-250px)] overflow-auto transition-opacity duration-200",
-            isSubmenuVisible ? "opacity-100" : "opacity-0"
+            "fixed z-50 left-[105px] border border-white/20 rounded shadow-md py-2 px-1 max-w-[300px] max-h-[calc(100vh-250px)] overflow-auto transition-opacity duration-200",
+            isSubmenuVisible ? "opacity-100" : "opacity-0",
+            getIsEVS() ? "bg-primary-evs" : "bg-[#1E3A8A]"
           )}
           style={{ top: "var(--submenu-top-position, 0)" }}
         >
