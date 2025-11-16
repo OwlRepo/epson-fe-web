@@ -37,17 +37,19 @@ export function DynamicTableExample() {
   //     useTableSelectionStore.getState().getSelectedRows(tableId),
   //   [useTableSelectionStore.getState().selectedRows[tableId]]
   // );
-  const selectedRows = useMemo(() => useTableSelectionStore.getState().getSelectedRows(tableId), [useTableSelectionStore(state => state.selectedRows[tableId])]);
+  const selectedRows = useMemo(
+    () => useTableSelectionStore.getState().getSelectedRows(tableId),
+    [useTableSelectionStore((state) => state.selectedRows[tableId])]
+  );
   const selectedCount = useMemo(
-    () =>
-      useTableSelectionStore.getState().getSelectedCount(tableId),
-    [useTableSelectionStore(state => state.selectedRows[tableId])]
+    () => useTableSelectionStore.getState().getSelectedCount(tableId),
+    [useTableSelectionStore((state) => state.selectedRows[tableId])]
   );
 
   // Add a subscriber to force re-renders when selection changes
   useEffect(() => {
     return useTableSelectionStore.subscribe(
-      (state) => state.selectedRows[tableId],
+      (state) => state.selectedRows[tableId]
     );
   }, [tableId]);
 
@@ -151,9 +153,7 @@ export function DynamicTableExample() {
   };
 
   // Handler for row selection changes
-  const handleRowSelectionChange = (selected: Record<string, any>) => {
-    console.log("Selected rows:", Object.values(selected));
-  };
+  const handleRowSelectionChange = (selected: Record<string, any>) => {};
 
   // Filter data based on search params
   const filterData = (data: User[]) => {
@@ -207,7 +207,9 @@ export function DynamicTableExample() {
             <div className="flex gap-2">
               <Button
                 size="sm"
-                onClick={() => alert(`Performing bulk action on ${selectedCount} rows`)}
+                onClick={() =>
+                  alert(`Performing bulk action on ${selectedCount} rows`)
+                }
                 variant="default"
               >
                 Bulk Action
@@ -215,7 +217,9 @@ export function DynamicTableExample() {
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => useTableSelectionStore.getState().clearSelection(tableId)}
+                onClick={() =>
+                  useTableSelectionStore.getState().clearSelection(tableId)
+                }
               >
                 Clear Selection
               </Button>
@@ -225,12 +229,17 @@ export function DynamicTableExample() {
           <div className="mt-2 pt-2 border-t border-blue-200">
             <p className="text-sm text-gray-600 mb-1">Selected items:</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-              {Object.values(selectedRows).slice(0, 6).map((row: any) => (
-                <div key={row.id} className="text-sm flex items-center gap-2 bg-white p-1.5 rounded border border-blue-100">
-                  <div className="h-2 w-2 rounded-full bg-blue-500"></div>
-                  {row.name} ({row.role})
-                </div>
-              ))}
+              {Object.values(selectedRows)
+                .slice(0, 6)
+                .map((row: any) => (
+                  <div
+                    key={row.id}
+                    className="text-sm flex items-center gap-2 bg-white p-1.5 rounded border border-blue-100"
+                  >
+                    <div className="h-2 w-2 rounded-full bg-blue-500"></div>
+                    {row.name} ({row.role})
+                  </div>
+                ))}
               {selectedCount > 6 && (
                 <div className="text-sm text-gray-500 flex items-center justify-center bg-white p-1.5 rounded border border-blue-100">
                   + {selectedCount - 6} more
@@ -279,7 +288,9 @@ export function DynamicTableExample() {
         <h3 className="font-medium text-lg">Multi-selection Feature Usage</h3>
 
         <div className="bg-gray-100 p-4 rounded-lg">
-          <h4 className="font-medium mb-2">Complete Example with Multi-select</h4>
+          <h4 className="font-medium mb-2">
+            Complete Example with Multi-select
+          </h4>
           <pre className="text-sm bg-white p-4 rounded border overflow-auto">
             {`// Import necessary components and hooks
 import { useState, useEffect, useMemo } from "react";
@@ -320,7 +331,6 @@ function DataTable() {
   
   // Handle selection changes
   const handleRowSelectionChange = (selected) => {
-    console.log("Selected rows:", Object.values(selected));
     // Perform actions with selected rows
   };
   
@@ -392,7 +402,9 @@ function DataTable() {
           </div>
 
           <div className="bg-gray-100 p-4 rounded-lg">
-            <h4 className="font-medium mb-2">2. Access selected rows anywhere</h4>
+            <h4 className="font-medium mb-2">
+              2. Access selected rows anywhere
+            </h4>
             <pre className="text-sm bg-white p-2 rounded border">
               {`// Import the store
 import useTableSelectionStore from "@/store/tableSelectionStore";

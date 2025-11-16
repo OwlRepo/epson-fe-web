@@ -163,7 +163,6 @@ function ReportsDataTable() {
 
   // Handle selection changes
   const handleRowSelectionChange = (selected: any) => {
-    console.log("Selected rows:", Object.values(selected));
     // Perform actions with selected rows
   };
 

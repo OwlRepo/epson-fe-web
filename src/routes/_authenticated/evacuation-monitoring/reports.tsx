@@ -109,6 +109,7 @@ function ReportsDataTable() {
     room: "evs_reports",
     routeSearch: search as Record<string, string | undefined>,
     rowId: "EmployeeNo",
+    emitEvent: "evs_reports_filters",
     normalizeParams: (p) => {
       // Normalize params so server receives consistent keys
       // Keep existing keys: page, limit, search, filters, date ranges
@@ -256,7 +257,6 @@ function ReportsDataTable() {
 
   // Handle selection changes
   const handleRowSelectionChange = (selected: any) => {
-    console.log("Selected rows:", Object.values(selected));
     // Perform actions with selected rows
   };
 

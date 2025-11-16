@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { SummaryCountData } from "@/hooks/useSocket";
 import { createTableSocket } from "@/sockets/baseTableSocket";
 
-export interface UsePaginatedTableSocketParams<T extends Record<string, any>> {
+export interface UsePaginatedTableSocketParams {
   room: string;
   routeSearch: Record<string, string | undefined>;
   rowId?: string;
@@ -10,6 +10,8 @@ export interface UsePaginatedTableSocketParams<T extends Record<string, any>> {
   normalizeParams?: (
     params: Record<string, string | undefined>
   ) => Record<string, unknown>;
+  // Event name to emit query/filter updates to (separate from joined room)
+  emitEvent?: string; // default: "filters"
 }
 
 export interface PaginatedMeta {
@@ -23,7 +25,8 @@ export function usePaginatedTableSocket<T extends Record<string, any>>({
   rowId = "ID",
   debounceMs = 300,
   normalizeParams,
-}: UsePaginatedTableSocketParams<T>) {
+  emitEvent,
+}: UsePaginatedTableSocketParams) {
   const [data, setData] = useState<T[]>([]);
   const [counts, setCounts] = useState<SummaryCountData | null>(null);
   const [meta, setMeta] = useState<PaginatedMeta>({
@@ -37,14 +40,16 @@ export function usePaginatedTableSocket<T extends Record<string, any>>({
     null
   );
   const emitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const prevParamsStr = useRef<string | null>(null);
+  const connectedLoggedRef = useRef<boolean>(false);
 
   const effectiveParams = useMemo(() => {
     try {
       const raw = routeSearch || {};
-      return (normalizeParams ? normalizeParams(raw) : raw) as Record<
-        string,
-        unknown
-      >;
+      const normalized = (
+        normalizeParams ? normalizeParams(raw) : raw
+      ) as Record<string, unknown>;
+      return normalized;
     } catch {
       return routeSearch as unknown as Record<string, unknown>;
     }
@@ -55,19 +60,34 @@ export function usePaginatedTableSocket<T extends Record<string, any>>({
 
     socketApiRef.current = createTableSocket({
       room,
+      emitEvent,
       handlers: {
         onConnect: () => {
+          if (!connectedLoggedRef.current) {
+            console.log(
+              "🟢 [usePaginatedTableSocket] Socket connected (first time)"
+            );
+            connectedLoggedRef.current = true;
+          }
           setIsConnected(true);
           setIsLoading(false);
         },
         onDisconnect: () => {
+          console.log("🔌 [usePaginatedTableSocket] Socket disconnected");
           setIsConnected(false);
         },
         onConnectError: () => {
+          console.error("🔴 [usePaginatedTableSocket] Socket connect error");
           setIsConnected(false);
           setIsLoading(false);
         },
         onPreload: (payload) => {
+          console.log("📦 [usePaginatedTableSocket] Preload data received", {
+            isArray: Array.isArray(payload),
+            length: Array.isArray(payload)
+              ? (payload as any[]).length
+              : undefined,
+          });
           if (Array.isArray(payload)) {
             setData(payload as T[]);
           } else if (payload && typeof payload === "object") {
@@ -80,6 +100,10 @@ export function usePaginatedTableSocket<T extends Record<string, any>>({
               typeof p?.totalItems === "number" ||
               typeof p?.totalPages === "number"
             ) {
+              console.log("🧭 [usePaginatedTableSocket] Preload meta:", {
+                totalItems: p?.totalItems,
+                totalPages: p?.totalPages,
+              });
               setMeta({
                 totalItems: Number(p?.totalItems) || 0,
                 totalPages: Number(p?.totalPages) || 1,
@@ -89,6 +113,10 @@ export function usePaginatedTableSocket<T extends Record<string, any>>({
           setIsLoading(false);
         },
         onData: (payload) => {
+          console.log("🔄 [usePaginatedTableSocket] Live data received", {
+            isArray: Array.isArray(payload),
+            length: Array.isArray(payload) ? (payload as any[]).length : 1,
+          });
           if (!payload) return;
           // Support single row or batch
           const rows: T[] = Array.isArray(payload)
@@ -109,6 +137,10 @@ export function usePaginatedTableSocket<T extends Record<string, any>>({
           });
         },
         onRemoveData: (payload) => {
+          console.log(
+            "🗑️ [usePaginatedTableSocket] Remove data received:",
+            payload
+          );
           setData((prev) => {
             const value = payload as any;
             return prev.filter(
@@ -117,6 +149,10 @@ export function usePaginatedTableSocket<T extends Record<string, any>>({
           });
         },
         onCount: (payload) => {
+          console.log(
+            "📊 [usePaginatedTableSocket] Count data received:",
+            payload
+          );
           const c = payload as any;
           // Accept both SummaryCountData and extended pagination meta
           setCounts((prev) => ({
@@ -141,6 +177,10 @@ export function usePaginatedTableSocket<T extends Record<string, any>>({
             typeof c?.totalItems === "number" ||
             typeof c?.totalPages === "number"
           ) {
+            console.log("🧭 [usePaginatedTableSocket] Meta from count:", {
+              totalItems: c?.totalItems,
+              totalPages: c?.totalPages,
+            });
             setMeta({
               totalItems: Number(c?.totalItems) || 0,
               totalPages: Number(c?.totalPages) || 1,
@@ -164,6 +204,13 @@ export function usePaginatedTableSocket<T extends Record<string, any>>({
 
   // Emit normalized params whenever routeSearch changes (debounced)
   useEffect(() => {
+    // Stringify once for deep-compare
+    const nextParamsStr = JSON.stringify(effectiveParams);
+
+    // Skip if params did not actually change
+    if (prevParamsStr.current === nextParamsStr) {
+      return;
+    }
     if (!socketApiRef.current) return;
     if (emitTimerRef.current) {
       clearTimeout(emitTimerRef.current);
@@ -171,6 +218,8 @@ export function usePaginatedTableSocket<T extends Record<string, any>>({
     }
     emitTimerRef.current = setTimeout(() => {
       socketApiRef.current?.emitFilters(effectiveParams);
+      // Save the latest emitted params snapshot
+      prevParamsStr.current = nextParamsStr;
     }, debounceMs);
 
     return () => {
