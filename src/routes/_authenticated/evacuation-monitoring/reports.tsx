@@ -98,19 +98,23 @@ function ReportsDataTable() {
   const { data: deviceList } = useGetDeviceList();
 
   const activeFilter = search.EvacuationStatus || "current";
+  const isCurrentTab = activeFilter === "current";
 
-  // Socket data source for CURRENT tab
+  // Socket data source for CURRENT tab ONLY
   const {
     data: socketRows,
     counts: socketCounts,
     meta: socketMeta,
     isLoading: isSocketLoading,
   } = usePaginatedTableSocket<any>({
-    room: "evs_reports",
-    routeSearch: search as Record<string, string | undefined>,
+    room: isCurrentTab ? "evs_reports" : "",
+    routeSearch: isCurrentTab
+      ? (search as Record<string, string | undefined>)
+      : {},
     rowId: "EmployeeNo",
     emitEvent: "evs_reports_filters",
     normalizeParams: (p) => {
+      if (!isCurrentTab) return {};
       // Normalize params so server receives consistent keys
       // Keep existing keys: page, limit, search, filters, date ranges
       const payload: Record<string, unknown> = {

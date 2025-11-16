@@ -56,6 +56,13 @@ export function usePaginatedTableSocket<T extends Record<string, any>>({
   }, [routeSearch, normalizeParams]);
 
   useEffect(() => {
+    // Skip socket initialization if no room provided (e.g., inactive tab)
+    if (!room) {
+      setIsLoading(false);
+      setIsConnected(false);
+      return;
+    }
+
     setIsLoading(true);
 
     socketApiRef.current = createTableSocket({
