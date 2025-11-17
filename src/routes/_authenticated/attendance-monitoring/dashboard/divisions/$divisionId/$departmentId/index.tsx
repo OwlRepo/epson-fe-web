@@ -49,6 +49,7 @@ function RouteComponent() {
                   title={section.name}
                   clockedIn={section.in}
                   clockedOut={section.out}
+                  type="ams"
                 />
               </Link>
             ))

@@ -95,6 +95,7 @@ export interface LiveData extends DeviceData, VisitorData {
   type?: string;
   evacuated?: string;
   missing?: string;
+  device_name?: string;
 }
 
 type DataType = "summary" | "live";

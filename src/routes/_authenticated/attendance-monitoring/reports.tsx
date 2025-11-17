@@ -98,6 +98,7 @@ function ReportsDataTable() {
     { key: "DepartmentName", label: "Department" },
     { key: "Type", label: "Type" },
     { key: "DateTime", label: "Date Time" },
+    { key: "DeviceName", label: "Device Name" },
   ];
 
   const filters = [

@@ -33,6 +33,7 @@ const EMPLOYEE_SECTION_TABLE_KEY = "section";
 const EMPLOYEE_CLOCKED_IN_TABLE_KEY = "clocked_in";
 const EMPLOYEE_CONTROLLER_TYPE = "controller_type";
 const EMPLOYEE_DATE_TIME = "date_receive";
+const DEVICE_NAME = "device_name";
 
 function RouteComponent() {
   const navigate = useNavigate({
@@ -165,6 +166,10 @@ function RouteComponent() {
                   {
                     key: EMPLOYEE_DATE_TIME,
                     label: "Date Time",
+                  },
+                  {
+                    key: DEVICE_NAME,
+                    label: "Device Name",
                   },
                 ]}
                 filters={[
