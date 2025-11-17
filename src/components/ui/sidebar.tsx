@@ -18,6 +18,7 @@ import { useCurrentPath } from "@/hooks/useCurrentPath";
 import { EPSON_LOGO_WHITE } from "@/assets/images";
 import { VerifyiLogoLight, VerifyiVLogo } from "@/assets/svgs";
 import { getIsEVS } from "@/utils/env";
+import { APP_VERSION } from "@/constants/appVersion";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -559,7 +560,7 @@ export function Sidebar({
         {!collapsed ? (
           <div className="flex flex-col items-center justify-center gap-3">
             <VerifyiLogoLight className="w-full px-16 opacity-70 h-fit" />
-            <div className="text-white text-xs text-center">version 1.2.0</div>
+            <div className="text-white text-xs text-center">version {APP_VERSION}</div>
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center">

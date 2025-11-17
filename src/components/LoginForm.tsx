@@ -8,6 +8,7 @@ import { useState } from "react";
 import Spinner from "./ui/spinner";
 import { VerifyiColoredLogo } from "@/assets/svgs";
 import useLoginUser from "@/hooks/mutation/useLoginUser";
+import { APP_VERSION } from "@/constants/appVersion";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address").min(1, "Email is required"),
@@ -138,7 +139,7 @@ export function LoginForm() {
       {/* Footer */}
       <div className="text-center text-sm text-gray-600 mt-20">
         <p>Copyright ©2025 Produced by ELID Technology Intl, Inc.</p>
-        <p>version 1.2.0</p>
+        <p>version {APP_VERSION}</p>
       </div>
     </div>
   );

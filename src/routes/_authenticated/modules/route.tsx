@@ -13,6 +13,7 @@ import UserProfile from "@/components/ui/user-profile";
 import { useEffect, useMemo, useState } from "react";
 import { getEVSAppBaseUrl, getIsEVS } from "@/utils/env";
 import { validateSession } from "../route";
+import { APP_VERSION } from "@/constants/appVersion";
 
 export const Route = createFileRoute("/_authenticated/modules")({
   component: RouteComponent,
@@ -215,7 +216,7 @@ function RouteComponent() {
       {/* Footer */}
       <div className="relative z-10 mt-4 sm:mt-6 lg:mt-8 text-center text-xs sm:text-sm px-4 py-10">
         <p>Copyright ©2025 Produced by ELD Technology Intl, Inc.</p>
-        <p>version 1.2.0</p>
+        <p>version {APP_VERSION}</p>
       </div>
     </div>
   );

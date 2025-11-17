@@ -30,6 +30,7 @@ import { Route as AuthenticatedEvacuationMonitoringReportsImport } from './route
 import { Route as AuthenticatedEvacuationMonitoringOverviewImport } from './routes/_authenticated/evacuation-monitoring/overview'
 import { Route as AuthenticatedAttendanceMonitoringSettingsImport } from './routes/_authenticated/attendance-monitoring/settings'
 import { Route as AuthenticatedAttendanceMonitoringReportsImport } from './routes/_authenticated/attendance-monitoring/reports'
+import { Route as AuthenticatedAttendanceMonitoringHelpImport } from './routes/_authenticated/attendance-monitoring/help'
 import { Route as AuthenticatedAttendanceMonitoringEmployeesImport } from './routes/_authenticated/attendance-monitoring/employees'
 import { Route as AuthenticatedEvacuationMonitoringCdeproIndexImport } from './routes/_authenticated/evacuation-monitoring/cdepro/index'
 import { Route as AuthenticatedVisitorManagementReservedGuestRegisterGuestImport } from './routes/_authenticated/visitor-management/reserved-guest/register-guest'
@@ -179,6 +180,13 @@ const AuthenticatedAttendanceMonitoringReportsRoute =
   AuthenticatedAttendanceMonitoringReportsImport.update({
     id: '/reports',
     path: '/reports',
+    getParentRoute: () => AuthenticatedAttendanceMonitoringRouteRoute,
+  } as any)
+
+const AuthenticatedAttendanceMonitoringHelpRoute =
+  AuthenticatedAttendanceMonitoringHelpImport.update({
+    id: '/help',
+    path: '/help',
     getParentRoute: () => AuthenticatedAttendanceMonitoringRouteRoute,
   } as any)
 
@@ -475,6 +483,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAttendanceMonitoringEmployeesImport
       parentRoute: typeof AuthenticatedAttendanceMonitoringRouteImport
     }
+    '/_authenticated/attendance-monitoring/help': {
+      id: '/_authenticated/attendance-monitoring/help'
+      path: '/help'
+      fullPath: '/attendance-monitoring/help'
+      preLoaderRoute: typeof AuthenticatedAttendanceMonitoringHelpImport
+      parentRoute: typeof AuthenticatedAttendanceMonitoringRouteImport
+    }
     '/_authenticated/attendance-monitoring/reports': {
       id: '/_authenticated/attendance-monitoring/reports'
       path: '/reports'
@@ -692,6 +707,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAttendanceMonitoringRouteRouteChildren {
   AuthenticatedAttendanceMonitoringEmployeesRoute: typeof AuthenticatedAttendanceMonitoringEmployeesRoute
+  AuthenticatedAttendanceMonitoringHelpRoute: typeof AuthenticatedAttendanceMonitoringHelpRoute
   AuthenticatedAttendanceMonitoringReportsRoute: typeof AuthenticatedAttendanceMonitoringReportsRoute
   AuthenticatedAttendanceMonitoringSettingsRoute: typeof AuthenticatedAttendanceMonitoringSettingsRoute
   AuthenticatedAttendanceMonitoringDashboardOverviewRoute: typeof AuthenticatedAttendanceMonitoringDashboardOverviewRoute
@@ -708,6 +724,8 @@ const AuthenticatedAttendanceMonitoringRouteRouteChildren: AuthenticatedAttendan
   {
     AuthenticatedAttendanceMonitoringEmployeesRoute:
       AuthenticatedAttendanceMonitoringEmployeesRoute,
+    AuthenticatedAttendanceMonitoringHelpRoute:
+      AuthenticatedAttendanceMonitoringHelpRoute,
     AuthenticatedAttendanceMonitoringReportsRoute:
       AuthenticatedAttendanceMonitoringReportsRoute,
     AuthenticatedAttendanceMonitoringSettingsRoute:
@@ -886,6 +904,7 @@ export interface FileRoutesByFullPath {
   '/user-management': typeof AuthenticatedUserManagementRouteRouteWithChildren
   '/visitor-management': typeof AuthenticatedVisitorManagementRouteRouteWithChildren
   '/attendance-monitoring/employees': typeof AuthenticatedAttendanceMonitoringEmployeesRoute
+  '/attendance-monitoring/help': typeof AuthenticatedAttendanceMonitoringHelpRoute
   '/attendance-monitoring/reports': typeof AuthenticatedAttendanceMonitoringReportsRoute
   '/attendance-monitoring/settings': typeof AuthenticatedAttendanceMonitoringSettingsRoute
   '/evacuation-monitoring/overview': typeof AuthenticatedEvacuationMonitoringOverviewRoute
@@ -933,6 +952,7 @@ export interface FileRoutesByTo {
   '/user-management': typeof AuthenticatedUserManagementRouteRouteWithChildren
   '/visitor-management': typeof AuthenticatedVisitorManagementRouteRouteWithChildren
   '/attendance-monitoring/employees': typeof AuthenticatedAttendanceMonitoringEmployeesRoute
+  '/attendance-monitoring/help': typeof AuthenticatedAttendanceMonitoringHelpRoute
   '/attendance-monitoring/reports': typeof AuthenticatedAttendanceMonitoringReportsRoute
   '/attendance-monitoring/settings': typeof AuthenticatedAttendanceMonitoringSettingsRoute
   '/evacuation-monitoring/overview': typeof AuthenticatedEvacuationMonitoringOverviewRoute
@@ -981,6 +1001,7 @@ export interface FileRoutesById {
   '/_authenticated/user-management': typeof AuthenticatedUserManagementRouteRouteWithChildren
   '/_authenticated/visitor-management': typeof AuthenticatedVisitorManagementRouteRouteWithChildren
   '/_authenticated/attendance-monitoring/employees': typeof AuthenticatedAttendanceMonitoringEmployeesRoute
+  '/_authenticated/attendance-monitoring/help': typeof AuthenticatedAttendanceMonitoringHelpRoute
   '/_authenticated/attendance-monitoring/reports': typeof AuthenticatedAttendanceMonitoringReportsRoute
   '/_authenticated/attendance-monitoring/settings': typeof AuthenticatedAttendanceMonitoringSettingsRoute
   '/_authenticated/evacuation-monitoring/overview': typeof AuthenticatedEvacuationMonitoringOverviewRoute
@@ -1030,6 +1051,7 @@ export interface FileRouteTypes {
     | '/user-management'
     | '/visitor-management'
     | '/attendance-monitoring/employees'
+    | '/attendance-monitoring/help'
     | '/attendance-monitoring/reports'
     | '/attendance-monitoring/settings'
     | '/evacuation-monitoring/overview'
@@ -1076,6 +1098,7 @@ export interface FileRouteTypes {
     | '/user-management'
     | '/visitor-management'
     | '/attendance-monitoring/employees'
+    | '/attendance-monitoring/help'
     | '/attendance-monitoring/reports'
     | '/attendance-monitoring/settings'
     | '/evacuation-monitoring/overview'
@@ -1122,6 +1145,7 @@ export interface FileRouteTypes {
     | '/_authenticated/user-management'
     | '/_authenticated/visitor-management'
     | '/_authenticated/attendance-monitoring/employees'
+    | '/_authenticated/attendance-monitoring/help'
     | '/_authenticated/attendance-monitoring/reports'
     | '/_authenticated/attendance-monitoring/settings'
     | '/_authenticated/evacuation-monitoring/overview'
@@ -1223,6 +1247,7 @@ export const routeTree = rootRoute
       "parent": "/_authenticated",
       "children": [
         "/_authenticated/attendance-monitoring/employees",
+        "/_authenticated/attendance-monitoring/help",
         "/_authenticated/attendance-monitoring/reports",
         "/_authenticated/attendance-monitoring/settings",
         "/_authenticated/attendance-monitoring/dashboard/overview",
@@ -1289,6 +1314,10 @@ export const routeTree = rootRoute
     },
     "/_authenticated/attendance-monitoring/employees": {
       "filePath": "_authenticated/attendance-monitoring/employees.tsx",
+      "parent": "/_authenticated/attendance-monitoring"
+    },
+    "/_authenticated/attendance-monitoring/help": {
+      "filePath": "_authenticated/attendance-monitoring/help.tsx",
       "parent": "/_authenticated/attendance-monitoring"
     },
     "/_authenticated/attendance-monitoring/reports": {
