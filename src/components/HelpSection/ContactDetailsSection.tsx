@@ -7,7 +7,7 @@ export function ContactDetailsSection() {
     <Card className="h-full">
       <CardHeader className="pb-10 flex justify-between items-center gap-4">
         <div className="flex justify-end">
-          <div className="w-32 h-32 bg-gray-200 rounded-lg flex items-center justify-center border border-gray-300">
+          <div className="w-[350px] rounded-lg flex items-center justify-center">
             {helpData.elidLogo ? (
               <img
                 src={helpData.elidLogo}
@@ -21,9 +21,6 @@ export function ContactDetailsSection() {
             )}
           </div>
         </div>
-        <CardTitle className="text-xl font-semibold text-gray-900 uppercase tracking-wide">
-          ELID INTERNATIONAL CONTACT DETAILS
-        </CardTitle>
       </CardHeader>
       <CardContent className="space-y-8">
         {/* International Contact Details */}

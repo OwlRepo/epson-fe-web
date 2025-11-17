@@ -1,4 +1,12 @@
 import { APP_VERSION } from "./appVersion";
+import { ELID_LOGO, TROY_MENDOZA } from "@/assets/images/team";
+import { EDWARD_TOLENTINO } from "@/assets/images/team";
+import { JOEL_HERNANDEZ } from "@/assets/images/team";
+import { WARREN_CERENO } from "@/assets/images/team";
+import { ROLANDO_RELUYA } from "@/assets/images/team";
+import { CAYLE_MANLAPAZ } from "@/assets/images/team";
+import { PAUL_ABUNGAN } from "@/assets/images/team";
+// import { MARICON_BITANA } from "@/assets/images/team";
 
 export interface ContactInfo {
   name: string;
@@ -12,7 +20,7 @@ export interface HelpData {
   elidAddress: string;
   elidEmailAddress: string;
   elidOfficeContactNumber: string;
-  elidLogo?: string | null;
+  elidLogo: string;
   internationalContacts: ContactInfo[];
   systemSupportContacts: ContactInfo[];
 }
@@ -22,31 +30,31 @@ export const helpData: HelpData = {
   elidAddress: "2601 N. Domingo St., Brgy. San Antonio, Mandaluyong City",
   elidEmailAddress: "info@elid.com",
   elidOfficeContactNumber: "02-8528-0000",
-  elidLogo: null,
+  elidLogo: ELID_LOGO,
   internationalContacts: [
     {
       name: "Troy Mendoza",
       position: "Account Manager",
       contactNumber: "0917-7312212",
-      picture: null,
+      picture: TROY_MENDOZA,
     },
     {
       name: "Edward Tolentino",
       position: "Project Manager",
       contactNumber: "0917-8208779",
-      picture: null,
+      picture: EDWARD_TOLENTINO,
     },
     {
       name: "Joel Hernandez",
       position: "Project Engr",
       contactNumber: "0929-6769674",
-      picture: null,
+      picture: JOEL_HERNANDEZ,
     },
     {
       name: "Warren Cereno",
       position: "MIS Head",
       contactNumber: "0917-1745010",
-      picture: null,
+      picture: WARREN_CERENO,
     },
   ],
   systemSupportContacts: [
@@ -54,19 +62,19 @@ export const helpData: HelpData = {
       name: "Rolando Reluya",
       position: "Systems Specialist",
       contactNumber: "0916-3304742",
-      picture: null,
+      picture: ROLANDO_RELUYA,
     },
     {
       name: "Cayle Manlapaz",
       position: "Systems Specialist",
       contactNumber: "0976-3961035",
-      picture: null,
+      picture: CAYLE_MANLAPAZ,
     },
     {
       name: "Paul Abungan",
       position: "System and Hardware Specialist",
       contactNumber: "0966-3505819",
-      picture: null,
+      picture: PAUL_ABUNGAN,
     },
     {
       name: "Maricon Bitana",
