@@ -127,12 +127,7 @@ function ReportsDataTable() {
     {
       key: "DeviceName",
       label: "Device Name",
-      options: Array.from(
-        new Set(deviceList?.data.map((item: any) => item.device_name))
-      ).map((item) => ({
-        label: item,
-        value: item,
-      })),
+      options: deviceList ?? [],
     },
     // {
     //   key: "EmployeeNo",

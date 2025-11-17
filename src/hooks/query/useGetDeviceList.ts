@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 const getDeviceList = async () => {
   try {
     const response = await api.get(
-      `api/${getIsEVS() ? "evs" : "ams"}/getDeviceList`
+      `api/${getIsEVS() ? "evs" : "dmg"}/getDeviceList`
     );
 
     return response.data.data;
