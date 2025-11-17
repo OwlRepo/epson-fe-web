@@ -11,6 +11,7 @@ interface ModuleCardProps {
   className?: string;
   external?: boolean;
   onHover?: () => void;
+  disabled?: boolean;
 }
 
 export function ModuleCard({
@@ -21,7 +22,15 @@ export function ModuleCard({
   className,
   external,
   onHover,
+  disabled = false,
 }: ModuleCardProps) {
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (disabled) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
+
   return (
     <Link
       to={href}
@@ -33,6 +42,7 @@ export function ModuleCard({
       target={external ? "_blank" : undefined}
       rel={external ? "noopener noreferrer" : undefined}
       onMouseEnter={onHover}
+      onClick={handleClick}
     >
       {typeof icon === "string" ? (
         <img

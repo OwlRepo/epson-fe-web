@@ -10,10 +10,11 @@ import {
 import { EPSON_LOGO_NORMAL } from "@/assets/images";
 import { ModuleCard } from "@/components/ui/module-card";
 import UserProfile from "@/components/ui/user-profile";
-import { useEffect, useMemo, useState } from "react";
-import { getEVSAppBaseUrl, getIsEVS } from "@/utils/env";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { getIsEVS } from "@/utils/env";
 import { validateSession } from "../route";
 import { APP_VERSION } from "@/constants/appVersion";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/modules")({
   component: RouteComponent,
@@ -73,6 +74,10 @@ function RouteComponent() {
   const [evsUrl, setEvsUrl] = useState<string | null>(
     localStorage.getItem("evsURL") ?? null
   );
+  const [isValidating, setIsValidating] = useState(false);
+  // Initialize as true since we're already authenticated (validateSession succeeded in loader)
+  const [isValidated, setIsValidated] = useState(true);
+  const [validationError, setValidationError] = useState(false);
   const moduleRoutes = useMemo(
     () => [
       {
@@ -142,6 +147,20 @@ function RouteComponent() {
     };
   }, []);
 
+  // Track initial mount to avoid resetting validation state on first render
+  const isInitialMount = useRef(true);
+
+  // Reset validation state when evsUrl changes (new URL means we need to validate again)
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+    setIsValidated(false);
+    setValidationError(false);
+    setIsValidating(false);
+  }, [evsUrl]);
+
   const navigate = useNavigate();
   const userName =
     JSON.parse(localStorage.getItem("user")!)?.Name ??
@@ -194,22 +213,44 @@ function RouteComponent() {
 
         {/* Modules Grid */}
         <div className="flex flex-row flex-wrap justify-center items-center gap-20 min-h-[500px] min-w-[600px]">
-          {modules.map((module) => (
-            <ModuleCard
-              key={module.path}
-              icon={module.icon}
-              title={module.title}
-              subtitle={module.subtitle ?? ""}
-              href={module.path ?? ""}
-              external={module.external}
-              onHover={() => {
-                if (module.path === evsUrl) {
-                  validateSession();
-                }
-              }}
-              className="w-full lg:w-[320px] border border-gray-200 rounded-2xl hover:border-gray-300 transition-colors"
-            />
-          ))}
+          {modules.map((module) => {
+            const isEVSModule = module.path === evsUrl;
+            const isDisabled =
+              isEVSModule && (isValidating || validationError || !isValidated);
+
+            return (
+              <ModuleCard
+                key={module.path}
+                icon={module.icon}
+                title={module.title}
+                subtitle={module.subtitle ?? ""}
+                href={module.path ?? ""}
+                external={module.external}
+                disabled={isDisabled}
+                onHover={async () => {
+                  if (isEVSModule && !isValidating) {
+                    setIsValidating(true);
+                    setValidationError(false);
+                    try {
+                      await validateSession();
+                      setIsValidated(true);
+                      setValidationError(false);
+                    } catch (error) {
+                      setValidationError(true);
+                      setIsValidated(false);
+                      toast.error("Session validation failed", {
+                        description:
+                          "Unable to validate session. Please try again.",
+                      });
+                    } finally {
+                      setIsValidating(false);
+                    }
+                  }
+                }}
+                className="w-full lg:w-[320px] border border-gray-200 rounded-2xl hover:border-gray-300 transition-colors"
+              />
+            );
+          })}
         </div>
       </div>
 
