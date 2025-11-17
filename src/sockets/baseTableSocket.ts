@@ -86,6 +86,14 @@ export function createTableSocket({
     console.log("🗑️ [TableSocket] Remove data received:", payload);
     handlers?.onRemoveData?.(payload);
   });
+  socket.on("count", (payload) => {
+    console.log("📊 [TableSocket] Count received:", payload);
+    handlers?.onCount?.(payload);
+  });
+  socket.on("asof", (payload) => {
+    // console.log("⏱️ [TableSocket] Asof received:", payload);
+    handlers?.onAsof?.(payload);
+  });
 
   function emitFilters(
     params: Record<string, unknown>,
