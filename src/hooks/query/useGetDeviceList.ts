@@ -1,9 +1,12 @@
 import api from "@/config/axiosInstance";
+import { getIsEVS } from "@/utils/env";
 import { useQuery } from "@tanstack/react-query";
 
 const getDeviceList = async () => {
   try {
-    const response = await api.get(`api/evs/getDeviceList`);
+    const response = await api.get(
+      `api/${getIsEVS() ? "evs" : "ams"}/getDeviceList`
+    );
 
     return response.data.data;
   } catch (error) {

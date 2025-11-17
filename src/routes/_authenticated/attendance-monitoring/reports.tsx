@@ -14,6 +14,7 @@ import { objToParams } from "@/utils/objToParams";
 import { unparse } from "papaparse";
 import { useGetDepartmentList } from "@/hooks/query/useGetDepartmentList";
 import reportExportAll from "@/utils/reportExportAll";
+import { useGetDeviceList } from "@/hooks/query/useGetDeviceList";
 
 export interface EmployeeReport {
   EmployeeNo: string;
@@ -101,6 +102,8 @@ function ReportsDataTable() {
     { key: "DeviceName", label: "Device Name" },
   ];
 
+  const { data: deviceList } = useGetDeviceList();
+
   const filters = [
     {
       key: "Department",
@@ -120,6 +123,16 @@ function ReportsDataTable() {
           value: "Time Out",
         },
       ],
+    },
+    {
+      key: "DeviceName",
+      label: "Device Name",
+      options: Array.from(
+        new Set(deviceList?.data.map((item: any) => item.device_name))
+      ).map((item) => ({
+        label: item,
+        value: item,
+      })),
     },
     // {
     //   key: "EmployeeNo",
