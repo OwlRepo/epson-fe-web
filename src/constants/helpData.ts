@@ -6,7 +6,7 @@ import { WARREN_CERENO } from "@/assets/images/team";
 import { ROLANDO_RELUYA } from "@/assets/images/team";
 import { CAYLE_MANLAPAZ } from "@/assets/images/team";
 import { PAUL_ABUNGAN } from "@/assets/images/team";
-// import { MARICON_BITANA } from "@/assets/images/team";
+import { MARICON_BITANA } from "@/assets/images/team";
 
 export interface ContactInfo {
   name: string;
@@ -81,7 +81,7 @@ export const helpData: HelpData = {
       name: "Maricon Bitana",
       position: "Aftersales support",
       contactNumber: "0915-5945656",
-      picture: null,
+      picture: MARICON_BITANA,
     },
   ],
 };
