@@ -9,7 +9,7 @@ export function SystemInfoSection() {
   const { successStyle } = useToastStyleTheme();
   return (
     <Card className="h-fit">
-      <CardContent className="p-6 flex justify-between items-center">
+      <CardContent className="p-6 flex justify-between items-start">
         <div className="space-y-2">
           <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
             VERIFYI VERSION
@@ -19,16 +19,16 @@ export function SystemInfoSection() {
 
         <div className="space-y-2">
           <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-            ELID ADDRESS
+            ADDRESS
           </h3>
-          <p className="text-base text-gray-900">
+          <p className="text-xs text-gray-900 max-w-xs">
             {helpData.elidAddress || "-"}
           </p>
         </div>
 
         <div className="space-y-2">
           <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-            ELID EMAIL ADDRESS
+            EMAIL
           </h3>
           <div className="flex items-center gap-2">
             <p className="text-base text-gray-900">
@@ -57,7 +57,7 @@ export function SystemInfoSection() {
 
         <div className="space-y-2">
           <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-            OFFICE CONTACT NUMBER
+            CONTACT NUMBER
           </h3>
           <p className="text-base text-gray-900">
             {helpData.elidOfficeContactNumber || "-"}

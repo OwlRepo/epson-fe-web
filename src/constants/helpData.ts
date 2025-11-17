@@ -27,7 +27,8 @@ export interface HelpData {
 
 export const helpData: HelpData = {
   verifyiVersion: APP_VERSION,
-  elidAddress: "2601 N. Domingo St., Brgy. San Antonio, Mandaluyong City",
+  elidAddress:
+    "1404 Annapolis Wilshire Plaza Building, 11 Annapolis St., Greenhills, San Juan, Metro Manila, Philippines",
   elidEmailAddress: "info@elid.com",
   elidOfficeContactNumber: "02-8528-0000",
   elidLogo: ELID_LOGO,

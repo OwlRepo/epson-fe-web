@@ -26,7 +26,7 @@ export function ContactDetailsSection() {
         {/* International Contact Details */}
         <div className="space-y-4">
           <h4 className="text-base font-semibold text-gray-800 uppercase tracking-wide">
-            International Contact Details
+            Contact Details
           </h4>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {helpData.internationalContacts.map((contact, index) => (
