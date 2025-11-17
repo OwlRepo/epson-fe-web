@@ -10,7 +10,7 @@ import { Avatar, AvatarFallback } from "./avatar";
 
 // Helper function to truncate text
 function truncateText(text: string, maxLength: number) {
-  if (text.length <= maxLength) return text;
+  if (text?.length <= maxLength) return text;
   return text.slice(0, maxLength - 1) + ".";
 }
 
