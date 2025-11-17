@@ -154,7 +154,7 @@ function RouteComponent() {
               },
               {
                 key: "device_name",
-                label: "Type",
+                label: "Device Name",
                 options: Array.from(
                   new Set(data.map((item: any) => item.device_name))
                 ).map((item) => ({
@@ -216,7 +216,7 @@ function RouteComponent() {
                   device_name,
                 };
               })
-              .filter((item) => {
+              .filter((item: any) => {
                 const matchesSection = matchesFilter(
                   item.section ?? "",
                   search.filter_section
@@ -236,12 +236,18 @@ function RouteComponent() {
                   !search.filter_clocked_out ||
                   item.clocked_out === search.filter_clocked_out;
 
+                const matchesDeviceName = matchesFilter(
+                  item.device_name ?? "",
+                  search.filter_device_name
+                );
+
                 return (
                   matchesSection &&
                   matchesId &&
                   matchesName &&
                   matchesTimeIn &&
-                  matchesTimeOut
+                  matchesTimeOut &&
+                  matchesDeviceName
                 );
               })
               .reverse()}

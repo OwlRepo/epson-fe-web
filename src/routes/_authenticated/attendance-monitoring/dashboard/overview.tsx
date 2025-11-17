@@ -205,6 +205,16 @@ function RouteComponent() {
                       value: item,
                     })),
                   },
+                  {
+                    key: DEVICE_NAME,
+                    label: "Device Name",
+                    options: Array.from(
+                      new Set(liveData.map((item) => item.device_name))
+                    ).map((item) => ({
+                      label: item,
+                      value: item,
+                    })),
+                  },
                   // {
                   //   key: EMPLOYEE_NAME_TABLE_KEY,
                   //   label: "Name",
@@ -255,7 +265,7 @@ function RouteComponent() {
                       [EMPLOYEE_CONTROLLER_TYPE]: "Time " + controller_type,
                     };
                   })
-                  .filter((item) => {
+                  .filter((item: any) => {
                     const matchesSection = matchesFilter(
                       item[EMPLOYEE_SECTION_TABLE_KEY] ?? "",
                       search.filter_section
@@ -276,12 +286,18 @@ function RouteComponent() {
                       !search.filter_date_receive ||
                       item[EMPLOYEE_DATE_TIME] === search.filter_date_receive;
 
+                    const matchesDeviceName = matchesFilter(
+                      item[DEVICE_NAME] ?? "",
+                      search.filter_device_name
+                    );
+
                     return (
                       matchesSection &&
                       matchesId &&
                       matchesName &&
                       matchesTimeIn &&
-                      matchesTimeOut
+                      matchesTimeOut &&
+                      matchesDeviceName
                     );
                   })
                   .reverse()}
