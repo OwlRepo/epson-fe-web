@@ -212,7 +212,7 @@ function RouteComponent() {
   socketInstance.on("asof", (asofData) => {
     setAsofData(asofData as string);
   });
-  const memoVisitor = useMemo(() => visitor, [visitor?.ID]);
+  const memoVisitor = useMemo(() => visitor, [visitor]);
 
   return (
     <>

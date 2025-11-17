@@ -65,6 +65,7 @@ function RouteComponent() {
                       ? point.DeviceCount
                       : undefined
                   }
+                  type="entry-exit"
                 />
               </Link>
             ))

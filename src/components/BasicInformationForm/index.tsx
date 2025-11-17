@@ -546,13 +546,21 @@ const BasicInfromationForm = forwardRef(
             <div className="bg-white p-4 rounded-lg shadow-lg border">
               <Calendar
                 mode="single"
-                selected={new Date(dateRange.to)}
-                className="w-full"
-                defaultMonth={new Date(dateRange.to) ?? new Date()}
-                onSelect={(val: any) => {
+                selected={dateRange.to ? new Date(dateRange.to) : undefined}
+                defaultMonth={
+                  dateRange.to ? new Date(dateRange.to) : new Date()
+                }
+                onSelect={(val) => {
+                  if (!val) return;
+
+                  // Convert to UTC without timezone shift
+                  const utcDate = new Date(
+                    Date.UTC(val.getFullYear(), val.getMonth(), val.getDate())
+                  );
+
                   setValue(
                     "Date",
-                    { ...dateRange, to: val },
+                    { ...dateRange, to: utcDate.toISOString() },
                     { shouldValidate: true, shouldDirty: true }
                   );
                 }}

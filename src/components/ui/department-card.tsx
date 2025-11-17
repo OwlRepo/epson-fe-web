@@ -9,6 +9,7 @@ interface DepartmentCardProps {
   countLabelRight?: string;
   className?: string;
   onClick?: () => void;
+  type?: "evs" | "ams" | "entry-exit";
 }
 
 export function DepartmentCard({
@@ -19,6 +20,7 @@ export function DepartmentCard({
   countLabelRight,
   className,
   onClick,
+  type = "ams",
 }: DepartmentCardProps) {
   return (
     <div
@@ -30,6 +32,22 @@ export function DepartmentCard({
     >
       <div className="flex flex-col space-y-2">
         <h3 className="font-bold mb-1 text-3xl break-words">{title}</h3>
+        <h3 className="text-xl">
+          {type === "ams"
+            ? "Total Employees: "
+            : type === "evs"
+              ? "Total Man Power: "
+              : ""}
+          {type !== "entry-exit" &&
+            formatCountWithCommas(
+              (() => {
+                const inNum = Number(clockedIn ?? 0);
+                const outNum = Number(clockedOut ?? 0);
+                const total = inNum + outNum;
+                return Number.isNaN(total) ? 0 : total;
+              })()
+            )}
+        </h3>
         {/* <p className="text-xs text-gray-500 mb-10">{title}</p> */}
       </div>
 

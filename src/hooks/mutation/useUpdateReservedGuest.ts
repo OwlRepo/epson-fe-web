@@ -30,17 +30,16 @@ export const useUpdateReservedGuest = () => {
   return useMutation({
     mutationFn: updateReservedGuest,
     onSuccess: (data) => {
-      queryClient.invalidateQueries({
-        queryKey: ["visitor"],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["visitors"],
-      });
+      // Invalidate all single visitor queries
+      queryClient.invalidateQueries({ queryKey: ["visitor"] });
+
+      // Invalidate all visitor list queries
+      queryClient.invalidateQueries({ queryKey: ["visitors"] });
 
       console.log("saved successfully:", data);
     },
     onError: (error) => {
-      console.error("Error savinge data:", error);
+      console.error("Error saving data:", error);
     },
   });
 };

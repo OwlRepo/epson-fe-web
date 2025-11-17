@@ -116,6 +116,10 @@ function RouteComponent() {
                 key: "date_receive",
                 label: "DATE TIME",
               },
+              {
+                key: "device_name",
+                label: "DEVICE NAME",
+              },
             ]}
             filters={[
               // {
@@ -143,6 +147,16 @@ function RouteComponent() {
                 label: "Type",
                 options: Array.from(
                   new Set(data.map((item) => item.controller_type))
+                ).map((item) => ({
+                  label: item,
+                  value: item,
+                })),
+              },
+              {
+                key: "device_name",
+                label: "Type",
+                options: Array.from(
+                  new Set(data.map((item: any) => item.device_name))
                 ).map((item) => ({
                   label: item,
                   value: item,
@@ -189,6 +203,7 @@ function RouteComponent() {
                   full_name,
                   controller_type,
                   date_receive,
+                  device_name,
                 } = employeeData;
                 return {
                   employee_no: employee_no,
@@ -198,6 +213,7 @@ function RouteComponent() {
                   clocked_out: clocked_out,
                   controller_type: "Time " + controller_type,
                   date_receive: date_receive,
+                  device_name,
                 };
               })
               .filter((item) => {
