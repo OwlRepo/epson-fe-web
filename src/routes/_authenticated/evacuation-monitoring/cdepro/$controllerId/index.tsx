@@ -113,8 +113,8 @@ function RouteComponent() {
               </Button>
               <Button
                 //@ts-ignore
-                variant="evacuation"
-                className="text-white mt-6"
+                variant="default"
+                className="text-white mt-6 bg-primary-evs hover:bg-primary-evs/90"
                 onClick={() => {
                   setOpen(true);
                   setAssignedPersonnel(null);

@@ -221,7 +221,11 @@ function RouteComponent() {
                 },
                 {
                   key: "date_time",
-                  label: "Date",
+                  label: "Evacuation Date and Time",
+                },
+                {
+                  key: "device_name",
+                  label: "Device Name",
                 },
               ]}
               filters={[
@@ -265,6 +269,16 @@ function RouteComponent() {
                     })
                   ),
                 },
+                {
+                  key: "device_name",
+                  label: "Device Name",
+                  options: Array.from(
+                    new Set(liveData.map((item) => item.device_name))
+                  ).map((item) => ({
+                    label: item,
+                    value: item,
+                  })),
+                },
                 // {
                 //   key: "date_time",
                 //   label: "Date",
@@ -286,6 +300,7 @@ function RouteComponent() {
                     log_time,
                     epc,
                     remarks,
+                    device_name,
                   } = employeeData;
                   return {
                     employee_id: employee_id,
@@ -296,6 +311,7 @@ function RouteComponent() {
                     raw_status: eva_status,
                     epc,
                     remarks,
+                    device_name: device_name,
                   };
                 })
                 .filter((item) => {
@@ -325,12 +341,20 @@ function RouteComponent() {
                         search.filter_status
                       );
 
+                  const matchesDeviceName = !search.filter_device_name
+                    ? true
+                    : matchesFilter(
+                        item.device_name ?? "",
+                        search.filter_device_name
+                      );
+
                   return (
                     matchesId &&
                     matchesType &&
                     matchesName &&
                     matchesDate &&
-                    matchesStatus
+                    matchesStatus &&
+                    matchesDeviceName
                   );
                 })
                 .reverse()

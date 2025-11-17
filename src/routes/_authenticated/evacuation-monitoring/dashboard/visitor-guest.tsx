@@ -186,7 +186,11 @@ function RouteComponent() {
                 },
                 {
                   key: "log_time",
-                  label: "EVACUATE TIME",
+                  label: "Evacuation Date and Time",
+                },
+                {
+                  key: "device_name",
+                  label: "Device Name",
                 },
               ]}
               filters={[
@@ -210,6 +214,16 @@ function RouteComponent() {
                     value: item,
                   })),
                 },
+                {
+                  key: "device_name",
+                  label: "Device Name",
+                  options: Array.from(
+                    new Set(data.map((item) => item.device_name))
+                  ).map((item) => ({
+                    label: item,
+                    value: item,
+                  })),
+                },
               ]}
               data={data
                 .map((employeeData) => {
@@ -219,6 +233,7 @@ function RouteComponent() {
                     log_time,
                     full_name,
                     user_type,
+                    device_name,
                   } = employeeData;
                   return {
                     employee_id: employee_id,
@@ -226,6 +241,7 @@ function RouteComponent() {
                     log_time: log_time,
                     full_name: full_name,
                     user_type: user_type,
+                    device_name: device_name,
                   };
                 })
                 .filter((item) => {
@@ -251,12 +267,18 @@ function RouteComponent() {
                     search.filter_eva_status
                   );
 
+                  const matchesDeviceName = matchesFilter(
+                    item.device_name ?? "",
+                    search.filter_device_name
+                  );
+
                   return (
                     matchesSection &&
                     matchesId &&
                     matchesName &&
                     matchesType &&
-                    matchesStatus
+                    matchesStatus &&
+                    matchesDeviceName
                   );
                 })
                 .reverse()

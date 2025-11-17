@@ -175,10 +175,25 @@ function RouteComponent() {
                 },
                 {
                   key: "log_time",
-                  label: "EVACUATE TIME",
+                  label: "Evacuation Date and Time",
+                },
+                {
+                  key: "device_name",
+                  label: "Device Name",
                 },
               ]}
-              filters={[]}
+              filters={[
+                {
+                  key: "device_name",
+                  label: "Device Name",
+                  options: Array.from(
+                    new Set(data.map((item) => item.device_name))
+                  ).map((item) => ({
+                    label: item,
+                    value: item,
+                  })),
+                },
+              ]}
               data={data
                 .map((employeeData) => {
                   const {
@@ -192,6 +207,7 @@ function RouteComponent() {
                     epc,
                     division,
                     remarks,
+                    device_name,
                   } = employeeData;
                   return {
                     employee_id: employee_id,
@@ -205,6 +221,7 @@ function RouteComponent() {
                     epc: epc,
                     raw_status: eva_status,
                     remarks: remarks,
+                    device_name: device_name,
                   };
                 })
                 .filter((item) => {
