@@ -56,6 +56,10 @@ const Overview = () => {
                 <h3 className="font-bold mb-1 text-xl break-words">
                   {division.name}
                 </h3>
+                <p className="text-sm">
+                  Total Man Power:{" "}
+                  {Number(division.evacuated) + Number(division.missing)}
+                </p>
               </div>
 
               <div className="flex justify-between mt-auto">

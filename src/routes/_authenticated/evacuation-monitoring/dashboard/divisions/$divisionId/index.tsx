@@ -49,6 +49,7 @@ function RouteComponent() {
                   clockedOut={department.missing}
                   countLabelLeft="Evacuated"
                   countLabelRight="Missing"
+                  type="evs"
                 />
               </Link>
             ))

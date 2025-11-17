@@ -71,6 +71,7 @@ function RouteComponent() {
                     clockedOut={division.inactive}
                     countLabelLeft="Active"
                     countLabelRight="Inactive"
+                    type="evs"
                   />
                 </Link>
               ))

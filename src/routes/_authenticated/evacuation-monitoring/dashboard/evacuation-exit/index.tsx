@@ -58,6 +58,7 @@ function RouteComponent() {
                   clockedOut={point.home}
                   countLabelLeft="Evacuated"
                   countLabelRight="Home"
+                  type="evs"
                 />
               </Link>
             ))

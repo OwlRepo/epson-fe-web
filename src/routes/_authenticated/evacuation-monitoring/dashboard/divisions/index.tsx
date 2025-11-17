@@ -43,6 +43,7 @@ function RouteComponent() {
                   clockedOut={division.missing}
                   countLabelLeft="Evacuated"
                   countLabelRight="Missing"
+                  type="evs"
                 />
               </Link>
             ))
