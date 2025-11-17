@@ -24,6 +24,8 @@ import { useGetCompletedList } from "@/hooks/query/useGetCompletedList";
 import { useGetDeviceList } from "@/hooks/query/useGetDeviceList";
 import { usePaginatedTableSocket } from "@/hooks/socket/usePaginatedTableSocket";
 import SocketDynamicTable from "@/components/ui/socket-dynamic-table";
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 
 export interface EmployeeReport {
   EmployeeNo: string;
@@ -393,6 +395,24 @@ function ReportsDataTable() {
             Completed: item.Completed
               ? dayjs(item.Completed).format("MMM D, YYYY hh:mm a")
               : null,
+            Status: (
+              <Badge
+                className={cn(
+                  `rounded-full border `,
+                  item.Status === "Missing" &&
+                    "border-red-200 border  bg-red-50 text-red-500 hover:text-white hover:bg-red-500/80",
+                  item.Status === "Safe" &&
+                    "border-green-200 border  bg-green-50 text-green-500 hover:text-white hover:bg-green-500/80",
+                  item.Status === "Injured" &&
+                    "border-yellow-200 border  bg-yellow-50 text-yellow-500 hover:text-white hover:bg-yellow-500/80",
+                  item.Status === "Home" &&
+                    "border-blue-200 border  bg-blue-50 text-blue-500 hover:text-white hover:bg-blue-500/80"
+                )}
+                variant="default"
+              >
+                {item.Status || "Unknown"}
+              </Badge>
+            ),
           }))}
           isLoading={isSocketLoading}
           onRowClick={handleRowClick}
@@ -443,7 +463,31 @@ function ReportsDataTable() {
       ) : (
         <DynamicTable
           columns={columns}
-          data={data ? data : []}
+          data={
+            data
+              ? data.map((item: any) => ({
+                  ...item,
+                  Status: (
+                    <Badge
+                      className={cn(
+                        `rounded-full border `,
+                        item.Status === "Missing" &&
+                          "border-red-200 border  bg-red-50 text-red-500 hover:text-white hover:bg-red-500/80",
+                        item.Status === "Safe" &&
+                          "border-green-200 border  bg-green-50 text-green-500 hover:text-white hover:bg-green-500/80",
+                        item.Status === "Injured" &&
+                          "border-yellow-200 border  bg-yellow-50 text-yellow-500 hover:text-white hover:bg-yellow-500/80",
+                        item.Status === "Home" &&
+                          "border-blue-200 border  bg-blue-50 text-blue-500 hover:text-white hover:bg-blue-500/80"
+                      )}
+                      variant="default"
+                    >
+                      {item.Status || "Unknown"}
+                    </Badge>
+                  ),
+                }))
+              : []
+          }
           isLoading={isLoading}
           onRowClick={handleRowClick}
           onSearch={handleSearch}

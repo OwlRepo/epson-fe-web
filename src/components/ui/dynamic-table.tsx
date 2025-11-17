@@ -1345,8 +1345,7 @@ export function DynamicTable({
                         key={`${rowIndex}-${column.key}`}
                         className={cn(
                           // Status checker for VMS > Dashboard > Overview
-                          row?.status?.toString()?.length > 0 ||
-                            row?.CardStatus === "Expired"
+                          row?.CardStatus === "Expired"
                             ? "text-red-400 font-bold"
                             : ""
                         )}

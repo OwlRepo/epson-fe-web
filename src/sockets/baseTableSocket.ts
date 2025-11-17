@@ -72,6 +72,7 @@ export function createTableSocket({
     console.log("📦 [TableSocket] Preload received:", {
       isArray: Array.isArray(payload),
       length: Array.isArray(payload) ? (payload as any[]).length : undefined,
+      payload: payload,
     });
     handlers?.onPreload?.(payload);
   });
