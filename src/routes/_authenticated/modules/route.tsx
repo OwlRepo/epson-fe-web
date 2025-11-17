@@ -214,8 +214,8 @@ function RouteComponent() {
 
       {/* Footer */}
       <div className="relative z-10 mt-4 sm:mt-6 lg:mt-8 text-center text-xs sm:text-sm px-4 py-10">
-        <p>Copyright ©2024 Produced by ELD Technology Intl, Inc.</p>
-        <p>version 1.0.0</p>
+        <p>Copyright ©2025 Produced by ELD Technology Intl, Inc.</p>
+        <p>version 1.2.0</p>
       </div>
     </div>
   );

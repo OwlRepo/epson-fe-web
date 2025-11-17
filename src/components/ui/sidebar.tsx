@@ -559,7 +559,7 @@ export function Sidebar({
         {!collapsed ? (
           <div className="flex flex-col items-center justify-center gap-3">
             <VerifyiLogoLight className="w-full px-16 opacity-70 h-fit" />
-            <div className="text-white text-xs text-center">version 1.0.0</div>
+            <div className="text-white text-xs text-center">version 1.2.0</div>
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center">

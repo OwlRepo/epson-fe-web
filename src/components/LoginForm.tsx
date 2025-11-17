@@ -16,7 +16,6 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
-
 export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const {
@@ -66,9 +65,7 @@ export function LoginForm() {
                   className="h-[44px]"
                 />
                 {errors.email && (
-                  <p className="text-xs text-red-600">
-                    {errors.email.message}
-                  </p>
+                  <p className="text-xs text-red-600">{errors.email.message}</p>
                 )}
               </div>
 
@@ -140,8 +137,8 @@ export function LoginForm() {
 
       {/* Footer */}
       <div className="text-center text-sm text-gray-600 mt-20">
-        <p>Copyright ©2024 Produced by ELID Technology Intl, Inc.</p>
-        <p>version 1.0.0</p>
+        <p>Copyright ©2025 Produced by ELID Technology Intl, Inc.</p>
+        <p>version 1.2.0</p>
       </div>
     </div>
   );
