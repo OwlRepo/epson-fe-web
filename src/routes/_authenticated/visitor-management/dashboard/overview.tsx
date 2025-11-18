@@ -369,14 +369,19 @@ export const VisitorInformationDialog = ({
       const data = await readRFIDData(newPort);
 
       if (data?.epc === visitor?.UHF) {
-        checkoutVisitor({
-          VisitorID: visitor?.ID ?? "",
-        });
-        setSocketData({
+        // checkoutVisitor({
+        //   VisitorID: visitor?.ID ?? "",
+        // });
+        emitData("visitor_reader", {
           data: data?.epc,
           device_id: 0,
           date_receive: new Date(),
         });
+        // setSocketData({
+        //   data: data?.epc,
+        //   device_id: 0,
+        //   date_receive: new Date(),
+        // });
       } else {
         toast.error("Oops! Card not matched", {
           description: "Please make sure your card is matched and try again.",
