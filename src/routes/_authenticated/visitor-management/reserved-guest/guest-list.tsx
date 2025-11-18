@@ -212,7 +212,6 @@ function RouteComponent() {
   socketInstance.on("asof", (asofData) => {
     setAsofData(asofData as string);
   });
-  const memoVisitor = useMemo(() => visitor, [visitor]);
 
   return (
     <>
@@ -297,7 +296,7 @@ function RouteComponent() {
       </div>
       {isOpen && (
         <ReservedGuestInfoDialog
-          visitor={memoVisitor}
+          visitor={visitor}
           isLoading={isVisitorLoading}
           open={isOpen}
           onOpenChange={setIsOpen}

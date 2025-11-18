@@ -12,7 +12,7 @@ const getVisitorById = async (visitorId: string) => {
 
 export const useGetVisitorById = (visitorId: string) =>
   useQuery({
-    queryKey: ["visitor"],
+    queryKey: ["visitor", visitorId],
     queryFn: () => getVisitorById(visitorId),
     enabled: !!visitorId,
     refetchOnWindowFocus: false,
