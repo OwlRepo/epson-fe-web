@@ -124,11 +124,11 @@ function RouteComponent() {
               },
               currentSelectedDeviceType === "Clocked In"
                 ? {
-                    key: "clocked_in",
+                    key: "date_receive",
                     label: "Time In",
                   }
                 : {
-                    key: "clocked_out",
+                    key: "date_receive",
                     label: "Time Out",
                   },
             ]}
@@ -193,10 +193,12 @@ function RouteComponent() {
                   clocked_in,
                   clocked_out,
                   full_name,
+                  date_receive,
                 } = employeeData;
                 return {
                   employee_no: employee_no,
                   section: section,
+                  date_receive,
                   name: full_name,
                   clocked_in: clocked_in ?? "-",
                   clocked_out: clocked_out ?? "-",

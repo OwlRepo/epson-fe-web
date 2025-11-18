@@ -245,6 +245,7 @@ function RouteComponent() {
                       [EMPLOYEE_DATE_TIME]: date_receive,
                       [EMPLOYEE_NAME_TABLE_KEY]: full_name,
                       [EMPLOYEE_CONTROLLER_TYPE]: controller_type,
+                      [DEVICE_NAME]: device_name,
                     } = employeeData;
                     return {
                       [EMPLOYEE_NO_TABLE_KEY]: employee_id,
@@ -253,6 +254,7 @@ function RouteComponent() {
                       [EMPLOYEE_CLOCKED_IN_TABLE_KEY]: clocked_in,
                       [EMPLOYEE_DATE_TIME]: date_receive,
                       [EMPLOYEE_CONTROLLER_TYPE]: "Time " + controller_type,
+                      device_name,
                     };
                   })
                   .filter((item) => {
