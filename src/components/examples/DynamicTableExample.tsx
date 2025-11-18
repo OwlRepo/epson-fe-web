@@ -164,9 +164,9 @@ export function DynamicTableExample() {
         !search.filter_status || item.status === search.filter_status;
       const matchesSearch =
         !search.search ||
-        item.name.toLowerCase().includes(search.search.toLowerCase()) ||
-        item.role.toLowerCase().includes(search.search.toLowerCase()) ||
-        item.status.toLowerCase().includes(search.search.toLowerCase());
+        item.name?.toLowerCase().includes(search.search?.toLowerCase()) ||
+        item.role?.toLowerCase().includes(search.search?.toLowerCase()) ||
+        item.status?.toLowerCase().includes(search.search?.toLowerCase());
 
       return matchesRole && matchesStatus && matchesSearch;
     });
