@@ -35,7 +35,7 @@ export const helpData: HelpData = {
   internationalContacts: [
     {
       name: "Troy Mendoza",
-      position: "Account Manager",
+      position: "Business Development Manager (BDM)",
       contactNumber: "0917-7312212",
       picture: TROY_MENDOZA,
     },
