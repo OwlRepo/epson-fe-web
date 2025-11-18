@@ -301,8 +301,15 @@ export const useSocket = <
         // For live data, check if record exists with same employee_id AND clocked_in
         setData((prevData) => {
           const newLiveData = newData as LiveData;
-          if (!prevData) {
-            return [];
+          if (!prevData || prevData.length === 0) {
+            // No existing items — just add the incoming record
+            return [newData as T];
+          }
+
+          // Ensure prevData[0] exists and is an object before calling Object.keys
+          const firstItem = prevData[0] as Record<string, any> | undefined;
+          if (!firstItem || typeof firstItem !== "object") {
+            return [newData as T];
           }
           if (Object.keys(prevData[0])?.includes("controller_type")) {
             return [...prevData, newData as T];
