@@ -213,6 +213,12 @@ function RouteComponent() {
     setAsofData(asofData as string);
   });
 
+  useEffect(() => {
+    return () => {
+      socketInstance.disconnect();
+    };
+  }, []);
+
   return (
     <>
       <div className="space-y-8">

@@ -11,7 +11,7 @@ import CardSection from "../layouts/CardSection";
 import CardHeaderLeft from "./card-header-left";
 import { io, type Socket } from "socket.io-client";
 import { getApiSocketBaseUrl } from "@/utils/env";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export interface EVSCountsProps {
   countData?: any;
@@ -220,6 +220,12 @@ export default function EVSCounts(props: EVSCountsProps) {
   socketInstance.on("asof", (asofData: string) => {
     setAsofData(asofData);
   });
+
+  useEffect(() => {
+    return () => {
+      socketInstance.disconnect();
+    };
+  }, []);
 
   if (type === "card") {
     return (
