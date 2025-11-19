@@ -117,6 +117,10 @@ function RouteComponent() {
                 key: "date_receive",
                 label: "DATE TIME",
               },
+              {
+                key: "device_name",
+                label: "DEVICE NAME",
+              },
             ]}
             filters={[
               // {
@@ -134,6 +138,26 @@ function RouteComponent() {
                 label: "Section",
                 options: Array.from(
                   new Set(data.map((item: any) => item.section))
+                ).map((item) => ({
+                  label: item,
+                  value: item,
+                })),
+              },
+              {
+                key: "controller_type",
+                label: "Type",
+                options: Array.from(
+                  new Set(data.map((item) => item.controller_type))
+                ).map((item) => ({
+                  label: item,
+                  value: item,
+                })),
+              },
+              {
+                key: "device_name",
+                label: "Device Name",
+                options: Array.from(
+                  new Set(data.map((item: any) => item.device_name))
                 ).map((item) => ({
                   label: item,
                   value: item,
@@ -180,6 +204,7 @@ function RouteComponent() {
                   controller_type,
                   clocked_out,
                   full_name,
+                  device_name,
                 } = employeeData;
                 return {
                   employee_no: employee_no,
@@ -189,6 +214,7 @@ function RouteComponent() {
                   clocked_out: clocked_out,
                   controller_type: "Time " + controller_type,
                   date_receive: date_receive,
+                  device_name,
                 };
               })
               .filter((item) => {
@@ -211,12 +237,24 @@ function RouteComponent() {
                   !search.filter_clocked_out ||
                   item.clocked_out === search.filter_clocked_out;
 
+                const matchesDeviceName = matchesFilter(
+                  "device_name",
+                  search.filter_device_name
+                );
+
+                const matchesType = matchesFilter(
+                  "controller_type",
+                  search.filter_controller_type
+                );
+
                 return (
                   matchesSection &&
                   matchesId &&
                   matchesName &&
                   matchesTimeIn &&
-                  matchesTimeOut
+                  matchesTimeOut &&
+                  matchesDeviceName &&
+                  matchesType
                 );
               })
               .reverse()}

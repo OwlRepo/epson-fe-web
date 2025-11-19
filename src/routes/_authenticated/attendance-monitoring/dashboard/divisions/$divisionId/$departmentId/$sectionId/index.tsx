@@ -241,13 +241,19 @@ function RouteComponent() {
                   search.filter_device_name
                 );
 
+                const matchesType = matchesFilter(
+                  "controller_type",
+                  search.filter_controller_type
+                );
+
                 return (
                   matchesSection &&
                   matchesId &&
                   matchesName &&
                   matchesTimeIn &&
                   matchesTimeOut &&
-                  matchesDeviceName
+                  matchesDeviceName &&
+                  matchesType
                 );
               })
               .reverse()}
