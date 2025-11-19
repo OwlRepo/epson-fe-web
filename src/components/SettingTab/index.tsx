@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/dynamic-table";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { Moon, RefreshCw, SunMedium, Upload } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import SyncTimeInput from "./SyncTimeInput";
 import TimePickerModal from "./TimePickerModal";
 import { useMutateSyncEmployees } from "@/hooks/mutation/useMutateSyncEmployees";
@@ -111,6 +111,7 @@ const SettingTab = () => {
 
   const [fileName, setFileName] = useState<File>();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const socketInstanceRef = useRef<Socket | null>(null);
   const [syncDateTime, setSyncDateTime] = useState<string>("");
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -147,9 +148,12 @@ const SettingTab = () => {
     }
   }, [syncActivities]);
 
+  // Stabilize search dependency to prevent unnecessary re-renders
+  const searchString = useMemo(() => JSON.stringify(search), [search]);
+
   useEffect(() => {
     refetch();
-  }, [search]);
+  }, [searchString, refetch]);
 
   useEffect(() => {
     if (isSuccess) {
@@ -284,24 +288,38 @@ const SettingTab = () => {
     setTimeKey(key);
   };
 
-  let socketInstance: Socket;
-  const SOCKET_URL = getApiSocketBaseUrl();
+  // Initialize socket instance in useEffect to prevent multiple connections
+  useEffect(() => {
+    const SOCKET_URL = getApiSocketBaseUrl();
 
-  socketInstance = io(SOCKET_URL, {
-    extraHeaders: {
-      "ngrok-skip-browser-warning": "true",
-    },
-    transports: ["websocket"],
-    reconnection: true,
-    reconnectionAttempts: 5,
-    reconnectionDelay: 1000,
-    timeout: 10000,
-  });
+    socketInstanceRef.current = io(SOCKET_URL, {
+      extraHeaders: {
+        "ngrok-skip-browser-warning": "true",
+      },
+      transports: ["websocket"],
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+      timeout: 10000,
+    });
+
+    // Cleanup function to disconnect socket on unmount
+    return () => {
+      if (socketInstanceRef.current) {
+        socketInstanceRef.current.disconnect();
+        socketInstanceRef.current = null;
+      }
+    };
+  }, []);
 
   const handleSyncTime = () => {
+    if (!socketInstanceRef.current) {
+      console.error("❌ Socket instance not available");
+      return;
+    }
     console.log("🚀 Socket emitting to room:", "sync_time");
     console.log("📦 Socket payload:", syncDateTime);
-    socketInstance.emit("sync_time", syncDateTime);
+    socketInstanceRef.current.emit("sync_time", syncDateTime);
     console.log("✨ Socket emission sent successfully");
   };
 
