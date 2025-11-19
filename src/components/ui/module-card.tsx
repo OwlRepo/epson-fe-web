@@ -31,19 +31,18 @@ export function ModuleCard({
     }
   };
 
-  return (
-    <Link
-      to={href}
-      className={cn(
-        "group flex h-[200px] w-full flex-col items-center justify-center rounded-2xl bg-white p-8 transition-all hover:scale-[1.02] hover:shadow-lg",
-        "border-gray-200 border hover:border-blue-800",
-        className
-      )}
-      target={external ? "_blank" : undefined}
-      rel={external ? "noopener noreferrer" : undefined}
-      onMouseEnter={onHover}
-      onClick={handleClick}
-    >
+  const sharedProps = {
+    className: cn(
+      "group flex h-[200px] w-full flex-col items-center justify-center rounded-2xl bg-white p-8 transition-all hover:scale-[1.02] hover:shadow-lg",
+      "border-gray-200 border hover:border-blue-800",
+      className
+    ),
+    onMouseEnter: onHover,
+    onClick: handleClick,
+  };
+
+  const content = (
+    <>
       {typeof icon === "string" ? (
         <img
           src={icon}
@@ -62,6 +61,25 @@ export function ModuleCard({
         <h3 className="text-xl font-bold text-[#1E3A8A]">{title}</h3>
         <p className="text-lg font-bold text-[#1E3A8A]">{subtitle}</p>
       </div>
+    </>
+  );
+
+  if (external) {
+    return (
+      <a
+        href={href}
+        {...sharedProps}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {content}
+      </a>
+    );
+  }
+
+  return (
+    <Link to={href} {...sharedProps}>
+      {content}
     </Link>
   );
 }

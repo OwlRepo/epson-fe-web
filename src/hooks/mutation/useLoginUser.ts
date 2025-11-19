@@ -4,7 +4,7 @@ import api from "@/config/axiosInstance";
 import { useMutation } from "@tanstack/react-query";
 import useToastStyleTheme from "../useToastStyleTheme";
 import { useRouter, useSearch } from "@tanstack/react-router";
-import { getIsEVS } from "@/utils/env";
+import { getEVSAppBaseUrl, getIsEVS } from "@/utils/env";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address").min(1, "Email is required"),
@@ -14,10 +14,13 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 const loginUser = async (data: LoginFormData) => {
-  const response = await api.post(`/api/${getIsEVS() ? "evs" : "users"}/loginUser`, {
-    email: data.email,
-    password: data.password,
-  });
+  const response = await api.post(
+    `/api/${getIsEVS() ? "evs" : "users"}/loginUser`,
+    {
+      email: data.email,
+      password: data.password,
+    }
+  );
   return response.data;
 };
 
@@ -37,6 +40,10 @@ export default function useLoginUser() {
       localStorage.setItem("token", token);
       localStorage.setItem("refreshToken", refreshToken);
       localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem(
+        "evsURL",
+        `${getEVSAppBaseUrl()}/validate-session?token=${token}`
+      );
       router.navigate({ to: search.redirect || "/modules" });
     },
     onError: (error: any) => {

@@ -233,6 +233,11 @@ function RouteComponent() {
                     setValidationError(false);
                     try {
                       await validateSession();
+                      // Sync evsURL state from localStorage after successful validation
+                      const latestEvsUrl = localStorage.getItem("evsURL");
+                      if (latestEvsUrl) {
+                        setEvsUrl(latestEvsUrl);
+                      }
                       setIsValidated(true);
                       setValidationError(false);
                     } catch (error) {
