@@ -318,9 +318,13 @@ export const useSocket = <
             const existingRecordIndex = prevData.findIndex((item) => {
               const liveItem = item as LiveData;
 
+              if (newLiveData?.id) {
+                return liveItem?.["id"] === newLiveData?.["id"];
+              }
+
               if (!newLiveData?.employee_id) {
                 return (
-                  liveItem?.ID === newLiveData?.ID &&
+                  liveItem?.["ID"] === newLiveData?.["ID"] &&
                   liveItem?.clocked_in === newLiveData?.clocked_in
                 );
               } else {
