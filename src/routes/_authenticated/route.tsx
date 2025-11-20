@@ -3,16 +3,32 @@ import { getEVSAppBaseUrl, getIsEVS } from "@/utils/env";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 
 export const validateSession = async (): Promise<void> => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    localStorage.clear();
+    throw redirect({
+      to: "/",
+      replace: true,
+    });
+  }
+
   try {
     await api.post(`/api/${getIsEVS() ? "evs" : "users"}/validate`);
   } catch (error) {
-    // Store the initial validation error to potentially throw later
-    const validationError = error;
+    const refreshToken = localStorage.getItem("refreshToken");
+    if (!refreshToken) {
+      localStorage.clear();
+      throw redirect({
+        to: "/",
+        replace: true,
+      });
+    }
+
     try {
       const res = await api.post(
         `/api/${getIsEVS() ? "evs" : "users"}/refresh-token`,
         {
-          refreshToken: localStorage.getItem("refreshToken"),
+          refreshToken,
         }
       );
       if (res.status === 200 && res.data.success) {
@@ -25,15 +41,13 @@ export const validateSession = async (): Promise<void> => {
         // Retry validation after refresh token succeeds
         try {
           await api.post(`/api/${getIsEVS() ? "evs" : "users"}/validate`);
-          // Success after refresh - don't throw error
           return;
         } catch (retryError) {
-          // Retry failed - throw the original validation error so caller can show toast
-          throw validationError;
+          throw error;
         }
       }
       throw new Error("Refresh token failed");
-    } catch (refreshError) {
+    } catch (refreshError: any) {
       // If refresh token fails or is a redirect, re-throw it
       if (
         refreshError &&
@@ -42,12 +56,17 @@ export const validateSession = async (): Promise<void> => {
       ) {
         throw refreshError;
       }
-      // If refresh token completely fails, clear storage and redirect
-      localStorage.clear();
-      throw redirect({
-        to: "/",
-        replace: true,
-      });
+      // Only logout on 401/403 errors (expired/invalid tokens)
+      const status = refreshError?.response?.status;
+      if (status === 401 || status === 403) {
+        localStorage.clear();
+        throw redirect({
+          to: "/",
+          replace: true,
+        });
+      }
+      // For other errors (network, 500, etc.), rethrow original validation error
+      throw error;
     }
   }
 };
