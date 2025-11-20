@@ -289,7 +289,11 @@ function RouteComponent() {
                       matchesClockedOut
                     );
                   })
-                  .reverse()}
+                  .sort((a, b) => {
+                    const dateA = new Date(a.clocked_out || a.clocked_in || 0).getTime();
+                    const dateB = new Date(b.clocked_out || b.clocked_in || 0).getTime();
+                    return dateB - dateA; // Descending order (newest first)
+                  })}
                 onFilter={handleFilter}
                 onSearch={handleSearch}
                 routeSearch={search}

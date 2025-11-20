@@ -181,6 +181,7 @@ function RouteComponent() {
                     EM,
                     MIFARE,
                     UHF,
+                    date_receive,
                   } = employeeData;
                   return {
                     ID: ID,
@@ -199,6 +200,7 @@ function RouteComponent() {
                     MIFARE,
                     UHF,
                     Type: EmployeeID ? "Employee" : "Contractor",
+                    date_receive,
                   };
                 })
                 .filter((item) => {
@@ -212,7 +214,11 @@ function RouteComponent() {
                   );
                   return matchesPosition && matchesContactNo;
                 })
-                .reverse()
+                .sort((a, b) => {
+                  const dateA = new Date(a.date_receive || 0).getTime();
+                  const dateB = new Date(b.date_receive || 0).getTime();
+                  return dateB - dateA; // Descending order (newest first)
+                })
                 .map((item: any) => {
                   return {
                     ...item,

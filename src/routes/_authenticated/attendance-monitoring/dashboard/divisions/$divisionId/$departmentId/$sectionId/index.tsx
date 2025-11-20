@@ -256,7 +256,11 @@ function RouteComponent() {
                   matchesType
                 );
               })
-              .reverse()}
+              .sort((a, b) => {
+                const dateA = new Date(a.date_receive || 0).getTime();
+                const dateB = new Date(b.date_receive || 0).getTime();
+                return dateB - dateA; // Descending order (newest first)
+              })}
             onFilter={handleFilter}
             onSearch={handleSearch}
             routeSearch={search}

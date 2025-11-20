@@ -281,7 +281,11 @@ function RouteComponent() {
                   matchesDeviceName
                 );
               })
-              .reverse()
+              .sort((a, b) => {
+                const dateA = new Date(a.log_time || 0).getTime();
+                const dateB = new Date(b.log_time || 0).getTime();
+                return dateB - dateA; // Descending order (newest first)
+              })
               .map((item) => ({
                 ...item,
                 eva_status: (
