@@ -9,6 +9,7 @@ import {
   TableCell,
 } from "./table";
 import { useNavigate } from "@tanstack/react-router";
+import { useVirtualizer } from "@tanstack/react-virtual";
 import Spinner from "./spinner";
 import { Button } from "./button";
 import { Checkbox } from "./checkbox";
@@ -188,6 +189,19 @@ export function DynamicTable({
   const searchTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(
     null
   );
+
+  // Refs for virtualization
+  const parentRef = React.useRef<HTMLDivElement>(null);
+  const ROW_HEIGHT = 50; // Fixed row height for efficient virtualization
+  const MAX_TABLE_HEIGHT = 600; // Maximum height for scrollable container
+
+  // Virtualizer for live data tables - must be called unconditionally
+  const virtualizer = useVirtualizer({
+    count: isLiveData && data.length > 0 ? data.length : 0,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => ROW_HEIGHT,
+    overscan: 5, // Render 5 extra rows outside viewport for smooth scrolling
+  });
 
   // State for the time picker
   const [timeDialogOpen, setTimeDialogOpen] = React.useState<boolean>(false);
@@ -1286,7 +1300,228 @@ export function DynamicTable({
           <div className="flex items-center justify-center h-48">
             <Spinner size={40} />
           </div>
+        ) : isLiveData && data.length > 0 ? (
+          // Live data: use virtualization only when scrolling needed
+          data.length * ROW_HEIGHT > MAX_TABLE_HEIGHT ? (
+            // Virtualized for many rows
+            <div className="w-full">
+              <Table className={cn("w-full", className)}>
+                <TableHeader>
+                  <TableRow>
+                    {enableRowSelection && (
+                      <TableHead className="w-[50px] uppercase bg-[#F4F7FCBF]/75">
+                        <Checkbox
+                          checked={areAllRowsSelected}
+                          onCheckedChange={handleSelectAll}
+                        />
+                      </TableHead>
+                    )}
+                    {columns.map((column) => (
+                      <TableHead
+                        key={column.key}
+                        className="text-[#0F416D] font-bold bg-[#F4F7FCBF]/75 uppercase"
+                      >
+                        {column.label}
+                      </TableHead>
+                    ))}
+                  </TableRow>
+                </TableHeader>
+              </Table>
+              <div
+                ref={parentRef}
+                className="border-t overflow-auto"
+                style={{ height: `${MAX_TABLE_HEIGHT}px` }}
+              >
+                <div
+                  style={{
+                    height: `${virtualizer.getTotalSize()}px`,
+                    position: "relative",
+                  }}
+                >
+                  <Table className={cn("w-full", className)}>
+                    <TableBody>
+                      {(() => {
+                        const virtualItems = virtualizer.getVirtualItems();
+                        const paddingTop = virtualItems[0]?.start ?? 0;
+                        const paddingBottom =
+                          virtualizer.getTotalSize() -
+                          (virtualItems[virtualItems.length - 1]?.end ?? 0);
+                        return (
+                          <>
+                            {paddingTop > 0 && (
+                              <tr>
+                                <td
+                                  colSpan={
+                                    enableRowSelection
+                                      ? columns.length + 1
+                                      : columns.length
+                                  }
+                                  style={{
+                                    height: `${paddingTop}px`,
+                                    padding: 0,
+                                    border: "none",
+                                  }}
+                                />
+                              </tr>
+                            )}
+                            {virtualItems.map((virtualRow) => {
+                              const row = data[virtualRow.index];
+                              const rowIndex = virtualRow.index;
+                              return (
+                                <TableRow
+                                  key={rowIndex}
+                                  data-index={rowIndex}
+                                  ref={virtualizer.measureElement}
+                                  className={
+                                    rowIndex % 2 === 0
+                                      ? "bg-white"
+                                      : "bg-[#F7F9FD]"
+                                  }
+                                  onClick={(e) => {
+                                    if (
+                                      (e.target as HTMLElement).closest(
+                                        "[data-checkbox]"
+                                      )
+                                    )
+                                      return;
+                                    onRowClick?.(row);
+                                  }}
+                                >
+                                  {enableRowSelection && (
+                                    <TableCell className="w-[50px]">
+                                      <div data-checkbox>
+                                        <Checkbox
+                                          checked={isSelected(
+                                            tableId,
+                                            String(row[rowIdField])
+                                          )}
+                                          onCheckedChange={(checked) =>
+                                            handleRowSelectionChange(
+                                              row,
+                                              !!checked
+                                            )
+                                          }
+                                          onClick={(e) => e.stopPropagation()}
+                                        />
+                                      </div>
+                                    </TableCell>
+                                  )}
+                                  {columns.map((column) => (
+                                    <TableCell
+                                      key={`${rowIndex}-${column.key}`}
+                                      className={cn(
+                                        row?.CardStatus === "Expired"
+                                          ? "text-red-400 font-bold"
+                                          : ""
+                                      )}
+                                    >
+                                      {column.render
+                                        ? column.render(row)
+                                        : row[column.key]
+                                          ? row[column.key]
+                                          : "--"}
+                                    </TableCell>
+                                  ))}
+                                </TableRow>
+                              );
+                            })}
+                            {paddingBottom > 0 && (
+                              <tr>
+                                <td
+                                  colSpan={
+                                    enableRowSelection
+                                      ? columns.length + 1
+                                      : columns.length
+                                  }
+                                  style={{
+                                    height: `${paddingBottom}px`,
+                                    padding: 0,
+                                    border: "none",
+                                  }}
+                                />
+                              </tr>
+                            )}
+                          </>
+                        );
+                      })()}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+            </div>
+          ) : (
+            // Normal rendering for few rows - no virtualization
+            <Table className={cn("w-full", className)}>
+              <TableHeader>
+                <TableRow>
+                  {enableRowSelection && (
+                    <TableHead className="w-[50px] uppercase bg-[#F4F7FCBF]/75">
+                      <Checkbox
+                        checked={areAllRowsSelected}
+                        onCheckedChange={handleSelectAll}
+                      />
+                    </TableHead>
+                  )}
+                  {columns.map((column) => (
+                    <TableHead
+                      key={column.key}
+                      className="text-[#0F416D] font-bold bg-[#F4F7FCBF]/75 uppercase"
+                    >
+                      {column.label}
+                    </TableHead>
+                  ))}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {data.map((row, rowIndex) => (
+                  <TableRow
+                    key={rowIndex}
+                    className={rowIndex % 2 === 0 ? "bg-white" : "bg-[#F7F9FD]"}
+                    onClick={(e) => {
+                      if ((e.target as HTMLElement).closest("[data-checkbox]"))
+                        return;
+                      onRowClick?.(row);
+                    }}
+                  >
+                    {enableRowSelection && (
+                      <TableCell className="w-[50px]">
+                        <div data-checkbox>
+                          <Checkbox
+                            checked={isSelected(
+                              tableId,
+                              String(row[rowIdField])
+                            )}
+                            onCheckedChange={(checked) =>
+                              handleRowSelectionChange(row, !!checked)
+                            }
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        </div>
+                      </TableCell>
+                    )}
+                    {columns.map((column) => (
+                      <TableCell
+                        key={`${rowIndex}-${column.key}`}
+                        className={cn(
+                          row?.CardStatus === "Expired"
+                            ? "text-red-400 font-bold"
+                            : ""
+                        )}
+                      >
+                        {column.render
+                          ? column.render(row)
+                          : row[column.key]
+                            ? row[column.key]
+                            : "--"}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )
         ) : (
+          // Standard table for non-live data or empty data
           <Table className={cn("w-full", className)}>
             <TableHeader>
               <TableRow>
