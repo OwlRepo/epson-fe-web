@@ -12,8 +12,10 @@ import { useEffect, useRef, useState } from "react";
 import usePortStore from "@/store/usePortStore";
 import { getEMLength, getMIFARELength, getUHFLength } from "@/utils/env";
 import { Button } from "../ui/button";
+import { Input } from "../ui/input";
 import { toast } from "sonner";
 import { readRFIDData } from "@/utils/rfidReaderCommand";
+import { cn } from "@/lib/utils";
 import { useGetDepartmentList } from "@/hooks/query/useGetDepartmentList";
 import { useGetEmployeeByNo } from "@/hooks/query/useGetEmployeeById";
 import { ConfirmationDialog } from "./ConfirmationDialog";
@@ -39,7 +41,9 @@ const AssignPersonnelDialog = ({
   emitData,
   controllerId,
 }: AssignPersonnelDialogProps) => {
-  const form = useForm();
+  const form = useForm({
+    mode: "onChange",
+  });
   const { control, register, reset, formState, setValue, watch, handleSubmit } =
     form;
 
@@ -135,6 +139,51 @@ const AssignPersonnelDialog = ({
 
   const mifareRef = useRef<HTMLInputElement>(null);
   const emRef = useRef<HTMLInputElement>(null);
+
+  // Phone number input filter handlers
+  const handlePhoneKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // Allow special keys (navigation, editing, shortcuts)
+    const allowedKeys = [
+      "Backspace",
+      "Delete",
+      "Tab",
+      "Escape",
+      "Enter",
+      "ArrowLeft",
+      "ArrowRight",
+      "ArrowUp",
+      "ArrowDown",
+      "Home",
+      "End",
+    ];
+
+    // Allow Ctrl/Cmd combinations (for shortcuts like Ctrl+A, Ctrl+C, Ctrl+V)
+    if (e.ctrlKey || e.metaKey) {
+      return;
+    }
+
+    // Allow the key if it's an allowed special key
+    if (allowedKeys.includes(e.key)) {
+      return;
+    }
+
+    // Block invalid characters (only allow digits 0-9)
+    const phoneRegex = /^[0-9]$/;
+    if (!phoneRegex.test(e.key)) {
+      e.preventDefault();
+    }
+  };
+
+  const handlePhonePaste = (
+    e: React.ClipboardEvent<HTMLInputElement>,
+    field: { onChange: (value: string) => void }
+  ) => {
+    e.preventDefault();
+    const pastedText = e.clipboardData.getData("text");
+    // Filter out invalid characters (only keep digits 0-9)
+    const filteredText = pastedText.replace(/[^0-9]/g, "");
+    field.onChange(filteredText);
+  };
 
   const handleLinkCard = async () => {
     try {
@@ -320,27 +369,80 @@ const AssignPersonnelDialog = ({
               }
             />
 
-            <TextInput
-              label="Email Address"
-              id="email-address"
+            <Controller
               name="EmailAddress"
-              register={register}
-              errors={formState?.errors}
-              required
-              readOnly={
-                Boolean(employee?.EmailAddress) ||
-                assignedPersonnel?.Type === "Employee"
-              }
+              control={control}
+              rules={{
+                required: "Email Address is required",
+                pattern: {
+                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                  message: "Please enter a valid email address",
+                },
+              }}
+              render={({ field, fieldState }) => (
+                <div className="space-y-1 w-full">
+                  <div className="flex justify-between">
+                    <label
+                      htmlFor="email-address"
+                      className="text-sm font-normal text-gray-700"
+                    >
+                      Email Address
+                    </label>
+                  </div>
+                  <Input
+                    type="text"
+                    id="email-address"
+                    className={cn(
+                      "h-[44px]",
+                      (Boolean(employee?.EmailAddress) ||
+                        assignedPersonnel?.Type === "Employee") &&
+                        "cursor-not-allowed text-gray-500"
+                    )}
+                    {...field}
+                    readOnly={
+                      Boolean(employee?.EmailAddress) ||
+                      assignedPersonnel?.Type === "Employee"
+                    }
+                  />
+                  {fieldState.error && (
+                    <p className="text-sm text-red-500 w-full">
+                      {fieldState.error.message as string}
+                    </p>
+                  )}
+                </div>
+              )}
             />
 
-            <TextInput
-              label="Contact No."
-              id="contact-no"
+            <Controller
               name="ContactNo"
-              register={register}
-              errors={formState?.errors}
-              required
-              readOnly={false}
+              control={control}
+              rules={{ required: "Contact No. is required" }}
+              render={({ field, fieldState }) => (
+                <div className="space-y-1 w-full">
+                  <div className="flex justify-between">
+                    <label
+                      htmlFor="contact-no"
+                      className="text-sm font-normal text-gray-700"
+                    >
+                      Contact No.
+                    </label>
+                  </div>
+                  <Input
+                    type="text"
+                    id="contact-no"
+                    className={cn("h-[44px]")}
+                    placeholder="09171234567"
+                    {...field}
+                    onKeyDown={handlePhoneKeyDown}
+                    onPaste={(e) => handlePhonePaste(e, field)}
+                  />
+                  {fieldState.error && (
+                    <p className="text-sm text-red-500 w-full">
+                      {fieldState.error.message as string}
+                    </p>
+                  )}
+                </div>
+              )}
             />
 
             <AutoComplete
@@ -439,6 +541,7 @@ const AssignPersonnelDialog = ({
                   onClearData();
                 }
               }}
+              disabled={Object.keys(formState.errors).length > 0}
             >
               {assignedPersonnel ? "Update Personnel" : "Clear Data"}
             </Button>
@@ -453,6 +556,7 @@ const AssignPersonnelDialog = ({
                   handleSubmit(onSubmit)();
                 }
               }}
+              disabled={Object.keys(formState.errors).length > 0}
             >
               {assignedPersonnel ? "Remove Data" : "Assign Personnel"}
             </Button>
