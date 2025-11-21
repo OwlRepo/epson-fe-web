@@ -4,7 +4,7 @@ import { Sidebar } from "@/components/ui/sidebar";
 import { Header } from "@/components/ui/header";
 import { LayoutDashboard, FileText, ShieldPlus, Monitor } from "lucide-react";
 import { EpsonLogoWhite } from "@/assets/svgs";
-import { useSocket } from "@/hooks";
+import { useSocketEmit } from "@/hooks";
 import dayjs from "dayjs";
 
 interface EvacuationMonitoringLayoutProps {
@@ -86,9 +86,7 @@ export function EvacuationMonitoringLayout({
     </div>
   );
 
-  const { emitData } = useSocket<any>({
-    room: "evac_complete",
-  });
+  const { emit } = useSocketEmit();
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
@@ -100,7 +98,7 @@ export function EvacuationMonitoringLayout({
         collapsedLogo={collapsedLogo}
         className="bg-primary-evs"
         onEvacComplete={() => {
-          emitData?.("evac_complete", {
+          emit("evac_complete", {
             trigger_by: JSON.parse(localStorage.getItem("user") || "{}")[
               "Name"
             ],

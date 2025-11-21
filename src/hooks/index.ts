@@ -5,3 +5,4 @@ export * from './useSectionData';
 export * from './useEmployeeData';
 export * from './useOverviewCountData';
 export * from './useEntryExitPointsData';
+export * from './socket/useSocketEmit';
