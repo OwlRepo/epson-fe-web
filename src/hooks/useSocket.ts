@@ -1,5 +1,5 @@
 import { getApiSocketBaseUrl } from "@/utils/env";
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { io, Socket } from "socket.io-client";
 import useToastStyleTheme from "./useToastStyleTheme";
 import { toast } from "sonner";
@@ -132,6 +132,7 @@ export const useSocket = <
   );
   const [asofData, setAsofData] = useState<string>("---");
   const { successStyle, errorStyle } = useToastStyleTheme();
+  const socketRef = useRef<Socket | null>(null);
 
   // Connect to socket and join room
   useEffect(() => {
@@ -144,6 +145,12 @@ export const useSocket = <
       console.error("❌ Room name is required but not provided");
       setError("Room name is required");
       setIsLoading(false);
+      return;
+    }
+
+    // Guard: prevent duplicate connections if socket already exists and is connected
+    if (socketRef.current?.connected) {
+      console.log("⚠️ Socket already connected, skipping duplicate connection");
       return;
     }
 
@@ -162,6 +169,7 @@ export const useSocket = <
         timeout: 10000,
       });
       console.log("✅ Socket instance created successfully");
+      socketRef.current = socketInstance;
     } catch (err) {
       const errorMessage = `Failed to initialize socket: ${err instanceof Error ? err.message : String(err)}`;
       console.error("🔴 Socket initialization failed:", errorMessage);
@@ -503,7 +511,16 @@ export const useSocket = <
       socketInstance.off("preload");
       socketInstance.off("data");
       socketInstance.off("count");
+      socketInstance.off("remove_data");
+      socketInstance.off("get_user");
+      socketInstance.off("cdepro_update_response");
+      socketInstance.off("cdepro_add_response");
+      socketInstance.off("device_update_response");
+      socketInstance.off("overall_count");
+      socketInstance.off("cdepro_remove_response");
+      socketInstance.off("asof");
       socketInstance.disconnect();
+      socketRef.current = null;
       console.log(`👋 Left socket room: "${room}"`);
       console.log("✨ Socket cleanup completed");
     };
