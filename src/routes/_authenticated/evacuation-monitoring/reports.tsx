@@ -168,7 +168,7 @@ function ReportsDataTable() {
     { key: "Status", label: "Status" },
     { key: "Remarks", label: "Remarks" },
     { key: "EvacuationTime", label: "Evacuation Date and Time" },
-    { key: "DeviceName", label: "Device Name" },
+    { key: "device_name", label: "Device Name" },
     ...(search.EvacuationStatus === "completed"
       ? [
           { key: "Completed", label: "Evacuation Completed At" },
