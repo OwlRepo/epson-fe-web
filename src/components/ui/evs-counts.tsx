@@ -11,7 +11,7 @@ import CardSection from "../layouts/CardSection";
 import CardHeaderLeft from "./card-header-left";
 import { io, type Socket } from "socket.io-client";
 import { getApiSocketBaseUrl } from "@/utils/env";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 export interface EVSCountsProps {
   countData?: any;
@@ -202,30 +202,78 @@ export default function EVSCounts(props: EVSCountsProps) {
       </div>
     );
   }
-  let socketInstance: Socket;
+
   const [asofData, setAsofData] = useState<string>("");
-  const SOCKET_URL = getApiSocketBaseUrl();
+  const socketRef = useRef<Socket | null>(null);
 
-  socketInstance = io(SOCKET_URL, {
-    extraHeaders: {
-      "ngrok-skip-browser-warning": "true",
-    },
-    transports: ["websocket"],
-    reconnection: true,
-    reconnectionAttempts: 5,
-    reconnectionDelay: 1000,
-    timeout: 10000,
-  });
-
-  socketInstance.on("asof", (asofData: string) => {
-    setAsofData(asofData);
-  });
-
+  // Only create socket when type === "card" since it's only needed for asof data in card mode
   useEffect(() => {
+    // Skip socket creation for compact type
+    if (type !== "card") {
+      return;
+    }
+
+    // Guard: prevent duplicate connections if socket already exists and is connected
+    if (socketRef.current?.connected) {
+      console.log(
+        "⚠️ [EVSCounts] Socket already connected, skipping duplicate connection"
+      );
+      return;
+    }
+
+    const SOCKET_URL = getApiSocketBaseUrl();
+    let socketInstance: Socket;
+
+    try {
+      console.log("🔧 [EVSCounts] Creating socket instance with config...");
+      socketInstance = io(SOCKET_URL, {
+        extraHeaders: {
+          "ngrok-skip-browser-warning": "true",
+        },
+        transports: ["websocket"],
+        reconnection: true,
+        reconnectionAttempts: 5,
+        reconnectionDelay: 1000,
+        timeout: 10000,
+      });
+      console.log("✅ [EVSCounts] Socket instance created successfully");
+      socketRef.current = socketInstance;
+    } catch (err) {
+      console.error("🔴 [EVSCounts] Socket initialization failed:", err);
+      return;
+    }
+
+    socketInstance.on("connect", () => {
+      console.log("🟢 [EVSCounts] Socket connected to server successfully!");
+    });
+
+    socketInstance.on("connect_error", (err) => {
+      console.error("🔴 [EVSCounts] Socket connection error:", err.message);
+    });
+
+    socketInstance.on("disconnect", () => {
+      console.log("🔌 [EVSCounts] Socket disconnected from server");
+    });
+
+    socketInstance.on("asof", (asofData: string) => {
+      setAsofData(asofData);
+    });
+
+    // Clean up function
     return () => {
-      socketInstance.disconnect();
+      console.log("🧹 [EVSCounts] Cleaning up socket connections...");
+      const socketToCleanup = socketRef.current;
+      if (socketToCleanup) {
+        socketToCleanup.off("connect");
+        socketToCleanup.off("disconnect");
+        socketToCleanup.off("connect_error");
+        socketToCleanup.off("asof");
+        socketToCleanup.disconnect();
+      }
+      socketRef.current = null;
+      console.log("✨ [EVSCounts] Socket cleanup completed");
     };
-  }, []);
+  }, [type]);
 
   if (type === "card") {
     return (
