@@ -188,10 +188,6 @@ function RouteComponent() {
                   key: "log_time",
                   label: "Evacuation Date and Time",
                 },
-                {
-                  key: "device_name",
-                  label: "Device Name",
-                },
               ]}
               filters={[
                 {
