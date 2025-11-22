@@ -22,6 +22,7 @@ import { cn } from "@/lib/utils";
 import VisitorEvacueeInfoDialog from "@/components/dialogs/VisitorEvacueeInfoDialog";
 import EvacueeInfoDialog from "@/components/dialogs/EvacueeInfoDialog";
 import { unparse } from "papaparse";
+import { getIsEVS } from "@/utils/env";
 
 interface SearchParams {
   pageSize?: string;
@@ -177,9 +178,21 @@ function RouteComponent() {
         headerLeft={
           <CardHeaderLeft
             title={
-              <div className="flex items-center space-x-2 text-primary-evs">
+              <div
+                className={cn(
+                  "flex items-center space-x-2",
+                  getIsEVS() ? "text-primary-evs" : "text-primary"
+                )}
+              >
                 <EpsonEvsFlame />
-                <b className="text-[20px]">Live Data</b>
+                <b
+                  className={cn(
+                    "text-[20px]",
+                    getIsEVS() ? "text-primary-evs" : "text-primary"
+                  )}
+                >
+                  Live Data
+                </b>
               </div>
             }
             subtitle=""

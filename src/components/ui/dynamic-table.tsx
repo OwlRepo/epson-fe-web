@@ -1336,28 +1336,6 @@ export function DynamicTable({
           data.length * ROW_HEIGHT > MAX_TABLE_HEIGHT ? (
             // Virtualized for many rows
             <div className="w-full">
-              <Table className={cn("w-full", className)}>
-                <TableHeader>
-                  <TableRow>
-                    {enableRowSelection && (
-                      <TableHead className="w-[50px] uppercase bg-[#F4F7FCBF]/75">
-                        <Checkbox
-                          checked={areAllRowsSelected}
-                          onCheckedChange={handleSelectAll}
-                        />
-                      </TableHead>
-                    )}
-                    {columns.map((column) => (
-                      <TableHead
-                        key={column.key}
-                        className="text-[#0F416D] font-bold bg-[#F4F7FCBF]/75 uppercase"
-                      >
-                        {column.label}
-                      </TableHead>
-                    ))}
-                  </TableRow>
-                </TableHeader>
-              </Table>
               <div
                 ref={parentRef}
                 className="border-t overflow-auto"
@@ -1370,6 +1348,26 @@ export function DynamicTable({
                   }}
                 >
                   <Table className={cn("w-full", className)}>
+                    <TableHeader>
+                      <TableRow>
+                        {enableRowSelection && (
+                          <TableHead className="w-[50px] uppercase bg-[#F4F7FCBF]/75">
+                            <Checkbox
+                              checked={areAllRowsSelected}
+                              onCheckedChange={handleSelectAll}
+                            />
+                          </TableHead>
+                        )}
+                        {columns.map((column) => (
+                          <TableHead
+                            key={column.key}
+                            className="text-[#0F416D] font-bold bg-[#F4F7FCBF]/75 uppercase"
+                          >
+                            {column.label}
+                          </TableHead>
+                        ))}
+                      </TableRow>
+                    </TableHeader>
                     <TableBody>
                       {(() => {
                         const virtualItems = virtualizer.getVirtualItems();
