@@ -77,7 +77,6 @@ export function usePaginatedTableSocket<T extends Record<string, any>>({
             connectedLoggedRef.current = true;
           }
           setIsConnected(true);
-          setIsLoading(false);
         },
         onDisconnect: () => {
           console.log("🔌 Socket disconnected from server");
@@ -104,16 +103,16 @@ export function usePaginatedTableSocket<T extends Record<string, any>>({
               setData(p.data as T[]);
             }
             if (
-              typeof p?.totalItems === "number" ||
-              typeof p?.totalPages === "number"
+              typeof p?.pagination?.totalItems === "number" ||
+              typeof p?.pagination?.totalPages === "number"
             ) {
               console.log("🧭 [usePaginatedTableSocket] Preload meta:", {
-                totalItems: p?.totalItems,
-                totalPages: p?.totalPages,
+                totalItems: p?.pagination?.totalItems,
+                totalPages: p?.pagination?.totalPages,
               });
               setMeta({
-                totalItems: Number(p?.totalItems) || 0,
-                totalPages: Number(p?.totalPages) || 1,
+                totalItems: Number(p?.pagination?.totalItems) || 0,
+                totalPages: Number(p?.pagination?.totalPages) || 1,
               });
             }
           }

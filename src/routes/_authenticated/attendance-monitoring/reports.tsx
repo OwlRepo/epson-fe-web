@@ -224,9 +224,11 @@ function ReportsDataTable() {
   const handleSearch = (searchTerm: string) => {
     console.log("handleSearch", searchTerm);
     navigate({
+      //@ts-ignore
       search: (prev) => ({
         ...prev,
         search: searchTerm,
+        page: "1",
       }),
       replace: true,
     });

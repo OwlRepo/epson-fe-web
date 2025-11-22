@@ -23,6 +23,7 @@ import { useSocket } from "@/hooks";
 import { useCheckoutVisitor } from "@/hooks/mutation/useCheckoutVisitor";
 import { useGetVisitorById } from "@/hooks/query/useGetVisitorById";
 import { useOverviewCountData } from "@/hooks/useOverviewCountData";
+import { useHeavySocketData } from "@/hooks/useHeavySocketData";
 import useToastStyleTheme from "@/hooks/useToastStyleTheme";
 import usePortStore from "@/store/usePortStore";
 import formatCountWithCommas from "@/utils/formatCountWithCommas";
@@ -78,29 +79,30 @@ function RouteComponent() {
     });
   };
 
-  // Handle search using socket functionality
-  const handleSearch = (searchTerm: string) => {
-    searchData(searchTerm);
-  };
-
   const { flaggedRecords, setFlaggedRecords } = useLiveDataTableStore();
 
-  const {
-    data: liveData,
-    isLoading: isLiveDataLoading,
-    isConnected: isLiveDataConnected,
-    countData,
-    clearData,
-    emitData,
-    searchData,
-    clearSearch,
-    searchTerm,
-    asofData,
-  } = useOverviewCountData({
+  // Standard overview data for count cards
+  const { countData, clearData, emitData, asofData } = useOverviewCountData({
     room: "VMS",
     dataType: "live",
     statusFilter: flaggedRecords,
   });
+
+  // Heavy data system for live table (always enabled)
+  const {
+    data: liveData,
+    isInitializing: isLiveDataLoading,
+    loadMore,
+    isLoadingMore,
+    totalCount,
+    search: searchData,
+    handleNewRecord,
+  } = useHeavySocketData({
+    room: "VMS",
+    autoCleanup: true,
+  });
+
+  const isLiveDataConnected = !isLiveDataLoading;
 
   return (
     <>
@@ -177,12 +179,14 @@ function RouteComponent() {
                 onPageSizeChange={handlePageSizeChange}
                 clearSocketData={clearData}
                 emitSocketData={emitData}
-                searchTerm={searchTerm}
-                onClearSearch={clearSearch}
                 onRowClick={(row) => {
                   setVisitorID(row.ID);
                   setIsOpen(true);
                 }}
+                // Heavy data infinite scroll props
+                onLoadMore={loadMore}
+                isLoadingMore={isLoadingMore}
+                totalCount={totalCount}
                 columns={[
                   {
                     key: "ID",
@@ -247,55 +251,20 @@ function RouteComponent() {
                 //     })),
                 //   },
                 // ]}
-                data={liveData
-                  .map((visitorData) => {
-                    const {
-                      ID,
-                      Name,
-                      clocked_in,
-                      clocked_out,
-                      Purpose,
-                      status,
-                    } = visitorData;
-                    return {
-                      ID: ID,
-                      Name: Name,
-                      Purpose: Purpose,
-                      clocked_in: clocked_in,
-                      clocked_out: clocked_out,
-                      status: status,
-                    };
-                  })
-                  .filter((item) => {
-                    const matchesId =
-                      !search.filter_ID || item.ID === search.filter_ID;
-                    const matchesName =
-                      !search.filter_Name || item.Name === search.filter_Name;
-                    const matchesPurpose =
-                      !search.filter_Purpose ||
-                      item.Purpose === search.filter_Purpose;
-                    const matchesClockedIn =
-                      !search.filter_clocked_in ||
-                      item.clocked_in === search.filter_clocked_in;
-                    const matchesClockedOut =
-                      !search.filter_clocked_out ||
-                      item.clocked_out === search.filter_clocked_out;
-
-                    return (
-                      matchesId &&
-                      matchesName &&
-                      matchesPurpose &&
-                      matchesClockedIn &&
-                      matchesClockedOut
-                    );
-                  })
-                  .sort((a, b) => {
-                    const dateA = new Date(a.clocked_out || a.clocked_in || 0).getTime();
-                    const dateB = new Date(b.clocked_out || b.clocked_in || 0).getTime();
-                    return dateB - dateA; // Descending order (newest first)
-                  })}
+                data={liveData.map((visitorData) => {
+                  const { ID, Name, clocked_in, clocked_out, Purpose, status } =
+                    visitorData;
+                  return {
+                    ID: ID,
+                    Name: Name,
+                    Purpose: Purpose,
+                    clocked_in: clocked_in,
+                    clocked_out: clocked_out,
+                    status: status,
+                  };
+                })}
                 onFilter={handleFilter}
-                onSearch={handleSearch}
+                onSearch={(term) => searchData(term)}
                 routeSearch={search}
                 isLoading={false}
                 tableId="divisions-departments-sections-table"

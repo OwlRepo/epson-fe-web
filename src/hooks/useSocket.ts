@@ -193,7 +193,6 @@ export const useSocket = <
       console.log(`🚪 Attempting to join room: "${room}"`);
       socketInstance.emit("join", room);
       console.log(`✅ Successfully joined socket room: "${room}"`);
-      setIsLoading(false);
     });
 
     socketInstance.on("connect_error", (err) => {

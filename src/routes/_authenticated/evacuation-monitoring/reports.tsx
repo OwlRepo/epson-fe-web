@@ -383,12 +383,6 @@ function ReportsDataTable() {
           columns={columns}
           data={(socketRows || []).map((item: any) => ({
             ...item,
-            ClockedIN: item.ClockedIN
-              ? dayjs(item.ClockedIN).format("hh:mm a")
-              : null,
-            ClockedOUT: item.ClockedOUT
-              ? dayjs(item.ClockedOUT).format("hh:mm a")
-              : null,
             EvacuationTime: item.EvacuationTime
               ? dayjs(item.EvacuationTime).format("MMM D, YYYY hh:mm a")
               : null,

@@ -149,6 +149,10 @@ interface DynamicTableProps {
   clearButtonLabel?: string; // Optional clear button label
   // When true, show pagination buttons even if isLiveData is true
   showPaginationForLive?: boolean;
+  // Infinite scroll for heavy data
+  onLoadMore?: () => Promise<void>;
+  isLoadingMore?: boolean;
+  totalCount?: number;
 }
 
 export function DynamicTable({
@@ -177,6 +181,10 @@ export function DynamicTable({
   onClearTable,
   clearButtonLabel,
   showPaginationForLive = false,
+  // Infinite scroll props
+  onLoadMore,
+  isLoadingMore = false,
+  totalCount,
 }: DynamicTableProps) {
   const navigate = useNavigate();
   const [filterSearches, setFilterSearches] = React.useState<
@@ -202,6 +210,29 @@ export function DynamicTable({
     estimateSize: () => ROW_HEIGHT,
     overscan: 5, // Render 5 extra rows outside viewport for smooth scrolling
   });
+
+  // Infinite scroll detection for heavy data
+  React.useEffect(() => {
+    if (!isLiveData || !onLoadMore || !parentRef.current || isLoadingMore) {
+      return;
+    }
+
+    const scrollElement = parentRef.current;
+    const handleScroll = () => {
+      if (!scrollElement) return;
+
+      const { scrollTop, scrollHeight, clientHeight } = scrollElement;
+      const scrollPercentage = (scrollTop + clientHeight) / scrollHeight;
+
+      // Trigger loadMore when scrolled 90% down
+      if (scrollPercentage > 0.9 && !isLoadingMore) {
+        onLoadMore();
+      }
+    };
+
+    scrollElement.addEventListener("scroll", handleScroll);
+    return () => scrollElement.removeEventListener("scroll", handleScroll);
+  }, [isLiveData, onLoadMore, isLoadingMore]);
 
   // State for the time picker
   const [timeDialogOpen, setTimeDialogOpen] = React.useState<boolean>(false);
@@ -1611,31 +1642,49 @@ export function DynamicTable({
         )}
       </div>
 
-      {/* Pagination */}
-      {pagination && !isLoading && data.length > 0 && (
-        <div className="mt-4 flex items-center justify-between">
-          {/* Page size selector - both dropdown and buttons */}
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600 font-bold">
-              Rows per page:
-            </span>
-            <select
-              className="p-1 border-none rounded bg-white text-sm cursor-pointer"
-              value={pagination.pageSize}
-              onChange={handlePageSizeChange}
-              aria-label="Select rows per page"
-              data-testid="page-size-select"
-            >
-              {pageSizeOptions.map((size) => (
-                <option key={size} value={size}>
-                  {size}
-                </option>
-              ))}
-            </select>
-          </div>
+      {/* Infinite scroll loading indicator for live data */}
+      {isLiveData && isLoadingMore && (
+        <div className="flex items-center justify-center py-4">
+          <Spinner size={30} />
+          <span className="ml-2 text-sm text-gray-600">Loading more...</span>
+        </div>
+      )}
 
-          {/* Alternative page size buttons */}
-          {/* <div className="hidden sm:flex gap-1 ml-1">
+      {/* Total count indicator for live data with heavy data mode */}
+      {isLiveData && totalCount !== undefined && !isLoading && (
+        <div className="mt-2 text-sm text-gray-600 text-center">
+          Showing {data.length} of {totalCount.toLocaleString()} total records
+        </div>
+      )}
+
+      {/* Pagination - hidden for live data unless showPaginationForLive is true */}
+      {pagination &&
+        !isLoading &&
+        data.length > 0 &&
+        (!isLiveData || showPaginationForLive) && (
+          <div className="mt-4 flex items-center justify-between">
+            {/* Page size selector - both dropdown and buttons */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600 font-bold">
+                Rows per page:
+              </span>
+              <select
+                className="p-1 border-none rounded bg-white text-sm cursor-pointer"
+                value={pagination.pageSize}
+                onChange={handlePageSizeChange}
+                aria-label="Select rows per page"
+                data-testid="page-size-select"
+              >
+                {pageSizeOptions.map((size) => (
+                  <option key={size} value={size}>
+                    {size}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Alternative page size buttons */}
+            {/* <div className="hidden sm:flex gap-1 ml-1">
           {pageSizeOptions.map((size) => (
             <button
               key={`page-size-btn-${size}`}
@@ -1651,107 +1700,107 @@ export function DynamicTable({
             </button>
           ))}
         </div> */}
-          <div className="flex items-center gap-2 flex-wrap">
-            {!isLiveData && (
-              <span className="text-sm text-gray-600 ml-2">
-                {`${Math.min(
-                  (pagination.currentPage - 1) * pagination.pageSize + 1,
-                  pagination.totalItems
-                )}-${Math.min(
-                  pagination.currentPage * pagination.pageSize,
-                  pagination.totalItems
-                )} of ${pagination.totalItems}`}
-              </span>
+            <div className="flex items-center gap-2 flex-wrap">
+              {!isLiveData && (
+                <span className="text-sm text-gray-600 ml-2">
+                  {`${Math.min(
+                    (pagination.currentPage - 1) * pagination.pageSize + 1,
+                    pagination.totalItems
+                  )}-${Math.min(
+                    pagination.currentPage * pagination.pageSize,
+                    pagination.totalItems
+                  )} of ${pagination.totalItems}`}
+                </span>
+              )}
+            </div>
+
+            {/* Pagination navigation - only show when not live data */}
+            {(!isLiveData || showPaginationForLive) && (
+              <div className="flex items-center gap-2">
+                <button
+                  className="inline-flex items-center justify-center whitespace-nowrap rounded text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+                  onClick={() => handlePageChange(pagination.currentPage - 1)}
+                  disabled={pagination.currentPage === 1}
+                  aria-label="Go to previous page"
+                  type="button"
+                >
+                  Previous
+                </button>
+
+                {/* Page number buttons - show appropriate range of buttons */}
+                {(() => {
+                  // Always show first page, last page, current page, and 1 page on each side of current page
+                  const currentPage = pagination.currentPage;
+                  const totalPages = pagination.totalPages;
+                  const pageNumbers = new Set<number>();
+
+                  // Always include page 1
+                  pageNumbers.add(1);
+
+                  // Add current page and one on each side
+                  for (
+                    let i = Math.max(2, currentPage - 1);
+                    i <= Math.min(totalPages - 1, currentPage + 1);
+                    i++
+                  ) {
+                    pageNumbers.add(i);
+                  }
+
+                  // Always include last page if we have more than 1 page
+                  if (totalPages > 1) {
+                    pageNumbers.add(totalPages);
+                  }
+
+                  // Convert to sorted array
+                  const sortedPageNumbers = Array.from(pageNumbers).sort(
+                    (a, b) => a - b
+                  );
+
+                  // Render buttons with ellipses
+                  return sortedPageNumbers.map((pageNum, index) => {
+                    const prevPage = sortedPageNumbers[index - 1];
+                    // Add ellipsis if there's a gap
+                    const showEllipsis = prevPage && pageNum - prevPage > 1;
+
+                    return (
+                      <React.Fragment key={pageNum}>
+                        {showEllipsis && <span className="mx-1">...</span>}
+                        <button
+                          onClick={() => handlePageChange(pageNum)}
+                          className={cn(
+                            "inline-flex items-center justify-center whitespace-nowrap rounded text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input h-10 w-10",
+                            pagination.currentPage === pageNum
+                              ? "bg-accent text-accent-foreground"
+                              : "bg-background hover:bg-accent hover:text-accent-foreground"
+                          )}
+                          aria-label={`Go to page ${pageNum}`}
+                          aria-current={
+                            pagination.currentPage === pageNum
+                              ? "page"
+                              : undefined
+                          }
+                          type="button"
+                        >
+                          {pageNum}
+                        </button>
+                      </React.Fragment>
+                    );
+                  });
+                })()}
+
+                <button
+                  className="inline-flex items-center justify-center whitespace-nowrap rounded text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+                  onClick={() => handlePageChange(pagination.currentPage + 1)}
+                  disabled={pagination.currentPage === pagination.totalPages}
+                  aria-label="Go to next page"
+                  type="button"
+                >
+                  Next
+                </button>
+              </div>
             )}
           </div>
-
-          {/* Pagination navigation - only show when not live data */}
-          {(!isLiveData || showPaginationForLive) && (
-            <div className="flex items-center gap-2">
-              <button
-                className="inline-flex items-center justify-center whitespace-nowrap rounded text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
-                onClick={() => handlePageChange(pagination.currentPage - 1)}
-                disabled={pagination.currentPage === 1}
-                aria-label="Go to previous page"
-                type="button"
-              >
-                Previous
-              </button>
-
-              {/* Page number buttons - show appropriate range of buttons */}
-              {(() => {
-                // Always show first page, last page, current page, and 1 page on each side of current page
-                const currentPage = pagination.currentPage;
-                const totalPages = pagination.totalPages;
-                const pageNumbers = new Set<number>();
-
-                // Always include page 1
-                pageNumbers.add(1);
-
-                // Add current page and one on each side
-                for (
-                  let i = Math.max(2, currentPage - 1);
-                  i <= Math.min(totalPages - 1, currentPage + 1);
-                  i++
-                ) {
-                  pageNumbers.add(i);
-                }
-
-                // Always include last page if we have more than 1 page
-                if (totalPages > 1) {
-                  pageNumbers.add(totalPages);
-                }
-
-                // Convert to sorted array
-                const sortedPageNumbers = Array.from(pageNumbers).sort(
-                  (a, b) => a - b
-                );
-
-                // Render buttons with ellipses
-                return sortedPageNumbers.map((pageNum, index) => {
-                  const prevPage = sortedPageNumbers[index - 1];
-                  // Add ellipsis if there's a gap
-                  const showEllipsis = prevPage && pageNum - prevPage > 1;
-
-                  return (
-                    <React.Fragment key={pageNum}>
-                      {showEllipsis && <span className="mx-1">...</span>}
-                      <button
-                        onClick={() => handlePageChange(pageNum)}
-                        className={cn(
-                          "inline-flex items-center justify-center whitespace-nowrap rounded text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input h-10 w-10",
-                          pagination.currentPage === pageNum
-                            ? "bg-accent text-accent-foreground"
-                            : "bg-background hover:bg-accent hover:text-accent-foreground"
-                        )}
-                        aria-label={`Go to page ${pageNum}`}
-                        aria-current={
-                          pagination.currentPage === pageNum
-                            ? "page"
-                            : undefined
-                        }
-                        type="button"
-                      >
-                        {pageNum}
-                      </button>
-                    </React.Fragment>
-                  );
-                });
-              })()}
-
-              <button
-                className="inline-flex items-center justify-center whitespace-nowrap rounded text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
-                onClick={() => handlePageChange(pagination.currentPage + 1)}
-                disabled={pagination.currentPage === pagination.totalPages}
-                aria-label="Go to next page"
-                type="button"
-              >
-                Next
-              </button>
-            </div>
-          )}
-        </div>
-      )}
+        )}
 
       {/* Time picker dialog */}
       <Dialog open={timeDialogOpen} onOpenChange={setTimeDialogOpen}>

@@ -51,6 +51,10 @@ interface LiveDataTableProps {
   clearSocketData?: () => void; // Function to clear the socket data
   emitSocketData?: (room: string, data: any) => void; // Function to emit socket data
   exportTableData?: ExportTableData;
+  // Heavy data props for infinite scroll
+  onLoadMore?: () => Promise<void>;
+  isLoadingMore?: boolean;
+  totalCount?: number;
 }
 
 export function LiveDataTable({
@@ -64,6 +68,9 @@ export function LiveDataTable({
   searchTerm,
   onClearSearch,
   exportTableData,
+  onLoadMore,
+  isLoadingMore,
+  totalCount,
   ...props
 }: LiveDataTableProps) {
   const navigate = useNavigate();
@@ -134,6 +141,9 @@ export function LiveDataTable({
       data={data}
       isLiveData={true}
       exportTableData={exportTableData}
+      onLoadMore={onLoadMore}
+      isLoadingMore={isLoadingMore}
+      totalCount={totalCount}
     />
   );
 }
