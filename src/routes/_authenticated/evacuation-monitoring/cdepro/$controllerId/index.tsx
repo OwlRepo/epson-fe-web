@@ -1,4 +1,4 @@
-import { EpsonFlame } from "@/assets/svgs";
+import { EpsonEvsFlame, EpsonFlame } from "@/assets/svgs";
 import AssignPersonnelDialog from "@/components/dialogs/AssignPersonnelDialog";
 import CardSection from "@/components/layouts/CardSection";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { LiveDataTable } from "@/components/ui/live-data-table";
 import Spinner from "@/components/ui/spinner";
 import { useCDEPROControllerData } from "@/hooks/useCDEPROControllerData";
 import { cn } from "@/lib/utils";
+import { getIsEVS } from "@/utils/env";
 import matchesFilter from "@/utils/matchesFilter";
 import {
   createFileRoute,
@@ -128,9 +129,21 @@ function RouteComponent() {
         headerLeft={
           <CardHeaderLeft
             title={
-              <div className="flex items-center space-x-2">
-                <EpsonFlame />
-                <b className="text-[20px] text-primary">Live Data</b>
+              <div
+                className={cn(
+                  "flex items-center space-x-2",
+                  getIsEVS() ? "text-primary-evs" : "text-primary"
+                )}
+              >
+                {getIsEVS() ? <EpsonEvsFlame /> : <EpsonFlame />}
+                <b
+                  className={cn(
+                    "text-[20px]",
+                    getIsEVS() ? "text-primary-evs" : "text-primary"
+                  )}
+                >
+                  Live Data
+                </b>
               </div>
             }
           />
@@ -159,7 +172,7 @@ function RouteComponent() {
                 },
                 {
                   key: "Position",
-                  label: "POSITION",
+                  label: "Emergency Response Team (ERT)",
                 },
                 {
                   key: "ContactNo",
