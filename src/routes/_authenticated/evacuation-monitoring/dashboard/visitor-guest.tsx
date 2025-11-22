@@ -6,7 +6,7 @@ import {
   useSearch,
 } from "@tanstack/react-router";
 import { useVisitorsGuestData } from "@/hooks/useVisitorsGuestData";
-import { EpsonFlame } from "@/assets/svgs";
+import { EpsonEvsFlame, EpsonFlame } from "@/assets/svgs";
 import Spinner from "@/components/ui/spinner";
 import { LiveDataTable } from "@/components/ui/live-data-table";
 import matchesFilter from "@/utils/matchesFilter";
@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import VisitorEvacueeInfoDialog from "@/components/dialogs/VisitorEvacueeInfoDialog";
 import { unparse } from "papaparse";
+import { getIsEVS } from "@/utils/env";
 
 interface SearchParams {
   pageSize?: string;
@@ -149,9 +150,21 @@ function RouteComponent() {
         headerLeft={
           <CardHeaderLeft
             title={
-              <div className="flex items-center space-x-2">
-                <EpsonFlame />
-                <b className="text-[20px] text-primary">Live Data</b>
+              <div
+                className={cn(
+                  "flex items-center space-x-2",
+                  getIsEVS() ? "text-primary-evs" : "text-primary"
+                )}
+              >
+                {getIsEVS() ? <EpsonEvsFlame /> : <EpsonFlame />}
+                <b
+                  className={cn(
+                    "text-[20px]",
+                    getIsEVS() ? "text-primary-evs" : "text-primary"
+                  )}
+                >
+                  Live Data
+                </b>
               </div>
             }
             subtitle={`As of ${asofData}`}

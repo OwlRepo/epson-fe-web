@@ -1,3 +1,5 @@
+import { cn } from "@/lib/utils";
+import { getIsEVS } from "@/utils/env";
 import dayjs from "dayjs";
 import { useState, useEffect } from "react";
 
@@ -29,7 +31,14 @@ export default function CardHeaderLeft({
       ) : title ? (
         title
       ) : (
-        <b className="text-[20px] text-primary">Overview</b>
+        <b
+          className={cn(
+            "text-[20px]",
+            getIsEVS() ? "text-primary-evs" : "text-primary"
+          )}
+        >
+          Overview
+        </b>
       )}
       {typeof subtitle === "string" ? (
         <p className="text-sm text-muted-foreground">{subtitle}</p>
