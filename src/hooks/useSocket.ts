@@ -260,6 +260,23 @@ export const useSocket = <
 
             // Load only top 1k records into state
             const topRecords = await getTopRecords(room, 1000);
+            console.log(
+              `📊 [useSocket] Loaded ${topRecords.length} top records from IndexedDB for room: ${room}`
+            );
+            if (topRecords.length > 0) {
+              console.log(
+                `📋 [useSocket] Sample record fields:`,
+                Object.keys(topRecords[0])
+              );
+              console.log(
+                `📋 [useSocket] Sample record eva_status:`,
+                topRecords[0]?.eva_status
+              );
+            } else {
+              console.warn(
+                `⚠️ [useSocket] No records loaded from IndexedDB for room: ${room}`
+              );
+            }
             setData(topRecords as T[]);
             dataRef.current = topRecords as T[];
             setLoadedOffset(1000);
@@ -434,10 +451,21 @@ export const useSocket = <
         }
 
         // Update UI IMMEDIATELY for real-time display (non-blocking)
+        console.log(
+          `🔄 [useSocket] Updating UI with new data for room: ${room}`,
+          {
+            useIndexedDb,
+            prevDataLength: dataRef.current?.length || 0,
+            isNewRecord,
+            isLatest,
+          }
+        );
+
         setData((prevData) => {
           // Update ref with latest data
           const updatedData = (() => {
             if (!prevData || prevData.length === 0) {
+              console.log(`✅ [useSocket] Adding first record to empty state`);
               return [newData as T];
             }
 
@@ -499,11 +527,17 @@ export const useSocket = <
           })();
 
           dataRef.current = updatedData;
+          console.log(
+            `✅ [useSocket] State updated, new length: ${updatedData.length}`
+          );
           return updatedData;
         });
 
         // Update IndexedDB in the background (non-blocking) after UI update
         if (useIndexedDb) {
+          console.log(
+            `💾 [useSocket] Updating IndexedDB in background for room: ${room}`
+          );
           // Don't await - update IndexedDB asynchronously without blocking
           updateIndexedDbData(room, newData).catch((error) => {
             console.error("❌ Error updating IndexedDB:", error);
@@ -738,6 +772,14 @@ export const useSocket = <
 
   // Compute filtered data based on search term and status filter
   const filteredData = useMemo(() => {
+    console.log(`🔍 [useSocket] Computing filteredData for room: ${room}`, {
+      dataLength: data?.length || 0,
+      searchTerm,
+      statusFilter,
+      useIndexedDb,
+      indexedDbSearchResultsLength: indexedDbSearchResults?.length || 0,
+    });
+
     // If using IndexedDB and searching, merge displayed data with IndexedDB results
     let dataToFilter = data;
     if (
@@ -751,6 +793,9 @@ export const useSocket = <
         (item: any) => !displayedIds.has(item.id || item.ID)
       );
       dataToFilter = [...data, ...additionalResults];
+      console.log(
+        `🔍 [useSocket] Merged IndexedDB search results: ${dataToFilter.length} total`
+      );
     }
 
     let filteredBySearch = dataToFilter;
@@ -770,26 +815,52 @@ export const useSocket = <
           return stringValue.includes(lowerSearchTerm);
         });
       });
+      console.log(
+        `🔍 [useSocket] After search filter: ${filteredBySearch.length} records`
+      );
     }
 
-    // Apply status filter
+    // Apply status filter (only when explicitly enabled)
     if (statusFilter) {
-      return filteredBySearch.filter((item: any) => {
-        // Filter for rows where status has content (same logic as line 1208 in dynamic-table.tsx)
-
+      const filtered = filteredBySearch.filter((item: any) => {
+        // When statusFilter is true, show only "Missing" records
         if (item?.eva_status) {
           return item?.eva_status?.toLowerCase() === "missing";
         }
 
+        // For other data types, check status field
         if (item?.status) {
           return item?.status?.toString()?.length > 0;
         }
         return false;
       });
+
+      console.log(
+        `🔍 [useSocket] After status filter (ON): ${filtered.length} records (from ${filteredBySearch.length})`
+      );
+
+      // Only log if there's a significant difference (helps debug)
+      if (filteredBySearch.length > 0 && filtered.length === 0) {
+        console.warn(
+          `⚠️ [useSocket] Status filter removed all records. Total: ${filteredBySearch.length}, Filtered: ${filtered.length}`
+        );
+      }
+      return filtered;
     }
 
+    // When statusFilter is false, return all data (no filtering)
+    console.log(
+      `🔍 [useSocket] No status filter: returning all ${filteredBySearch.length} records`
+    );
     return filteredBySearch;
-  }, [data, searchTerm, statusFilter, indexedDbSearchResults, useIndexedDb]);
+  }, [
+    data,
+    searchTerm,
+    statusFilter,
+    indexedDbSearchResults,
+    useIndexedDb,
+    room,
+  ]);
 
   // Function to manually leave current room and join a new one
   const joinRoom = useCallback(

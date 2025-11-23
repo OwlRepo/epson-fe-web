@@ -12,6 +12,7 @@ import {
   useSearch,
 } from "@tanstack/react-router";
 import { useState } from "react";
+import * as React from "react";
 import matchesFilter from "@/utils/matchesFilter";
 
 import EVSCounts from "@/components/ui/evs-counts";
@@ -120,6 +121,28 @@ function RouteComponent() {
     dataType: "live",
     statusFilter: flaggedRecords,
   });
+
+  // Debug logging to verify data loading
+  React.useEffect(() => {
+    console.log("🔍 [realtime.tsx] Data state:", {
+      liveDataLength: liveData?.length || 0,
+      totalCount,
+      isLoading: isLiveDataLoading,
+      isConnected: isLiveDataConnected,
+      statusFilter: flaggedRecords,
+      searchTerm,
+    });
+    if (liveData && liveData.length > 0) {
+      console.log("📋 [realtime.tsx] Sample record:", liveData[0]);
+    }
+  }, [
+    liveData,
+    totalCount,
+    isLiveDataLoading,
+    isLiveDataConnected,
+    flaggedRecords,
+    searchTerm,
+  ]);
 
   const handleExport = (filterByStatus: string[] | "all") => {
     const summary = [
