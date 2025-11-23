@@ -65,6 +65,9 @@ function RouteComponent() {
     searchData,
     clearSearch,
     searchTerm,
+    loadMore,
+    isLoadingMore,
+    totalCount,
   } = useEmployeeData({
     useSearchFrom:
       "/_authenticated/evacuation-monitoring/dashboard/divisions/$divisionId/$departmentId/$sectionId/",
@@ -171,6 +174,9 @@ function RouteComponent() {
               clearSocketData={clearData}
               searchTerm={searchTerm}
               onClearSearch={clearSearch}
+              onLoadMore={loadMore}
+              isLoadingMore={isLoadingMore}
+              totalCount={totalCount}
               pageSize={Number(search.pageSize) || 10}
               onPageSizeChange={handlePageSizeChange}
               columns={[

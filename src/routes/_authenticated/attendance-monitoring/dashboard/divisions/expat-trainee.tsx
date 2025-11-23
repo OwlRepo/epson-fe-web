@@ -29,6 +29,9 @@ function RouteComponent() {
     searchData,
     clearSearch,
     searchTerm,
+    loadMore,
+    isLoadingMore,
+    totalCount,
   } = useOverviewCountData({
     room: "Expat-TraineeExpat-TraineeExpat-Trainee",
     dataType: "live",
@@ -94,6 +97,9 @@ function RouteComponent() {
             emitSocketData={emitData}
             searchTerm={searchTerm}
             onClearSearch={clearSearch}
+            onLoadMore={loadMore}
+            isLoadingMore={isLoadingMore}
+            totalCount={totalCount}
             pageSize={Number(search.pageSize) || 10}
             onPageSizeChange={handlePageSizeChange}
             columns={[

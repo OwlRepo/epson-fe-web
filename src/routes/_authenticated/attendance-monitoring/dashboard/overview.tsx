@@ -87,6 +87,9 @@ function RouteComponent() {
     clearSearch,
     searchTerm,
     asofData,
+    loadMore,
+    isLoadingMore,
+    totalCount,
   } = useOverviewCountData({
     room: "AMS",
     dataType: "live",
@@ -142,6 +145,9 @@ function RouteComponent() {
                 emitSocketData={emitData}
                 searchTerm={searchTerm}
                 onClearSearch={clearSearch}
+                onLoadMore={loadMore}
+                isLoadingMore={isLoadingMore}
+                totalCount={totalCount}
                 onRowClick={(row) => {
                   setEmployeeID(row[EMPLOYEE_NO_TABLE_KEY]);
                   setIsOpen(true);

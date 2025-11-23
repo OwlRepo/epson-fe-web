@@ -1,9 +1,20 @@
 import { getApiSocketBaseUrl } from "@/utils/env";
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { io, Socket } from "socket.io-client";
+import { useLocation } from "@tanstack/react-router";
 import useToastStyleTheme from "./useToastStyleTheme";
 import { toast } from "sonner";
 import type { Device } from "@/components/dialogs/DeviceInfoDialog";
+import {
+  storePreloadData,
+  getTopRecords,
+  getNextBatch,
+  updateData as updateIndexedDbData,
+  searchData as searchIndexedDbData,
+  clearData as clearIndexedDbData,
+  getTotalCount,
+  getLatestTimestamp,
+} from "@/utils/indexedDbStorage";
 
 // Define types for our data
 export interface SummaryData extends DeviceData {
@@ -133,6 +144,14 @@ export const useSocket = <
   const [asofData, setAsofData] = useState<string>("---");
   const { successStyle, errorStyle } = useToastStyleTheme();
   const socketRef = useRef<Socket | null>(null);
+  const location = useLocation();
+
+  // IndexedDB state for large datasets (live dataType only)
+  const [loadedOffset, setLoadedOffset] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [useIndexedDb, setUseIndexedDb] = useState(false); // Flag to enable IndexedDB for large datasets
+  const latestTimestampRef = useRef<number | null>(null);
 
   // Connect to socket and join room
   useEffect(() => {
@@ -209,18 +228,64 @@ export const useSocket = <
     });
 
     // Listen for preload data when joining room
-    socketInstance.on("preload", (preloadData) => {
+    socketInstance.on("preload", async (preloadData) => {
       console.log("📦 Preload data received for room:", room);
       console.log("📊 Data type:", typeof preloadData);
       console.log(
         "📈 Records count:",
         Array.isArray(preloadData) ? preloadData.length : "N/A"
       );
-      console.log("🗂️ Preload data:", preloadData);
+      console.log("preloadData", preloadData);
 
       if (Array.isArray(preloadData)) {
-        setData(preloadData as T[]);
-        console.log("✅ Preload data successfully set in state");
+        const recordCount = preloadData.length;
+
+        // Use IndexedDB for large datasets (live dataType with 1000+ records)
+        if (dataType === "live" && recordCount >= 1000) {
+          console.log(
+            "💾 Using IndexedDB for large dataset:",
+            recordCount,
+            "records"
+          );
+          setUseIndexedDb(true);
+
+          try {
+            // Store all preload data in IndexedDB
+            await storePreloadData(room, preloadData);
+
+            // Get total count
+            const count = await getTotalCount(room);
+            setTotalCount(count);
+
+            // Load only top 1k records into state
+            const topRecords = await getTopRecords(room, 1000);
+            setData(topRecords as T[]);
+            setLoadedOffset(1000);
+
+            // Store latest timestamp
+            const latestTs = await getLatestTimestamp(room);
+            latestTimestampRef.current = latestTs;
+
+            console.log(
+              "✅ Preload data stored in IndexedDB, loaded top 1000 records"
+            );
+          } catch (error) {
+            console.error("❌ Error storing preload data in IndexedDB:", error);
+            // Fallback to regular state storage
+            setData(preloadData as T[]);
+            setUseIndexedDb(false);
+          }
+        } else {
+          // For small datasets or summary data, use regular state
+          console.log(
+            "📝 Using regular state for dataset:",
+            recordCount,
+            "records"
+          );
+          setData(preloadData as T[]);
+          setUseIndexedDb(false);
+          setTotalCount(recordCount);
+        }
       } else {
         console.error(
           "❌ Expected array for preload data but got:",
@@ -228,15 +293,17 @@ export const useSocket = <
         );
         console.error("🔍 Received data:", preloadData);
         setData([]);
+        setUseIndexedDb(false);
       }
       setIsLoading(false);
     });
 
     // Listen for updates
-    socketInstance.on("data", (newData) => {
+    socketInstance.on("data", async (newData) => {
       console.log("🔄 New live data received for room:", room);
       console.log("🆕 Data type mode:", dataType);
       console.log("📋 New data payload:", newData);
+
       if (dataType === "summary") {
         // For summary data, update the matching item in array
         setData((prevData) => {
@@ -305,23 +372,43 @@ export const useSocket = <
           }
         });
       } else if (dataType === "live") {
-        // For live data, check if record exists with same employee_id AND clocked_in
+        const newLiveData = newData as LiveData;
+
+        // Check if this is a newer record (should be prepended to view)
+        const newTimestamp = newLiveData.date_receive
+          ? new Date(newLiveData.date_receive).getTime()
+          : newLiveData.date_time
+            ? new Date(newLiveData.date_time).getTime()
+            : newLiveData.log_time
+              ? new Date(newLiveData.log_time).getTime()
+              : Date.now();
+
+        const isLatest =
+          latestTimestampRef.current === null ||
+          newTimestamp >= latestTimestampRef.current;
+
+        if (isLatest) {
+          latestTimestampRef.current = newTimestamp;
+        }
+
+        // Update UI IMMEDIATELY for real-time display (non-blocking)
         setData((prevData) => {
-          const newLiveData = newData as LiveData;
           if (!prevData || prevData.length === 0) {
-            // No existing items — just add the incoming record
             return [newData as T];
           }
 
-          // Ensure prevData[0] exists and is an object before calling Object.keys
           const firstItem = prevData[0] as Record<string, any> | undefined;
           if (!firstItem || typeof firstItem !== "object") {
             return [newData as T];
           }
+
           if (Object.keys(prevData[0])?.includes("controller_type")) {
-            return [...prevData, newData as T];
+            // If it's latest, prepend; otherwise append
+            return isLatest
+              ? [newData as T, ...prevData]
+              : [...prevData, newData as T];
           } else {
-            // Find existing record with same employee_id AND clocked_in
+            // Find existing record
             const existingRecordIndex = prevData.findIndex((item) => {
               const liveItem = item as LiveData;
 
@@ -340,37 +427,105 @@ export const useSocket = <
                   liveItem?.clocked_in === newLiveData?.clocked_in
                 );
               }
-
-              // return (
-              //   (liveItem.employee_id === newLiveData.employee_id &&
-              //     liveItem.clocked_in === newLiveData.clocked_in) ||
-              //   (liveItem.ID === newLiveData.ID &&
-              //     liveItem.clocked_in === newLiveData.clocked_in)
-              // );
             });
 
             if (existingRecordIndex !== -1) {
-              // Update existing record with same employee_id and clocked_in
+              // Update existing record
               return prevData.map((item, index) =>
                 index === existingRecordIndex ? { ...item, ...newData } : item
               );
             } else {
-              // Insert as new record (either new employee or same employee with different clocked_in)
-              return [...prevData, newData as T];
+              // Insert as new record - prepend if latest, otherwise append
+              if (isLatest) {
+                // Prepend and limit to reasonable size (5k max in view)
+                const updated = [newData as T, ...prevData];
+                return updated.slice(0, 5000);
+              } else {
+                return [...prevData, newData as T];
+              }
             }
           }
         });
+
+        // Update IndexedDB in the background (non-blocking) after UI update
+        if (useIndexedDb) {
+          // Don't await - update IndexedDB asynchronously without blocking
+          updateIndexedDbData(room, newData).catch((error) => {
+            console.error("❌ Error updating IndexedDB:", error);
+          });
+
+          // Update total count in background
+          getTotalCount(room)
+            .then((count) => setTotalCount(count))
+            .catch((error) => {
+              console.error("❌ Error getting total count:", error);
+            });
+        } else {
+          // Regular state update for non-IndexedDB mode
+          setData((prevData) => {
+            if (!prevData || prevData.length === 0) {
+              return [newData as T];
+            }
+
+            const firstItem = prevData[0] as Record<string, any> | undefined;
+            if (!firstItem || typeof firstItem !== "object") {
+              return [newData as T];
+            }
+            if (Object.keys(prevData[0])?.includes("controller_type")) {
+              return [...prevData, newData as T];
+            } else {
+              const existingRecordIndex = prevData.findIndex((item) => {
+                const liveItem = item as LiveData;
+
+                if (newLiveData?.id) {
+                  return liveItem?.["id"] === newLiveData?.["id"];
+                }
+
+                if (!newLiveData?.employee_id) {
+                  return (
+                    liveItem?.["ID"] === newLiveData?.["ID"] &&
+                    liveItem?.clocked_in === newLiveData?.clocked_in
+                  );
+                } else {
+                  return (
+                    liveItem?.employee_id === newLiveData?.employee_id &&
+                    liveItem?.clocked_in === newLiveData?.clocked_in
+                  );
+                }
+              });
+
+              if (existingRecordIndex !== -1) {
+                return prevData.map((item, index) =>
+                  index === existingRecordIndex ? { ...item, ...newData } : item
+                );
+              } else {
+                return [...prevData, newData as T];
+              }
+            }
+          });
+        }
       }
     });
 
     //Listen for removed data
-    socketInstance.on("remove_data", (epc) => {
+    socketInstance.on("remove_data", async (epc) => {
       console.log("remove from data", epc);
+
+      if (useIndexedDb) {
+        // Note: IndexedDB removal would need to be implemented if needed
+        // For now, just update the displayed data
+      }
+
       setData((prev) => {
         return prev.filter(
           (item: any) => item?.epc !== epc && item?.ID !== Number(epc)
         );
       });
+
+      if (useIndexedDb) {
+        const count = await getTotalCount(room);
+        setTotalCount(count);
+      }
     });
 
     //Listen for get_user  data
@@ -537,14 +692,56 @@ export const useSocket = <
     setSearchTerm("");
   }, []);
 
+  // State for search results from IndexedDB
+  const [indexedDbSearchResults, setIndexedDbSearchResults] = useState<T[]>([]);
+
+  // Search IndexedDB when search term is provided and using IndexedDB
+  useEffect(() => {
+    if (useIndexedDb && searchTerm.trim()) {
+      const searchTimeout = setTimeout(async () => {
+        try {
+          const results = await searchIndexedDbData(
+            room,
+            searchTerm,
+            undefined,
+            1000
+          );
+          setIndexedDbSearchResults(results as T[]);
+        } catch (error) {
+          console.error("❌ Error searching IndexedDB:", error);
+          setIndexedDbSearchResults([]);
+        }
+      }, 300); // Debounce search
+
+      return () => clearTimeout(searchTimeout);
+    } else {
+      setIndexedDbSearchResults([]);
+    }
+  }, [searchTerm, useIndexedDb, room]);
+
   // Compute filtered data based on search term and status filter
   const filteredData = useMemo(() => {
-    let filteredBySearch = data;
+    // If using IndexedDB and searching, merge displayed data with IndexedDB results
+    let dataToFilter = data;
+    if (
+      useIndexedDb &&
+      searchTerm.trim() &&
+      indexedDbSearchResults.length > 0
+    ) {
+      // Merge and deduplicate
+      const displayedIds = new Set(data.map((item: any) => item.id || item.ID));
+      const additionalResults = indexedDbSearchResults.filter(
+        (item: any) => !displayedIds.has(item.id || item.ID)
+      );
+      dataToFilter = [...data, ...additionalResults];
+    }
+
+    let filteredBySearch = dataToFilter;
     // Apply search filter first
     if (searchTerm.trim()) {
       const lowerSearchTerm = searchTerm.toLowerCase().trim();
 
-      filteredBySearch = data.filter((item) => {
+      filteredBySearch = dataToFilter.filter((item) => {
         // Search through all string and number properties of the item
         return Object.values(item).some((value) => {
           if (value === null || value === undefined) {
@@ -575,7 +772,7 @@ export const useSocket = <
     }
 
     return filteredBySearch;
-  }, [data, searchTerm, statusFilter]);
+  }, [data, searchTerm, statusFilter, indexedDbSearchResults, useIndexedDb]);
 
   // Function to manually leave current room and join a new one
   const joinRoom = useCallback(
@@ -597,12 +794,42 @@ export const useSocket = <
     [socket, room]
   );
 
+  // Load more data for infinite scroll
+  const loadMore = useCallback(async () => {
+    if (!useIndexedDb || isLoadingMore) return;
+
+    setIsLoadingMore(true);
+    try {
+      const nextBatch = await getNextBatch(room, loadedOffset, 1000);
+      if (nextBatch.length > 0) {
+        setData((prev) => [...prev, ...(nextBatch as T[])]);
+        setLoadedOffset((prev) => prev + nextBatch.length);
+      }
+    } catch (error) {
+      console.error("❌ Error loading more data:", error);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }, [useIndexedDb, room, loadedOffset, isLoadingMore]);
+
   // Clear all data
-  const clearData = useCallback(() => {
+  const clearData = useCallback(async () => {
     console.log("🧹 Clearing all socket data manually");
     setData([]);
+
+    if (useIndexedDb) {
+      try {
+        await clearIndexedDbData(room);
+        setLoadedOffset(0);
+        setTotalCount(0);
+        latestTimestampRef.current = null;
+      } catch (error) {
+        console.error("❌ Error clearing IndexedDB:", error);
+      }
+    }
+
     console.log("✅ Socket data cleared successfully");
-  }, []);
+  }, [useIndexedDb, room]);
 
   //emit
   const emitData = useCallback(
@@ -643,5 +870,9 @@ export const useSocket = <
     joinRoom,
     clearData,
     emitData,
+    // New properties for infinite scroll
+    loadMore: useIndexedDb ? loadMore : undefined,
+    isLoadingMore: useIndexedDb ? isLoadingMore : false,
+    totalCount: useIndexedDb ? totalCount : data.length,
   };
 };

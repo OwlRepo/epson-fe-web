@@ -30,6 +30,9 @@ function RouteComponent() {
     clearSearch,
     searchTerm,
     asofData,
+    loadMore,
+    isLoadingMore,
+    totalCount,
   } = useEmployeeData();
 
   const navigate = useNavigate({
@@ -93,6 +96,9 @@ function RouteComponent() {
             emitSocketData={emitData}
             searchTerm={searchTerm}
             onClearSearch={clearSearch}
+            onLoadMore={loadMore}
+            isLoadingMore={isLoadingMore}
+            totalCount={totalCount}
             pageSize={Number(search.pageSize) || 10}
             onPageSizeChange={handlePageSizeChange}
             columns={[

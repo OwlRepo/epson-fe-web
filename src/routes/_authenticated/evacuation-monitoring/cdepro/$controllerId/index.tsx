@@ -38,6 +38,9 @@ function RouteComponent() {
     countData: totalLogs,
     responseStatus,
     clearData,
+    loadMore,
+    isLoadingMore,
+    totalCount,
   } = useCDEPROControllerData({
     room: "cdepro_department" + params.controllerId,
     dataType: "live",
@@ -153,6 +156,9 @@ function RouteComponent() {
           <div className="flex">
             <LiveDataTable
               clearSocketData={clearData}
+              onLoadMore={loadMore}
+              isLoadingMore={isLoadingMore}
+              totalCount={totalCount}
               pageSize={Number(search.pageSize) || 10}
               onPageSizeChange={handlePageSizeChange}
               columns={[

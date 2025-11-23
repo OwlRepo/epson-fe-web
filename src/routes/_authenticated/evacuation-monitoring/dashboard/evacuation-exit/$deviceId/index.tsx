@@ -60,6 +60,9 @@ function RouteComponent() {
     searchData,
     clearSearch,
     searchTerm,
+    loadMore,
+    isLoadingMore,
+    totalCount,
   } = useEvacuationExitsData({
     room: "evs_device" + params.deviceId,
     dataType: "live",
@@ -119,6 +122,9 @@ function RouteComponent() {
             clearSocketData={clearData}
             searchTerm={searchTerm}
             onClearSearch={clearSearch}
+            onLoadMore={loadMore}
+            isLoadingMore={isLoadingMore}
+            totalCount={totalCount}
             pageSize={Number(search.pageSize) || 10}
             onPageSizeChange={handlePageSizeChange}
             columns={[

@@ -112,6 +112,9 @@ function RouteComponent() {
     clearSearch,
     searchTerm,
     emitData,
+    loadMore,
+    isLoadingMore,
+    totalCount,
   } = useOverviewCountData({
     room: "evs",
     dataType: "live",
@@ -205,6 +208,9 @@ function RouteComponent() {
               clearSocketData={clearData}
               searchTerm={searchTerm}
               onClearSearch={clearSearch}
+              onLoadMore={loadMore}
+              isLoadingMore={isLoadingMore}
+              totalCount={totalCount}
               pageSize={Number(search.pageSize) || 10}
               onPageSizeChange={handlePageSizeChange}
               onRowClick={(row) => {

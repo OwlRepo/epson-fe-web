@@ -23,7 +23,6 @@ import { useSocket } from "@/hooks";
 import { useCheckoutVisitor } from "@/hooks/mutation/useCheckoutVisitor";
 import { useGetVisitorById } from "@/hooks/query/useGetVisitorById";
 import { useOverviewCountData } from "@/hooks/useOverviewCountData";
-import { useHeavySocketData } from "@/hooks/useHeavySocketData";
 import useToastStyleTheme from "@/hooks/useToastStyleTheme";
 import usePortStore from "@/store/usePortStore";
 import formatCountWithCommas from "@/utils/formatCountWithCommas";
@@ -79,30 +78,33 @@ function RouteComponent() {
     });
   };
 
+  // Handle search using socket functionality
+  const handleSearch = (searchTerm: string) => {
+    searchData(searchTerm);
+  };
+
   const { flaggedRecords, setFlaggedRecords } = useLiveDataTableStore();
 
-  // Standard overview data for count cards
-  const { countData, clearData, emitData, asofData } = useOverviewCountData({
+  // Use useOverviewCountData for both count cards and live table data
+  const {
+    data: liveData,
+    isLoading: isLiveDataLoading,
+    isConnected: isLiveDataConnected,
+    countData,
+    clearData,
+    emitData,
+    searchData,
+    clearSearch,
+    searchTerm,
+    asofData,
+    loadMore,
+    isLoadingMore,
+    totalCount,
+  } = useOverviewCountData({
     room: "VMS",
     dataType: "live",
     statusFilter: flaggedRecords,
   });
-
-  // Heavy data system for live table (always enabled)
-  const {
-    data: liveData,
-    isInitializing: isLiveDataLoading,
-    loadMore,
-    isLoadingMore,
-    totalCount,
-    search: searchData,
-    handleNewRecord,
-  } = useHeavySocketData({
-    room: "VMS",
-    autoCleanup: true,
-  });
-
-  const isLiveDataConnected = !isLiveDataLoading;
 
   return (
     <>
@@ -179,14 +181,15 @@ function RouteComponent() {
                 onPageSizeChange={handlePageSizeChange}
                 clearSocketData={clearData}
                 emitSocketData={emitData}
+                searchTerm={searchTerm}
+                onClearSearch={clearSearch}
+                onLoadMore={loadMore}
+                isLoadingMore={isLoadingMore}
+                totalCount={totalCount}
                 onRowClick={(row) => {
                   setVisitorID(row.ID);
                   setIsOpen(true);
                 }}
-                // Heavy data infinite scroll props
-                onLoadMore={loadMore}
-                isLoadingMore={isLoadingMore}
-                totalCount={totalCount}
                 columns={[
                   {
                     key: "ID",
@@ -264,7 +267,7 @@ function RouteComponent() {
                   };
                 })}
                 onFilter={handleFilter}
-                onSearch={(term) => searchData(term)}
+                onSearch={handleSearch}
                 routeSearch={search}
                 isLoading={false}
                 tableId="divisions-departments-sections-table"
