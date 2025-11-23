@@ -1453,6 +1453,7 @@ export function DynamicTable({
                             {/* Load More button at bottom of table */}
                             {onLoadMore &&
                               totalCount !== undefined &&
+                              totalCount >= 1000 &&
                               data.length < totalCount && (
                                 <tr>
                                   <td
@@ -1466,7 +1467,9 @@ export function DynamicTable({
                                     <Button
                                       onClick={() => onLoadMore()}
                                       disabled={isLoadingMore}
-                                      variant="ghost"
+                                      variant={
+                                        getIsEVS() ? "evacuation" : "default"
+                                      }
                                       className="min-w-[120px]"
                                     >
                                       {isLoadingMore ? (
@@ -1576,6 +1579,7 @@ export function DynamicTable({
                 {/* Load More button at bottom of table */}
                 {onLoadMore &&
                   totalCount !== undefined &&
+                  totalCount >= 1000 &&
                   data.length < totalCount && (
                     <TableRow>
                       <TableCell
@@ -1589,7 +1593,7 @@ export function DynamicTable({
                         <Button
                           onClick={() => onLoadMore()}
                           disabled={isLoadingMore}
-                          variant="evacuation"
+                          variant={getIsEVS() ? "evacuation" : "default"}
                           className="min-w-[120px]"
                         >
                           {isLoadingMore ? (
