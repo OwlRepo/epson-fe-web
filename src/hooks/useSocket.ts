@@ -456,7 +456,10 @@ export const useSocket = <
               const existingRecordIndex = prevData.findIndex((item) => {
                 const liveItem = item as LiveData;
 
-                if (location.pathname.includes("dashboard/realtime")) {
+                if (
+                  location.pathname.includes("dashboard/realtime") &&
+                  newLiveData?.epc
+                ) {
                   return liveItem?.["epc"] === newLiveData?.["epc"];
                 }
 
