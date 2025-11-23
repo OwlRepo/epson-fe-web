@@ -402,7 +402,7 @@ export const useSocket = <
           isNewRecord = true;
         } else {
           const firstItem = currentData[0] as Record<string, any> | undefined;
-          
+
           if (!firstItem || typeof firstItem !== "object") {
             isNewRecord = true;
           } else if (Object.keys(currentData[0])?.includes("controller_type")) {
@@ -428,7 +428,7 @@ export const useSocket = <
                 );
               }
             });
-            
+
             isNewRecord = existingRecordIndex === -1;
           }
         }
@@ -455,6 +455,10 @@ export const useSocket = <
               // Find existing record
               const existingRecordIndex = prevData.findIndex((item) => {
                 const liveItem = item as LiveData;
+
+                if (location.pathname.includes("dashboard/realtime")) {
+                  return liveItem?.["epc"] === newLiveData?.["epc"];
+                }
 
                 if (newLiveData?.id) {
                   return liveItem?.["id"] === newLiveData?.["id"];
@@ -490,7 +494,7 @@ export const useSocket = <
               }
             }
           })();
-          
+
           dataRef.current = updatedData;
           return updatedData;
         });
