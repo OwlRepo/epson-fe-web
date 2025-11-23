@@ -30,17 +30,50 @@ const COMMON_INDEXES = [
 interface IndexedDbStorage {
   db: IDBDatabase | null;
   initPromise: Promise<IDBDatabase> | null;
+  pendingStores: Set<string>; // Track stores that need to be created
+  ensureStorePromises: Map<string, Promise<void>>; // Track ongoing ensure operations
+  currentVersion: number | null; // Track current database version
 }
 
 const storage: IndexedDbStorage = {
   db: null,
   initPromise: null,
+  pendingStores: new Set(),
+  ensureStorePromises: new Map(),
+  currentVersion: null,
 };
+
+/**
+ * Get current database version without opening
+ */
+async function getCurrentVersion(): Promise<number> {
+  if (storage.currentVersion !== null) {
+    return storage.currentVersion;
+  }
+
+  return new Promise((resolve) => {
+    const request = indexedDB.open(DB_NAME);
+    request.onsuccess = () => {
+      storage.currentVersion = request.result.version;
+      request.result.close();
+      resolve(storage.currentVersion);
+    };
+    request.onerror = () => {
+      // If can't open, use default version
+      storage.currentVersion = DB_VERSION;
+      resolve(DB_VERSION);
+    };
+    request.onblocked = () => {
+      storage.currentVersion = DB_VERSION;
+      resolve(DB_VERSION);
+    };
+  });
+}
 
 /**
  * Initialize IndexedDB database and object stores
  */
-function initDatabase(): Promise<IDBDatabase> {
+async function initDatabase(): Promise<IDBDatabase> {
   if (storage.db) {
     return Promise.resolve(storage.db);
   }
@@ -49,30 +82,162 @@ function initDatabase(): Promise<IDBDatabase> {
     return storage.initPromise;
   }
 
+  // Get current version first
+  const version = await getCurrentVersion();
+
   storage.initPromise = new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, DB_VERSION);
+    // Open with current version (or higher if upgrading)
+    const request = indexedDB.open(DB_NAME, version);
 
     request.onerror = () => {
       console.error("❌ IndexedDB open error:", request.error);
+      storage.initPromise = null;
       reject(request.error);
     };
 
     request.onsuccess = () => {
       storage.db = request.result;
-      console.log("✅ IndexedDB initialized successfully");
+      storage.currentVersion = storage.db.version;
+      console.log(
+        `✅ IndexedDB initialized successfully (version ${storage.db.version})`
+      );
       resolve(storage.db);
     };
 
     request.onupgradeneeded = (event) => {
       const db = (event.target as IDBOpenDBRequest).result;
+      storage.currentVersion = db.version;
+      console.log(`🔄 IndexedDB upgrade needed to version ${db.version}`);
 
-      // Create object stores for each room dynamically
-      // We'll create stores on-demand, but we can pre-create common ones
-      console.log("🔄 IndexedDB upgrade needed");
+      // Note: Object stores will be created on-demand via ensureObjectStore
+      // This handler is here for future schema changes
     };
   });
 
   return storage.initPromise;
+}
+
+/**
+ * Ensure object store exists for a room (creates if needed via version upgrade)
+ */
+async function ensureObjectStore(room: string): Promise<void> {
+  // Check if we're already ensuring this store
+  if (storage.ensureStorePromises.has(room)) {
+    return storage.ensureStorePromises.get(room)!;
+  }
+
+  // Check if store already exists
+  const db = await initDatabase();
+  if (db.objectStoreNames.contains(room)) {
+    return;
+  }
+
+  // Store needs to be created - create promise and track it
+  const ensurePromise = (async () => {
+    storage.pendingStores.add(room);
+
+    // Close current connection
+    if (storage.db) {
+      storage.db.close();
+      storage.db = null;
+      storage.initPromise = null;
+    }
+
+    // Get current version
+    const currentVersion = await getCurrentVersion();
+    const newVersion = currentVersion + 1;
+
+    return new Promise<void>((resolve, reject) => {
+      const request = indexedDB.open(DB_NAME, newVersion);
+
+      request.onerror = () => {
+        console.error("❌ IndexedDB upgrade error:", request.error);
+        storage.ensureStorePromises.delete(room);
+        reject(request.error);
+      };
+
+      request.onsuccess = () => {
+        storage.db = request.result;
+        storage.currentVersion = storage.db.version;
+        storage.initPromise = Promise.resolve(storage.db);
+        console.log(
+          `✅ IndexedDB upgraded to version ${newVersion}, created store for room: ${room}`
+        );
+        storage.ensureStorePromises.delete(room);
+        resolve();
+      };
+
+      request.onupgradeneeded = (event) => {
+        const db = (event.target as IDBOpenDBRequest).result;
+        console.log(`🔄 Creating object store for room: ${room}`);
+
+        // Create object store for this room
+        if (!db.objectStoreNames.contains(room)) {
+          const objectStore = db.createObjectStore(room, {
+            keyPath: "id",
+            autoIncrement: false,
+          });
+
+          // Create indexes on common fields
+          COMMON_INDEXES.forEach((field) => {
+            try {
+              objectStore.createIndex(field, field, { unique: false });
+            } catch (err) {
+              console.warn(`⚠️ Could not create index on ${field}:`, err);
+            }
+          });
+
+          // Create a composite index for date_receive sorting (most important)
+          try {
+            objectStore.createIndex("date_receive_idx", "date_receive", {
+              unique: false,
+            });
+          } catch (err) {
+            console.warn("⚠️ Could not create date_receive index:", err);
+          }
+        }
+
+        // Also create any other pending stores
+        storage.pendingStores.forEach((pendingRoom) => {
+          if (
+            pendingRoom !== room &&
+            !db.objectStoreNames.contains(pendingRoom)
+          ) {
+            try {
+              const pendingStore = db.createObjectStore(pendingRoom, {
+                keyPath: "id",
+                autoIncrement: false,
+              });
+              COMMON_INDEXES.forEach((field) => {
+                try {
+                  pendingStore.createIndex(field, field, { unique: false });
+                } catch (err) {
+                  console.warn(`⚠️ Could not create index on ${field}:`, err);
+                }
+              });
+              try {
+                pendingStore.createIndex("date_receive_idx", "date_receive", {
+                  unique: false,
+                });
+              } catch (err) {
+                console.warn("⚠️ Could not create date_receive index:", err);
+              }
+            } catch (err) {
+              console.warn(
+                `⚠️ Could not create store for ${pendingRoom}:`,
+                err
+              );
+            }
+          }
+        });
+
+        storage.pendingStores.clear();
+      };
+    });
+  })();
+
+  storage.ensureStorePromises.set(room, ensurePromise);
+  return ensurePromise;
 }
 
 /**
@@ -82,34 +247,13 @@ async function getObjectStore(
   room: string,
   mode: IDBTransactionMode = "readwrite"
 ): Promise<IDBObjectStore> {
+  // Ensure the object store exists first
+  await ensureObjectStore(room);
+
   const db = await initDatabase();
 
-  // Check if object store exists
   if (!db.objectStoreNames.contains(room)) {
-    // Create object store with auto-increment key
-    const objectStore = db.createObjectStore(room, {
-      keyPath: "id",
-      autoIncrement: false,
-    });
-
-    // Create indexes on common fields
-    COMMON_INDEXES.forEach((field) => {
-      try {
-        objectStore.createIndex(field, field, { unique: false });
-      } catch (err) {
-        // Index might already exist or field might not be in all records
-        console.warn(`⚠️ Could not create index on ${field}:`, err);
-      }
-    });
-
-    // Create a composite index for date_receive sorting (most important)
-    try {
-      objectStore.createIndex("date_receive_idx", "date_receive", {
-        unique: false,
-      });
-    } catch (err) {
-      console.warn("⚠️ Could not create date_receive index:", err);
-    }
+    throw new Error(`Failed to create object store for room: ${room}`);
   }
 
   const transaction = db.transaction([room], mode);
@@ -213,7 +357,7 @@ export async function getTopRecords(
   sortBy: string = "date_receive"
 ): Promise<any[]> {
   const objectStore = await getObjectStore(room, "readonly");
-  
+
   // Try to use index, fallback to objectStore if index doesn't exist
   let index: IDBIndex | IDBObjectStore;
   try {
@@ -228,7 +372,7 @@ export async function getTopRecords(
     let count = 0;
 
     // Use index to get records sorted by date_receive DESC
-    const request = (index as IDBIndex).openCursor 
+    const request = (index as IDBIndex).openCursor
       ? (index as IDBIndex).openCursor(null, "prev")
       : (index as IDBObjectStore).openCursor(null, "prev");
 
@@ -242,20 +386,20 @@ export async function getTopRecords(
         // Sort results by date_receive if we couldn't use index
         if (!(index as IDBIndex).openCursor && sortBy === "date_receive") {
           results.sort((a, b) => {
-            const dateA = a.date_receive 
-              ? new Date(a.date_receive).getTime() 
-              : a.date_time 
-              ? new Date(a.date_time).getTime()
-              : a.log_time
-              ? new Date(a.log_time).getTime()
-              : 0;
-            const dateB = b.date_receive 
-              ? new Date(b.date_receive).getTime() 
-              : b.date_time 
-              ? new Date(b.date_time).getTime()
-              : b.log_time
-              ? new Date(b.log_time).getTime()
-              : 0;
+            const dateA = a.date_receive
+              ? new Date(a.date_receive).getTime()
+              : a.date_time
+                ? new Date(a.date_time).getTime()
+                : a.log_time
+                  ? new Date(a.log_time).getTime()
+                  : 0;
+            const dateB = b.date_receive
+              ? new Date(b.date_receive).getTime()
+              : b.date_time
+                ? new Date(b.date_time).getTime()
+                : b.log_time
+                  ? new Date(b.log_time).getTime()
+                  : 0;
             return dateB - dateA; // Descending
           });
         }
@@ -280,7 +424,7 @@ export async function getNextBatch(
   sortBy: string = "date_receive"
 ): Promise<any[]> {
   const objectStore = await getObjectStore(room, "readonly");
-  
+
   // Try to use index, fallback to objectStore if index doesn't exist
   let index: IDBIndex | IDBObjectStore;
   try {
@@ -293,7 +437,7 @@ export async function getNextBatch(
     const results: any[] = [];
     let currentOffset = 0;
 
-    const request = (index as IDBIndex).openCursor 
+    const request = (index as IDBIndex).openCursor
       ? (index as IDBIndex).openCursor(null, "prev")
       : (index as IDBObjectStore).openCursor(null, "prev");
 
@@ -457,10 +601,7 @@ export async function getLatestTimestamp(room: string): Promise<number | null> {
 
   const record = records[0];
   const timestamp =
-    record.date_receive ||
-    record.date_time ||
-    record.log_time ||
-    null;
+    record.date_receive || record.date_time || record.log_time || null;
 
   if (timestamp) {
     // Try to parse as date
@@ -470,4 +611,3 @@ export async function getLatestTimestamp(room: string): Promise<number | null> {
 
   return null;
 }
-
