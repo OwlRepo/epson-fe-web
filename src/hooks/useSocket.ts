@@ -152,6 +152,7 @@ export const useSocket = <
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [useIndexedDb, setUseIndexedDb] = useState(false); // Flag to enable IndexedDB for large datasets
   const latestTimestampRef = useRef<number | null>(null);
+  const loadedOffsetRef = useRef(0); // Ref to track current offset
   const dataRef = useRef<T[]>([]); // Ref to track current data for synchronous access
 
   // Connect to socket and join room
@@ -279,7 +280,12 @@ export const useSocket = <
             }
             setData(topRecords as T[]);
             dataRef.current = topRecords as T[];
-            setLoadedOffset(1000);
+            const initialOffset = topRecords.length;
+            loadedOffsetRef.current = initialOffset;
+            setLoadedOffset(initialOffset);
+            console.log(
+              `📊 [useSocket] Initial offset set to: ${initialOffset} for room: ${room}`
+            );
 
             // Store latest timestamp
             const latestTs = await getLatestTimestamp(room);
@@ -884,21 +890,60 @@ export const useSocket = <
 
   // Load more data for infinite scroll
   const loadMore = useCallback(async () => {
-    if (!useIndexedDb || isLoadingMore) return;
+    if (!useIndexedDb) {
+      console.log(
+        `⏸️ [useSocket] loadMore skipped: useIndexedDb=${useIndexedDb}`
+      );
+      return;
+    }
+
+    // Safety check: if offset is 0 but we have data, use data length as offset
+    let currentOffset = loadedOffsetRef.current;
+    if (currentOffset === 0 && dataRef.current.length > 0) {
+      console.warn(
+        `⚠️ [useSocket] Offset is 0 but we have ${dataRef.current.length} records. Using data length as offset.`
+      );
+      currentOffset = dataRef.current.length;
+      loadedOffsetRef.current = currentOffset;
+      setLoadedOffset(currentOffset);
+    }
+
+    console.log(
+      `🔄 [useSocket] Loading more data: offset=${currentOffset}, room=${room}, dataLength=${dataRef.current.length}`
+    );
 
     setIsLoadingMore(true);
     try {
-      const nextBatch = await getNextBatch(room, loadedOffset, 1000);
+      const nextBatch = await getNextBatch(room, currentOffset, 1000);
+      console.log(
+        `📦 [useSocket] Received next batch: ${nextBatch.length} records`
+      );
       if (nextBatch.length > 0) {
-        setData((prev) => [...prev, ...(nextBatch as T[])]);
-        setLoadedOffset((prev) => prev + nextBatch.length);
+        setData((prev) => {
+          const updated = [...prev, ...(nextBatch as T[])];
+          console.log(
+            `✅ [useSocket] Updated data: ${prev.length} -> ${updated.length} records`
+          );
+          dataRef.current = updated;
+          return updated;
+        });
+        const newOffset = currentOffset + nextBatch.length;
+        loadedOffsetRef.current = newOffset;
+        setLoadedOffset(newOffset);
+        console.log(
+          `📊 [useSocket] Updated offset: ${currentOffset} -> ${newOffset}`
+        );
+      } else {
+        console.log(
+          `⚠️ [useSocket] No more records to load at offset ${currentOffset}`
+        );
       }
     } catch (error) {
       console.error("❌ Error loading more data:", error);
     } finally {
       setIsLoadingMore(false);
     }
-  }, [useIndexedDb, room, loadedOffset, isLoadingMore]);
+  }, [useIndexedDb, room]);
 
   // Clear all data
   const clearData = useCallback(async () => {
@@ -908,6 +953,7 @@ export const useSocket = <
     if (useIndexedDb) {
       try {
         await clearIndexedDbData(room);
+        loadedOffsetRef.current = 0;
         setLoadedOffset(0);
         setTotalCount(0);
         latestTimestampRef.current = null;

@@ -211,28 +211,8 @@ export function DynamicTable({
     overscan: 5, // Render 5 extra rows outside viewport for smooth scrolling
   });
 
-  // Infinite scroll detection for heavy data
-  React.useEffect(() => {
-    if (!isLiveData || !onLoadMore || !parentRef.current || isLoadingMore) {
-      return;
-    }
-
-    const scrollElement = parentRef.current;
-    const handleScroll = () => {
-      if (!scrollElement) return;
-
-      const { scrollTop, scrollHeight, clientHeight } = scrollElement;
-      const scrollPercentage = (scrollTop + clientHeight) / scrollHeight;
-
-      // Trigger loadMore when scrolled 90% down
-      if (scrollPercentage > 0.9 && !isLoadingMore) {
-        onLoadMore();
-      }
-    };
-
-    scrollElement.addEventListener("scroll", handleScroll);
-    return () => scrollElement.removeEventListener("scroll", handleScroll);
-  }, [isLiveData, onLoadMore, isLoadingMore]);
+  // Disabled automatic infinite scroll - using "Load More" button instead
+  // Infinite scroll detection removed per user request
 
   // State for the time picker
   const [timeDialogOpen, setTimeDialogOpen] = React.useState<boolean>(false);
@@ -1470,6 +1450,53 @@ export function DynamicTable({
                                 />
                               </tr>
                             )}
+                            {/* Load More button at bottom of table */}
+                            {onLoadMore &&
+                              totalCount !== undefined &&
+                              data.length < totalCount && (
+                                <tr>
+                                  <td
+                                    colSpan={
+                                      enableRowSelection
+                                        ? columns.length + 1
+                                        : columns.length
+                                    }
+                                    className="p-4 text-center border-t"
+                                  >
+                                    <Button
+                                      onClick={() => onLoadMore()}
+                                      disabled={isLoadingMore}
+                                      variant="ghost"
+                                      className="min-w-[120px]"
+                                    >
+                                      {isLoadingMore ? (
+                                        <>
+                                          <Spinner size={16} />
+                                          Loading...
+                                        </>
+                                      ) : (
+                                        "Load More"
+                                      )}
+                                    </Button>
+                                  </td>
+                                </tr>
+                              )}
+                            {onLoadMore &&
+                              totalCount !== undefined &&
+                              data.length >= totalCount && (
+                                <tr>
+                                  <td
+                                    colSpan={
+                                      enableRowSelection
+                                        ? columns.length + 1
+                                        : columns.length
+                                    }
+                                    className="p-4 text-center border-t text-sm text-gray-500 italic"
+                                  >
+                                    All records loaded
+                                  </td>
+                                </tr>
+                              )}
                           </>
                         );
                       })()}
@@ -1546,6 +1573,53 @@ export function DynamicTable({
                     ))}
                   </TableRow>
                 ))}
+                {/* Load More button at bottom of table */}
+                {onLoadMore &&
+                  totalCount !== undefined &&
+                  data.length < totalCount && (
+                    <TableRow>
+                      <TableCell
+                        colSpan={
+                          enableRowSelection
+                            ? columns.length + 1
+                            : columns.length
+                        }
+                        className="p-4 text-center border-t"
+                      >
+                        <Button
+                          onClick={() => onLoadMore()}
+                          disabled={isLoadingMore}
+                          variant="evacuation"
+                          className="min-w-[120px]"
+                        >
+                          {isLoadingMore ? (
+                            <>
+                              <Spinner size={16} />
+                              Loading...
+                            </>
+                          ) : (
+                            "Load More"
+                          )}
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                {onLoadMore &&
+                  totalCount !== undefined &&
+                  data.length >= totalCount && (
+                    <TableRow>
+                      <TableCell
+                        colSpan={
+                          enableRowSelection
+                            ? columns.length + 1
+                            : columns.length
+                        }
+                        className="p-4 text-center border-t text-sm text-gray-500 italic"
+                      >
+                        All records loaded
+                      </TableCell>
+                    </TableRow>
+                  )}
               </TableBody>
             </Table>
           )
@@ -1651,7 +1725,8 @@ export function DynamicTable({
       {/* Total count indicator for live data with heavy data mode */}
       {isLiveData && totalCount !== undefined && !isLoading && (
         <div className="mt-2 text-sm text-gray-600 text-center">
-          Showing {data.length} of {totalCount.toLocaleString()} total records
+          Showing {data.length.toLocaleString()} of{" "}
+          {totalCount.toLocaleString()} total records
         </div>
       )}
 

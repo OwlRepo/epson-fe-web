@@ -625,46 +625,93 @@ export async function getNextBatch(
 ): Promise<any[]> {
   const objectStore = await getObjectStore(room, "readonly");
 
+  // Helper function to get timestamp from a record
+  const getTimestamp = (record: any): number => {
+    if (record.date_receive) {
+      const date = new Date(record.date_receive);
+      return isNaN(date.getTime()) ? 0 : date.getTime();
+    }
+    if (record.date_time) {
+      const date = new Date(record.date_time);
+      return isNaN(date.getTime()) ? 0 : date.getTime();
+    }
+    if (record.log_time) {
+      const date = new Date(record.log_time);
+      return isNaN(date.getTime()) ? 0 : date.getTime();
+    }
+    return 0;
+  };
+
+  // Helper function to sort records by timestamp (descending)
+  const sortByTimestamp = (a: any, b: any): number => {
+    const dateA = getTimestamp(a);
+    const dateB = getTimestamp(b);
+    return dateB - dateA; // Descending (newest first)
+  };
+
   // Try to use index, fallback to objectStore if index doesn't exist
-  let index: IDBIndex | IDBObjectStore;
-  try {
-    index = objectStore.index(`${sortBy}_idx`) || objectStore.index(sortBy);
-  } catch {
-    index = objectStore;
+  let index: IDBIndex | IDBObjectStore | null = null;
+  let usedIndex = false;
+  
+  // Try multiple index names in order of preference
+  const timestampFields = ["date_receive", "log_time", "date_time"];
+  const indexNames = [
+    `${sortBy}_idx`,
+    sortBy,
+    ...timestampFields.map(f => `${f}_idx`),
+    ...timestampFields,
+  ];
+
+  for (const indexName of indexNames) {
+    try {
+      const testIndex = objectStore.index(indexName);
+      if (testIndex) {
+        index = testIndex;
+        usedIndex = true;
+        console.log(`✅ [IndexedDB] Using index: ${indexName} for next batch in room: ${room}`);
+        break;
+      }
+    } catch {
+      // Index doesn't exist, try next
+      continue;
+    }
   }
 
+  // If no index found, use objectStore directly
+  if (!index) {
+    index = objectStore;
+    console.log(`📋 [IndexedDB] No index found for next batch, using objectStore directly for room: ${room}`);
+  }
+
+  console.log(`🔍 [IndexedDB] Getting next batch: offset=${offset}, limit=${limit} for room: ${room}`);
+
+  // Always use getAll() for pagination - more reliable than cursor with offsets
   return new Promise((resolve, reject) => {
-    const results: any[] = [];
-    let currentOffset = 0;
-
-    const request = (index as IDBIndex).openCursor
-      ? (index as IDBIndex).openCursor(null, "prev")
-      : (index as IDBObjectStore).openCursor(null, "prev");
-
-    request.onsuccess = (event) => {
-      const cursor = (event.target as IDBRequest).result;
-      if (!cursor) {
-        resolve(results);
+    const getAllRequest = objectStore.getAll();
+    
+    getAllRequest.onsuccess = () => {
+      const allRecords = getAllRequest.result || [];
+      console.log(`📦 [IndexedDB] Retrieved ${allRecords.length} total records for next batch in room: ${room}`);
+      
+      if (allRecords.length === 0) {
+        console.log(`📋 [IndexedDB] No records available for room: ${room}`);
+        resolve([]);
         return;
       }
 
-      if (currentOffset < offset) {
-        currentOffset++;
-        cursor.continue();
-        return;
-      }
-
-      if (results.length < limit) {
-        results.push(cursor.value);
-        cursor.continue();
-      } else {
-        resolve(results);
-      }
+      // Sort by timestamp (descending - newest first)
+      allRecords.sort(sortByTimestamp);
+      
+      // Slice the next batch
+      const nextBatch = allRecords.slice(offset, offset + limit);
+      console.log(`✅ [IndexedDB] Returning next batch of ${nextBatch.length} records (offset ${offset}, total ${allRecords.length}) for room: ${room}`);
+      
+      resolve(nextBatch);
     };
-
-    request.onerror = () => {
-      console.error("❌ [IndexedDB] Error getting next batch:", request.error);
-      reject(request.error);
+    
+    getAllRequest.onerror = () => {
+      console.error("❌ [IndexedDB] Error in getAll() for next batch:", getAllRequest.error);
+      reject(getAllRequest.error);
     };
   });
 }
