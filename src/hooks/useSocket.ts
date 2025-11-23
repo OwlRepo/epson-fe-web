@@ -460,49 +460,6 @@ export const useSocket = <
             .catch((error) => {
               console.error("❌ Error getting total count:", error);
             });
-        } else {
-          // Regular state update for non-IndexedDB mode
-          setData((prevData) => {
-            if (!prevData || prevData.length === 0) {
-              return [newData as T];
-            }
-
-            const firstItem = prevData[0] as Record<string, any> | undefined;
-            if (!firstItem || typeof firstItem !== "object") {
-              return [newData as T];
-            }
-            if (Object.keys(prevData[0])?.includes("controller_type")) {
-              return [...prevData, newData as T];
-            } else {
-              const existingRecordIndex = prevData.findIndex((item) => {
-                const liveItem = item as LiveData;
-
-                if (newLiveData?.id) {
-                  return liveItem?.["id"] === newLiveData?.["id"];
-                }
-
-                if (!newLiveData?.employee_id) {
-                  return (
-                    liveItem?.["ID"] === newLiveData?.["ID"] &&
-                    liveItem?.clocked_in === newLiveData?.clocked_in
-                  );
-                } else {
-                  return (
-                    liveItem?.employee_id === newLiveData?.employee_id &&
-                    liveItem?.clocked_in === newLiveData?.clocked_in
-                  );
-                }
-              });
-
-              if (existingRecordIndex !== -1) {
-                return prevData.map((item, index) =>
-                  index === existingRecordIndex ? { ...item, ...newData } : item
-                );
-              } else {
-                return [...prevData, newData as T];
-              }
-            }
-          });
         }
       }
     });
