@@ -26,8 +26,6 @@ const EvacueeInfoDialog = ({
 }: EvacueeInfoDialogProps) => {
   const { emit } = useSocketEmit();
 
-  console.log("Evacuee Info Dialog", evacuee);
-
   const { control, register, handleSubmit, reset, watch, formState } =
     useForm<FormValues>({
       defaultValues: {

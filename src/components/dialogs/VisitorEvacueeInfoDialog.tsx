@@ -37,7 +37,6 @@ const VisitorEvacueeInfoDialog = ({
   });
   const { register, formState, reset, watch, control, handleSubmit } = form;
 
-  console.log("Visitor Evacuee Info Dialog", live_data);
   useEffect(() => {
     console.log("emit");
 
