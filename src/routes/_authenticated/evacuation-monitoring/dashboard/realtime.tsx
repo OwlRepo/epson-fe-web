@@ -304,12 +304,18 @@ function RouteComponent() {
                 {
                   key: "status",
                   label: "Status",
-                  options: ["Total Evacuees", "Injured", "Home", "Missing"].map(
-                    (item) => ({
+                  options: [
+                    ...["Injured", "Home", "Missing"].map((item) => ({
                       label: item,
                       value: item,
-                    })
-                  ),
+                    })),
+                    ...[
+                      {
+                        label: "Total Evacuees",
+                        value: "Safe",
+                      },
+                    ],
+                  ],
                 },
                 {
                   key: "device_name",
