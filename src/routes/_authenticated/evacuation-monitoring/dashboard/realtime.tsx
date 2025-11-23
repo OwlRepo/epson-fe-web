@@ -305,16 +305,16 @@ function RouteComponent() {
                   key: "status",
                   label: "Status",
                   options: [
-                    ...["Injured", "Home", "Missing"].map((item) => ({
-                      label: item,
-                      value: item,
-                    })),
                     ...[
                       {
                         label: "Total Evacuees",
                         value: "Safe",
                       },
                     ],
+                    ...["Injured", "Home", "Missing"].map((item) => ({
+                      label: item,
+                      value: item,
+                    })),
                   ],
                 },
                 {
