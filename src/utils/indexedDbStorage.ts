@@ -262,22 +262,47 @@ async function getObjectStore(
 
 /**
  * Generate a unique ID for a record
+ * Always includes timestamp to ensure uniqueness
  */
-function generateRecordId(record: any): string {
-  // Try to use existing id fields
-  if (record.id) return String(record.id);
-  if (record.ID) return String(record.ID);
-  if (record.employee_id && record.clocked_in) {
-    return `${record.employee_id}_${record.clocked_in}`;
+function generateRecordId(record: any, index?: number): string {
+  // Get timestamp from various possible fields
+  const timestamp =
+    record.date_receive || record.date_time || record.log_time || Date.now();
+
+  // Get identifier (employee_id, ID, or id)
+  const identifier =
+    record.employee_id || record.ID || record.id || `record_${index || 0}`;
+
+  // Always combine identifier + timestamp for uniqueness
+  // If timestamp is a date string, convert to timestamp number
+  let timestampValue: string | number;
+  if (typeof timestamp === "string") {
+    const date = new Date(timestamp);
+    timestampValue = isNaN(date.getTime()) ? timestamp : date.getTime();
+  } else {
+    timestampValue = timestamp;
   }
-  if (record.employee_id && record.date_receive) {
-    return `${record.employee_id}_${record.date_receive}`;
+
+  // Create unique ID: identifier_timestamp
+  const uniqueId = `${String(identifier)}_${timestampValue}`;
+
+  // Add additional fields if available to further ensure uniqueness
+  if (record.clocked_in) {
+    return `${uniqueId}_${record.clocked_in}`;
   }
-  // Fallback: generate from multiple fields
-  const key = `${record.employee_id || record.ID || ""}_${
-    record.date_receive || record.date_time || record.log_time || Date.now()
-  }`;
-  return key || `record_${Date.now()}_${Math.random()}`;
+  if (record.epc) {
+    return `${uniqueId}_${record.epc}`;
+  }
+  if (record.tag_id) {
+    return `${uniqueId}_${record.tag_id}`;
+  }
+
+  // Final fallback with index if provided
+  if (index !== undefined) {
+    return `${uniqueId}_idx${index}`;
+  }
+
+  return uniqueId;
 }
 
 /**
@@ -306,9 +331,11 @@ export async function storePreloadData(
     clearRequest.onerror = () => reject(clearRequest.error);
   });
 
-  // Batch insert records
+  // Batch insert records with duplicate detection
   const batchSize = 1000;
   let processed = 0;
+  const seenIds = new Set<string>();
+  let duplicateCount = 0;
 
   for (let i = 0; i < data.length; i += batchSize) {
     const batch = data.slice(i, i + batchSize);
@@ -316,36 +343,81 @@ export async function storePreloadData(
     const store = transaction.objectStore(room);
 
     await Promise.all(
-      batch.map((record) => {
+      batch.map((record, batchIndex) => {
         return new Promise<void>((resolve, reject) => {
-          // Ensure record has an id
-          const recordWithId = {
-            ...record,
-            id: generateRecordId(record),
-          };
+          // Generate unique ID with index to ensure uniqueness
+          const globalIndex = i + batchIndex;
+          const recordId = generateRecordId(record, globalIndex);
 
-          const request = store.put(recordWithId);
-          request.onsuccess = () => resolve();
-          request.onerror = () => reject(request.error);
+          // Check for duplicates (shouldn't happen with proper ID generation, but log if it does)
+          if (seenIds.has(recordId)) {
+            duplicateCount++;
+            console.warn(
+              `⚠️ [IndexedDB] Duplicate ID detected: ${recordId} (record ${globalIndex})`
+            );
+            // Add index to make it unique
+            const uniqueId = `${recordId}_dup${duplicateCount}`;
+            seenIds.add(uniqueId);
+
+            const recordWithId = {
+              ...record,
+              id: uniqueId,
+            };
+
+            const request = store.put(recordWithId);
+            request.onsuccess = () => resolve();
+            request.onerror = () => reject(request.error);
+          } else {
+            seenIds.add(recordId);
+
+            const recordWithId = {
+              ...record,
+              id: recordId,
+            };
+
+            const request = store.put(recordWithId);
+            request.onsuccess = () => resolve();
+            request.onerror = () => reject(request.error);
+          }
         });
       })
     );
 
     processed += batch.length;
-    if (processed % 10000 === 0) {
+    if (processed % 1000 === 0) {
       console.log(
         `📦 [IndexedDB] Stored ${processed}/${data.length} records...`
       );
     }
   }
 
+  if (duplicateCount > 0) {
+    console.warn(
+      `⚠️ [IndexedDB] Found ${duplicateCount} duplicate IDs (resolved with suffix)`
+    );
+  }
+
   const endTime = performance.now();
+
+  // Verify the stored count
+  const actualCount = await getTotalCount(room);
+
   console.log(
     `✅ [IndexedDB] Stored ${data.length} records in ${(
       (endTime - startTime) /
       1000
     ).toFixed(2)}s`
   );
+
+  if (actualCount !== data.length) {
+    console.warn(
+      `⚠️ [IndexedDB] Count mismatch: Expected ${data.length}, got ${actualCount} entries in IndexedDB`
+    );
+  } else {
+    console.log(
+      `✅ [IndexedDB] Verified: ${actualCount} records stored successfully`
+    );
+  }
 }
 
 /**

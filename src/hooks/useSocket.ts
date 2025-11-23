@@ -152,6 +152,7 @@ export const useSocket = <
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [useIndexedDb, setUseIndexedDb] = useState(false); // Flag to enable IndexedDB for large datasets
   const latestTimestampRef = useRef<number | null>(null);
+  const dataRef = useRef<T[]>([]); // Ref to track current data for synchronous access
 
   // Connect to socket and join room
   useEffect(() => {
@@ -260,6 +261,7 @@ export const useSocket = <
             // Load only top 1k records into state
             const topRecords = await getTopRecords(room, 1000);
             setData(topRecords as T[]);
+            dataRef.current = topRecords as T[];
             setLoadedOffset(1000);
 
             // Store latest timestamp
@@ -283,6 +285,7 @@ export const useSocket = <
             "records"
           );
           setData(preloadData as T[]);
+          dataRef.current = preloadData as T[];
           setUseIndexedDb(false);
           setTotalCount(recordCount);
         }
@@ -391,25 +394,22 @@ export const useSocket = <
           latestTimestampRef.current = newTimestamp;
         }
 
-        // Update UI IMMEDIATELY for real-time display (non-blocking)
-        setData((prevData) => {
-          if (!prevData || prevData.length === 0) {
-            return [newData as T];
-          }
+        // Check if this is a new record by examining current data
+        const currentData = dataRef.current;
+        let isNewRecord = false;
 
-          const firstItem = prevData[0] as Record<string, any> | undefined;
+        if (!currentData || currentData.length === 0) {
+          isNewRecord = true;
+        } else {
+          const firstItem = currentData[0] as Record<string, any> | undefined;
+          
           if (!firstItem || typeof firstItem !== "object") {
-            return [newData as T];
-          }
-
-          if (Object.keys(prevData[0])?.includes("controller_type")) {
-            // If it's latest, prepend; otherwise append
-            return isLatest
-              ? [newData as T, ...prevData]
-              : [...prevData, newData as T];
+            isNewRecord = true;
+          } else if (Object.keys(currentData[0])?.includes("controller_type")) {
+            isNewRecord = true; // controller_type records are always treated as new
           } else {
-            // Find existing record
-            const existingRecordIndex = prevData.findIndex((item) => {
+            // Check if record exists
+            const existingRecordIndex = currentData.findIndex((item) => {
               const liveItem = item as LiveData;
 
               if (newLiveData?.id) {
@@ -428,23 +428,71 @@ export const useSocket = <
                 );
               }
             });
+            
+            isNewRecord = existingRecordIndex === -1;
+          }
+        }
 
-            if (existingRecordIndex !== -1) {
-              // Update existing record
-              return prevData.map((item, index) =>
-                index === existingRecordIndex ? { ...item, ...newData } : item
-              );
+        // Update UI IMMEDIATELY for real-time display (non-blocking)
+        setData((prevData) => {
+          // Update ref with latest data
+          const updatedData = (() => {
+            if (!prevData || prevData.length === 0) {
+              return [newData as T];
+            }
+
+            const firstItem = prevData[0] as Record<string, any> | undefined;
+            if (!firstItem || typeof firstItem !== "object") {
+              return [newData as T];
+            }
+
+            if (Object.keys(prevData[0])?.includes("controller_type")) {
+              // If it's latest, prepend; otherwise append
+              return isLatest
+                ? [newData as T, ...prevData]
+                : [...prevData, newData as T];
             } else {
-              // Insert as new record - prepend if latest, otherwise append
-              if (isLatest) {
-                // Prepend and limit to reasonable size (5k max in view)
-                const updated = [newData as T, ...prevData];
-                return updated.slice(0, 5000);
+              // Find existing record
+              const existingRecordIndex = prevData.findIndex((item) => {
+                const liveItem = item as LiveData;
+
+                if (newLiveData?.id) {
+                  return liveItem?.["id"] === newLiveData?.["id"];
+                }
+
+                if (!newLiveData?.employee_id) {
+                  return (
+                    liveItem?.["ID"] === newLiveData?.["ID"] &&
+                    liveItem?.clocked_in === newLiveData?.clocked_in
+                  );
+                } else {
+                  return (
+                    liveItem?.employee_id === newLiveData?.employee_id &&
+                    liveItem?.clocked_in === newLiveData?.clocked_in
+                  );
+                }
+              });
+
+              if (existingRecordIndex !== -1) {
+                // Update existing record
+                return prevData.map((item, index) =>
+                  index === existingRecordIndex ? { ...item, ...newData } : item
+                );
               } else {
-                return [...prevData, newData as T];
+                // Insert as new record - prepend if latest, otherwise append
+                if (isLatest) {
+                  // Prepend and limit to reasonable size (5k max in view)
+                  const updated = [newData as T, ...prevData];
+                  return updated.slice(0, 5000);
+                } else {
+                  return [...prevData, newData as T];
+                }
               }
             }
-          }
+          })();
+          
+          dataRef.current = updatedData;
+          return updatedData;
         });
 
         // Update IndexedDB in the background (non-blocking) after UI update
@@ -460,6 +508,11 @@ export const useSocket = <
             .catch((error) => {
               console.error("❌ Error getting total count:", error);
             });
+        } else {
+          // For non-IndexedDB mode, increment count if it's a new record
+          if (isNewRecord) {
+            setTotalCount((prev) => (prev !== undefined ? prev + 1 : 1));
+          }
         }
       }
     });
