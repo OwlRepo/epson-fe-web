@@ -7,7 +7,7 @@ import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import { useForm, Controller } from "react-hook-form";
 import { useEffect } from "react";
-import { useSocket } from "@/hooks";
+import { useSocketEmit } from "@/hooks";
 import { Badge } from "../ui/badge";
 
 export interface EvacueeInfoDialogProps extends DialogProps {
@@ -24,10 +24,7 @@ const EvacueeInfoDialog = ({
   open,
   evacuee,
 }: EvacueeInfoDialogProps) => {
-  const { emitData } = useSocket({
-    room: "epc_eva_updates",
-    dataType: "live",
-  });
+  const { emit } = useSocketEmit();
 
   console.log("Evacuee Info Dialog", evacuee);
 
@@ -42,7 +39,7 @@ const EvacueeInfoDialog = ({
   const onSubmit = (data: FormValues) => {
     console.log("Form submitted:", data);
 
-    emitData(
+    emit(
       "epc_eva_updates",
       JSON.stringify([evacuee?.epc, data.status, data.remarks, new Date(), 0])
     );
@@ -142,7 +139,11 @@ const EvacueeInfoDialog = ({
           </div>
 
           <div className="flex justify-end mt-4">
-            <Button type="submit" disabled={!formState.isDirty || isHome}>
+            <Button
+              variant={"evacuation"}
+              type="submit"
+              disabled={!formState.isDirty || isHome}
+            >
               Save Changes
             </Button>
           </div>
