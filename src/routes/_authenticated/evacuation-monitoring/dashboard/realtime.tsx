@@ -345,6 +345,7 @@ function RouteComponent() {
                     full_name,
                     user_type,
                     eva_status,
+                    date_time,
                     log_time,
                     epc,
                     remarks,
@@ -354,7 +355,32 @@ function RouteComponent() {
                     employee_id: employee_id,
                     name: full_name,
                     type: user_type,
-                    date_time: log_time,
+                    date_time: date_time
+                      ? new Date(date_time)
+                          .toLocaleString("en-US", {
+                            year: "numeric",
+                            month: "short",
+                            day: "2-digit",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: true,
+                          })
+                          .replace(",", "")
+                          .replace(/(\d{2}:\d{2})\s([AP]M)/, "$1 $2")
+                      : "",
+                    log_time: log_time
+                      ? new Date(log_time)
+                          .toLocaleString("en-US", {
+                            year: "numeric",
+                            month: "short",
+                            day: "2-digit",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: true,
+                          })
+                          .replace(",", "")
+                          .replace(/(\d{2}:\d{2})\s([AP]M)/, "$1 $2")
+                      : "",
                     eva_status: eva_status,
                     raw_status: eva_status,
                     epc,

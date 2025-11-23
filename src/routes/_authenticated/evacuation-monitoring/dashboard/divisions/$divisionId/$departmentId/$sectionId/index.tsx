@@ -193,7 +193,7 @@ function RouteComponent() {
                   label: "STATUS",
                 },
                 {
-                  key: "log_time",
+                  key: "date_time",
                   label: "Evacuation Date and Time",
                 },
                 {
@@ -223,6 +223,7 @@ function RouteComponent() {
                     full_name,
                     eva_status,
                     log_time,
+                    date_time,
                     epc,
                     division,
                     remarks,
@@ -235,7 +236,32 @@ function RouteComponent() {
                     clocked_in: clocked_in,
                     clocked_out: clocked_out,
                     eva_status: eva_status,
-                    log_time: log_time,
+                    date_time: date_time
+                      ? new Date(date_time)
+                          .toLocaleString("en-US", {
+                            year: "numeric",
+                            month: "short",
+                            day: "2-digit",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: true,
+                          })
+                          .replace(",", "")
+                          .replace(/(\d{2}:\d{2})\s([AP]M)/, "$1 $2")
+                      : "",
+                    log_time: log_time
+                      ? new Date(log_time)
+                          .toLocaleString("en-US", {
+                            year: "numeric",
+                            month: "short",
+                            day: "2-digit",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: true,
+                          })
+                          .replace(",", "")
+                          .replace(/(\d{2}:\d{2})\s([AP]M)/, "$1 $2")
+                      : "",
                     division: division,
                     epc: epc,
                     raw_status: eva_status,
@@ -278,8 +304,8 @@ function RouteComponent() {
                   );
                 })
                 .sort((a, b) => {
-                  const dateA = new Date(a.log_time || 0).getTime();
-                  const dateB = new Date(b.log_time || 0).getTime();
+                  const dateA = new Date(a.date_time || 0).getTime();
+                  const dateB = new Date(b.date_time || 0).getTime();
                   return dateB - dateA; // Descending order (newest first)
                 })
                 .map((item) => ({
