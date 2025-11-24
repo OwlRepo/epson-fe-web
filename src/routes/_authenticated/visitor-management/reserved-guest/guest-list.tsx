@@ -194,30 +194,33 @@ function RouteComponent() {
     });
   };
 
-  let socketInstance: Socket;
   const [asofData, setAsofData] = useState<string>("");
-  const SOCKET_URL = getApiSocketBaseUrl();
-
-  socketInstance = io(SOCKET_URL, {
-    extraHeaders: {
-      "ngrok-skip-browser-warning": "true",
-    },
-    transports: ["websocket"],
-    reconnection: true,
-    reconnectionAttempts: 5,
-    reconnectionDelay: 1000,
-    timeout: 10000,
-  });
-
-  socketInstance.on("asof", (asofData) => {
-    setAsofData(asofData as string);
-  });
 
   useEffect(() => {
+    let socketInstance: Socket;
+
+    const SOCKET_URL = getApiSocketBaseUrl();
+
+    socketInstance = io(SOCKET_URL, {
+      extraHeaders: {
+        "ngrok-skip-browser-warning": "true",
+      },
+      transports: ["websocket"],
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+      timeout: 10000,
+    });
+
+    socketInstance.on("asof", (asofData) => {
+      setAsofData(asofData as string);
+    });
     return () => {
       socketInstance.disconnect();
     };
   }, []);
+
+  console.log("visitorStatistics", "render");
 
   return (
     <>
