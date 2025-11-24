@@ -106,7 +106,7 @@ export function LoginForm() {
                     {errors.password.message}
                   </p>
                 )}
-                <div className="text-right">
+                {/* <div className="text-right">
                   <Button
                     type="button"
                     variant="link"
@@ -115,7 +115,7 @@ export function LoginForm() {
                   >
                     Forgot your password?
                   </Button>
-                </div>
+                </div> */}
               </div>
             </div>
             <Button

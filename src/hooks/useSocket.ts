@@ -625,7 +625,7 @@ export const useSocket = <
         setResponseStatus("success");
       }
 
-      console.log("cdepro_add_resppose", data);
+      console.log("cdepro_add_response", data);
       setTimeout(() => {
         setResponseStatus("");
       }, 100);
@@ -967,7 +967,7 @@ export const useSocket = <
 
   //emit
   const emitData = useCallback(
-    (targetRoom: string, payload?: any) => {
+    (targetRoom: string, payload?: any, successMessage?: string) => {
       if (!socket) {
         console.log("❌ Socket not available for emission");
         return;
@@ -977,9 +977,19 @@ export const useSocket = <
       switch (targetRoom) {
         case "users":
           socket.emit(room, "users");
+          if (successMessage) {
+            toast.success(successMessage, {
+              style: successStyle,
+            });
+          }
           break;
         default:
           socket.emit(targetRoom, payload);
+          if (successMessage) {
+            toast.success(successMessage, {
+              style: successStyle,
+            });
+          }
           break;
       }
       console.log("✨ Socket emission sent successfully");
