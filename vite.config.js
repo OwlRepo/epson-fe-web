@@ -64,7 +64,7 @@ export default defineConfig({
     port: 8766,
     host: true,
     allowedHosts: [
-      'https://eppi.epson.biz/test/evs/'
+      'eppi.epson.biz'
     ]
   },
 });
