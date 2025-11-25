@@ -7,8 +7,13 @@ const registerReservedGuest = async (payload: VisitorData) => {
   try {
     const response = await api.post(`/api/vms/reservedGuest`, {
       ...payloadNew,
-      DateFrom: payload.Date.from.toISOString(),
-      DateTo: payload.Date.to.toISOString(),
+      // Use only the date portion in "YYYY-MM-DD" (PHT, but date only, no time)
+      DateFrom: payload.Date.from.toLocaleDateString("en-CA", {
+        timeZone: "Asia/Manila",
+      }),
+      DateTo: payload.Date.to.toLocaleDateString("en-CA", {
+        timeZone: "Asia/Manila",
+      }),
       Picture: payload.Picture,
     });
     return response.data;
