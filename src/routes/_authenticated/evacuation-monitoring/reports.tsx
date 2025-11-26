@@ -26,6 +26,8 @@ import { usePaginatedTableSocket } from "@/hooks/socket/usePaginatedTableSocket"
 import SocketDynamicTable from "@/components/ui/socket-dynamic-table";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { useSocketEmit } from "@/hooks/socket/useSocketEmit";
+import { getApiRESTBaseUrl, getApiSocketBaseUrl } from "@/utils/env";
 
 export interface EmployeeReport {
   EmployeeNo: string;
@@ -98,6 +100,8 @@ function ReportsDataTable() {
   const { data: typeList } = useGetTypeList();
   const { data: completedList } = useGetCompletedList();
   const { data: deviceList } = useGetDeviceList();
+
+  const { emitWithAck } = useSocketEmit();
 
   const activeFilter = search.EvacuationStatus || "current";
   const isCurrentTab = activeFilter === "current";
@@ -273,6 +277,34 @@ function ReportsDataTable() {
     document.body.removeChild(link);
   };
 
+  // Build payload for export (similar to normalizeParams but without pagination)
+  const buildExportPayload = (
+    searchParams: Record<string, string | undefined>
+  ) => {
+    const payload: Record<string, unknown> = {
+      search: searchParams.search || "",
+    };
+    // Only include filter values if they exist (not undefined/empty)
+    if (searchParams.Type) {
+      payload.Type = searchParams.Type;
+    }
+    if (searchParams.Status) {
+      payload.Status = searchParams.Status;
+    }
+    if (searchParams.DeviceName) {
+      payload.DeviceName = searchParams.DeviceName;
+    }
+    // Date range params (current tab)
+    if (
+      searchParams.from_evs_reports_date ||
+      searchParams.to_evs_reports_date
+    ) {
+      payload.from_evs_reports_date = searchParams.from_evs_reports_date;
+      payload.to_evs_reports_date = searchParams.to_evs_reports_date;
+    }
+    return payload;
+  };
+
   // Handle selection changes
   const handleRowSelectionChange = (selected: any) => {
     // Perform actions with selected rows
@@ -426,9 +458,20 @@ function ReportsDataTable() {
               {
                 label: "Export All",
                 onClick: () => {
-                  reportExportAll({
-                    search,
-                    module: "evs",
+                  const payload = buildExportPayload(
+                    search as Record<string, string | undefined>
+                  );
+                  emitWithAck("evs_all", payload, (response) => {
+                    if (response.ok && response.url) {
+                      const baseUrl = getApiSocketBaseUrl();
+                      const downloadUrl = `${baseUrl}${response.url}`;
+                      window.open(downloadUrl, "_blank");
+                    } else {
+                      console.error(
+                        "Export failed:",
+                        response.error || "Unknown error"
+                      );
+                    }
                   });
                 },
               },
