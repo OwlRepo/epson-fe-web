@@ -67,7 +67,7 @@ const EvacueeInfoDialog = ({
           <p className="text-sm">{`Card ID: ${evacuee?.epc}`}</p>
           <div className="flex-col items-center gap-4 mt-4">
             <h1 className="text-3xl font-bold text-[#980000]">
-              {evacuee?.name}
+              {evacuee?.Name}
             </h1>
           </div>
           <p className="text-sm">{evacuee?.section}</p>

@@ -115,6 +115,7 @@ function ReportsDataTable() {
       : {},
     rowId: "EmployeeNo",
     emitEvent: "evs_reports",
+    debounceMs: 100, // Reduced debounce for faster filter response
     normalizeParams: (p) => {
       if (!isCurrentTab) return {};
       // Normalize params so server receives consistent keys
@@ -124,10 +125,17 @@ function ReportsDataTable() {
         page: p.page ? Number(p.page) : 1,
         limit: p.limit ? Number(p.limit) : 10,
         search: p.search || "",
-        Type: p.Type,
-        Status: p.Status,
-        DeviceName: p.DeviceName,
       };
+      // Only include filter values if they exist (not undefined/empty)
+      if (p.Type) {
+        payload.Type = p.Type;
+      }
+      if (p.Status) {
+        payload.Status = p.Status;
+      }
+      if (p.DeviceName) {
+        payload.DeviceName = p.DeviceName;
+      }
       // Date range params (current tab)
       if (p.from_evs_reports_date || p.to_evs_reports_date) {
         payload.from_evs_reports_date = p.from_evs_reports_date;

@@ -28,6 +28,9 @@ interface SocketDynamicTableProps {
   exportTableData?: ExportTableData;
   onClearTable?: () => void;
   clearButtonLabel?: string;
+  onLoadMore?: () => Promise<void>;
+  isLoadingMore?: boolean;
+  totalCount?: number;
 }
 
 export function SocketDynamicTable(props: SocketDynamicTableProps) {
