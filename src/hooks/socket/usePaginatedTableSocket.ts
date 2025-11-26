@@ -122,24 +122,252 @@ export function usePaginatedTableSocket<T extends Record<string, any>>({
           console.log("🔄 [usePaginatedTableSocket] Live data received", {
             isArray: Array.isArray(payload),
             length: Array.isArray(payload) ? (payload as any[]).length : 1,
+            payload,
           });
           if (!payload) return;
           // Support single row or batch
           const rows: T[] = Array.isArray(payload)
             ? (payload as T[])
             : [payload as T];
+
           setData((prev) => {
-            const byId = new Map<string, T>();
-            prev.forEach((r) => byId.set(String(r[rowId]), r));
-            rows.forEach((next) => {
-              const key = String(next[rowId]);
-              if (byId.has(key)) {
-                byId.set(key, { ...byId.get(key), ...next });
-              } else {
-                byId.set(key, next);
-              }
+            if (!prev || prev.length === 0) {
+              console.log(
+                "✅ [usePaginatedTableSocket] Adding first records to empty state",
+                { count: rows.length, data: rows }
+              );
+              return rows;
+            }
+
+            const updatedData = rows.reduce(
+              (acc, newRow) => {
+                const newRowAny = newRow as any;
+
+                // Determine the key to match records by
+                // Try multiple ID strategies similar to useSocket.ts
+                const findExistingIndex = () => {
+                  // Log current array state for debugging
+                  console.log(
+                    `🔍 [usePaginatedTableSocket] Searching for existing record in array of ${acc.length} items`,
+                    {
+                      newRowIds: {
+                        epc: newRowAny.epc,
+                        [rowId]: newRowAny[rowId],
+                        employee_id: newRowAny.employee_id,
+                        ID: newRowAny.ID,
+                        EmployeeNo: newRowAny.EmployeeNo,
+                      },
+                      sampleExistingItems: acc.slice(0, 3).map((item: any) => ({
+                        epc: item.epc,
+                        [rowId]: item[rowId],
+                        employee_id: item.employee_id,
+                        ID: item.ID,
+                        EmployeeNo: item.EmployeeNo,
+                      })),
+                    }
+                  );
+
+                  // Strategy 1: For evacuation monitoring, check epc first (most reliable)
+                  if (newRowAny.epc) {
+                    const epcToMatch = String(newRowAny.epc).trim();
+                    const index = acc.findIndex((item) => {
+                      const itemEpc = String((item as any).epc || "").trim();
+                      const matches = itemEpc === epcToMatch;
+                      if (matches) {
+                        console.log(
+                          `✅ [usePaginatedTableSocket] EPC match found:`,
+                          { epcToMatch, itemEpc, item }
+                        );
+                      }
+                      return matches;
+                    });
+                    if (index !== -1) {
+                      console.log(
+                        `🔍 [usePaginatedTableSocket] Found existing record by epc:`,
+                        epcToMatch,
+                        { existingItem: acc[index], index }
+                      );
+                      return index;
+                    }
+                  }
+
+                  // Strategy 2: Use rowId field (primary)
+                  if (newRowAny[rowId]) {
+                    const rowIdValue = String(newRowAny[rowId]).trim();
+                    const index = acc.findIndex(
+                      (item) =>
+                        String((item as any)[rowId] || "").trim() === rowIdValue
+                    );
+                    if (index !== -1) {
+                      console.log(
+                        `🔍 [usePaginatedTableSocket] Found existing record by ${rowId}:`,
+                        rowIdValue,
+                        { existingItem: acc[index] }
+                      );
+                      return index;
+                    }
+                  }
+
+                  // Strategy 3: Check employee_id (with cross-field matching)
+                  if (newRowAny.employee_id) {
+                    const empIdToMatch = String(newRowAny.employee_id).trim();
+                    const index = acc.findIndex((item) => {
+                      const itemAny = item as any;
+                      return (
+                        String(itemAny.employee_id || "").trim() ===
+                          empIdToMatch ||
+                        String(itemAny.ID || "").trim() === empIdToMatch ||
+                        String(itemAny.EmployeeNo || "").trim() === empIdToMatch
+                      );
+                    });
+                    if (index !== -1) {
+                      console.log(
+                        `🔍 [usePaginatedTableSocket] Found existing record by employee_id:`,
+                        empIdToMatch,
+                        { existingItem: acc[index] }
+                      );
+                      return index;
+                    }
+                  }
+
+                  // Strategy 4: Check ID or EmployeeNo (with cross-field matching)
+                  if (newRowAny.ID || newRowAny.EmployeeNo) {
+                    const idToMatch = String(
+                      newRowAny.ID || newRowAny.EmployeeNo
+                    ).trim();
+                    const index = acc.findIndex((item) => {
+                      const itemAny = item as any;
+                      return (
+                        String(itemAny.ID || "").trim() === idToMatch ||
+                        String(itemAny.EmployeeNo || "").trim() === idToMatch ||
+                        String(itemAny.employee_id || "").trim() === idToMatch
+                      );
+                    });
+                    if (index !== -1) {
+                      console.log(
+                        `🔍 [usePaginatedTableSocket] Found existing record by ID/EmployeeNo:`,
+                        idToMatch,
+                        { existingItem: acc[index] }
+                      );
+                      return index;
+                    }
+                  }
+
+                  console.log(
+                    `❌ [usePaginatedTableSocket] No existing record found for:`,
+                    {
+                      epc: newRowAny.epc,
+                      [rowId]: newRowAny[rowId],
+                      employee_id: newRowAny.employee_id,
+                      ID: newRowAny.ID,
+                      EmployeeNo: newRowAny.EmployeeNo,
+                      newData: newRowAny,
+                    }
+                  );
+                  return -1;
+                };
+
+                const existingIndex = findExistingIndex();
+
+                if (existingIndex !== -1) {
+                  // Update existing record - create completely new object reference
+                  // to ensure React detects the change and re-renders components
+                  const oldRecord = acc[existingIndex];
+
+                  // Create a completely new object with merged data
+                  // This ensures React detects the change even if nested properties change
+                  const updatedRecord = JSON.parse(
+                    JSON.stringify({ ...oldRecord, ...newRow })
+                  );
+
+                  console.log(
+                    `🔄 [usePaginatedTableSocket] Updating existing record at index ${existingIndex}`,
+                    {
+                      oldData: oldRecord,
+                      newData: newRow,
+                      updatedRecord,
+                      matchKey:
+                        newRowAny[rowId] ||
+                        newRowAny.epc ||
+                        newRowAny.employee_id ||
+                        newRowAny.ID ||
+                        newRowAny.EmployeeNo,
+                    }
+                  );
+
+                  // Replace with new object reference
+                  acc[existingIndex] = updatedRecord;
+
+                  // Continue with reduce - don't return early
+                  return acc;
+                } else {
+                  // New record - determine if it should be prepended or appended based on timestamp
+                  const getTimestamp = (item: any) => {
+                    return (
+                      (item.date_receive
+                        ? new Date(item.date_receive).getTime()
+                        : null) ||
+                      (item.date_time
+                        ? new Date(item.date_time).getTime()
+                        : null) ||
+                      (item.EvacuationTime
+                        ? new Date(item.EvacuationTime).getTime()
+                        : null) ||
+                      (item.log_time
+                        ? new Date(item.log_time).getTime()
+                        : null) ||
+                      Date.now()
+                    );
+                  };
+
+                  const newTimestamp = getTimestamp(newRowAny);
+                  const firstItemTimestamp =
+                    acc.length > 0 ? getTimestamp(acc[0]) : null;
+
+                  // If new record is latest (or first item), prepend; otherwise append
+                  const isLatest =
+                    firstItemTimestamp === null ||
+                    newTimestamp >= firstItemTimestamp;
+
+                  if (isLatest) {
+                    console.log(
+                      `➕ [usePaginatedTableSocket] Prepending new latest record`,
+                      {
+                        newData: newRow,
+                        timestamp: newTimestamp,
+                        firstItemTimestamp,
+                      }
+                    );
+                    return [newRow, ...acc];
+                  } else {
+                    console.log(
+                      `➕ [usePaginatedTableSocket] Appending new older record`,
+                      {
+                        newData: newRow,
+                        timestamp: newTimestamp,
+                        firstItemTimestamp,
+                      }
+                    );
+                    return [...acc, newRow];
+                  }
+                }
+              },
+              [...prev]
+            );
+
+            // Always return a new array reference with deep-cloned objects
+            // This ensures React detects changes and re-renders components (like Badge)
+            const finalData = updatedData.map((item) =>
+              JSON.parse(JSON.stringify(item))
+            );
+
+            console.log(`✅ [usePaginatedTableSocket] Data updated`, {
+              previousLength: prev.length,
+              newLength: finalData.length,
+              recordsProcessed: rows.length,
+              dataChanged: prev.length !== finalData.length,
             });
-            return Array.from(byId.values());
+            return finalData;
           });
         },
         onRemoveData: (payload) => {

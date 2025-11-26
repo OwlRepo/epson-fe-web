@@ -85,8 +85,44 @@ export const useSocketEmit = () => {
     [socket, isConnected]
   );
 
+  /**
+   * Emit data to a specific event/room with acknowledgement
+   * @param event - The event name or room to emit to
+   * @param payload - The data to send
+   * @param callback - Callback function to handle the acknowledgement response
+   */
+  const emitWithAck = useCallback(
+    (
+      event: string,
+      payload: any,
+      callback: (response: { ok: boolean; url?: string; error?: string }) => void
+    ) => {
+      if (!socket) {
+        console.warn("❌ [useSocketEmit] Socket not available for emission");
+        callback({ ok: false, error: "Socket not available" });
+        return;
+      }
+
+      if (!isConnected) {
+        console.warn("⚠️ [useSocketEmit] Socket not connected yet");
+        callback({ ok: false, error: "Socket not connected" });
+        return;
+      }
+
+      console.log("🚀 [useSocketEmit] Emitting to event with ack:", event);
+      console.log("📦 [useSocketEmit] Payload:", payload);
+      
+      socket.emit(event, payload, (response: { ok: boolean; url?: string; error?: string }) => {
+        console.log("📥 [useSocketEmit] Acknowledgement received:", response);
+        callback(response);
+      });
+    },
+    [socket, isConnected]
+  );
+
   return {
     emit,
+    emitWithAck,
     isConnected,
   };
 };
