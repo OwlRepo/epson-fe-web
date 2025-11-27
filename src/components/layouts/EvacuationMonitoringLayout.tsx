@@ -6,6 +6,8 @@ import { LayoutDashboard, FileText, ShieldPlus, Monitor } from "lucide-react";
 import { EpsonLogoWhite } from "@/assets/svgs";
 import { useSocketEmit } from "@/hooks";
 import dayjs from "dayjs";
+import { toast } from "sonner";
+import { ToastType } from "@/hooks/useToastStyleTheme";
 
 interface EvacuationMonitoringLayoutProps {
   children: React.ReactNode;
@@ -86,7 +88,7 @@ export function EvacuationMonitoringLayout({
     </div>
   );
 
-  const { emit } = useSocketEmit();
+  const { emitWithAck } = useSocketEmit();
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
@@ -98,12 +100,30 @@ export function EvacuationMonitoringLayout({
         collapsedLogo={collapsedLogo}
         className="bg-primary-evs"
         onEvacComplete={() => {
-          emit("evac_complete", {
-            trigger_by: JSON.parse(localStorage.getItem("user") || "{}")[
-              "Name"
-            ],
-            date: dayjs().format("YYYY-MM-DD hh:mm:ss A"),
-          });
+          emitWithAck(
+            "evac_complete",
+            {
+              trigger_by: JSON.parse(localStorage.getItem("user") || "{}")[
+                "Name"
+              ],
+              date: dayjs().format("YYYY-MM-DD hh:mm:ss A"),
+            },
+            (response) => {
+              if (response.ok) {
+                toast.success(
+                  response.message || "Evacuation completed successfully",
+                  {
+                    style: JSON.parse(ToastType.SUCCESS_STYLE),
+                  }
+                );
+                window.location.reload();
+              } else {
+                toast.error(response.error || "Failed to complete evacuation", {
+                  style: JSON.parse(ToastType.ERROR_STYLE),
+                });
+              }
+            }
+          );
         }}
       />
 

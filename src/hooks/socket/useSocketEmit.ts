@@ -95,7 +95,12 @@ export const useSocketEmit = () => {
     (
       event: string,
       payload: any,
-      callback: (response: { ok: boolean; url?: string; error?: string }) => void
+      callback: (response: {
+        ok: boolean;
+        url?: string;
+        error?: string;
+        message?: string;
+      }) => void
     ) => {
       if (!socket) {
         console.warn("❌ [useSocketEmit] Socket not available for emission");
@@ -111,11 +116,20 @@ export const useSocketEmit = () => {
 
       console.log("🚀 [useSocketEmit] Emitting to event with ack:", event);
       console.log("📦 [useSocketEmit] Payload:", payload);
-      
-      socket.emit(event, payload, (response: { ok: boolean; url?: string; error?: string }) => {
-        console.log("📥 [useSocketEmit] Acknowledgement received:", response);
-        callback(response);
-      });
+
+      socket.emit(
+        event,
+        payload,
+        (response: {
+          ok: boolean;
+          url?: string;
+          error?: string;
+          message?: string;
+        }) => {
+          console.log("📥 [useSocketEmit] Acknowledgement received:", response);
+          callback(response);
+        }
+      );
     },
     [socket, isConnected]
   );
@@ -126,4 +140,3 @@ export const useSocketEmit = () => {
     isConnected,
   };
 };
-
