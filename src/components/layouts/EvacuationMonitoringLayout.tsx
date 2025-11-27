@@ -7,7 +7,7 @@ import { EpsonLogoWhite } from "@/assets/svgs";
 import { useSocketEmit } from "@/hooks";
 import dayjs from "dayjs";
 import { toast } from "sonner";
-import { ToastType } from "@/hooks/useToastStyleTheme";
+import useToastStyleTheme from "@/hooks/useToastStyleTheme";
 
 interface EvacuationMonitoringLayoutProps {
   children: React.ReactNode;
@@ -89,7 +89,7 @@ export function EvacuationMonitoringLayout({
   );
 
   const { emitWithAck } = useSocketEmit();
-
+  const { successStyle, errorStyle } = useToastStyleTheme();
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
       {/* Sidebar */}
@@ -109,18 +109,29 @@ export function EvacuationMonitoringLayout({
               date: dayjs().format("YYYY-MM-DD hh:mm:ss A"),
             },
             (response) => {
-              if (response.ok) {
-                toast.success(
-                  response.message || "Evacuation completed successfully",
-                  {
-                    style: JSON.parse(ToastType.SUCCESS_STYLE),
-                  }
+              if (response.ok === true) {
+                toast.success("", {
+                  description:
+                    response.message || "Evacuation completed successfully",
+                  className: "bg-green-50 border-green-200 text-black",
+                  style: successStyle,
+                });
+                console.log(
+                  "🟢 [EvacuationMonitoringLayout] Evacuation completed successfully",
+                  response
                 );
                 window.location.reload();
               } else {
-                toast.error(response.error || "Failed to complete evacuation", {
-                  style: JSON.parse(ToastType.ERROR_STYLE),
+                toast.error("", {
+                  description:
+                    response.error || "Failed to complete evacuation",
+                  className: "bg-red-50 border-red-200 text-red-800",
+                  style: errorStyle,
                 });
+                console.log(
+                  "🔴 [EvacuationMonitoringLayout] Failed to complete evacuation",
+                  response
+                );
               }
             }
           );
