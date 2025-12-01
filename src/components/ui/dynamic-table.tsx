@@ -1727,12 +1727,12 @@ export function DynamicTable({
       )}
 
       {/* Total count indicator for live data with heavy data mode */}
-      {isLiveData && totalCount !== undefined && !isLoading && (
+      {/* {isLiveData && totalCount !== undefined && !isLoading && (
         <div className="mt-2 text-sm text-gray-600 text-center">
           Showing {data.length.toLocaleString()} of{" "}
           {totalCount.toLocaleString()} total records
         </div>
-      )}
+      )} */}
 
       {/* Pagination - hidden for live data unless showPaginationForLive is true */}
       {pagination &&

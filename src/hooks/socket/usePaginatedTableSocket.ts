@@ -42,6 +42,7 @@ export function usePaginatedTableSocket<T extends Record<string, any>>({
   const emitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const prevParamsStr = useRef<string | null>(null);
   const connectedLoggedRef = useRef<boolean>(false);
+  const pendingParamsRef = useRef<string | null>(null);
 
   const effectiveParams = useMemo(() => {
     try {
@@ -77,6 +78,23 @@ export function usePaginatedTableSocket<T extends Record<string, any>>({
             connectedLoggedRef.current = true;
           }
           setIsConnected(true);
+
+          // Emit pending params if any, after a short delay to ensure room join is complete
+          // The room join happens synchronously in the connect handler, so we wait a bit
+          if (pendingParamsRef.current && socketApiRef.current) {
+            setTimeout(() => {
+              if (socketApiRef.current && pendingParamsRef.current) {
+                const pendingParams = JSON.parse(pendingParamsRef.current);
+                console.log(
+                  "📤 [usePaginatedTableSocket] Emitting pending params after connection:",
+                  pendingParams
+                );
+                socketApiRef.current.emitFilters(pendingParams);
+                prevParamsStr.current = pendingParamsRef.current;
+                pendingParamsRef.current = null;
+              }
+            }, 150); // Small delay to ensure room join is complete
+          }
         },
         onDisconnect: () => {
           console.log("🔌 Socket disconnected from server");
@@ -445,15 +463,41 @@ export function usePaginatedTableSocket<T extends Record<string, any>>({
     if (prevParamsStr.current === nextParamsStr) {
       return;
     }
-    if (!socketApiRef.current) return;
+    if (!socketApiRef.current) {
+      // Store params to emit once connected
+      pendingParamsRef.current = nextParamsStr;
+      return;
+    }
+
+    // Only emit if socket is connected
+    if (!isConnected) {
+      // Store params to emit once connected
+      pendingParamsRef.current = nextParamsStr;
+      console.log(
+        "⏳ [usePaginatedTableSocket] Socket not connected yet, storing params for later:",
+        effectiveParams
+      );
+      return;
+    }
+
     if (emitTimerRef.current) {
       clearTimeout(emitTimerRef.current);
       emitTimerRef.current = null;
     }
     emitTimerRef.current = setTimeout(() => {
-      socketApiRef.current?.emitFilters(effectiveParams);
-      // Save the latest emitted params snapshot
-      prevParamsStr.current = nextParamsStr;
+      if (socketApiRef.current && isConnected) {
+        console.log(
+          "📤 [usePaginatedTableSocket] Emitting filters (socket connected):",
+          effectiveParams
+        );
+        socketApiRef.current.emitFilters(effectiveParams);
+        // Save the latest emitted params snapshot
+        prevParamsStr.current = nextParamsStr;
+        pendingParamsRef.current = null;
+      } else {
+        // Socket disconnected, store for later
+        pendingParamsRef.current = nextParamsStr;
+      }
     }, debounceMs);
 
     return () => {
@@ -462,7 +506,7 @@ export function usePaginatedTableSocket<T extends Record<string, any>>({
         emitTimerRef.current = null;
       }
     };
-  }, [effectiveParams, debounceMs]);
+  }, [effectiveParams, debounceMs, isConnected]);
 
   const clear = useCallback(() => {
     setData([]);

@@ -18,7 +18,7 @@ import {
   useNavigate,
   useSearch,
 } from "@tanstack/react-router";
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 
 export const Route = createFileRoute(
   "/_authenticated/attendance-monitoring/dashboard/overview"
@@ -53,8 +53,6 @@ function RouteComponent() {
   const previousPageRef = useRef<number>(1);
   const previousParamsRef = useRef<string>("");
   const previousSocketRowsRef = useRef<any[]>([]);
-  // Refresh key to force table re-render when data updates
-  const [tableRefreshKey, setTableRefreshKey] = useState(0);
 
   // Build routeSearch with filters
   const routeSearchWithFilter = useMemo(() => {
@@ -139,7 +137,6 @@ function RouteComponent() {
       previousParamsRef.current = paramsKey;
       previousPageRef.current = currentPage;
       previousSocketRowsRef.current = [...socketRows];
-      setTableRefreshKey((prev) => prev + 1);
       return;
     }
 
@@ -187,8 +184,8 @@ function RouteComponent() {
         previousSocketRowsRef.current = socketRows.map((item: any) => ({
           ...item,
         }));
-        // Increment refresh key to force table component re-render
-        setTableRefreshKey((prev) => prev + 1);
+        // Don't increment refresh key on every update - it causes unnecessary remounts
+        // The deep cloning and state update should be enough to trigger re-renders
       } else {
         // For pages > 1, merge updates into accumulated data
         // This handles live updates to records that are already in accumulated data
@@ -241,31 +238,37 @@ function RouteComponent() {
   const asofData = socketAsof || "";
 
   // Handle filter changes
-  const handleFilter = (key: string, value: string) => {
-    navigate({
-      search: (prev) => ({
-        ...prev,
-        [`filter_${key}`]: value || undefined,
-        page: "1", // Reset to page 1 on filter change
-      }),
-      replace: true,
-    });
-  };
+  const handleFilter = useCallback(
+    (key: string, value: string) => {
+      navigate({
+        search: (prev) => ({
+          ...prev,
+          [`filter_${key}`]: value || undefined,
+          page: "1", // Reset to page 1 on filter change
+        }),
+        replace: true,
+      });
+    },
+    [navigate]
+  );
 
   // Handle search
-  const handleSearch = (searchTerm: string) => {
-    navigate({
-      search: (prev) => ({
-        ...prev,
-        search: searchTerm || undefined,
-        page: "1", // Reset to page 1 on search
-      }),
-      replace: true,
-    });
-  };
+  const handleSearch = useCallback(
+    (searchTerm: string) => {
+      navigate({
+        search: (prev) => ({
+          ...prev,
+          search: searchTerm || undefined,
+          page: "1", // Reset to page 1 on search
+        }),
+        replace: true,
+      });
+    },
+    [navigate]
+  );
 
   // Handle Load More
-  const handleLoadMore = async () => {
+  const handleLoadMore = useCallback(async () => {
     const currentPage = parseInt(search.page || "1");
     const nextPage = currentPage + 1;
     navigate({
@@ -275,7 +278,123 @@ function RouteComponent() {
       }),
       replace: true,
     });
-  };
+  }, [navigate, search.page]);
+
+  // Memoize columns
+  const columns = useMemo(
+    () => [
+      {
+        key: EMPLOYEE_NO_TABLE_KEY,
+        label: "Employee No.",
+      },
+      {
+        key: EMPLOYEE_NAME_TABLE_KEY,
+        label: "Name",
+      },
+      {
+        key: EMPLOYEE_SECTION_TABLE_KEY,
+        label: "Section",
+      },
+      {
+        key: EMPLOYEE_CONTROLLER_TYPE,
+        label: "Type",
+      },
+      {
+        key: EMPLOYEE_DATE_TIME,
+        label: "Date Time",
+      },
+      {
+        key: DEVICE_NAME,
+        label: "Device Name",
+      },
+    ],
+    []
+  );
+
+  // Memoize transformed data
+  const transformedData = useMemo(() => {
+    return accumulatedData
+      .map((employeeData) => {
+        const {
+          [EMPLOYEE_NO_TABLE_KEY]: employee_id,
+          [EMPLOYEE_SECTION_TABLE_KEY]: section,
+          [EMPLOYEE_CLOCKED_IN_TABLE_KEY]: clocked_in,
+          [EMPLOYEE_DATE_TIME]: date_receive,
+          [EMPLOYEE_NAME_TABLE_KEY]: full_name,
+          [EMPLOYEE_CONTROLLER_TYPE]: controller_type,
+          [DEVICE_NAME]: device_name,
+        } = employeeData;
+        return {
+          [EMPLOYEE_NO_TABLE_KEY]: employee_id,
+          [EMPLOYEE_SECTION_TABLE_KEY]: section,
+          [EMPLOYEE_NAME_TABLE_KEY]: full_name,
+          [EMPLOYEE_CLOCKED_IN_TABLE_KEY]: clocked_in,
+          [EMPLOYEE_DATE_TIME]: date_receive,
+          [EMPLOYEE_CONTROLLER_TYPE]: "Time " + controller_type,
+          device_name,
+        };
+      })
+      .sort((a, b) => {
+        const dateA = new Date(a[EMPLOYEE_DATE_TIME] || 0).getTime();
+        const dateB = new Date(b[EMPLOYEE_DATE_TIME] || 0).getTime();
+        return dateB - dateA; // Descending order (newest first)
+      });
+  }, [accumulatedData]);
+
+  // Memoize filters
+  const filters = useMemo(
+    () => [
+      {
+        key: EMPLOYEE_SECTION_TABLE_KEY,
+        label: "Section",
+        options: Array.from(
+          new Set(
+            accumulatedData.map((item) => item[EMPLOYEE_SECTION_TABLE_KEY])
+          )
+        )
+          .filter(Boolean)
+          .map((item) => ({
+            label: item,
+            value: item,
+          })),
+      },
+      {
+        key: "controller_type",
+        label: "Type",
+        options: Array.from(
+          new Set(
+            accumulatedData.map(
+              (item) => `Time ${item[EMPLOYEE_CONTROLLER_TYPE]}`
+            )
+          )
+        )
+          .filter(Boolean)
+          .map((item) => ({
+            label: item,
+            value: item,
+          })),
+      },
+      {
+        key: DEVICE_NAME,
+        label: "Device Name",
+        options: Array.from(
+          new Set(accumulatedData.map((item) => item[DEVICE_NAME]))
+        )
+          .filter(Boolean)
+          .map((item) => ({
+            label: item,
+            value: item,
+          })),
+      },
+    ],
+    [accumulatedData]
+  );
+
+  // Memoize onRowClick handler
+  const handleRowClick = useCallback((row: any) => {
+    setEmployeeID(row[EMPLOYEE_NO_TABLE_KEY]);
+    setIsOpen(true);
+  }, []);
 
   return (
     <>
@@ -319,117 +438,15 @@ function RouteComponent() {
           }
         >
           {isSocketConnected && !isSocketLoading ? (
-            <div className="flex" key={tableRefreshKey}>
+            <div className="flex">
               <SocketDynamicTable
                 onLoadMore={handleLoadMore}
                 isLoadingMore={false}
                 totalCount={socketMeta?.totalItems}
-                onRowClick={(row) => {
-                  setEmployeeID(row[EMPLOYEE_NO_TABLE_KEY]);
-                  setIsOpen(true);
-                }}
-                columns={[
-                  {
-                    key: EMPLOYEE_NO_TABLE_KEY,
-                    label: "Employee No.",
-                  },
-                  {
-                    key: EMPLOYEE_NAME_TABLE_KEY,
-                    label: "Name",
-                  },
-                  {
-                    key: EMPLOYEE_SECTION_TABLE_KEY,
-                    label: "Section",
-                  },
-                  {
-                    key: EMPLOYEE_CONTROLLER_TYPE,
-                    label: "Type",
-                  },
-                  {
-                    key: EMPLOYEE_DATE_TIME,
-                    label: "Date Time",
-                  },
-                  {
-                    key: DEVICE_NAME,
-                    label: "Device Name",
-                  },
-                ]}
-                filters={[
-                  {
-                    key: EMPLOYEE_SECTION_TABLE_KEY,
-                    label: "Section",
-                    options: Array.from(
-                      new Set(
-                        accumulatedData.map(
-                          (item) => item[EMPLOYEE_SECTION_TABLE_KEY]
-                        )
-                      )
-                    )
-                      .filter(Boolean)
-                      .map((item) => ({
-                        label: item,
-                        value: item,
-                      })),
-                  },
-                  {
-                    key: "controller_type",
-                    label: "Type",
-                    options: Array.from(
-                      new Set(
-                        accumulatedData.map(
-                          (item) => `Time ${item[EMPLOYEE_CONTROLLER_TYPE]}`
-                        )
-                      )
-                    )
-                      .filter(Boolean)
-                      .map((item) => ({
-                        label: item,
-                        value: item,
-                      })),
-                  },
-                  {
-                    key: DEVICE_NAME,
-                    label: "Device Name",
-                    options: Array.from(
-                      new Set(accumulatedData.map((item) => item[DEVICE_NAME]))
-                    )
-                      .filter(Boolean)
-                      .map((item) => ({
-                        label: item,
-                        value: item,
-                      })),
-                  },
-                ]}
-                data={accumulatedData
-                  .map((employeeData) => {
-                    const {
-                      [EMPLOYEE_NO_TABLE_KEY]: employee_id,
-                      [EMPLOYEE_SECTION_TABLE_KEY]: section,
-                      [EMPLOYEE_CLOCKED_IN_TABLE_KEY]: clocked_in,
-                      [EMPLOYEE_DATE_TIME]: date_receive,
-                      [EMPLOYEE_NAME_TABLE_KEY]: full_name,
-                      [EMPLOYEE_CONTROLLER_TYPE]: controller_type,
-                      [DEVICE_NAME]: device_name,
-                    } = employeeData;
-                    return {
-                      [EMPLOYEE_NO_TABLE_KEY]: employee_id,
-                      [EMPLOYEE_SECTION_TABLE_KEY]: section,
-                      [EMPLOYEE_NAME_TABLE_KEY]: full_name,
-                      [EMPLOYEE_CLOCKED_IN_TABLE_KEY]: clocked_in,
-                      [EMPLOYEE_DATE_TIME]: date_receive,
-                      [EMPLOYEE_CONTROLLER_TYPE]: "Time " + controller_type,
-                      device_name,
-                    };
-                  })
-                  .sort((a, b) => {
-                    const dateA = new Date(
-                      a[EMPLOYEE_DATE_TIME] || 0
-                    ).getTime();
-                    const dateB = new Date(
-                      b[EMPLOYEE_DATE_TIME] || 0
-                    ).getTime();
-                    return dateB - dateA; // Descending order (newest first)
-                  })}
+                onRowClick={handleRowClick}
+                columns={columns}
+                filters={filters}
+                data={transformedData}
                 onFilter={handleFilter}
                 onSearch={handleSearch}
                 routeSearch={routeSearchWithFilter}
