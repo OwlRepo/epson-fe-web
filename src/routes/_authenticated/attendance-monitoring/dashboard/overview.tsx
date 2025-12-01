@@ -432,7 +432,7 @@ function RouteComponent() {
                   })}
                 onFilter={handleFilter}
                 onSearch={handleSearch}
-                routeSearch={search}
+                routeSearch={routeSearchWithFilter}
                 isLoading={isSocketLoading}
                 tableId="divisions-departments-sections-table"
               />
