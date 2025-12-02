@@ -23,7 +23,7 @@ export const useUploadCards = () => {
       console.log("Upload success:", data);
 
       if (data?.data && Array.isArray(data.data) && data.data.length > 0) {
-        const dateTime = dayjs().format("YYYY-MM-DD-HH-mm-ss");
+        const dateTime = dayjs().format("YYYY-MM-DD hh:mm A");
         const filename = `bulk-${dateTime}.csv`;
         downloadCSV(data.data, filename);
       }
