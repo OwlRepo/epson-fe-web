@@ -19,7 +19,7 @@ import {
 import { LiveDataTable } from "@/components/ui/live-data-table";
 import Spinner from "@/components/ui/spinner";
 import { Switch } from "@/components/ui/switch";
-import { useSocket } from "@/hooks";
+import { useSocket, useSocketEmit } from "@/hooks";
 import { useCheckoutVisitor } from "@/hooks/mutation/useCheckoutVisitor";
 import { useGetVisitorById } from "@/hooks/query/useGetVisitorById";
 import { useOverviewCountData } from "@/hooks/useOverviewCountData";
@@ -33,7 +33,7 @@ import {
   useNavigate,
   useSearch,
 } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import useLiveDataTableStore from "@/store/vms/overview/useLiveDataTableStore";
 
@@ -55,6 +55,7 @@ function RouteComponent() {
   const [isOpen, setIsOpen] = useState(false);
   const [visitorID, setVisitorID] = useState("");
   const { data: visitor } = useGetVisitorById(visitorID);
+  const [isCheckOut, setIsCheckOut] = useState(false);
 
   // Add handler for page size changes
   const handlePageSizeChange = (newPageSize: number) => {
@@ -189,6 +190,7 @@ function RouteComponent() {
                 onRowClick={(row) => {
                   setVisitorID(row.ID);
                   setIsOpen(true);
+                  setIsCheckOut(row.clocked_out ? true : false);
                 }}
                 columns={[
                   {
@@ -283,6 +285,7 @@ function RouteComponent() {
       </div>
       {isOpen && (
         <VisitorInformationDialog
+          isCheckOut={isCheckOut}
           open
           visitor={visitor}
           onOpenChange={setIsOpen}
@@ -295,6 +298,7 @@ function RouteComponent() {
 interface VisitorInfoDialogProps extends DialogProps {
   visitor?: VisitorData;
   isLoading?: boolean;
+  isCheckOut?: boolean;
 }
 
 export const VisitorInformationDialog = ({
@@ -302,14 +306,14 @@ export const VisitorInformationDialog = ({
   visitor,
   onOpenChange,
   isLoading,
+  isCheckOut,
 }: VisitorInfoDialogProps) => {
   const { port, setPort } = usePortStore((store) => store);
-  const { emitData } = useSocket({ room: "updates" });
 
-  const { mutate: checkoutVisitor, isSuccess } = useCheckoutVisitor();
-  const { infoStyle, errorStyle } = useToastStyleTheme();
+  // const { mutate: checkoutVisitor, isSuccess } = useCheckoutVisitor();
+  const { infoStyle, errorStyle, successStyle } = useToastStyleTheme();
   const [isLinking, setIsLinking] = useState(false);
-  const [socketData, setSocketData] = useState({});
+  // const [socketData, setSocketData] = useState({});
   const handleLinkCard = async () => {
     try {
       let portToUse = port;
@@ -327,11 +331,7 @@ export const VisitorInformationDialog = ({
     }
   };
 
-  useEffect(() => {
-    if (isSuccess) {
-      emitData("visitor_reader", socketData);
-    }
-  }, [isSuccess]);
+  const { emitWithAck } = useSocketEmit();
 
   const linkCard = async (newPort: any) => {
     if (!newPort) return;
@@ -345,19 +345,23 @@ export const VisitorInformationDialog = ({
       const data = await readRFIDData(newPort);
 
       if (data?.epc === visitor?.UHF) {
-        // checkoutVisitor({
-        //   VisitorID: visitor?.ID ?? "",
-        // });
-        emitData("visitor_reader", {
-          data: data?.epc,
-          device_id: 0,
-          date_receive: new Date(),
-        });
-        // setSocketData({
-        //   data: data?.epc,
-        //   device_id: 0,
-        //   date_receive: new Date(),
-        // });
+        emitWithAck(
+          "visitor_web",
+          {
+            data: data?.epc,
+            device_id: 0,
+            date_receive: new Date(),
+          },
+          ({ ok }) => {
+            if (ok) {
+              toast.success("Checkout Successfull", {
+                style: successStyle,
+              });
+
+              onOpenChange?.(false);
+            }
+          }
+        );
       } else {
         toast.error("Oops! Card not matched", {
           description: "Please make sure your card is matched and try again.",
@@ -425,7 +429,7 @@ export const VisitorInformationDialog = ({
             </div>
           </div>
         )}
-        {!isLinking && !visitor?.CardSurrendered && (
+        {!isLinking && !visitor?.CardSurrendered && !isCheckOut && (
           <Button onClick={handleLinkCard}>Check Out Now</Button>
         )}
 

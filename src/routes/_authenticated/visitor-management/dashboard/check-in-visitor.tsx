@@ -1,5 +1,5 @@
 import BasicInfromationForm from "@/components/BasicInformationForm";
-import { useSocket } from "@/hooks";
+import { useSocketEmit } from "@/hooks";
 import { useMutateDayPassVisitor } from "@/hooks/mutation/useMutateDayPassVisitor";
 import useToastStyleTheme from "@/hooks/useToastStyleTheme";
 import { createFileRoute } from "@tanstack/react-router";
@@ -20,7 +20,7 @@ function RouteComponent() {
     error,
   } = useMutateDayPassVisitor();
 
-  const { emitData } = useSocket({ room: "updates" });
+  const { emitWithAck } = useSocketEmit();
 
   const { errorStyle, successStyle } = useToastStyleTheme();
 
@@ -47,7 +47,13 @@ function RouteComponent() {
         description: "The guest has checked in successfully.",
         style: successStyle,
       });
-      emitData("visitor_reader", socketData);
+      emitWithAck("visitor_web", socketData, ({ ok }) => {
+        if (ok) {
+          toast.success("Checkin Successfull", {
+            style: successStyle,
+          });
+        }
+      });
       handleReset();
     }
   }, [isError, isSuccess]);
