@@ -101,6 +101,51 @@ export interface VisitorData {
 const companyNamePlaceholder = faker.company.name();
 const UHFLength = getUHFLength();
 
+// Phone number input filter handlers
+const handlePhoneKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  // Allow special keys (navigation, editing, shortcuts)
+  const allowedKeys = [
+    "Backspace",
+    "Delete",
+    "Tab",
+    "Escape",
+    "Enter",
+    "ArrowLeft",
+    "ArrowRight",
+    "ArrowUp",
+    "ArrowDown",
+    "Home",
+    "End",
+  ];
+
+  // Allow Ctrl/Cmd combinations (for shortcuts like Ctrl+A, Ctrl+C, Ctrl+V)
+  if (e.ctrlKey || e.metaKey) {
+    return;
+  }
+
+  // Allow the key if it's an allowed special key
+  if (allowedKeys.includes(e.key)) {
+    return;
+  }
+
+  // Block invalid characters (only allow digits 0-9)
+  const phoneRegex = /^[0-9]$/;
+  if (!phoneRegex.test(e.key)) {
+    e.preventDefault();
+  }
+};
+
+const handlePhonePaste = (
+  e: React.ClipboardEvent<HTMLInputElement>,
+  field: { onChange: (value: string) => void }
+) => {
+  e.preventDefault();
+  const pastedText = e.clipboardData.getData("text");
+  // Filter out invalid characters (only keep digits 0-9)
+  const filteredText = pastedText.replace(/[^0-9]/g, "");
+  field.onChange(filteredText);
+};
+
 const BasicInfromationForm = forwardRef(
   (
     {
@@ -307,15 +352,24 @@ const BasicInfromationForm = forwardRef(
                 queryHook={useGetHostPerson}
               />
 
-              <TextInput
-                label={"Contact Information"}
-                id="contact-information"
-                name={"ContactInformation"}
-                placeholder="ex. 09999999999"
-                register={register}
-                errors={formState.errors}
-                required={false}
-                readOnly={isReadOnly}
+              <Controller
+                name="ContactInformation"
+                control={control}
+                rules={{ required: false }}
+                render={({ field }) => (
+                  <TextInput
+                    label={"Contact Information"}
+                    id="contact-information"
+                    name={"ContactInformation"}
+                    placeholder="ex. 09999999999"
+                    register={register}
+                    errors={formState.errors}
+                    required={false}
+                    readOnly={isReadOnly}
+                    onKeyDown={handlePhoneKeyDown}
+                    onPaste={(e: any) => handlePhonePaste(e, field)}
+                  />
+                )}
               />
 
               <TextInput

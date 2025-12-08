@@ -16,6 +16,12 @@ interface TextInputProps<T extends FieldValues> {
   errors: FieldErrors<T>;
   required?: boolean;
   readOnly?: boolean;
+  onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
+  onPaste?: (
+    event:
+      | React.ClipboardEvent<HTMLInputElement>
+      | React.KeyboardEvent<HTMLInputElement>
+  ) => void;
 }
 
 const TextInput = <T extends FieldValues>({
@@ -27,6 +33,8 @@ const TextInput = <T extends FieldValues>({
   errors,
   required = true,
   readOnly = false,
+  onKeyDown,
+  onPaste,
 }: TextInputProps<T>) => {
   return (
     <div className="space-y-1 w-full">
@@ -48,6 +56,8 @@ const TextInput = <T extends FieldValues>({
           "h-[44px] last",
           readOnly && "cursor-not-allowed text-gray-500"
         )}
+        onKeyDown={onKeyDown}
+        onPaste={onPaste}
         {...register(
           name,
           required ? { required: `${label} is required` } : {}
