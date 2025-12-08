@@ -5,10 +5,10 @@ import { Header } from "@/components/ui/header";
 import { LayoutDashboard, FileText, ShieldPlus, Monitor } from "lucide-react";
 import { EpsonLogoWhite } from "@/assets/svgs";
 import { useSocketEmit } from "@/hooks";
+import { useEvsMode } from "@/hooks/useEvsMode";
 import dayjs from "dayjs";
 import { toast } from "sonner";
 import useToastStyleTheme from "@/hooks/useToastStyleTheme";
-
 interface EvacuationMonitoringLayoutProps {
   children: React.ReactNode;
   userProfile?: {
@@ -90,6 +90,8 @@ export function EvacuationMonitoringLayout({
 
   const { emitWithAck } = useSocketEmit();
   const { successStyle, errorStyle } = useToastStyleTheme();
+  const { evsMode, onEvsModeToggle, hasReceivedData } = useEvsMode();
+
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
       {/* Sidebar */}
@@ -99,6 +101,9 @@ export function EvacuationMonitoringLayout({
         logo={logo}
         collapsedLogo={collapsedLogo}
         className="bg-primary-evs"
+        evsMode={evsMode}
+        onEvsModeToggle={onEvsModeToggle}
+        hasReceivedEvsModeData={hasReceivedData}
         onEvacComplete={() => {
           emitWithAck(
             "evac_complete",

@@ -31,6 +31,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Input } from "./input";
+import { Switch } from "./switch";
 // import {
 //   AlertDialog,
 //   AlertDialogAction,
@@ -67,6 +68,9 @@ interface SidebarProps {
   collapsedLogo?: React.ReactNode;
   collapsedFooterItems?: React.ReactNode[];
   onEvacComplete?: () => void;
+  evsMode?: boolean;
+  onEvsModeToggle?: (checked: boolean) => void;
+  hasReceivedEvsModeData?: boolean;
 }
 
 interface NavItemProps {
@@ -382,6 +386,9 @@ export function Sidebar({
   logo = defaultLogo,
   collapsedLogo,
   onEvacComplete,
+  evsMode,
+  onEvsModeToggle,
+  hasReceivedEvsModeData = false,
 }: SidebarProps) {
   const router = useRouter();
   const [collapsed, setCollapsed] = React.useState(defaultCollapsed);
@@ -507,60 +514,94 @@ export function Sidebar({
 
       {/* Footer */}
       <div className="py-6 flex flex-col items-center justify-center space-y-5">
-        {onEvacComplete && (
-          <div className="w-full flex items-center justify-center">
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="secondary" className="w-[90%] text-white">
-                  {collapsed ? <ShieldCheck /> : "Evacuation Complete"}
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent className="w-[700px] flex flex-col">
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Evacuation Complete</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Kindly provide your email to confirm the completion of the
-                    evacuation.
-                  </AlertDialogDescription>
-                  <Input
-                    type="email"
-                    placeholder="Enter your email"
-                    onPaste={(e) => e.preventDefault()}
-                    onCopy={(e) => e.preventDefault()}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                  <small className="text-red-500">
-                    {email !== "" &&
-                      email !==
+        {/* Only show toggle if data has been received and state is properly set */}
+        {getIsEVS() &&
+          hasReceivedEvsModeData &&
+          typeof evsMode === "boolean" &&
+          onEvsModeToggle && (
+            <div className="w-full flex items-center justify-center px-4">
+              <div className="flex items-center gap-3 w-full justify-between">
+                <label
+                  htmlFor="evs-mode-switch"
+                  className={cn(
+                    "text-sm font-medium cursor-pointer",
+                    collapsed ? "hidden" : "text-white"
+                  )}
+                >
+                  EVS Mode
+                </label>
+                <Switch
+                  id="evs-mode-switch"
+                  checked={evsMode}
+                  onCheckedChange={onEvsModeToggle}
+                  className={cn(
+                    "data-[state=checked]:bg-green-400",
+                    collapsed && "mx-auto"
+                  )}
+                />
+              </div>
+            </div>
+          )}
+        {/* Only show evacuation complete button if data received AND mode is on */}
+        {onEvacComplete &&
+          hasReceivedEvsModeData &&
+          typeof evsMode === "boolean" &&
+          evsMode === true && (
+            <div className="w-full flex items-center justify-center">
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="secondary" className="w-[90%] text-white">
+                    {collapsed ? <ShieldCheck /> : "Evacuation Complete"}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="w-[700px] flex flex-col">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Evacuation Complete</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Kindly provide your email to confirm the completion of the
+                      evacuation.
+                    </AlertDialogDescription>
+                    <Input
+                      type="email"
+                      placeholder="Enter your email"
+                      onPaste={(e) => e.preventDefault()}
+                      onCopy={(e) => e.preventDefault()}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                    <small className="text-red-500">
+                      {email !== "" &&
+                        email !==
+                          JSON.parse(localStorage.getItem("user") || "{}")[
+                            "EmailAddress"
+                          ] &&
+                        "Incorrect email address"}
+                    </small>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      className="bg-primary-evs hover:bg-primary-evs/80"
+                      disabled={
+                        email !==
                         JSON.parse(localStorage.getItem("user") || "{}")[
                           "EmailAddress"
-                        ] &&
-                      "Incorrect email address"}
-                  </small>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction
-                    className="bg-primary-evs hover:bg-primary-evs/80"
-                    disabled={
-                      email !==
-                      JSON.parse(localStorage.getItem("user") || "{}")[
-                        "EmailAddress"
-                      ]
-                    }
-                    onClick={onEvacComplete}
-                  >
-                    Confirm
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </div>
-        )}
+                        ]
+                      }
+                      onClick={onEvacComplete}
+                    >
+                      Confirm
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          )}
         {!collapsed ? (
           <div className="flex flex-col items-center justify-center gap-3">
             <VerifyiLogoLight className="w-full px-16 opacity-70 h-fit" />
-            <div className="text-white text-xs text-center">version {APP_VERSION}</div>
+            <div className="text-white text-xs text-center">
+              version {APP_VERSION}
+            </div>
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center">
