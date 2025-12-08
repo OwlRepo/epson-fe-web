@@ -5,14 +5,15 @@ import {
   InPremisesEvsIcon,
   HomeIcon,
 } from "@/assets/svgs";
-import { Users } from "lucide-react";
+import { UserRoundSearch, Users } from "lucide-react";
 import AttendanceCountCard from "./attendance-count-card";
 import CardSection from "../layouts/CardSection";
 import CardHeaderLeft from "./card-header-left";
 import { io, type Socket } from "socket.io-client";
 import { getApiSocketBaseUrl } from "@/utils/env";
 import { useEffect, useState, useRef } from "react";
-
+import { useLocation } from "@tanstack/react-router";
+import { cn } from "@/lib/utils";
 export interface EVSCountsProps {
   countData?: any;
   type?: "card" | "compact";
@@ -21,11 +22,25 @@ export interface EVSCountsProps {
 
 export default function EVSCounts(props: EVSCountsProps) {
   const { countData, type = "card", countType = "default" } = props;
-
+  const route = useLocation();
   // Compact horizontal status bar
   if (type === "compact") {
     const statusItems = {
       default: [
+        ...(route.search.EvacuationStatus !== "completed"
+          ? [
+              {
+                icon: (
+                  <UserRoundSearch className="w-3.5 h-3.5 text-white bg-gray-500 rounded-full p-[2px]" />
+                ),
+                label: "Unlisted",
+                count: countData?.unlisted,
+                bgColor: "bg-gray-50",
+                textColor: "text-gray-700",
+                borderColor: "border-gray-200",
+              },
+            ]
+          : []),
         {
           icon: (
             <Users className="w-3.5 h-3.5 text-white bg-gray-500 rounded-full p-[2px]" />
@@ -74,6 +89,16 @@ export default function EVSCounts(props: EVSCountsProps) {
         },
       ],
       overview_evs: [
+        {
+          icon: (
+            <UserRoundSearch className="w-3.5 h-3.5 text-white bg-gray-500 rounded-full p-[2px]" />
+          ),
+          label: "Unlisted",
+          count: countData?.unlisted,
+          bgColor: "bg-gray-50",
+          textColor: "text-gray-700",
+          borderColor: "border-gray-200",
+        },
         {
           icon: (
             <Users className="w-3.5 h-3.5 text-white bg-gray-500 rounded-full p-[2px]" />
@@ -182,9 +207,14 @@ export default function EVSCounts(props: EVSCountsProps) {
         },
       ],
     };
-
     return (
-      <div className="flex items-center gap-3">
+      <div
+        className={cn(
+          route.search.EvacuationStatus !== "completed"
+            ? "grid grid-cols-3 gap-2"
+            : "flex items-center gap-3"
+        )}
+      >
         {statusItems[countType].map((item, index) => (
           <div
             key={index}
