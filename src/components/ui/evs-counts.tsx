@@ -13,6 +13,7 @@ import { io, type Socket } from "socket.io-client";
 import { getApiSocketBaseUrl } from "@/utils/env";
 import { useEffect, useState, useRef } from "react";
 import { useLocation } from "@tanstack/react-router";
+import { cn } from "@/lib/utils";
 export interface EVSCountsProps {
   countData?: any;
   type?: "card" | "compact";
@@ -207,7 +208,13 @@ export default function EVSCounts(props: EVSCountsProps) {
       ],
     };
     return (
-      <div className={"flex items-center gap-3"}>
+      <div
+        className={cn(
+          route.search.EvacuationStatus !== "completed"
+            ? "grid grid-cols-3 gap-2"
+            : "flex items-center gap-3"
+        )}
+      >
         {statusItems[countType].map((item, index) => (
           <div
             key={index}
