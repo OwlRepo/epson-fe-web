@@ -4,59 +4,87 @@ import { io, Socket } from "socket.io-client";
 
 const SOCKET_URL = getApiSocketBaseUrl();
 
+// Module-level singleton socket instance
+let globalSocketInstance: Socket | null = null;
+let connectionListeners: Set<(connected: boolean) => void> = new Set();
+
+/**
+ * Get or create the singleton socket instance
+ */
+const getSocketInstance = (): Socket => {
+  if (globalSocketInstance?.connected) {
+    return globalSocketInstance;
+  }
+
+  // If socket exists but not connected, disconnect and recreate
+  if (globalSocketInstance) {
+    globalSocketInstance.disconnect();
+    globalSocketInstance = null;
+  }
+
+  console.log("🚀 [useSocketEmit] Creating singleton socket connection...");
+
+  const socketInstance = io(SOCKET_URL, {
+    extraHeaders: {
+      "ngrok-skip-browser-warning": "true",
+    },
+    transports: ["websocket"],
+    reconnection: true,
+    reconnectionAttempts: 5,
+    reconnectionDelay: 1000,
+    timeout: 10000,
+  });
+
+  socketInstance.on("connect", () => {
+    console.log("🟢 [useSocketEmit] Singleton socket connected");
+    connectionListeners.forEach((listener) => listener(true));
+  });
+
+  socketInstance.on("connect_error", (err) => {
+    console.error("🔴 [useSocketEmit] Singleton socket connection error:", err.message);
+    connectionListeners.forEach((listener) => listener(false));
+  });
+
+  socketInstance.on("disconnect", () => {
+    console.log("🔌 [useSocketEmit] Singleton socket disconnected");
+    connectionListeners.forEach((listener) => listener(false));
+  });
+
+  globalSocketInstance = socketInstance;
+  return socketInstance;
+};
+
 /**
  * A lightweight hook for emitting socket events without joining any room.
  * Use this when you only need to send data and don't need to receive updates.
+ * Uses a singleton socket instance to prevent multiple connections.
  */
 export const useSocketEmit = () => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    console.log("🚀 [useSocketEmit] Initializing socket connection...");
+    // Get or create the singleton socket instance
+    const socketInstance = getSocketInstance();
+    setSocket(socketInstance);
+    setIsConnected(socketInstance.connected);
 
-    let socketInstance: Socket;
+    // Register connection state listener
+    const connectionListener = (connected: boolean) => {
+      setIsConnected(connected);
+    };
+    connectionListeners.add(connectionListener);
 
-    try {
-      socketInstance = io(SOCKET_URL, {
-        extraHeaders: {
-          "ngrok-skip-browser-warning": "true",
-        },
-        transports: ["websocket"],
-        reconnection: true,
-        reconnectionAttempts: 5,
-        reconnectionDelay: 1000,
-        timeout: 10000,
-      });
-    } catch (err) {
-      console.error("🔴 [useSocketEmit] Socket initialization failed:", err);
-      return;
+    // Set initial connection state
+    if (socketInstance.connected) {
+      setIsConnected(true);
     }
 
-    socketInstance.on("connect", () => {
-      console.log("🟢 [useSocketEmit] Socket connected");
-      setIsConnected(true);
-    });
-
-    socketInstance.on("connect_error", (err) => {
-      console.error("🔴 [useSocketEmit] Socket connection error:", err.message);
-      setIsConnected(false);
-    });
-
-    socketInstance.on("disconnect", () => {
-      console.log("🔌 [useSocketEmit] Socket disconnected");
-      setIsConnected(false);
-    });
-
-    setSocket(socketInstance);
-
     return () => {
-      console.log("🧹 [useSocketEmit] Cleaning up socket connection...");
-      socketInstance.off("connect");
-      socketInstance.off("disconnect");
-      socketInstance.off("connect_error");
-      socketInstance.disconnect();
-      console.log("✨ [useSocketEmit] Socket cleanup completed");
+      // Remove listener on unmount
+      connectionListeners.delete(connectionListener);
+      // Note: We don't disconnect the socket here because it's shared
+      // The socket will be cleaned up when the module is unloaded or explicitly disconnected
     };
   }, []);
 
