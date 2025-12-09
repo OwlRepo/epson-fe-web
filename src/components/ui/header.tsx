@@ -80,7 +80,9 @@ export function Header({ userProfile, className }: HeaderProps) {
     // Format the last segment as title case
     const formattedLastSegment = lastSegment
       .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .map(
+        (word) => word.charAt(0).toUpperCase() + word.slice(1)?.toLowerCase()
+      )
       .join(" ");
 
     // Set the document title

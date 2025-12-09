@@ -563,7 +563,7 @@ export class AdvancedDataManager {
     if (!this.isInitialized) await this.init();
     if (!query.trim()) return [];
 
-    const lowerQuery = query.toLowerCase();
+    const lowerQuery = query?.toLowerCase();
     const results: Record[] = [];
 
     // Search hot cache
@@ -577,7 +577,10 @@ export class AdvancedDataManager {
     }
 
     // Search warm store
-    const warmResults = await this.searchWarm(lowerQuery, limit - results.length);
+    const warmResults = await this.searchWarm(
+      lowerQuery,
+      limit - results.length
+    );
     results.push(...warmResults);
 
     if (results.length >= limit) {
@@ -585,7 +588,10 @@ export class AdvancedDataManager {
     }
 
     // Search cold store
-    const coldResults = await this.searchCold(lowerQuery, limit - results.length);
+    const coldResults = await this.searchCold(
+      lowerQuery,
+      limit - results.length
+    );
     results.push(...coldResults);
 
     return results.slice(0, limit);
@@ -774,7 +780,9 @@ export class AdvancedDataManager {
     filters: FilterConfig
   ): Promise<Record[]> {
     const searchResults = await this.search(query, 1000);
-    return searchResults.filter((record) => this.matchesFilter(record, filters));
+    return searchResults.filter((record) =>
+      this.matchesFilter(record, filters)
+    );
   }
 
   /**
@@ -811,4 +819,3 @@ export class AdvancedDataManager {
 
 // Export singleton instance
 export const dataManager = new AdvancedDataManager();
-

@@ -137,7 +137,7 @@ export function buildSearchText(record: any): string {
   return Object.values(record)
     .filter((v) => typeof v === "string" || typeof v === "number")
     .join(" ")
-    .toLowerCase()
+    ?.toLowerCase()
     .trim();
 }
 
@@ -146,7 +146,7 @@ export function buildSearchText(record: any): string {
  */
 export function matchesQuery(record: any, query: string): boolean {
   const searchText = buildSearchText(record);
-  return searchText.includes(query.toLowerCase());
+  return searchText.includes(query?.toLowerCase());
 }
 
 /**
@@ -167,6 +167,6 @@ export function chunkMatchesQuery(
   searchIndex: string[],
   query: string
 ): boolean {
-  const lowerQuery = query.toLowerCase();
+  const lowerQuery = query?.toLowerCase();
   return searchIndex.some((text) => text.includes(lowerQuery));
 }

@@ -253,9 +253,9 @@ function RouteComponent() {
                           /(\d{1,2}):(\d{2})\s+(am|pm)/i,
                           (_, hour, min, period) => {
                             let h = parseInt(hour);
-                            if (period.toLowerCase() === "pm" && h !== 12)
+                            if (period?.toLowerCase() === "pm" && h !== 12)
                               h += 12;
-                            if (period.toLowerCase() === "am" && h === 12)
+                            if (period?.toLowerCase() === "am" && h === 12)
                               h = 0;
                             return `${h.toString().padStart(2, "0")}:${min}:00`;
                           }

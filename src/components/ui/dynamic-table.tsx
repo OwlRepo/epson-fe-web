@@ -295,8 +295,8 @@ export function DynamicTable({
       if (!filterValue) {
         const possibleKeys = Object.keys(routeSearch).filter(
           (key) =>
-            key.toLowerCase() === filterKey.toLowerCase() ||
-            key.toLowerCase() === filter.key.toLowerCase()
+            key?.toLowerCase() === filterKey?.toLowerCase() ||
+            key?.toLowerCase() === filter.key?.toLowerCase()
         );
 
         if (possibleKeys.length > 0) {
@@ -382,8 +382,8 @@ export function DynamicTable({
         if (!filterValue) {
           const possibleKeys = Object.keys(routeSearch).filter(
             (key) =>
-              key.toLowerCase() === filterKey.toLowerCase() ||
-              key.toLowerCase() === filter.key.toLowerCase()
+              key?.toLowerCase() === filterKey?.toLowerCase() ||
+              key?.toLowerCase() === filter.key?.toLowerCase()
           );
 
           if (possibleKeys.length > 0) {
@@ -714,8 +714,8 @@ export function DynamicTable({
     return searchTerm
       ? predefinedOptions.filter((option) =>
           (option.label as string)
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase())
+            ?.toLowerCase()
+            .includes(searchTerm?.toLowerCase())
         )
       : predefinedOptions;
   };

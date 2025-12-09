@@ -26,10 +26,7 @@ interface SearchMessage {
   query: string;
 }
 
-type WorkerMessage =
-  | CompressMessage
-  | IndexMessage
-  | SearchMessage;
+type WorkerMessage = CompressMessage | IndexMessage | SearchMessage;
 
 interface WorkerResponse {
   type: string;
@@ -45,10 +42,7 @@ self.onmessage = async (event: MessageEvent<WorkerMessage>) => {
   try {
     switch (message.type) {
       case "compress": {
-        const compressed = compressChunk(
-          message.records,
-          message.chunkSize
-        );
+        const compressed = compressChunk(message.records, message.chunkSize);
         const searchIndex = buildChunkSearchIndex(message.records);
 
         const response: WorkerResponse = {
@@ -83,14 +77,12 @@ self.onmessage = async (event: MessageEvent<WorkerMessage>) => {
       }
 
       case "search": {
-        const query = message.query.toLowerCase();
+        const query = message.query?.toLowerCase();
         const results = message.records.filter((record: any) => {
           const searchText = Object.values(record)
-            .filter(
-              (v) => typeof v === "string" || typeof v === "number"
-            )
+            .filter((v) => typeof v === "string" || typeof v === "number")
             .join(" ")
-            .toLowerCase();
+            ?.toLowerCase();
           return searchText.includes(query);
         });
 
@@ -121,4 +113,3 @@ self.onmessage = async (event: MessageEvent<WorkerMessage>) => {
 
 // Export for TypeScript
 export {};
-

@@ -84,25 +84,25 @@ export default function DeviceIcons({
   status,
 }: DeviceIconsProps) {
   if (
-    deviceType.toLowerCase() === "evs" &&
-    controllerType.toLowerCase() === "safe"
+    deviceType?.toLowerCase() === "evs" &&
+    controllerType?.toLowerCase() === "safe"
   ) {
     return <SirenDevice status={status} />;
   }
   if (
-    deviceType.toLowerCase() === "evs" &&
-    controllerType.toLowerCase() === "home"
+    deviceType?.toLowerCase() === "evs" &&
+    controllerType?.toLowerCase() === "home"
   ) {
     return <HomeDevice status={status} />;
   }
   if (
-    deviceType.toLowerCase() === "elid controller" &&
-    (controllerType.toLowerCase() === "in" ||
-      controllerType.toLowerCase() === "out")
+    deviceType?.toLowerCase() === "elid controller" &&
+    (controllerType?.toLowerCase() === "in" ||
+      controllerType?.toLowerCase() === "out")
   ) {
     return <ControllerDevice status={status} />;
   }
-  if (deviceType.toLowerCase() === "chainway") {
+  if (deviceType?.toLowerCase() === "chainway") {
     return <ChainwayDevice status={status} />;
   }
 

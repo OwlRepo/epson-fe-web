@@ -458,14 +458,14 @@ export async function getTopRecords(
   // Try to use index, fallback to objectStore if index doesn't exist
   let index: IDBIndex | IDBObjectStore | null = null;
   let usedIndex = false;
-  
+
   // Try multiple index names in order of preference
   // Priority: date_receive_idx, log_time_idx, date_time_idx, then field names directly
   const timestampFields = ["date_receive", "log_time", "date_time"];
   const indexNames = [
     `${sortBy}_idx`,
     sortBy,
-    ...timestampFields.map(f => `${f}_idx`),
+    ...timestampFields.map((f) => `${f}_idx`),
     ...timestampFields,
   ];
 
@@ -475,7 +475,9 @@ export async function getTopRecords(
       if (testIndex) {
         index = testIndex;
         usedIndex = true;
-        console.log(`✅ [IndexedDB] Using index: ${indexName} for room: ${room}`);
+        console.log(
+          `✅ [IndexedDB] Using index: ${indexName} for room: ${room}`
+        );
         break;
       }
     } catch {
@@ -487,7 +489,9 @@ export async function getTopRecords(
   // If no index found, use objectStore directly
   if (!index) {
     index = objectStore;
-    console.log(`📋 [IndexedDB] No index found, using objectStore directly for room: ${room} (will sort manually)`);
+    console.log(
+      `📋 [IndexedDB] No index found, using objectStore directly for room: ${room} (will sort manually)`
+    );
   }
 
   return new Promise((resolve, reject) => {
@@ -496,12 +500,15 @@ export async function getTopRecords(
 
     // Determine if we're using an index or objectStore
     const isIndex = usedIndex && index instanceof IDBIndex;
-    
-    console.log(`🔍 [IndexedDB] Getting top ${limit} records for room: ${room}`, {
-      usedIndex,
-      isIndex,
-      indexType: index?.constructor?.name,
-    });
+
+    console.log(
+      `🔍 [IndexedDB] Getting top ${limit} records for room: ${room}`,
+      {
+        usedIndex,
+        isIndex,
+        indexType: index?.constructor?.name,
+      }
+    );
 
     // Use index or objectStore to get records
     let request: IDBRequest<IDBCursorWithValue | null>;
@@ -511,25 +518,35 @@ export async function getTopRecords(
       request = index.openCursor(null, "prev");
     } else {
       // Fallback: use getAll and sort manually
-      console.warn(`⚠️ [IndexedDB] Unexpected index type, using getAll() fallback for room: ${room}`);
+      console.warn(
+        `⚠️ [IndexedDB] Unexpected index type, using getAll() fallback for room: ${room}`
+      );
       const getAllRequest = objectStore.getAll();
       getAllRequest.onsuccess = () => {
         const allRecords = getAllRequest.result || [];
-        console.log(`📦 [IndexedDB] Retrieved ${allRecords.length} total records via getAll() for room: ${room}`);
+        console.log(
+          `📦 [IndexedDB] Retrieved ${allRecords.length} total records via getAll() for room: ${room}`
+        );
         allRecords.sort(sortByTimestamp);
         const topRecords = allRecords.slice(0, limit);
-        console.log(`✅ [IndexedDB] Returning top ${topRecords.length} records for room: ${room}`);
+        console.log(
+          `✅ [IndexedDB] Returning top ${topRecords.length} records for room: ${room}`
+        );
         resolve(topRecords);
       };
       getAllRequest.onerror = () => {
-        console.error("❌ [IndexedDB] Error getting all records:", getAllRequest.error);
+        console.error(
+          "❌ [IndexedDB] Error getting all records:",
+          getAllRequest.error
+        );
         reject(getAllRequest.error);
       };
       return;
     }
 
     request.onsuccess = (event) => {
-      const cursor = (event.target as IDBRequest<IDBCursorWithValue | null>).result;
+      const cursor = (event.target as IDBRequest<IDBCursorWithValue | null>)
+        .result;
       if (cursor) {
         if (count < limit) {
           results.push(cursor.value);
@@ -541,7 +558,9 @@ export async function getTopRecords(
             // If we didn't use an index, sort manually
             results.sort(sortByTimestamp);
           }
-          console.log(`✅ [IndexedDB] Retrieved ${results.length} records from room: ${room} (reached limit)`);
+          console.log(
+            `✅ [IndexedDB] Retrieved ${results.length} records from room: ${room} (reached limit)`
+          );
           resolve(results);
         }
       } else {
@@ -550,31 +569,47 @@ export async function getTopRecords(
           // If we didn't use an index, sort manually
           results.sort(sortByTimestamp);
         }
-        console.log(`✅ [IndexedDB] Retrieved ${results.length} records from room: ${room} (end of cursor)`);
+        console.log(
+          `✅ [IndexedDB] Retrieved ${results.length} records from room: ${room} (end of cursor)`
+        );
         if (results.length === 0) {
-          console.warn(`⚠️ [IndexedDB] No records retrieved from cursor! Trying getAll() fallback for room: ${room}`);
+          console.warn(
+            `⚠️ [IndexedDB] No records retrieved from cursor! Trying getAll() fallback for room: ${room}`
+          );
           // Try fallback: use getAll() - transaction should still be open
           try {
             const getAllRequest = objectStore.getAll();
             getAllRequest.onsuccess = () => {
               const allRecords = getAllRequest.result || [];
-              console.log(`📦 [IndexedDB] Fallback getAll(): Retrieved ${allRecords.length} total records for room: ${room}`);
+              console.log(
+                `📦 [IndexedDB] Fallback getAll(): Retrieved ${allRecords.length} total records for room: ${room}`
+              );
               if (allRecords.length > 0) {
                 allRecords.sort(sortByTimestamp);
                 const topRecords = allRecords.slice(0, limit);
-                console.log(`✅ [IndexedDB] Fallback: Returning top ${topRecords.length} records for room: ${room}`);
+                console.log(
+                  `✅ [IndexedDB] Fallback: Returning top ${topRecords.length} records for room: ${room}`
+                );
                 resolve(topRecords);
               } else {
-                console.warn(`⚠️ [IndexedDB] No records found in IndexedDB for room: ${room}`);
+                console.warn(
+                  `⚠️ [IndexedDB] No records found in IndexedDB for room: ${room}`
+                );
                 resolve([]);
               }
             };
             getAllRequest.onerror = () => {
-              console.error("❌ [IndexedDB] Error in fallback getAll():", getAllRequest.error);
+              console.error(
+                "❌ [IndexedDB] Error in fallback getAll():",
+                getAllRequest.error
+              );
               resolve([]); // Resolve with empty array instead of rejecting
             };
           } catch (err) {
-            console.error("❌ [IndexedDB] Error calling getAll() fallback:", err);
+            console.error(
+              "❌ [IndexedDB] Error calling getAll() fallback:",
+              err
+            );
             resolve([]);
           }
         } else {
@@ -586,30 +621,46 @@ export async function getTopRecords(
     request.onerror = () => {
       console.error("❌ [IndexedDB] Error getting top records:", request.error);
       // Try fallback: use getAll() with a fresh transaction
-      console.log(`🔄 [IndexedDB] Attempting fallback getAll() for room: ${room}`);
-      getObjectStore(room, "readonly").then((fallbackStore) => {
-        const getAllRequest = fallbackStore.getAll();
-        getAllRequest.onsuccess = () => {
-          const allRecords = getAllRequest.result || [];
-          console.log(`📦 [IndexedDB] Fallback: Retrieved ${allRecords.length} total records via getAll() for room: ${room}`);
-          if (allRecords.length > 0) {
-            allRecords.sort(sortByTimestamp);
-            const topRecords = allRecords.slice(0, limit);
-            console.log(`✅ [IndexedDB] Fallback: Returning top ${topRecords.length} records for room: ${room}`);
-            resolve(topRecords);
-          } else {
-            console.warn(`⚠️ [IndexedDB] No records found in IndexedDB for room: ${room}`);
-            resolve([]);
-          }
-        };
-        getAllRequest.onerror = () => {
-          console.error("❌ [IndexedDB] Error in fallback getAll():", getAllRequest.error);
+      console.log(
+        `🔄 [IndexedDB] Attempting fallback getAll() for room: ${room}`
+      );
+      getObjectStore(room, "readonly")
+        .then((fallbackStore) => {
+          const getAllRequest = fallbackStore.getAll();
+          getAllRequest.onsuccess = () => {
+            const allRecords = getAllRequest.result || [];
+            console.log(
+              `📦 [IndexedDB] Fallback: Retrieved ${allRecords.length} total records via getAll() for room: ${room}`
+            );
+            if (allRecords.length > 0) {
+              allRecords.sort(sortByTimestamp);
+              const topRecords = allRecords.slice(0, limit);
+              console.log(
+                `✅ [IndexedDB] Fallback: Returning top ${topRecords.length} records for room: ${room}`
+              );
+              resolve(topRecords);
+            } else {
+              console.warn(
+                `⚠️ [IndexedDB] No records found in IndexedDB for room: ${room}`
+              );
+              resolve([]);
+            }
+          };
+          getAllRequest.onerror = () => {
+            console.error(
+              "❌ [IndexedDB] Error in fallback getAll():",
+              getAllRequest.error
+            );
+            reject(request.error);
+          };
+        })
+        .catch((err) => {
+          console.error(
+            "❌ [IndexedDB] Error getting fallback objectStore:",
+            err
+          );
           reject(request.error);
-        };
-      }).catch((err) => {
-        console.error("❌ [IndexedDB] Error getting fallback objectStore:", err);
-        reject(request.error);
-      });
+        });
     };
   });
 }
@@ -652,13 +703,13 @@ export async function getNextBatch(
   // Try to use index, fallback to objectStore if index doesn't exist
   let index: IDBIndex | IDBObjectStore | null = null;
   let usedIndex = false;
-  
+
   // Try multiple index names in order of preference
   const timestampFields = ["date_receive", "log_time", "date_time"];
   const indexNames = [
     `${sortBy}_idx`,
     sortBy,
-    ...timestampFields.map(f => `${f}_idx`),
+    ...timestampFields.map((f) => `${f}_idx`),
     ...timestampFields,
   ];
 
@@ -668,7 +719,9 @@ export async function getNextBatch(
       if (testIndex) {
         index = testIndex;
         usedIndex = true;
-        console.log(`✅ [IndexedDB] Using index: ${indexName} for next batch in room: ${room}`);
+        console.log(
+          `✅ [IndexedDB] Using index: ${indexName} for next batch in room: ${room}`
+        );
         break;
       }
     } catch {
@@ -680,19 +733,25 @@ export async function getNextBatch(
   // If no index found, use objectStore directly
   if (!index) {
     index = objectStore;
-    console.log(`📋 [IndexedDB] No index found for next batch, using objectStore directly for room: ${room}`);
+    console.log(
+      `📋 [IndexedDB] No index found for next batch, using objectStore directly for room: ${room}`
+    );
   }
 
-  console.log(`🔍 [IndexedDB] Getting next batch: offset=${offset}, limit=${limit} for room: ${room}`);
+  console.log(
+    `🔍 [IndexedDB] Getting next batch: offset=${offset}, limit=${limit} for room: ${room}`
+  );
 
   // Always use getAll() for pagination - more reliable than cursor with offsets
   return new Promise((resolve, reject) => {
     const getAllRequest = objectStore.getAll();
-    
+
     getAllRequest.onsuccess = () => {
       const allRecords = getAllRequest.result || [];
-      console.log(`📦 [IndexedDB] Retrieved ${allRecords.length} total records for next batch in room: ${room}`);
-      
+      console.log(
+        `📦 [IndexedDB] Retrieved ${allRecords.length} total records for next batch in room: ${room}`
+      );
+
       if (allRecords.length === 0) {
         console.log(`📋 [IndexedDB] No records available for room: ${room}`);
         resolve([]);
@@ -701,16 +760,21 @@ export async function getNextBatch(
 
       // Sort by timestamp (descending - newest first)
       allRecords.sort(sortByTimestamp);
-      
+
       // Slice the next batch
       const nextBatch = allRecords.slice(offset, offset + limit);
-      console.log(`✅ [IndexedDB] Returning next batch of ${nextBatch.length} records (offset ${offset}, total ${allRecords.length}) for room: ${room}`);
-      
+      console.log(
+        `✅ [IndexedDB] Returning next batch of ${nextBatch.length} records (offset ${offset}, total ${allRecords.length}) for room: ${room}`
+      );
+
       resolve(nextBatch);
     };
-    
+
     getAllRequest.onerror = () => {
-      console.error("❌ [IndexedDB] Error in getAll() for next batch:", getAllRequest.error);
+      console.error(
+        "❌ [IndexedDB] Error in getAll() for next batch:",
+        getAllRequest.error
+      );
       reject(getAllRequest.error);
     };
   });
@@ -779,7 +843,7 @@ export async function searchData(
       if (lowerSearchTerm) {
         matches = Object.values(record).some((value) => {
           if (value === null || value === undefined) return false;
-          return String(value).toLowerCase().includes(lowerSearchTerm);
+          return String(value)?.toLowerCase().includes(lowerSearchTerm);
         });
       }
 

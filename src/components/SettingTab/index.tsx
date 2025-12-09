@@ -26,6 +26,7 @@ import { io, Socket } from "socket.io-client";
 import { getApiSocketBaseUrl } from "@/utils/env";
 import { useGetSyncStatus } from "@/hooks/query/useGetSyncStatus";
 import { cn } from "@/lib/utils";
+import SyncServerTimeButton from "../ui/sync-server-time-button";
 
 interface SyncActivity {
   ID: number;
@@ -379,6 +380,7 @@ const SettingTab = () => {
                 Syncing Now
               </Button>
             )}
+            <SyncServerTimeButton />
           </div>
 
           <div className="bg-white p-4 rounded-lg shadow-md self-start mt-4 ">

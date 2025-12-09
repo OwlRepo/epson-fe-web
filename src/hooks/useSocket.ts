@@ -809,7 +809,7 @@ export const useSocket = <
     let filteredBySearch = dataToFilter;
     // Apply search filter first
     if (searchTerm.trim()) {
-      const lowerSearchTerm = searchTerm.toLowerCase().trim();
+      const lowerSearchTerm = searchTerm?.toLowerCase().trim();
 
       filteredBySearch = dataToFilter.filter((item) => {
         // Search through all string and number properties of the item
@@ -819,7 +819,7 @@ export const useSocket = <
           }
 
           // Convert value to string and search case-insensitively
-          const stringValue = String(value).toLowerCase();
+          const stringValue = String(value)?.toLowerCase();
           return stringValue.includes(lowerSearchTerm);
         });
       });
