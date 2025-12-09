@@ -39,7 +39,7 @@ export default function SyncServerTimeButton() {
   }, []);
 
   const handleSyncServerTime = () => {
-    emitWithAck("sync_time", "", (response) => {
+    emitWithAck("sync_server_time", "", (response) => {
       if (response.ok) {
         toast.success("Server time synced successfully", {
           style: successStyle,
