@@ -61,7 +61,11 @@ export default function SyncServerTimeButton() {
   };
 
   return (
-    <Button onClick={handleSyncServerTime} disabled={isDisabled}>
+    <Button
+      onClick={handleSyncServerTime}
+      className="w-full mt-2"
+      disabled={isDisabled}
+    >
       <RefreshCw />
       Sync Server Time
     </Button>

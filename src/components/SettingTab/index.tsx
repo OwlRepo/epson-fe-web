@@ -375,7 +375,7 @@ const SettingTab = () => {
               </Button>
             )}
             {isPending && (
-              <Button className="w-full mt-4  gap-2" disabled>
+              <Button className="w-full mt-4 gap-2" disabled>
                 <Spinner size={15} color="white" containerClassName="w-6" />
                 Syncing Now
               </Button>
