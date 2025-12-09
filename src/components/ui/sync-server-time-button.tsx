@@ -66,7 +66,6 @@ export default function SyncServerTimeButton() {
       className="w-full mt-2"
       disabled={isDisabled}
     >
-      <RefreshCw />
       Sync Server Time
     </Button>
   );
