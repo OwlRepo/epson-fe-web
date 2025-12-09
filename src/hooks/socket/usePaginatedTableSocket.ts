@@ -424,6 +424,7 @@ export function usePaginatedTableSocket<T extends Record<string, any>>({
             offline: c?.offline,
             nolocation: c?.nolocation,
             unregister: c?.unregister,
+            unlisted: c?.unlisted,
           }));
           if (
             typeof c?.totalItems === "number" ||

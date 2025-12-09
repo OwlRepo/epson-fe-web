@@ -50,6 +50,7 @@ export interface SummaryCountData {
   offline?: number | string;
   unregister?: number | string;
   nolocation?: number | string;
+  unlisted?: number | string;
 }
 
 export interface DeviceData {
@@ -701,6 +702,7 @@ export const useSocket = <
           offline: countData.offline,
           nolocation: countData.nolocation,
           unregister: countData.unregister,
+          unlisted: countData.unlisted,
         };
         console.log("✅ Count data updated in state:", updatedData);
         return updatedData;
