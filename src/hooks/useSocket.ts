@@ -516,6 +516,14 @@ export const useSocket = <
               });
 
               if (existingRecordIndex !== -1) {
+                if (Object.keys(prevData[0])?.includes("Purpose")) {
+                  const filteredPrevData = prevData.filter(
+                    (_, index) => index !== existingRecordIndex
+                  );
+                  // Move updated record to end of list
+                  return [newData as T, ...filteredPrevData];
+                }
+
                 // Update existing record
                 return prevData.map((item, index) =>
                   index === existingRecordIndex ? { ...item, ...newData } : item
