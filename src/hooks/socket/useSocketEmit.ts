@@ -12,14 +12,18 @@ let connectionListeners: Set<(connected: boolean) => void> = new Set();
  * Get or create the singleton socket instance
  */
 const getSocketInstance = (): Socket => {
+  // If socket exists and is connected, return it
   if (globalSocketInstance?.connected) {
     return globalSocketInstance;
   }
 
-  // If socket exists but not connected, disconnect and recreate
+  // If socket exists but not connected, return it anyway (it will reconnect automatically)
+  // Only create a new one if socket doesn't exist at all
   if (globalSocketInstance) {
-    globalSocketInstance.disconnect();
-    globalSocketInstance = null;
+    console.log(
+      "🔄 [useSocketEmit] Socket exists but not connected, reusing instance (will reconnect)"
+    );
+    return globalSocketInstance;
   }
 
   console.log("🚀 [useSocketEmit] Creating singleton socket connection...");
@@ -41,7 +45,10 @@ const getSocketInstance = (): Socket => {
   });
 
   socketInstance.on("connect_error", (err) => {
-    console.error("🔴 [useSocketEmit] Singleton socket connection error:", err.message);
+    console.error(
+      "🔴 [useSocketEmit] Singleton socket connection error:",
+      err.message
+    );
     connectionListeners.forEach((listener) => listener(false));
   });
 
@@ -95,22 +102,26 @@ export const useSocketEmit = () => {
    */
   const emit = useCallback(
     (event: string, payload?: any) => {
-      if (!socket) {
+      // Use global socket instance directly to ensure we have the latest connection state
+      const socketInstance = globalSocketInstance || socket;
+
+      if (!socketInstance) {
         console.warn("❌ [useSocketEmit] Socket not available for emission");
         return;
       }
 
-      if (!isConnected) {
+      // Check actual socket connection status
+      if (!socketInstance.connected) {
         console.warn("⚠️ [useSocketEmit] Socket not connected yet");
         return;
       }
 
       console.log("🚀 [useSocketEmit] Emitting to event:", event);
       console.log("📦 [useSocketEmit] Payload:", payload);
-      socket.emit(event, payload);
+      socketInstance.emit(event, payload);
       console.log("✨ [useSocketEmit] Emission sent successfully");
     },
-    [socket, isConnected]
+    [socket]
   );
 
   /**
@@ -130,22 +141,62 @@ export const useSocketEmit = () => {
         message?: string;
       }) => void
     ) => {
-      if (!socket) {
+      // Use global socket instance directly to ensure we have the latest connection state
+      const socketInstance = globalSocketInstance || socket;
+
+      if (!socketInstance) {
         console.warn("❌ [useSocketEmit] Socket not available for emission");
         callback({ ok: false, error: "Socket not available" });
         return;
       }
 
-      if (!isConnected) {
-        console.warn("⚠️ [useSocketEmit] Socket not connected yet");
-        callback({ ok: false, error: "Socket not connected" });
+      // If socket is not connected, wait for connection (with timeout)
+      if (!socketInstance.connected) {
+        console.warn(
+          "⚠️ [useSocketEmit] Socket not connected yet. Waiting for connection...",
+          {
+            connected: socketInstance.connected,
+            disconnected: socketInstance.disconnected,
+            id: socketInstance.id,
+          }
+        );
+
+        // Wait for connection with a timeout
+        const timeout = setTimeout(() => {
+          socketInstance.off("connect", connectHandler);
+          callback({ ok: false, error: "Socket connection timeout" });
+        }, 5000); // 5 second timeout
+
+        const connectHandler = () => {
+          clearTimeout(timeout);
+          console.log("🟢 [useSocketEmit] Socket connected, emitting now");
+
+          socketInstance.emit(
+            event,
+            payload,
+            (response: {
+              ok: boolean;
+              url?: string;
+              error?: string;
+              message?: string;
+            }) => {
+              console.log(
+                "📥 [useSocketEmit] Acknowledgement received:",
+                response
+              );
+              callback(response);
+            }
+          );
+        };
+
+        socketInstance.once("connect", connectHandler);
         return;
       }
 
       console.log("🚀 [useSocketEmit] Emitting to event with ack:", event);
       console.log("📦 [useSocketEmit] Payload:", payload);
 
-      socket.emit(
+      socketInstance.emit(
         event,
         payload,
         (response: {
@@ -159,7 +210,7 @@ export const useSocketEmit = () => {
         }
       );
     },
-    [socket, isConnected]
+    [socket]
   );
 
   return {
