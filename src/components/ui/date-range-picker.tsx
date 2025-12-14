@@ -1,6 +1,6 @@
 "use client";
 
-import { addDays, format } from "date-fns";
+import { addDays, format, isSameDay } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import * as React from "react";
 import type { DateRange } from "react-day-picker";
@@ -15,8 +15,8 @@ import {
 import { cn } from "@/lib/utils";
 
 interface Range {
-  from: Date; // Start date of the range
-  to?: Date; // Optional end date of the range
+  from: Date | string; // Start date of the range (can be Date or ISO string)
+  to?: Date | string; // Optional end date of the range (can be Date or ISO string)
 }
 interface DatePickerWithRangeProps
   extends Omit<React.HTMLAttributes<HTMLDivElement>, "onSelect"> {
@@ -27,6 +27,34 @@ interface DatePickerWithRangeProps
   isError?: boolean;
 }
 
+// Helper to convert string or Date to Date object
+const toDate = (d: Date | string | undefined): Date | undefined => {
+  if (!d) return undefined;
+  if (d instanceof Date) return d;
+  return new Date(d);
+};
+
+// Helper to normalize a range to DateRange with actual Date objects
+const normalizeRange = (range: Range | undefined): DateRange | undefined => {
+  if (!range) return undefined;
+  return {
+    from: toDate(range.from),
+    to: toDate(range.to),
+  };
+};
+
+// Helper function to compare two dates (handles strings and Date objects)
+const areDatesEqual = (
+  a: Date | string | undefined,
+  b: Date | string | undefined
+): boolean => {
+  const dateA = toDate(a);
+  const dateB = toDate(b);
+  if (!dateA && !dateB) return true;
+  if (!dateA || !dateB) return false;
+  return isSameDay(dateA, dateB);
+};
+
 export function DatePickerWithRange({
   className,
   onSelect,
@@ -36,24 +64,53 @@ export function DatePickerWithRange({
   isWarning = false,
 }: DatePickerWithRangeProps) {
   const [open, setOpen] = React.useState(false);
-  const [date, setDate] = React.useState<DateRange | undefined>({
-    from: value?.from || new Date(),
-    to: value?.to || addDays(new Date(), 20),
-  });
+
+  // Normalize value to DateRange with actual Date objects
+  const normalizedValue = React.useMemo(() => normalizeRange(value), [value]);
+
+  const [date, setDate] = React.useState<DateRange | undefined>(() => ({
+    from: toDate(value?.from) || new Date(),
+    to: toDate(value?.to) || addDays(new Date(), 20),
+  }));
 
   const handleSelect = (selectedDate: DateRange | undefined) => {
+    // Check if the date actually changed to prevent infinite loops
+    const fromChanged = !areDatesEqual(date?.from, selectedDate?.from);
+    const toChanged = !areDatesEqual(date?.to, selectedDate?.to);
+
+    // No actual change, skip entirely
+    if (!fromChanged && !toChanged) {
+      return;
+    }
+
+    // Update internal state
     setDate(selectedDate);
+
+    // Only notify parent when there's a meaningful change
     if (onSelect) {
       onSelect(selectedDate);
     }
+
+    // Close popover only when range is complete
     if (selectedDate?.from && selectedDate?.to) {
       setOpen(false);
     }
   };
 
+  // Track previous value to detect actual external changes
+  const prevValueRef = React.useRef(value);
+
+  // Sync with external value changes
   React.useEffect(() => {
-    setDate(value);
-  }, [value]);
+    const prevValue = prevValueRef.current;
+    const fromChanged = !areDatesEqual(prevValue?.from, value?.from);
+    const toChanged = !areDatesEqual(prevValue?.to, value?.to);
+
+    if (fromChanged || toChanged) {
+      setDate(normalizedValue);
+    }
+    prevValueRef.current = value;
+  }, [normalizedValue, value]);
 
   return (
     <div className={cn("grid gap-2", className)}>

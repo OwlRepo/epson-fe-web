@@ -170,6 +170,7 @@ const BasicInfromationForm = forwardRef(
       reset,
       trigger,
       setError,
+      clearErrors,
     } = form;
 
     const { infoStyle, errorStyle, successStyle } = useToastStyleTheme();
@@ -287,10 +288,14 @@ const BasicInfromationForm = forwardRef(
       if (isExpired && isVIP) {
         setError("Date", {
           type: "manual",
-          message: "Looks like this VIP’s access has expired.",
+          message: "Looks like this VIP's access has expired.",
         });
       }
-    }, [expireSoon, isExpired, type, dateRange]);
+
+      if (!isExpired && !expireSoon) {
+        clearErrors("Date");
+      }
+    }, [expireSoon, isExpired, type, setError, clearErrors]);
 
     //handle capture photo
     const handleCapturePhoto = (data: string) => {
@@ -338,6 +343,7 @@ const BasicInfromationForm = forwardRef(
                 register={register}
                 errors={formState.errors}
                 readOnly={isReadOnly}
+                required
               />
 
               <AsyncAutoComplete
@@ -380,6 +386,7 @@ const BasicInfromationForm = forwardRef(
                 register={register}
                 errors={formState.errors}
                 readOnly={isReadOnly}
+                required
               />
 
               {type === "register-vip" && (
@@ -559,7 +566,10 @@ const BasicInfromationForm = forwardRef(
                 </Button> */}
 
                 <Button
-                  disabled={!formState.isDirty}
+                  disabled={
+                    !formState.isDirty ||
+                    Object.keys(formState.errors).length > 0
+                  }
                   className="disabled:bg-slate-400"
                   onClick={handleSubmit((data) =>
                     onSubmitData?.({ ...data, type: "update-data" })
