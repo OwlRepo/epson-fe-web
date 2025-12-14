@@ -555,11 +555,7 @@ const BasicInfromationForm = forwardRef(
                 </Button> */}
 
                 <Button
-                  disabled={
-                    !formState.isDirty ||
-                    Object.keys(formState.errors).length > 0 ||
-                    isExpired
-                  }
+                  disabled={!formState.isDirty || isExpired}
                   className="disabled:bg-slate-400"
                   onClick={handleSubmit((data) =>
                     onSubmitData?.({ ...data, type: "update-data" })
