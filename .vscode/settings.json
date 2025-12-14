@@ -8,7 +8,9 @@
   "files.readonlyInclude": {
     "**/routeTree.gen.ts": true
   },
-  "cSpell.words": [
-    "Chainway"
-  ]
+  "cSpell.words": ["Chainway"],
+  "cursor.agent.autoRun.externalFileProtection": false,
+  "cursor.agent.autoRun.dotfileProtection": false,
+  "cursor.agent.tools.autoApplyEdits": true,
+  "cursor.agent.autoRunMode": "runEverything"
 }

@@ -11,3 +11,6 @@ src/envs/.env.*
 
 # PM2 logs
 logs/
+
+# Cursor AI context files (local AI assistance only)
+.cursor/
