@@ -278,21 +278,13 @@ const BasicInfromationForm = forwardRef(
 
     useEffect(() => {
       const isVIP = type === "register-vip";
-      if (expireSoon && isVIP) {
-        setError("Date", {
-          type: "manual",
-          message: "Just a reminder — access will expire soon.",
-        });
-      }
-
       if (isExpired && isVIP) {
         setError("Date", {
           type: "manual",
           message: "Looks like this VIP's access has expired.",
         });
-      }
-
-      if (!isExpired && !expireSoon) {
+      } else if (!expireSoon) {
+        // Only clear if not expiring - keep form valid for warnings
         clearErrors("Date");
       }
     }, [expireSoon, isExpired, type, setError, clearErrors]);
@@ -406,12 +398,8 @@ const BasicInfromationForm = forwardRef(
                     <label
                       htmlFor="host-person"
                       className={cn("text-sm font-normal text-gray-700", {
-                        "text-[#A8A830]": formState.errors.Date?.message
-                          ?.toString()
-                          .includes("soon"),
-                        "text-red-500": formState.errors.Date?.message
-                          ?.toString()
-                          .includes("expired"),
+                        "text-[#A8A830]": expireSoon && !isExpired,
+                        "text-red-500": isExpired,
                       })}
                     >
                       Schedule Of Visit
@@ -436,21 +424,22 @@ const BasicInfromationForm = forwardRef(
                             onSelect={field.onChange}
                             className="w-full h-[44px] border-red-600"
                             // readOnly={isDialog}
-                            isError={fieldState.error?.message?.includes(
-                              "expired"
-                            )}
-                            isWarning={fieldState.error?.message?.includes(
-                              "soon"
-                            )}
+                            isError={isExpired}
+                            isWarning={expireSoon && !isExpired}
                           />
+                          {expireSoon && !isExpired && (
+                            <p className="text-sm text-[#A8A830] flex items-center gap-1">
+                              Just a reminder — access will expire soon.
+                            </p>
+                          )}
+                          {isExpired && (
+                            <p className="text-sm text-red-500">
+                              Looks like this VIP's access has expired.
+                            </p>
+                          )}
                           {fieldState.error &&
-                            fieldState.error.message?.includes("soon") && (
-                              <p className="text-sm text-[#A8A830] flex items-center gap-1">
-                                {fieldState.error.message}
-                              </p>
-                            )}
-                          {fieldState.error &&
-                            fieldState.error.message?.includes("expired") && (
+                            !fieldState.error.message?.includes("soon") &&
+                            !fieldState.error.message?.includes("expired") && (
                               <p className="text-sm text-red-500">
                                 {fieldState.error.message}
                               </p>
@@ -568,7 +557,8 @@ const BasicInfromationForm = forwardRef(
                 <Button
                   disabled={
                     !formState.isDirty ||
-                    Object.keys(formState.errors).length > 0
+                    Object.keys(formState.errors).length > 0 ||
+                    isExpired
                   }
                   className="disabled:bg-slate-400"
                   onClick={handleSubmit((data) =>
