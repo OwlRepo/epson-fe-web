@@ -428,7 +428,7 @@ const BasicInfromationForm = forwardRef(
                             value={field.value}
                             onSelect={field.onChange}
                             className="w-full h-[44px] border-red-600"
-                            readOnly={isDialog}
+                            // readOnly={isDialog}
                             isError={fieldState.error?.message?.includes(
                               "expired"
                             )}
@@ -551,12 +551,12 @@ const BasicInfromationForm = forwardRef(
                 >
                   Card Surrender
                 </Button>
-                <Button
+                {/* <Button
                   className="disabled:bg-slate-400"
                   onClick={() => setOpenExtendDialog(true)}
                 >
                   Extend Visit
-                </Button>
+                </Button> */}
 
                 <Button
                   disabled={!formState.isDirty}
