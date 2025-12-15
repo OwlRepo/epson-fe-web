@@ -20,9 +20,29 @@ import { unparse } from "papaparse";
 
 import { useEffect, useState } from "react";
 
+interface SearchParams {
+  pageSize?: string;
+  filter_position?: string;
+  filter_contact_no?: string;
+  [key: string]: string | undefined;
+}
+
 export const Route = createFileRoute(
   "/_authenticated/evacuation-monitoring/cdepro/$controllerId/"
 )({
+  validateSearch: (search: Record<string, unknown>): SearchParams => ({
+    pageSize: search.pageSize as string,
+    filter_position: search.filter_position as string,
+    filter_contact_no: search.filter_contact_no as string,
+    ...Object.entries(search)
+      .filter(
+        ([key]) =>
+          key.startsWith("filter_") ||
+          key.startsWith("from_") ||
+          key.startsWith("to_")
+      )
+      .reduce((acc, [key, value]) => ({ ...acc, [key]: value as string }), {}),
+  }),
   component: RouteComponent,
 });
 
@@ -41,6 +61,9 @@ function RouteComponent() {
     loadMore,
     isLoadingMore,
     totalCount,
+    searchData,
+    clearSearch,
+    searchTerm,
   } = useCDEPROControllerData({
     room: "cdepro_department" + params.controllerId,
     dataType: "live",
@@ -74,6 +97,11 @@ function RouteComponent() {
     }
   }, [responseStatus]);
 
+  // Handle search using socket functionality
+  const handleSearch = (searchTerm: string) => {
+    searchData(searchTerm);
+  };
+
   const handleExport = () => {
     const summary = [
       { key: "Overall", value: totalLogs?.all },
@@ -101,33 +129,7 @@ function RouteComponent() {
     <>
       <CardSection
         headerRight={
-          <div className="flex flex-col  items-end">
-            <EVSCounts
-              countData={totalLogs}
-              type="compact"
-              countType="cdepro"
-            />
-            <div className="flex gap-2 items-end">
-              <Button
-                variant={"outline"}
-                className="text-[#980000] border-[#980000] hover:text-[#980000]"
-                onClick={handleExport}
-              >
-                Export Records
-              </Button>
-              <Button
-                //@ts-ignore
-                variant="default"
-                className="text-white mt-6 bg-primary-evs hover:bg-primary-evs/90"
-                onClick={() => {
-                  setOpen(true);
-                  setAssignedPersonnel(null);
-                }}
-              >
-                Assign Personnel
-              </Button>
-            </div>
-          </div>
+          <EVSCounts countData={totalLogs} type="compact" countType="cdepro" />
         }
         headerLeft={
           <CardHeaderLeft
@@ -156,11 +158,35 @@ function RouteComponent() {
           <div className="flex">
             <LiveDataTable
               clearSocketData={clearData}
+              searchTerm={searchTerm}
+              onClearSearch={clearSearch}
+              onSearch={handleSearch}
               onLoadMore={loadMore}
               isLoadingMore={isLoadingMore}
               totalCount={totalCount}
               pageSize={Number(search.pageSize) || 10}
               onPageSizeChange={handlePageSizeChange}
+              headerActions={
+                <div className="flex gap-2 items-center">
+                  <Button
+                    variant={"outline"}
+                    className="text-[#980000] border-[#980000] hover:text-[#980000]"
+                    onClick={handleExport}
+                  >
+                    Export Records
+                  </Button>
+                  <Button
+                    variant="default"
+                    className="text-white bg-primary-evs hover:bg-primary-evs/90"
+                    onClick={() => {
+                      setOpen(true);
+                      setAssignedPersonnel(null);
+                    }}
+                  >
+                    Assign Personnel
+                  </Button>
+                </div>
+              }
               columns={[
                 {
                   key: "Status",

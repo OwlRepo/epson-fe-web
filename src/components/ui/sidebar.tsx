@@ -71,6 +71,7 @@ interface SidebarProps {
   evsMode?: boolean;
   onEvsModeToggle?: (checked: boolean) => void;
   hasReceivedEvsModeData?: boolean;
+  isSwitchDisabled?: boolean;
 }
 
 interface NavItemProps {
@@ -389,6 +390,7 @@ export function Sidebar({
   evsMode,
   onEvsModeToggle,
   hasReceivedEvsModeData = false,
+  isSwitchDisabled = false,
 }: SidebarProps) {
   const router = useRouter();
   const [collapsed, setCollapsed] = React.useState(defaultCollapsed);
@@ -534,9 +536,11 @@ export function Sidebar({
                   id="evs-mode-switch"
                   checked={evsMode}
                   onCheckedChange={onEvsModeToggle}
+                  disabled={isSwitchDisabled}
                   className={cn(
                     "data-[state=checked]:bg-green-400",
-                    collapsed && "mx-auto"
+                    collapsed && "mx-auto",
+                    isSwitchDisabled && "opacity-50 cursor-not-allowed"
                   )}
                 />
               </div>

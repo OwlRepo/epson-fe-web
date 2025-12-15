@@ -24,7 +24,9 @@ const getEvsModeSocketInstance = (): Socket => {
     evsModeSocketInstance = null;
   }
 
-  console.log("🚀 [useEvsMode] Creating singleton socket connection for evs_mode listener...");
+  console.log(
+    "🚀 [useEvsMode] Creating singleton socket connection for evs_mode listener..."
+  );
 
   const socketInstance = io(SOCKET_URL, {
     extraHeaders: {
@@ -55,6 +57,7 @@ const getEvsModeSocketInstance = (): Socket => {
 export const useEvsMode = () => {
   const [evsMode, setEvsMode] = useState<boolean>(false);
   const [hasReceivedData, setHasReceivedData] = useState<boolean>(false);
+  const [isSwitchDisabled, setIsSwitchDisabled] = useState<boolean>(false);
   const { emit } = useSocketEmit();
 
   // Listen to evs_mode socket event (not joining room, just listening)
@@ -64,7 +67,6 @@ export const useEvsMode = () => {
 
     // Create listener function for this hook instance
     const handleEvsModeData = (modeData: any) => {
-
       // Handle different data formats:
       // 1. Direct string: "on" or "off"
       // 2. Object with mode property: { mode: "on" }
@@ -93,12 +95,23 @@ export const useEvsMode = () => {
       const isOn = modeValue === "on";
       console.log("✅ [useEvsMode] Parsed mode value:", modeValue);
       console.log("🔄 [useEvsMode] Setting evsMode to:", isOn);
-      
+
       // Set both states together - React batches these updates
       // hasReceivedData will only be true after evsMode is set
       setEvsMode(isOn);
       setHasReceivedData(true);
-      console.log("✅ [useEvsMode] Data received and state set, UI can now be shown");
+
+      // Disable switch when EVS mode is ON, enable when OFF (after evac_complete)
+      if (isOn) {
+        setIsSwitchDisabled(true);
+        console.log("🔒 [useEvsMode] Switch disabled - EVS mode is ON");
+      } else {
+        setIsSwitchDisabled(false);
+        console.log("🔓 [useEvsMode] Switch enabled - EVS mode is OFF");
+      }
+      console.log(
+        "✅ [useEvsMode] Data received and state set, UI can now be shown"
+      );
     };
 
     // Register listener
@@ -131,5 +144,6 @@ export const useEvsMode = () => {
     evsMode,
     onEvsModeToggle: handleEvsModeToggle,
     hasReceivedData,
+    isSwitchDisabled,
   };
 };

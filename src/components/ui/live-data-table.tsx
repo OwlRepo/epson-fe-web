@@ -1,3 +1,4 @@
+import * as React from "react";
 import { DynamicTable } from "./dynamic-table";
 import type { Column, ExportTableData, Filter } from "./dynamic-table";
 import { useNavigate, useParams, useLocation } from "@tanstack/react-router";
@@ -55,6 +56,8 @@ interface LiveDataTableProps {
   onLoadMore?: () => Promise<void>;
   isLoadingMore?: boolean;
   totalCount?: number;
+  // Custom header actions to render next to search bar
+  headerActions?: React.ReactNode;
 }
 
 export function LiveDataTable({
@@ -71,6 +74,7 @@ export function LiveDataTable({
   onLoadMore,
   isLoadingMore,
   totalCount,
+  headerActions,
   ...props
 }: LiveDataTableProps) {
   const navigate = useNavigate();
@@ -144,6 +148,7 @@ export function LiveDataTable({
       onLoadMore={onLoadMore}
       isLoadingMore={isLoadingMore}
       totalCount={totalCount}
+      headerActions={headerActions}
     />
   );
 }

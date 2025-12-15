@@ -153,6 +153,8 @@ interface DynamicTableProps {
   onLoadMore?: () => Promise<void>;
   isLoadingMore?: boolean;
   totalCount?: number;
+  // Custom header actions to render next to search bar
+  headerActions?: React.ReactNode;
 }
 
 export function DynamicTable({
@@ -185,6 +187,8 @@ export function DynamicTable({
   onLoadMore,
   isLoadingMore = false,
   totalCount,
+  // Custom header actions
+  headerActions,
 }: DynamicTableProps) {
   const navigate = useNavigate();
   const [filterSearches, setFilterSearches] = React.useState<
@@ -735,10 +739,10 @@ export function DynamicTable({
         <div
           className={cn(
             "flex flex-col sm:flex-row gap-2 sm:gap-0 items-center",
-
-            "justify-start space-x-5 items-center"
+            "justify-between w-full"
           )}
         >
+          <div className="flex items-center space-x-5">
           {(routeSearch || externalSearchTerm !== undefined) && (
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -1240,8 +1244,10 @@ export function DynamicTable({
               <Trash2 /> {clearButtonLabel || "Clear"}
             </Button>
           )}
+          </div>
+          <div className="flex items-center gap-2">
           {exportTableData && exportTableData?.exportOptions === undefined && (
-            <div className="relative flex items-center justify-end flex-1">
+            <div className="relative flex items-center justify-end">
               <Button
                 onClick={() => exportTableData?.exportBtnOnClick?.()}
                 className={cn(
@@ -1255,7 +1261,7 @@ export function DynamicTable({
             </div>
           )}
           {exportTableData?.exportOptions && (
-            <div className="relative flex items-center justify-end flex-1">
+            <div className="relative flex items-center justify-end">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
@@ -1285,6 +1291,8 @@ export function DynamicTable({
               </DropdownMenu>
             </div>
           )}
+          {headerActions}
+          </div>
         </div>
 
         {/* Selection count banner */}
