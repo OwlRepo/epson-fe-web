@@ -58,11 +58,11 @@ export const AutoComplete = ({
             )}
             disabled={readOnly}
           >
-          <span className="truncate block max-w-[calc(100%-24px)] text-left">
-            {value
-              ? list?.find((framework) => framework.value === value)?.label
-              : "Select..."}
-           </span>
+            <span className="truncate block max-w-[calc(100%-24px)] text-left">
+              {value
+                ? list?.find((framework) => framework.value === value)?.label
+                : "Select..."}
+            </span>
             <ChevronsUpDown className="opacity-50" />
           </Button>
         </PopoverTrigger>
@@ -72,11 +72,11 @@ export const AutoComplete = ({
         >
           <Command className="w-full">
             <CommandInput
-              placeholder="Search person..."
+              placeholder="Search..."
               className="w-full text-slate-400"
             />
             <CommandList className="w-full">
-              <CommandEmpty>No person found.</CommandEmpty>
+              <CommandEmpty>No data found.</CommandEmpty>
               <CommandGroup>
                 {list?.map((framework) => (
                   <CommandItem
