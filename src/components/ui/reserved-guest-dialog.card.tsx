@@ -86,8 +86,8 @@ export const ReservedGuestInfoDialog = ({
 
         const { Date, ...processedPayload } = {
           ...payload,
-          DateFrom: payload.Date.from,
-          DateTo: payload.Date.to,
+          DateTo: format(data.Date.to, "yyyy-MM-dd"),
+          DateFrom: format(data.Date.from, "yyyy-MM-dd"),
           GuestType: payload?.GuestType?.toString(),
         } as any;
 

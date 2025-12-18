@@ -10,6 +10,7 @@ const updateReservedGuest = async ({
     UHF?: string;
     Picture?: string;
     DateTo?: string;
+    DateFrom?: string;
   };
 }) => {
   try {
