@@ -40,8 +40,8 @@ function RouteComponent() {
       });
     }
     if (isSuccess) {
-      toast.success("Visitor Check-In Successful", {
-        description: "The guest has checked in successfully.",
+      toast.success("Visitor Registered Successfully", {
+        description: "The guest has been registered successfully.",
         style: successStyle,
       });
       handleReset();
