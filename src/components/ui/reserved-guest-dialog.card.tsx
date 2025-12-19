@@ -5,11 +5,11 @@ import { Dialog, DialogContent, DialogHeader } from "./dialog";
 import BasicInfromationForm from "../BasicInformationForm";
 import { useUpdateReservedGuest } from "@/hooks/mutation/useUpdateReservedGuest";
 import Spinner from "./spinner";
-import { format } from "date-fns";
-import { useEffect, useMemo } from "react";
+import { format, set } from "date-fns";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import useToastStyleTheme from "@/hooks/useToastStyleTheme";
-import { useSocket } from "@/hooks";
+import { useSocket, useSocketEmit } from "@/hooks";
 
 interface ReservedGuestInfoDialogProps extends DialogProps {
   visitor?: VisitorData;
@@ -32,6 +32,9 @@ export const ReservedGuestInfoDialog = ({
 
   const { errorStyle, successStyle } = useToastStyleTheme();
   const { emitData } = useSocket({ room: "updates" });
+
+  const { emit } = useSocketEmit();
+  const [socketData, setSocketData] = useState({});
 
   const memoizedInitialData = useMemo(() => {
     if (!visitor) return undefined;
@@ -70,6 +73,10 @@ export const ReservedGuestInfoDialog = ({
       case "check-out":
         // Handle check-out logic here
         checkoutVisitor({ VisitorID: visitor?.ID ?? "" });
+        setSocketData({
+          data: visitor?.UHF,
+          device_id: 0,
+        });
         break;
       case "save-new-photo":
         // Handle check-out logic here
@@ -118,6 +125,10 @@ export const ReservedGuestInfoDialog = ({
       });
 
       emitData("users");
+      emit("visitor_web", {
+        ...socketData,
+        date_receive: new Date(),
+      });
       onOpenChange?.(false);
     }
   }, [isError, isSuccess]);
