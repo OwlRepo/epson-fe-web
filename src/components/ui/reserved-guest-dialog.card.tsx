@@ -118,6 +118,7 @@ export const ReservedGuestInfoDialog = ({
       });
 
       emitData("users");
+      onOpenChange?.(false);
     }
   }, [isError, isSuccess]);
 
