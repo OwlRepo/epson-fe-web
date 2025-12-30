@@ -380,7 +380,6 @@ const SettingTab = () => {
                 Syncing Now
               </Button>
             )}
-            <SyncServerTimeButton />
           </div>
 
           <div className="bg-white p-4 rounded-lg shadow-md self-start mt-4 ">
@@ -434,6 +433,7 @@ const SettingTab = () => {
               <Button onClick={handleSyncTime} disabled={!syncDateTime}>
                 Sync Now
               </Button>
+              <SyncServerTimeButton />
             </div>
           </div>
         </div>
