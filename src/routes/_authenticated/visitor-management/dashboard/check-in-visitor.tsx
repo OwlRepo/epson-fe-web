@@ -18,6 +18,7 @@ function RouteComponent() {
     isError,
     isSuccess,
     error,
+    isPending
   } = useMutateDayPassVisitor();
 
   const { emitWithAck } = useSocketEmit();
@@ -61,12 +62,14 @@ function RouteComponent() {
   return (
     <BasicInfromationForm
       ref={formRef}
+      isPending={isPending}
       type="check-in"
       onSubmitData={(data) => {
         checkInVisitor(data);
         setSocketData({
           data: data.UHF,
           device_id: 0,
+          otd: true,
           date_receive: new Date(),
         });
       }}

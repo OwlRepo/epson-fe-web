@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 
-import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { DatePickerWithRange } from "../ui/date-range-picker";
 import CapturePhoto from "./CapturePhoto";
@@ -178,6 +178,20 @@ const BasicInfromationForm = forwardRef(
     const [openExtendDialog, setOpenExtendDialog] = useState(false);
 
     const { data } = useGetGuestTypeList();
+
+    console.log('basoc', isPending)
+
+    const debounceRef = useRef<NodeJS.Timeout | null>(null);
+
+    const debouncedSubmit = (data: any) => {
+    if (debounceRef.current) return; // ignore rapid clicks
+
+  debounceRef.current = setTimeout(() => {
+    debounceRef.current = null;
+  }, 2000); 
+
+  onSubmitData?.({ ...data, type: "check-in" });
+};
 
     useEffect(() => {
       reset({
@@ -580,9 +594,7 @@ const BasicInfromationForm = forwardRef(
                 </Button>
                 <Button
                   disabled={!formState.isValid || isPending}
-                  onClick={handleSubmit((data) => {
-                    onSubmitData?.({ ...data, type: "check-in" });
-                  })}
+                  onClick={handleSubmit(debouncedSubmit)}
                   className="disabled:bg-slate-400"
                 >
                   {type === "check-in" ? "Check In" : "Register"}

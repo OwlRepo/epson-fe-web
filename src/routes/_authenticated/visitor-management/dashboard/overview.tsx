@@ -350,6 +350,7 @@ export const VisitorInformationDialog = ({
           {
             data: data?.epc,
             device_id: 0,
+            otd: true,
             date_receive: new Date(),
           },
           ({ ok }) => {

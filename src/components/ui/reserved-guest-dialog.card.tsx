@@ -128,6 +128,7 @@ export const ReservedGuestInfoDialog = ({
       emit("visitor_web", {
         ...socketData,
         date_receive: new Date(),
+        otd: false
       });
       onOpenChange?.(false);
     }
