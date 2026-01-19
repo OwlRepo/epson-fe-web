@@ -72,7 +72,7 @@ const columns: Column[] = [
   { key: "ID", label: "ID" },
   { key: "Name", label: "Name" },
   {
-    key: "GuestType",
+    key: "guestType",
     label: "Guest Type",
     render: (row) => row.GuestType.name,
   },
@@ -128,7 +128,7 @@ function RouteComponent() {
 
   const filters: Filter[] = [
     {
-      key: "GuestType",
+      key: "guestType",
       label: "Guest Type",
       options: isVisitorTypesLoading
         ? []
