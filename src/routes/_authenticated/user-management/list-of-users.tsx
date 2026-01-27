@@ -170,7 +170,7 @@ function RouteComponent() {
       <CardSection>
         <div className="relative">
           <Button
-            className="absolute right-0 top-2"
+            className="absolute right-0 top-2 zIndex-20"
             onClick={() => setIsOpenAddUser(true)}
           >
             Add User
