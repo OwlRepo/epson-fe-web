@@ -4,7 +4,7 @@ import useToastStyleTheme from "@/hooks/useToastStyleTheme";
 import type { UserData } from "@/routes/_authenticated/user-management/list-of-users";
 import { DialogTitle, type DialogProps } from "@radix-ui/react-dialog";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader } from "../ui/dialog";
 import { useGetHostPerson } from "@/hooks/query/useGeHostPersonList";
@@ -16,6 +16,7 @@ import PasswordDialogContent from "./PasswordDialog";
 import ModuleSelection from "../inputs/ModuleSelection";
 import { Button } from "../ui/button";
 import { Switch } from "../ui/switch";
+import { accessClassMap } from "./accessClassMap";
 
 const AddUserDialog = ({ open, onOpenChange }: DialogProps) => {
   const { errorStyle, successStyle } = useToastStyleTheme();
@@ -29,6 +30,62 @@ const AddUserDialog = ({ open, onOpenChange }: DialogProps) => {
   const { mutate: saveUser, isSuccess, isError, error } = useAddUser();
 
   const { data: roles } = useGetRoles();
+
+  // Watch the Role field to manage module access
+  const selectedRole = watch("Role");
+
+  // All available modules
+  const allModules = Object.keys(accessClassMap);
+
+  // Calculate available modules and preselected modules based on role
+  const { availableModules, preselectedModules, isDisabled } = useMemo(() => {
+    if (!selectedRole) {
+      return {
+        availableModules: allModules,
+        preselectedModules: [],
+        isDisabled: false,
+      };
+    }
+
+    const role = selectedRole as string;
+
+    if (role === "Admin") {
+      // Admin: All modules visible, none preselected, user can select/deselect
+      return {
+        availableModules: allModules,
+        preselectedModules: [],
+        isDisabled: false,
+      };
+    } else if (role === "SuperAdmin") {
+      // SuperAdmin: All modules visible, all preselected, user cannot change
+      return {
+        availableModules: allModules,
+        preselectedModules: allModules,
+        isDisabled: true,
+      };
+    } else if (role === "Reception") {
+      // Reception: Only VMS visible, preselected, user cannot change
+      return {
+        availableModules: ["VMS"],
+        preselectedModules: ["VMS"],
+        isDisabled: true,
+      };
+    }
+
+    // Default: All modules visible, none preselected
+    return {
+      availableModules: allModules,
+      preselectedModules: [],
+      isDisabled: false,
+    };
+  }, [selectedRole, allModules]);
+
+  // Sync Access field when role changes
+  useEffect(() => {
+    if (selectedRole) {
+      setValue("Access", preselectedModules);
+    }
+  }, [selectedRole, preselectedModules, setValue]);
 
   useEffect(() => {
     if (isError) {
@@ -129,16 +186,24 @@ const AddUserDialog = ({ open, onOpenChange }: DialogProps) => {
                 </h2>
                 <p className="text-sm">Assign Modules Accessible to the User</p>
 
-                <Controller
-                  name="Access"
-                  control={control}
-                  render={({ field }) => (
-                    <ModuleSelection
-                      value={field?.value ?? []}
-                      onChange={field.onChange}
-                    />
-                  )}
-                />
+                {!selectedRole ? (
+                  <div className="mt-2 text-sm text-gray-500 italic">
+                    Please select a role first to set module access
+                  </div>
+                ) : (
+                  <Controller
+                    name="Access"
+                    control={control}
+                    render={({ field }) => (
+                      <ModuleSelection
+                        value={field?.value ?? []}
+                        onChange={field.onChange}
+                        availableModules={availableModules}
+                        disabled={isDisabled}
+                      />
+                    )}
+                  />
+                )}
               </div>
             </div>
 
