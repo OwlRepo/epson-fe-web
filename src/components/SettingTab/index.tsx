@@ -141,7 +141,6 @@ const SettingTab = () => {
     if (Array.isArray(syncActivities?.data)) {
       const data = syncActivities?.data?.map((item: SyncActivity) => ({
         ...item,
-        DateTime: dayjs(item?.DateTime).format("hh:mm A"),
       }));
       setData(data);
       setTotalPages(syncActivities?.pagination?.totalPages ?? 10);
