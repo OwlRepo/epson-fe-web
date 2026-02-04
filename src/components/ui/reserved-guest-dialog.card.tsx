@@ -128,7 +128,9 @@ export const ReservedGuestInfoDialog = ({
       emit("visitor_web", {
         ...socketData,
         date_receive: new Date(),
-        otd: false
+        otd: false,
+        b_type: "out",
+        surrender: true,
       });
       onOpenChange?.(false);
     }

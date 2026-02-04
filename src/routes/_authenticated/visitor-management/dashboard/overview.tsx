@@ -36,7 +36,6 @@ import {
 import { useState } from "react";
 import { toast } from "sonner";
 import useLiveDataTableStore from "@/store/vms/overview/useLiveDataTableStore";
-import { set } from "date-fns";
 
 export const Route = createFileRoute(
   "/_authenticated/visitor-management/dashboard/overview"
@@ -356,6 +355,8 @@ export const VisitorInformationDialog = ({
             device_id: 0,
             otd: true,
             date_receive: new Date(),
+            b_type: "out",
+            surrender: false,
           },
           ({ ok }) => {
             if (ok) {

@@ -3,7 +3,6 @@ import { useSocketEmit } from "@/hooks";
 import { useMutateDayPassVisitor } from "@/hooks/mutation/useMutateDayPassVisitor";
 import useToastStyleTheme from "@/hooks/useToastStyleTheme";
 import { createFileRoute } from "@tanstack/react-router";
-import { set } from "date-fns";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -84,6 +83,8 @@ function RouteComponent() {
           device_id: 0,
           otd: true,
           date_receive: new Date(),
+          b_type: "in",
+          surrender: false,
         });
       }}
     />
