@@ -3,6 +3,7 @@ import { useSocketEmit } from "@/hooks";
 import { useMutateDayPassVisitor } from "@/hooks/mutation/useMutateDayPassVisitor";
 import useToastStyleTheme from "@/hooks/useToastStyleTheme";
 import { createFileRoute } from "@tanstack/react-router";
+import { set } from "date-fns";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -18,7 +19,7 @@ function RouteComponent() {
     isError,
     isSuccess,
     error,
-    isPending
+    isPending,
   } = useMutateDayPassVisitor();
 
   const { emitWithAck } = useSocketEmit();
@@ -26,6 +27,8 @@ function RouteComponent() {
   const { errorStyle, successStyle } = useToastStyleTheme();
 
   const formRef = useRef<{ resetForm: () => void }>(null);
+
+  const [isSocketSumitting, setIsSocketSubmitting] = useState(false);
 
   const [socketData, setSocketData] = useState({});
 
@@ -48,13 +51,23 @@ function RouteComponent() {
         description: "The guest has checked in successfully.",
         style: successStyle,
       });
-      emitWithAck("visitor_web", socketData, ({ ok }) => {
-        if (ok) {
-          toast.success("Checkin Successfull", {
-            style: successStyle,
-          });
-        }
-      });
+
+      try {
+        setIsSocketSubmitting(true);
+        emitWithAck("visitor_web", socketData, ({ ok }) => {
+          if (ok) {
+            setIsSocketSubmitting(false);
+            // toast.success("Checkin Successfull", {
+            //   style: successStyle,
+            // });
+          }
+        });
+      } catch (err) {
+        console.error("Socket emission error:", err);
+      } finally {
+        setIsSocketSubmitting(false);
+      }
+
       handleReset();
     }
   }, [isError, isSuccess]);
@@ -62,7 +75,7 @@ function RouteComponent() {
   return (
     <BasicInfromationForm
       ref={formRef}
-      isPending={isPending}
+      isPending={isPending || isSocketSumitting}
       type="check-in"
       onSubmitData={(data) => {
         checkInVisitor(data);

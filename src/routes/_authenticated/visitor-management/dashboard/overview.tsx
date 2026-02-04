@@ -36,6 +36,7 @@ import {
 import { useState } from "react";
 import { toast } from "sonner";
 import useLiveDataTableStore from "@/store/vms/overview/useLiveDataTableStore";
+import { set } from "date-fns";
 
 export const Route = createFileRoute(
   "/_authenticated/visitor-management/dashboard/overview"
@@ -310,6 +311,8 @@ export const VisitorInformationDialog = ({
 }: VisitorInfoDialogProps) => {
   const { port, setPort } = usePortStore((store) => store);
 
+  const [isLoadingCheckout, setIsLoadingCheckout] = useState(false);
+
   // const { mutate: checkoutVisitor, isSuccess } = useCheckoutVisitor();
   const { infoStyle, errorStyle, successStyle } = useToastStyleTheme();
   const [isLinking, setIsLinking] = useState(false);
@@ -342,6 +345,7 @@ export const VisitorInformationDialog = ({
     try {
       console.log("card is linking");
       setIsLinking(true);
+      setIsLoadingCheckout(true);
       const data = await readRFIDData(newPort);
 
       if (data?.epc === visitor?.UHF) {
@@ -358,7 +362,7 @@ export const VisitorInformationDialog = ({
               toast.success("Checkout Successfull", {
                 style: successStyle,
               });
-
+              setIsLoadingCheckout(false);
               onOpenChange?.(false);
             }
           }
@@ -369,6 +373,7 @@ export const VisitorInformationDialog = ({
           className: "bg-red-50 border-red-200 text-black",
           style: errorStyle,
         });
+        setIsLoadingCheckout(false);
       }
     } catch (error) {
       console.error("Error reading RFID data:", error);
@@ -430,16 +435,20 @@ export const VisitorInformationDialog = ({
             </div>
           </div>
         )}
-        {!isLinking && !visitor?.CardSurrendered && !isCheckOut && (
-          <Button onClick={handleLinkCard}>Check Out Now</Button>
-        )}
+        {!isLinking &&
+          !visitor?.CardSurrendered &&
+          !isCheckOut &&
+          !isLoadingCheckout && (
+            <Button onClick={handleLinkCard}>Check Out Now</Button>
+          )}
 
-        {isLinking && !visitor?.CardSurrendered && (
-          <Button>
-            <Spinner size={15} color="white" containerClassName="w-auto" />
-            Reading
-          </Button>
-        )}
+        {(isLinking && !visitor?.CardSurrendered) ||
+          (isLoadingCheckout && (
+            <Button>
+              <Spinner size={15} color="white" containerClassName="w-auto" />
+              {isLoadingCheckout ? " Checking Out..." : " Reading Card..."}
+            </Button>
+          ))}
       </DialogContent>
     </Dialog>
   );
