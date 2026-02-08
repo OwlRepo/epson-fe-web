@@ -60,12 +60,6 @@ export const helpData: HelpData = {
   ],
   systemSupportContacts: [
     {
-      name: "Rolando Reluya",
-      position: "Systems Specialist",
-      contactNumber: "0916-3304742",
-      picture: ROLANDO_RELUYA,
-    },
-    {
       name: "Cayle Manlapaz",
       position: "Systems Specialist",
       contactNumber: "0976-3961035",
