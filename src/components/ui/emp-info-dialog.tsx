@@ -225,12 +225,8 @@ export default function EmpInfoDialog({
         }
 
         case "EM": {
-          if (buffer.length === EMLength) {
-            setDeviceEMValue(buffer);
-            triggerMutation("EM", buffer);
-          } else {
-            showedError = true;
-          }
+          setDeviceEMValue(buffer);
+          triggerMutation("EM", buffer);
           break;
         }
         case "MIFARE": {
