@@ -38,7 +38,7 @@ import { toast } from "sonner";
 import useLiveDataTableStore from "@/store/vms/overview/useLiveDataTableStore";
 
 export const Route = createFileRoute(
-  "/_authenticated/visitor-management/dashboard/overview"
+  "/_authenticated/visitor-management/dashboard/overview",
 )({
   component: RouteComponent,
 });
@@ -213,6 +213,10 @@ function RouteComponent() {
                     key: "clocked_out",
                     label: "CHECKED OUT",
                   },
+                  {
+                    key: "card_no",
+                    label: "Card No.",
+                  },
                 ]}
                 // filters={[
                 //   // {
@@ -257,8 +261,15 @@ function RouteComponent() {
                 //   },
                 // ]}
                 data={liveData.map((visitorData) => {
-                  const { ID, Name, clocked_in, clocked_out, Purpose, status } =
-                    visitorData;
+                  const {
+                    ID,
+                    Name,
+                    clocked_in,
+                    clocked_out,
+                    Purpose,
+                    status,
+                    card_no,
+                  } = visitorData;
                   return {
                     ID: ID,
                     Name: Name,
@@ -266,6 +277,7 @@ function RouteComponent() {
                     clocked_in: clocked_in,
                     clocked_out: clocked_out,
                     status: status,
+                    card_no: card_no,
                   };
                 })}
                 onFilter={handleFilter}
@@ -366,7 +378,7 @@ export const VisitorInformationDialog = ({
               setIsLoadingCheckout(false);
               onOpenChange?.(false);
             }
-          }
+          },
         );
       } else {
         toast.error("Oops! Card not matched", {

@@ -29,7 +29,7 @@ import { useEffect, useMemo, useState } from "react";
 import { io, type Socket } from "socket.io-client";
 
 export const Route = createFileRoute(
-  "/_authenticated/visitor-management/reserved-guest/guest-list"
+  "/_authenticated/visitor-management/reserved-guest/guest-list",
 )({
   component: RouteComponent,
 });
@@ -80,6 +80,7 @@ const columns: Column[] = [
   { key: "DateFrom", label: "From Date" },
   { key: "DateTo", label: "To Date" },
   { key: "CardStatus", label: "Status" },
+  { key: "CardNo", label: "Card No." },
 ];
 
 function RouteComponent() {
@@ -234,7 +235,7 @@ function RouteComponent() {
                 isVisitorStatisticsLoading
                   ? 0
                   : parseInt(
-                      formatCountWithCommas(visitorStatistics?.Registered ?? 0)
+                      formatCountWithCommas(visitorStatistics?.Registered ?? 0),
                     )
               }
               icon={<InPremisesIcon />}
@@ -245,7 +246,7 @@ function RouteComponent() {
                 isVisitorStatisticsLoading
                   ? 0
                   : parseInt(
-                      formatCountWithCommas(visitorStatistics?.Active ?? 0)
+                      formatCountWithCommas(visitorStatistics?.Active ?? 0),
                     )
               }
               icon={<ClockedInIcon />}
@@ -257,7 +258,7 @@ function RouteComponent() {
                 isVisitorStatisticsLoading
                   ? 0
                   : parseInt(
-                      formatCountWithCommas(visitorStatistics?.Inactive ?? 0)
+                      formatCountWithCommas(visitorStatistics?.Inactive ?? 0),
                     )
               }
               icon={<ClockedOutIcon />}

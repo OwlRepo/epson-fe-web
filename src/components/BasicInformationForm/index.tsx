@@ -3,7 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
 import { Controller, useForm } from "react-hook-form";
 import { DatePickerWithRange } from "../ui/date-range-picker";
 import CapturePhoto from "./CapturePhoto";
@@ -95,6 +101,7 @@ export interface VisitorData {
     | "save-new-photo"
     | "update-data"
     | undefined;
+  CardNo?: string;
 }
 
 //env configs
@@ -137,7 +144,7 @@ const handlePhoneKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
 
 const handlePhonePaste = (
   e: React.ClipboardEvent<HTMLInputElement>,
-  field: { onChange: (value: string) => void }
+  field: { onChange: (value: string) => void },
 ) => {
   e.preventDefault();
   const pastedText = e.clipboardData.getData("text");
@@ -157,7 +164,7 @@ const BasicInfromationForm = forwardRef(
       isReadOnly = false,
       isPending = false,
     }: BasicInformationFormProps,
-    ref
+    ref,
   ) => {
     const form = useForm<VisitorData>();
     const {
@@ -179,19 +186,19 @@ const BasicInfromationForm = forwardRef(
 
     const { data } = useGetGuestTypeList();
 
-    console.log('basoc', isPending)
+    console.log("basoc", isPending);
 
     const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
     const debouncedSubmit = (data: any) => {
-    if (debounceRef.current) return; // ignore rapid clicks
+      if (debounceRef.current) return; // ignore rapid clicks
 
-  debounceRef.current = setTimeout(() => {
-    debounceRef.current = null;
-  }, 2000); 
+      debounceRef.current = setTimeout(() => {
+        debounceRef.current = null;
+      }, 2000);
 
-  onSubmitData?.({ ...data, type: "check-in" });
-};
+      onSubmitData?.({ ...data, type: "check-in" });
+    };
 
     useEffect(() => {
       reset({
@@ -217,7 +224,7 @@ const BasicInfromationForm = forwardRef(
             },
             ...initialData,
           },
-          {}
+          {},
         );
       },
     }));
@@ -345,6 +352,17 @@ const BasicInfromationForm = forwardRef(
             {/* form */}
             <div className="grid grid-cols-2 gap-4 mt-2">
               <TextInput
+                label={"Card Number"}
+                id="cardno"
+                name={"CardNo"}
+                placeholder={`ex. 1234
+                      `}
+                register={register}
+                errors={formState.errors}
+                readOnly={isReadOnly}
+              />
+
+              <TextInput
                 label={"Full Name"}
                 id="name"
                 name={"Name"}
@@ -444,10 +462,10 @@ const BasicInfromationForm = forwardRef(
                             className="w-full h-[44px] border-red-600"
                             // readOnly={isDialog}
                             isError={fieldState.error?.message?.includes(
-                              "expired"
+                              "expired",
                             )}
                             isWarning={fieldState.error?.message?.includes(
-                              "soon"
+                              "soon",
                             )}
                           />
                           {fieldState.error &&
@@ -577,7 +595,7 @@ const BasicInfromationForm = forwardRef(
                   disabled={!formState.isDirty}
                   className="disabled:bg-slate-400"
                   onClick={handleSubmit((data) =>
-                    onSubmitData?.({ ...data, type: "update-data" })
+                    onSubmitData?.({ ...data, type: "update-data" }),
                   )}
                 >
                   Save Changes
@@ -622,13 +640,13 @@ const BasicInfromationForm = forwardRef(
 
                   // Convert to UTC without timezone shift
                   const utcDate = new Date(
-                    Date.UTC(val.getFullYear(), val.getMonth(), val.getDate())
+                    Date.UTC(val.getFullYear(), val.getMonth(), val.getDate()),
                   );
 
                   setValue(
                     "Date",
                     { ...dateRange, to: utcDate.toISOString() },
-                    { shouldValidate: true, shouldDirty: true }
+                    { shouldValidate: true, shouldDirty: true },
                   );
                 }}
               />
@@ -647,7 +665,7 @@ const BasicInfromationForm = forwardRef(
         />
       </>
     );
-  }
+  },
 );
 
 export default BasicInfromationForm;

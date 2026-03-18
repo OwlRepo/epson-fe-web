@@ -15,6 +15,7 @@ const registerReservedGuest = async (payload: VisitorData) => {
         timeZone: "Asia/Manila",
       }),
       Picture: payload.Picture,
+      CardNo: Number(payload.CardNo),
     });
     return response.data;
   } catch (error) {

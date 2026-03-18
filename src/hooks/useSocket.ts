@@ -108,6 +108,7 @@ export interface LiveData extends DeviceData, VisitorData {
   evacuated?: string;
   missing?: string;
   device_name?: string;
+  card_no?: string;
 }
 
 type DataType = "summary" | "live";
@@ -140,7 +141,7 @@ export const useSocket = <
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [response, setResponse] = useState<any>(null);
   const [responseStatus, setResponseStatus] = useState<"success" | "fail" | "">(
-    ""
+    "",
   );
   const [asofData, setAsofData] = useState<string>("---");
   const { successStyle, errorStyle } = useToastStyleTheme();
@@ -236,7 +237,7 @@ export const useSocket = <
       console.log("📊 Data type:", typeof preloadData);
       console.log(
         "📈 Records count:",
-        Array.isArray(preloadData) ? preloadData.length : "N/A"
+        Array.isArray(preloadData) ? preloadData.length : "N/A",
       );
       console.log("preloadData", preloadData);
 
@@ -248,7 +249,7 @@ export const useSocket = <
           console.log(
             "💾 Using IndexedDB for large dataset:",
             recordCount,
-            "records"
+            "records",
           );
           setUseIndexedDb(true);
 
@@ -263,20 +264,20 @@ export const useSocket = <
             // Load only top 1k records into state
             const topRecords = await getTopRecords(room, 1000);
             console.log(
-              `📊 [useSocket] Loaded ${topRecords.length} top records from IndexedDB for room: ${room}`
+              `📊 [useSocket] Loaded ${topRecords.length} top records from IndexedDB for room: ${room}`,
             );
             if (topRecords.length > 0) {
               console.log(
                 `📋 [useSocket] Sample record fields:`,
-                Object.keys(topRecords[0])
+                Object.keys(topRecords[0]),
               );
               console.log(
                 `📋 [useSocket] Sample record eva_status:`,
-                topRecords[0]?.eva_status
+                topRecords[0]?.eva_status,
               );
             } else {
               console.warn(
-                `⚠️ [useSocket] No records loaded from IndexedDB for room: ${room}`
+                `⚠️ [useSocket] No records loaded from IndexedDB for room: ${room}`,
               );
             }
             setData(topRecords as T[]);
@@ -285,7 +286,7 @@ export const useSocket = <
             loadedOffsetRef.current = initialOffset;
             setLoadedOffset(initialOffset);
             console.log(
-              `📊 [useSocket] Initial offset set to: ${initialOffset} for room: ${room}`
+              `📊 [useSocket] Initial offset set to: ${initialOffset} for room: ${room}`,
             );
 
             // Store latest timestamp
@@ -293,7 +294,7 @@ export const useSocket = <
             latestTimestampRef.current = latestTs;
 
             console.log(
-              "✅ Preload data stored in IndexedDB, loaded top 1000 records"
+              "✅ Preload data stored in IndexedDB, loaded top 1000 records",
             );
           } catch (error) {
             console.error("❌ Error storing preload data in IndexedDB:", error);
@@ -306,7 +307,7 @@ export const useSocket = <
           console.log(
             "📝 Using regular state for dataset:",
             recordCount,
-            "records"
+            "records",
           );
           setData(preloadData as T[]);
           dataRef.current = preloadData as T[];
@@ -316,7 +317,7 @@ export const useSocket = <
       } else {
         console.error(
           "❌ Expected array for preload data but got:",
-          typeof preloadData
+          typeof preloadData,
         );
         console.error("🔍 Received data:", preloadData);
         setData([]);
@@ -347,13 +348,13 @@ export const useSocket = <
             location.pathname.includes("cdepro")
           ) {
             const exists = prevData.some(
-              (item: any) => item.Department === newData.Department
+              (item: any) => item.Department === newData.Department,
             );
             return exists
               ? prevData.map((item: any) =>
                   item.Department === newData.Department
                     ? updateItem(item)
-                    : item
+                    : item,
                 )
               : addItem();
           }
@@ -365,7 +366,7 @@ export const useSocket = <
             const exists = prevData.some((item: any) => item.ID === newData.ID);
             return exists
               ? prevData.map((item: any) =>
-                  item.ID === newData.ID ? updateItem(item) : item
+                  item.ID === newData.ID ? updateItem(item) : item,
                 )
               : addItem();
           }
@@ -373,27 +374,27 @@ export const useSocket = <
           if (Object.keys(prevData[0]).includes("DeviceId")) {
             const deviceId = (newData as DeviceData).DeviceId;
             const exists = prevData.some(
-              (item) => (item as DeviceData).DeviceId === deviceId
+              (item) => (item as DeviceData).DeviceId === deviceId,
             );
 
             return exists
               ? prevData.map((item) =>
                   (item as DeviceData).DeviceId === deviceId
                     ? updateItem(item)
-                    : item
+                    : item,
                 )
               : addItem();
           } else {
             const itemName = (newData as SummaryData).name;
             const exists = prevData.some(
-              (item) => (item as SummaryData).name === itemName
+              (item) => (item as SummaryData).name === itemName,
             );
 
             return exists
               ? prevData.map((item) =>
                   (item as SummaryData).name === itemName
                     ? updateItem(item)
-                    : item
+                    : item,
                 )
               : addItem();
           }
@@ -465,7 +466,7 @@ export const useSocket = <
             prevDataLength: dataRef.current?.length || 0,
             isNewRecord,
             isLatest,
-          }
+          },
         );
 
         setData((prevData) => {
@@ -518,7 +519,7 @@ export const useSocket = <
               if (existingRecordIndex !== -1) {
                 if (Object.keys(prevData[0])?.includes("Purpose")) {
                   const filteredPrevData = prevData.filter(
-                    (_, index) => index !== existingRecordIndex
+                    (_, index) => index !== existingRecordIndex,
                   );
                   // Move updated record to end of list
                   return [newData as T, ...filteredPrevData];
@@ -526,7 +527,9 @@ export const useSocket = <
 
                 // Update existing record
                 return prevData.map((item, index) =>
-                  index === existingRecordIndex ? { ...item, ...newData } : item
+                  index === existingRecordIndex
+                    ? { ...item, ...newData }
+                    : item,
                 );
               } else {
                 // Insert as new record - prepend if latest, otherwise append
@@ -543,7 +546,7 @@ export const useSocket = <
 
           dataRef.current = updatedData;
           console.log(
-            `✅ [useSocket] State updated, new length: ${updatedData.length}`
+            `✅ [useSocket] State updated, new length: ${updatedData.length}`,
           );
           return updatedData;
         });
@@ -551,7 +554,7 @@ export const useSocket = <
         // Update IndexedDB in the background (non-blocking) after UI update
         if (useIndexedDb) {
           console.log(
-            `💾 [useSocket] Updating IndexedDB in background for room: ${room}`
+            `💾 [useSocket] Updating IndexedDB in background for room: ${room}`,
           );
           // Don't await - update IndexedDB asynchronously without blocking
           updateIndexedDbData(room, newData).catch((error) => {
@@ -584,7 +587,7 @@ export const useSocket = <
 
       setData((prev) => {
         return prev.filter(
-          (item: any) => item?.epc !== epc && item?.ID !== Number(epc)
+          (item: any) => item?.epc !== epc && item?.ID !== Number(epc),
         );
       });
 
@@ -771,7 +774,7 @@ export const useSocket = <
             room,
             searchTerm,
             undefined,
-            1000
+            1000,
           );
           setIndexedDbSearchResults(results as T[]);
         } catch (error) {
@@ -806,11 +809,11 @@ export const useSocket = <
       // Merge and deduplicate
       const displayedIds = new Set(data.map((item: any) => item.id || item.ID));
       const additionalResults = indexedDbSearchResults.filter(
-        (item: any) => !displayedIds.has(item.id || item.ID)
+        (item: any) => !displayedIds.has(item.id || item.ID),
       );
       dataToFilter = [...data, ...additionalResults];
       console.log(
-        `🔍 [useSocket] Merged IndexedDB search results: ${dataToFilter.length} total`
+        `🔍 [useSocket] Merged IndexedDB search results: ${dataToFilter.length} total`,
       );
     }
 
@@ -832,7 +835,7 @@ export const useSocket = <
         });
       });
       console.log(
-        `🔍 [useSocket] After search filter: ${filteredBySearch.length} records`
+        `🔍 [useSocket] After search filter: ${filteredBySearch.length} records`,
       );
     }
 
@@ -852,13 +855,13 @@ export const useSocket = <
       });
 
       console.log(
-        `🔍 [useSocket] After status filter (ON): ${filtered.length} records (from ${filteredBySearch.length})`
+        `🔍 [useSocket] After status filter (ON): ${filtered.length} records (from ${filteredBySearch.length})`,
       );
 
       // Only log if there's a significant difference (helps debug)
       if (filteredBySearch.length > 0 && filtered.length === 0) {
         console.warn(
-          `⚠️ [useSocket] Status filter removed all records. Total: ${filteredBySearch.length}, Filtered: ${filtered.length}`
+          `⚠️ [useSocket] Status filter removed all records. Total: ${filteredBySearch.length}, Filtered: ${filtered.length}`,
         );
       }
       return filtered;
@@ -866,7 +869,7 @@ export const useSocket = <
 
     // When statusFilter is false, return all data (no filtering)
     console.log(
-      `🔍 [useSocket] No status filter: returning all ${filteredBySearch.length} records`
+      `🔍 [useSocket] No status filter: returning all ${filteredBySearch.length} records`,
     );
     return filteredBySearch;
   }, [
@@ -895,14 +898,14 @@ export const useSocket = <
       console.log("🗑️ Clearing data for room switch...");
       setData([]);
     },
-    [socket, room]
+    [socket, room],
   );
 
   // Load more data for infinite scroll
   const loadMore = useCallback(async () => {
     if (!useIndexedDb) {
       console.log(
-        `⏸️ [useSocket] loadMore skipped: useIndexedDb=${useIndexedDb}`
+        `⏸️ [useSocket] loadMore skipped: useIndexedDb=${useIndexedDb}`,
       );
       return;
     }
@@ -911,7 +914,7 @@ export const useSocket = <
     let currentOffset = loadedOffsetRef.current;
     if (currentOffset === 0 && dataRef.current.length > 0) {
       console.warn(
-        `⚠️ [useSocket] Offset is 0 but we have ${dataRef.current.length} records. Using data length as offset.`
+        `⚠️ [useSocket] Offset is 0 but we have ${dataRef.current.length} records. Using data length as offset.`,
       );
       currentOffset = dataRef.current.length;
       loadedOffsetRef.current = currentOffset;
@@ -919,20 +922,20 @@ export const useSocket = <
     }
 
     console.log(
-      `🔄 [useSocket] Loading more data: offset=${currentOffset}, room=${room}, dataLength=${dataRef.current.length}`
+      `🔄 [useSocket] Loading more data: offset=${currentOffset}, room=${room}, dataLength=${dataRef.current.length}`,
     );
 
     setIsLoadingMore(true);
     try {
       const nextBatch = await getNextBatch(room, currentOffset, 1000);
       console.log(
-        `📦 [useSocket] Received next batch: ${nextBatch.length} records`
+        `📦 [useSocket] Received next batch: ${nextBatch.length} records`,
       );
       if (nextBatch.length > 0) {
         setData((prev) => {
           const updated = [...prev, ...(nextBatch as T[])];
           console.log(
-            `✅ [useSocket] Updated data: ${prev.length} -> ${updated.length} records`
+            `✅ [useSocket] Updated data: ${prev.length} -> ${updated.length} records`,
           );
           dataRef.current = updated;
           return updated;
@@ -941,11 +944,11 @@ export const useSocket = <
         loadedOffsetRef.current = newOffset;
         setLoadedOffset(newOffset);
         console.log(
-          `📊 [useSocket] Updated offset: ${currentOffset} -> ${newOffset}`
+          `📊 [useSocket] Updated offset: ${currentOffset} -> ${newOffset}`,
         );
       } else {
         console.log(
-          `⚠️ [useSocket] No more records to load at offset ${currentOffset}`
+          `⚠️ [useSocket] No more records to load at offset ${currentOffset}`,
         );
       }
     } catch (error) {
@@ -1004,7 +1007,7 @@ export const useSocket = <
       }
       console.log("✨ Socket emission sent successfully");
     },
-    [socket]
+    [socket],
   );
 
   return {
