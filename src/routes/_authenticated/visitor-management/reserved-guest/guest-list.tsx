@@ -70,6 +70,7 @@ export interface GuestType {
 // Column definitions
 const columns: Column[] = [
   { key: "ID", label: "ID" },
+  { key: "CardNo", label: "Card No." },
   { key: "Name", label: "Name" },
   {
     key: "guestType",
@@ -80,7 +81,6 @@ const columns: Column[] = [
   { key: "DateFrom", label: "From Date" },
   { key: "DateTo", label: "To Date" },
   { key: "CardStatus", label: "Status" },
-  { key: "CardNo", label: "Card No." },
 ];
 
 function RouteComponent() {

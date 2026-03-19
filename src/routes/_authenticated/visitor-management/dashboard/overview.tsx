@@ -198,6 +198,10 @@ function RouteComponent() {
                     label: "ID",
                   },
                   {
+                    key: "card_no",
+                    label: "CARD NO.",
+                  },
+                  {
                     key: "Name",
                     label: "NAME",
                   },
@@ -212,10 +216,6 @@ function RouteComponent() {
                   {
                     key: "clocked_out",
                     label: "CHECKED OUT",
-                  },
-                  {
-                    key: "card_no",
-                    label: "Card No.",
                   },
                 ]}
                 // filters={[
