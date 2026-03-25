@@ -360,6 +360,7 @@ const BasicInfromationForm = forwardRef(
                 register={register}
                 errors={formState.errors}
                 readOnly={isReadOnly}
+                required={false}
               />
 
               <TextInput
