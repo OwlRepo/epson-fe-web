@@ -158,19 +158,3 @@ No pagination keys. Includes `search` and any set filters, including **`division
 ## CSV exports (client-generated)
 
 **Export Page** / **Export Selected** build CSV in the browser from current row data; they do not define separate backend contracts. **Export All** uses the server (sections 3 and 5).
-
----
-
-## Collaboration notes
-
-- **Single source of truth for values:** list `Name` values should match row fields used for filtering (`division` / `department` / `section` on report rows), or document normalization rules.
-- **Breaking changes:** renaming query params or response fields requires a coordinated frontend + backend change.
-- **Questions for backend (if unclear):** exact socket event payload schema for `evs_all`; whether export uses the same filter semantics as the table query.
-
----
-
-## Document history
-
-| Date | Change |
-|------|--------|
-| (add rows as the contract evolves) | |
