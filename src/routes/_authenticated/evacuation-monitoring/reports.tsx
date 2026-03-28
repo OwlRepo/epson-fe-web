@@ -21,7 +21,10 @@ import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import reportExportAll from "@/utils/reportExportAll";
 import { useGetCompletedList } from "@/hooks/query/useGetCompletedList";
+import { useGetDepartmentList } from "@/hooks/query/useGetDepartmentList";
 import { useGetDeviceList } from "@/hooks/query/useGetDeviceList";
+import { useGetDivisionList } from "@/hooks/query/useGetDivisionList";
+import { useGetSectionList } from "@/hooks/query/useGetSectionList";
 import { usePaginatedTableSocket } from "@/hooks/socket/usePaginatedTableSocket";
 import SocketDynamicTable from "@/components/ui/socket-dynamic-table";
 import { cn } from "@/lib/utils";
@@ -192,6 +195,9 @@ function ReportsDataTable() {
   const { data: typeList } = useGetTypeList();
   const { data: completedList } = useGetCompletedList();
   const { data: deviceList } = useGetDeviceList();
+  const { data: divisionList } = useGetDivisionList();
+  const { data: departmentList } = useGetDepartmentList();
+  const { data: sectionList } = useGetSectionList();
 
   const { emitWithAck } = useSocketEmit();
 
@@ -231,6 +237,15 @@ function ReportsDataTable() {
       }
       if (p.DeviceName) {
         payload.DeviceName = p.DeviceName;
+      }
+      if (p.division) {
+        payload.division = p.division;
+      }
+      if (p.department) {
+        payload.department = p.department;
+      }
+      if (p.section) {
+        payload.section = p.section;
       }
       // Date range params (current tab)
       if (p.from_evs_reports_date || p.to_evs_reports_date) {
@@ -322,6 +337,21 @@ function ReportsDataTable() {
 
   const filters = [
     {
+      key: "division",
+      label: "Division",
+      options: divisionList ?? [],
+    },
+    {
+      key: "department",
+      label: "Department",
+      options: departmentList ?? [],
+    },
+    {
+      key: "section",
+      label: "Section",
+      options: sectionList ?? [],
+    },
+    {
       key: "Type",
       label: "Type",
       options: typeList ?? [],
@@ -394,6 +424,15 @@ function ReportsDataTable() {
     }
     if (searchParams.DeviceName) {
       payload.DeviceName = searchParams.DeviceName;
+    }
+    if (searchParams.division) {
+      payload.division = searchParams.division;
+    }
+    if (searchParams.department) {
+      payload.department = searchParams.department;
+    }
+    if (searchParams.section) {
+      payload.section = searchParams.section;
     }
     // Date range params (current tab)
     if (
