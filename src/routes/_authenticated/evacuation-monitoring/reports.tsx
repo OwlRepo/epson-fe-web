@@ -27,12 +27,102 @@ import SocketDynamicTable from "@/components/ui/socket-dynamic-table";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { useSocketEmit } from "@/hooks/socket/useSocketEmit";
-import { getApiRESTBaseUrl, getApiSocketBaseUrl } from "@/utils/env";
+import { getApiSocketBaseUrl } from "@/utils/env";
+
+/** Plain string from API (PascalCase or lowercase). */
+function pickOrgString(value: unknown): string {
+  if (value === null || value === undefined) return "";
+  const s = String(value).trim();
+  return s === "" ? "" : s;
+}
+
+/** Stable display keys Division / Department / Section; missing → "--". */
+function addOrgDisplayFields<T extends Record<string, unknown>>(row: T) {
+  const division =
+    pickOrgString(row.Division) || pickOrgString(row.division);
+  const department =
+    pickOrgString(row.Department) || pickOrgString(row.department);
+  const section = pickOrgString(row.Section) || pickOrgString(row.section);
+  const display = (v: string) => (v === "" ? "--" : v);
+  return {
+    ...row,
+    Division: display(division),
+    Department: display(department),
+    Section: display(section),
+  };
+}
+
+function normalizeExportStatus(row: Record<string, unknown>): string {
+  const s = row.Status;
+  if (typeof s === "string") return s;
+  return String(row.eva_status ?? "");
+}
+
+/** Plain row for CSV export (no React nodes); matches table column keys. */
+function toEvsExportRow(
+  row: Record<string, unknown>,
+  includeCompleted: boolean
+): Record<string, string | null> {
+  const withOrg = addOrgDisplayFields(row);
+  const evacuationTimeRaw = row.EvacuationTime;
+  let evacuationTimeStr = "";
+  if (evacuationTimeRaw) {
+    if (
+      typeof evacuationTimeRaw === "string" &&
+      !/^\d{4}-\d{2}-\d{2}T/.test(evacuationTimeRaw)
+    ) {
+      evacuationTimeStr = evacuationTimeRaw;
+    } else {
+      evacuationTimeStr = dayjs(evacuationTimeRaw as string).format(
+        "MMM D, YYYY hh:mm a"
+      );
+    }
+  }
+  const base: Record<string, string | null> = {
+    ID: String(withOrg.ID ?? ""),
+    EmployeeNo: String(withOrg.EmployeeNo ?? ""),
+    Name: String(withOrg.Name ?? ""),
+    Division: withOrg.Division as string,
+    Department: withOrg.Department as string,
+    Section: withOrg.Section as string,
+    Type: String(withOrg.Type ?? ""),
+    Status: normalizeExportStatus(row),
+    Remarks: String(withOrg.Remarks ?? ""),
+    EvacuationTime: evacuationTimeStr || null,
+    device_name: String(
+      (row.device_name as string) ?? (row.DeviceName as string) ?? ""
+    ),
+  };
+  if (includeCompleted) {
+    const completedRaw = row.Completed;
+    let completedStr = "";
+    if (completedRaw) {
+      if (
+        typeof completedRaw === "string" &&
+        !/^\d{4}-\d{2}-\d{2}T/.test(completedRaw)
+      ) {
+        completedStr = completedRaw;
+      } else {
+        completedStr = dayjs(completedRaw as string).format(
+          "MMM D, YYYY hh:mm a"
+        );
+      }
+    }
+    base.Completed = completedStr || null;
+    base.Trigger_by = String(row.Trigger_by ?? "");
+  }
+  return base;
+}
 
 export interface EmployeeReport {
   EmployeeNo: string;
   Name: string;
   Department: string;
+  Division?: string;
+  Section?: string;
+  division?: string;
+  department?: string;
+  section?: string;
   LogDate: string | null;
   ClockedIN: string | null;
   ClockedOUT: string | null;
@@ -69,21 +159,23 @@ function ReportsDataTable() {
   useEffect(() => {
     if (Array.isArray(reportList?.data)) {
       const { Overall, Safe, Injured, GoHome, Missing } = reportList;
-      const data = reportList?.data.map((item: any) => ({
-        ...item,
-        ClockedIN: item.ClockedIN
-          ? dayjs(item.ClockedIN).format("hh:mm a")
-          : null,
-        ClockedOUT: item.ClockedOUT
-          ? dayjs(item.ClockedOUT).format("hh:mm a")
-          : null,
-        EvacuationTime: item.EvacuationTime
-          ? dayjs(item.EvacuationTime).format("MMM D, YYYY hh:mm a")
-          : null,
-        Completed: item.Completed
-          ? dayjs(item.Completed).format("MMM D, YYYY hh:mm a")
-          : null,
-      }));
+      const data = reportList?.data.map((item: any) =>
+        addOrgDisplayFields({
+          ...item,
+          ClockedIN: item.ClockedIN
+            ? dayjs(item.ClockedIN).format("hh:mm a")
+            : null,
+          ClockedOUT: item.ClockedOUT
+            ? dayjs(item.ClockedOUT).format("hh:mm a")
+            : null,
+          EvacuationTime: item.EvacuationTime
+            ? dayjs(item.EvacuationTime).format("MMM D, YYYY hh:mm a")
+            : null,
+          Completed: item.Completed
+            ? dayjs(item.Completed).format("MMM D, YYYY hh:mm a")
+            : null,
+        })
+      );
       setData(data);
       setTotalLogs({
         all: Overall,
@@ -171,17 +263,22 @@ function ReportsDataTable() {
     );
   }, [tableId]);
 
+  const includeCompletedColumns = search.EvacuationStatus === "completed";
+
   // Define columns
   const columns = [
     { key: "ID", label: "ID" },
     { key: "EmployeeNo", label: "Employee No" },
     { key: "Name", label: "Name" },
+    { key: "Division", label: "Division" },
+    { key: "Department", label: "Department" },
+    { key: "Section", label: "Section" },
     { key: "Type", label: "Type" },
     { key: "Status", label: "Status" },
     { key: "Remarks", label: "Remarks" },
     { key: "EvacuationTime", label: "Evacuation Date and Time" },
     { key: "device_name", label: "Device Name" },
-    ...(search.EvacuationStatus === "completed"
+    ...(includeCompletedColumns
       ? [
           { key: "Completed", label: "Evacuation Completed At" },
           { key: "Trigger_by", label: "EC Trigger By" },
@@ -263,8 +360,12 @@ function ReportsDataTable() {
       : []),
   ];
 
-  const handleExport = (exportData: any) => {
-    const csv = unparse(exportData);
+  const handleExport = (rows: unknown[]) => {
+    const csv = unparse(
+      rows.map((row) =>
+        toEvsExportRow(row as Record<string, unknown>, includeCompletedColumns)
+      ) as unknown[]
+    );
 
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
@@ -306,7 +407,7 @@ function ReportsDataTable() {
   };
 
   // Handle selection changes
-  const handleRowSelectionChange = (selected: any) => {
+  const handleRowSelectionChange = (_selected: unknown) => {
     // Perform actions with selected rows
   };
 
@@ -422,7 +523,7 @@ function ReportsDataTable() {
         <SocketDynamicTable
           columns={columns}
           data={(socketRows || []).map((item: any) => ({
-            ...item,
+            ...addOrgDisplayFields(item),
             EvacuationTime: item.EvacuationTime
               ? dayjs(item.EvacuationTime).format("MMM D, YYYY hh:mm a")
               : null,
@@ -478,7 +579,7 @@ function ReportsDataTable() {
               {
                 label: "Export Page",
                 onClick: () => {
-                  handleExport(socketRows);
+                  handleExport(socketRows || []);
                 },
               },
               {
