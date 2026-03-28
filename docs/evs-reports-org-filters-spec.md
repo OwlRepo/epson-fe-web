@@ -1,6 +1,6 @@
 # EVS Reports: Division / Department / Section filters
 
-**Purpose:** Single reference for frontend + backend so list dropdowns and report filtering stay aligned.
+**Purpose:** One place for frontend and backend to agree on dropdown data and how org filters are sent with reports.
 
 **Related code:** `src/hooks/query/useGetDepartmentList.ts`, `useGetDivisionList.ts`, `useGetSectionList.ts`, `src/routes/_authenticated/evacuation-monitoring/reports.tsx`
 
@@ -10,24 +10,26 @@
 
 | Topic | Owner | Notes |
 |--------|--------|--------|
-| Dropdown options (3 lists) | **Backend** | Three GET endpoints return rows with a display `Name` field (see below). |
-| Filter query param names | **Contract** | Use **lowercase**: `division`, `department`, `section`. Values must match list `Name` strings. |
-| Current tab (live) | **Backend** | Socket `evs_reports` + `evs_all` payloads include those keys when set. |
-| Completed tab + export | **Backend** | REST `GET /api/evs/reports` and `GET /api/evs/reports/export` accept the same query params. |
+| Dropdown options (3 lists) | **Backend** | Three GET endpoints return rows the UI can turn into labels (see below). |
+| Filter parameter names | **Contract** | Always **lowercase:** `division`, `department`, `section`. Values should match the strings from the list endpoints. |
+| Current tab (live data) | **Backend** | Socket events `evs_reports` and `evs_all` must read those keys when the user sets filters. |
+| Completed tab + export | **Backend** | REST `GET /api/evs/reports` and `GET /api/evs/reports/export` must accept the same query parameters. |
 
 ---
 
 ## What the backend must provide (checklist)
 
-Use this as a **Definition of Done** for API work.
+Use this list to know when API work is done.
 
 ### List endpoints (for dropdowns)
 
-- [ ] **`GET …/getDivisionList`** — returns divisions for the EVS org filter dropdown.
-- [ ] **`GET …/getDepartmentList`** — already used for EVS (same contract as below).
-- [ ] **`GET …/getSectionList`** — returns sections for the EVS org filter dropdown.
+- [ ] **`GET …/getDivisionList`** — powers the Division dropdown.
+- [ ] **`GET …/getDepartmentList`** — already used; same rules as below.
+- [ ] **`GET …/getSectionList`** — powers the Section dropdown.
 
-**Shared response shape (EVS list hooks expect this):**
+**What EVS list responses should look like**
+
+The hooks expect a JSON body like this (EVS mode):
 
 ```json
 {
@@ -38,48 +40,50 @@ Use this as a **Definition of Done** for API work.
 }
 ```
 
-- Each row must include **`Name`** (string). The UI maps `Name` → filter option label and value.
-- If the real API uses different property names, **either** align the API **or** adjust the frontend mapping in the hooks (coordinate in a PR).
+- Every row needs a string field **`Name`**. The UI uses it for both the label and the value sent when filtering.
+- If your API uses other field names, either rename to `Name` on the server or change the mapping in the hooks in the same PR as the API change.
 
-**Frontend paths (axios, relative to API base):**
+**Which URL the app calls**
 
-Same pattern as `useGetDepartmentList`: `api/${evs | employees}/get…List`.
+The app picks the path prefix from the build: EVS uses `evs`, non-EVS uses `employees`. Same pattern as `useGetDepartmentList`.
 
-| Hook | HTTP | EVS path | Non-EVS path |
-|------|------|----------|--------------|
+| Hook | Method | EVS path | Non-EVS path |
+|------|--------|----------|----------------|
 | `useGetDivisionList` | GET | `api/evs/getDivisionList` | `api/employees/getDivisionList` |
 | `useGetSectionList` | GET | `api/evs/getSectionList` | `api/employees/getSectionList` |
 | `useGetDepartmentList` | GET | `api/evs/getDepartmentList` | `api/employees/getDepartmentList` |
 
-**Response mapping:**
+**How the frontend maps responses**
 
-- **EVS:** nested `response.data.data[]`, each row `{ Name }` → options `{ label, value }` from `Name`.
-- **Non-EVS (employees):** `Array.isArray(response.data)` — division uses `DivisionName` (fallback `Name`); section uses `SectionName` (fallback `Name`); department uses `DepartmentName` (see `useGetDepartmentList.ts`).
+- **EVS:** Read `response.data.data` as an array. Each item `{ Name }` becomes `{ label: Name, value: Name }`.
+- **Non-EVS (`employees`):** Read `response.data` as an array when it is an array. Division uses `DivisionName`, then `Name`. Section uses `SectionName`, then `Name`. Department uses `DepartmentName` (see `useGetDepartmentList.ts`).
 
-**Frontend resilience:** `useGetDivisionList` and `useGetSectionList` catch all request failures (including 404 when routes are not deployed yet) and return an empty options list so EVS Reports still loads; filters show with no choices until the backend exists. `retry: 0` avoids repeated failed calls.
+**If division/section routes are missing**
+
+`useGetDivisionList` and `useGetSectionList` catch errors (including 404) and return an empty list. The reports page still loads; the dropdowns are simply empty until the backend exists. Queries use `retry: 0` so the client does not hammer missing routes.
 
 ---
 
 ### Filtering (reports must honor these)
 
-When the user selects org filters, the frontend sends **lowercase** query/param keys:
+When the user picks org filters, the client sends three **lowercase** keys:
 
-| Key | Meaning | Example value |
-|-----|-----------|----------------|
-| `division` | Division filter | Same string as a row’s `Name` from getDivisionList |
-| `department` | Department filter | Same as getDepartmentList (EVS: `item.Name`) |
-| `section` | Section filter | Same as getSectionList |
+| Key | Role | Example value |
+|-----|------|----------------|
+| `division` | Division filter | Same text as `Name` from `getDivisionList` |
+| `department` | Department filter | Same text as department list `Name` (EVS) |
+| `section` | Section filter | Same text as `Name` from `getSectionList` |
 
-**Backend must:**
+**Backend checklist**
 
-- [ ] Accept **`division`**, **`department`**, **`section`** on:
-  - **Socket** payloads for room `evs_reports` and for **`evs_all`** (export-all).
-  - **REST** `GET /api/evs/reports?…`
-  - **REST** `GET /api/evs/reports/export?…` (export forwards all non-empty search params, including these).
+- [ ] Support **`division`**, **`department`**, and **`section`** on:
+  - Socket payloads for **`evs_reports`** and **`evs_all`** (export-all).
+  - **`GET /api/evs/reports?…`**
+  - **`GET /api/evs/reports/export?…`** (export reuses the same search/query params, including these three).
 
-- [ ] Apply filters as **AND** (or document if OR / different behavior).
+- [ ] Combine org filters with the other filters in a way you document (the product expectation is usually **AND** between filters).
 
-- [ ] Ignore unknown params safely (optional but recommended for forward compatibility).
+- [ ] Optionally ignore unknown query keys so future clients do not break old servers.
 
 ---
 
@@ -87,25 +91,21 @@ When the user selects org filters, the frontend sends **lowercase** query/param 
 
 ### 1) Router / URL search
 
-When filters are applied, search may include (among others):
-
-`division`, `department`, `section`, `Type`, `Status`, `DeviceName`, `page`, `limit`, `search`, `EvacuationStatus`, date fields, etc.
+Active filters appear in the URL search object together with fields such as `Type`, `Status`, `DeviceName`, `page`, `limit`, `search`, `EvacuationStatus`, and date fields. Org filters use the keys **`division`**, **`department`**, **`section`**.
 
 ---
 
 ### 2) Current tab — socket `evs_reports` (`normalizeParams`)
 
-Emitted object always includes roughly:
+The client always sends something like: `EvacuationStatus`, `page`, `limit`, `search`.
 
-- `EvacuationStatus`, `page`, `limit`, `search`
-
-Optional, only if present:
+It adds optional keys only when the user set them, including:
 
 - `Type`, `Status`, `DeviceName`
 - **`division`**, **`department`**, **`section`**
 - `from_evs_reports_date`, `to_evs_reports_date`
 
-**Example:**
+**Example**
 
 ```json
 {
@@ -123,9 +123,9 @@ Optional, only if present:
 
 ### 3) Current tab — Export all — socket `evs_all` (`buildExportPayload`)
 
-No pagination keys. Includes `search` and any set filters, including **`division`**, **`department`**, **`section`**, plus Type/Status/DeviceName and date range when applicable.
+Export-all does not send `page` / `limit`. It sends `search`, org filters, Type/Status/DeviceName, and the date range when those are set.
 
-**Example:**
+**Example**
 
 ```json
 {
@@ -146,17 +146,19 @@ No pagination keys. Includes `search` and any set filters, including **`division
 ### 4) Completed tab — REST list
 
 - **Request:** `GET /api/evs/reports?<querystring>`
-- Query string is built from **all** non-empty search fields, including `division`, `department`, `section`.
+- The query string includes every non-empty search field from the UI, including **`division`**, **`department`**, **`section`**.
 
 ---
 
 ### 5) Completed tab — Export all
 
 - **Request:** `GET <REST_BASE>/api/evs/reports/export?module=evs&token=…&<search params>`
-- Same search keys as the completed tab (including org filters).
+- Uses the same search keys as the completed list, including org filters.
 
 ---
 
 ## CSV exports (client-generated)
 
-**Export Page** / **Export Selected** build CSV in the browser from current row data; they do not define separate backend contracts. **Export All** uses the server (sections 3 and 5).
+**Export Page** and **Export Selected** build the CSV in the browser from the rows on screen. They do not add a separate backend contract beyond what the table already shows.
+
+**Export All** goes through the server (see sections 3 and 5 above).
