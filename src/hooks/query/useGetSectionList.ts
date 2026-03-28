@@ -4,35 +4,45 @@ import { useQuery } from "@tanstack/react-query";
 
 const isEVS = getIsEVS();
 
-const getSectionList = async () => {
+type Option = { label: string; value: string };
+
+const getSectionList = async (): Promise<Option[]> => {
   try {
-    let data;
+    let data: Option[] | undefined;
     const response = await api.get(
       `api/${isEVS ? "evs" : "employees"}/getSectionList`
     );
 
     if (isEVS) {
-      data = response.data?.data?.map((item: any) => ({
-        label: item.Name,
-        value: item.Name,
-      }));
+      const rows = response.data?.data;
+      if (Array.isArray(rows)) {
+        data = rows
+          .map((item: { Name?: string }) => ({
+            label: item.Name ?? "",
+            value: item.Name ?? "",
+          }))
+          .filter((o) => o.value);
+      }
+    } else if (Array.isArray(response?.data)) {
+      data = response.data
+        .map((item: any) => ({
+          label: item.SectionName ?? item.Name ?? "",
+          value: item.SectionName ?? item.Name ?? "",
+        }))
+        .filter((o) => o.value);
     }
 
-    if (Array.isArray(response?.data)) {
-      data = response.data.map((item: any) => ({
-        label: item.SectionName ?? item.Name,
-        value: item.SectionName ?? item.Name,
-      }));
-    }
-    return data;
-  } catch (error) {
-    console.error("Error fetching section data:", error);
+    return data ?? [];
+  } catch {
+    // Endpoint may not exist yet; keep reports usable without section filter options.
+    return [];
   }
 };
 
 export const useGetSectionList = () =>
   useQuery({
     queryKey: ["section"],
-    queryFn: () => getSectionList(),
+    queryFn: getSectionList,
+    retry: 0,
     refetchOnWindowFocus: false,
   });

@@ -56,6 +56,8 @@ Same pattern as `useGetDepartmentList`: `api/${evs | employees}/get…List`.
 - **EVS:** nested `response.data.data[]`, each row `{ Name }` → options `{ label, value }` from `Name`.
 - **Non-EVS (employees):** `Array.isArray(response.data)` — division uses `DivisionName` (fallback `Name`); section uses `SectionName` (fallback `Name`); department uses `DepartmentName` (see `useGetDepartmentList.ts`).
 
+**Frontend resilience:** `useGetDivisionList` and `useGetSectionList` catch all request failures (including 404 when routes are not deployed yet) and return an empty options list so EVS Reports still loads; filters show with no choices until the backend exists. `retry: 0` avoids repeated failed calls.
+
 ---
 
 ### Filtering (reports must honor these)
