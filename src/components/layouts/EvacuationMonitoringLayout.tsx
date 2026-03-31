@@ -90,7 +90,18 @@ export function EvacuationMonitoringLayout({
 
   const { emitWithAck } = useSocketEmit();
   const { successStyle, errorStyle } = useToastStyleTheme();
-  const { evsMode, onEvsModeToggle, hasReceivedData, isSwitchDisabled } = useEvsMode();
+  const {
+    evsMode,
+    onEvsModeToggle,
+    hasReceivedData,
+    isSwitchDisabled,
+    readiness,
+    hasReceivedReadiness,
+    canCompleteEvacuation,
+    showPersistentReadinessNotice,
+    dismissReadinessNotice,
+    acknowledgeReadinessOnComplete,
+  } = useEvsMode();
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
@@ -105,6 +116,12 @@ export function EvacuationMonitoringLayout({
         onEvsModeToggle={onEvsModeToggle}
         hasReceivedEvsModeData={hasReceivedData}
         isSwitchDisabled={isSwitchDisabled}
+        readiness={readiness}
+        hasReceivedReadiness={hasReceivedReadiness}
+        canCompleteEvacuation={canCompleteEvacuation}
+        showPersistentReadinessNotice={showPersistentReadinessNotice}
+        onDismissReadinessNotice={dismissReadinessNotice}
+        onAcknowledgeReadinessOnComplete={acknowledgeReadinessOnComplete}
         onEvacComplete={() => {
           emitWithAck(
             "evac_complete",

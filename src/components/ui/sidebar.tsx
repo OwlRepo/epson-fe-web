@@ -32,6 +32,11 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Input } from "./input";
 import { Switch } from "./switch";
+import {
+  SidebarReadinessNotice,
+  type SyncReadinessStatus,
+} from "@/components/ui/sidebar-readiness-notice";
+import type { EvsReadinessState } from "@/hooks/useEvsMode";
 // import {
 //   AlertDialog,
 //   AlertDialogAction,
@@ -72,6 +77,13 @@ interface SidebarProps {
   onEvsModeToggle?: (checked: boolean) => void;
   hasReceivedEvsModeData?: boolean;
   isSwitchDisabled?: boolean;
+  /** EVS sync readiness (optional; used with evacuation complete guard) */
+  readiness?: EvsReadinessState;
+  hasReceivedReadiness?: boolean;
+  canCompleteEvacuation?: boolean;
+  showPersistentReadinessNotice?: boolean;
+  onDismissReadinessNotice?: () => void;
+  onAcknowledgeReadinessOnComplete?: () => void;
 }
 
 interface NavItemProps {
@@ -391,6 +403,12 @@ export function Sidebar({
   onEvsModeToggle,
   hasReceivedEvsModeData = false,
   isSwitchDisabled = false,
+  readiness,
+  hasReceivedReadiness = false,
+  canCompleteEvacuation = true,
+  showPersistentReadinessNotice = false,
+  onDismissReadinessNotice,
+  onAcknowledgeReadinessOnComplete,
 }: SidebarProps) {
   const router = useRouter();
   const [collapsed, setCollapsed] = React.useState(defaultCollapsed);
@@ -546,15 +564,34 @@ export function Sidebar({
               </div>
             </div>
           )}
-        {/* Only show evacuation complete button if data received AND mode is on */}
+        {/* Sync readiness + evacuation complete (EVS) */}
         {onEvacComplete &&
           hasReceivedEvsModeData &&
           typeof evsMode === "boolean" &&
           evsMode === true && (
-            <div className="w-full flex items-center justify-center">
+            <div className="w-full flex flex-col items-center justify-center gap-3">
+              {getIsEVS() && readiness && (
+                <SidebarReadinessNotice
+                  collapsed={collapsed}
+                  status={(readiness.status ?? "unknown") as SyncReadinessStatus}
+                  hasReceivedStatus={hasReceivedReadiness}
+                  pendingCount={readiness.pendingCount}
+                  showPersistentNotice={showPersistentReadinessNotice}
+                  onCloseNotice={() => onDismissReadinessNotice?.()}
+                />
+              )}
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button variant="secondary" className="w-[90%] text-white">
+                  <Button
+                    variant="secondary"
+                    className="w-[90%] text-white"
+                    disabled={!canCompleteEvacuation}
+                    title={
+                      !canCompleteEvacuation
+                        ? "Wait until all data is synced before completing evacuation"
+                        : undefined
+                    }
+                  >
                     {collapsed ? <ShieldCheck /> : "Evacuation Complete"}
                   </Button>
                 </AlertDialogTrigger>
@@ -587,11 +624,14 @@ export function Sidebar({
                       className="bg-primary-evs hover:bg-primary-evs/80"
                       disabled={
                         email !==
-                        JSON.parse(localStorage.getItem("user") || "{}")[
-                          "EmailAddress"
-                        ]
+                          JSON.parse(localStorage.getItem("user") || "{}")[
+                            "EmailAddress"
+                          ] || !canCompleteEvacuation
                       }
-                      onClick={onEvacComplete}
+                      onClick={() => {
+                        onAcknowledgeReadinessOnComplete?.();
+                        onEvacComplete();
+                      }}
                     >
                       Confirm
                     </AlertDialogAction>

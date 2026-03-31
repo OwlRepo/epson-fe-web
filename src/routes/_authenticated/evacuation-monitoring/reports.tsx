@@ -61,6 +61,39 @@ function normalizeExportStatus(row: Record<string, unknown>): string {
   return String(row.eva_status ?? "");
 }
 
+/** Unlisted from API (boolean or string); display Yes / No / -- */
+function formatUnlistedDisplay(row: Record<string, unknown>): string {
+  const raw =
+    row.unlisted !== undefined && row.unlisted !== null
+      ? row.unlisted
+      : row.Unlisted;
+  if (raw === undefined || raw === null || raw === "") return "--";
+  if (typeof raw === "boolean") return raw ? "Yes" : "No";
+  const s = String(raw).toLowerCase();
+  if (s === "true" || s === "1" || s === "yes") return "Yes";
+  if (s === "false" || s === "0" || s === "no") return "No";
+  return "--";
+}
+
+/** Org filter from URL: prefer PascalCase contract, fall back to legacy lowercase. */
+function orgFromSearch(p: Record<string, string | undefined>) {
+  return {
+    Division: p.Division || p.division,
+    Department: p.Department || p.department,
+    Section: p.Section || p.section,
+  };
+}
+
+/** Unlisted filter for socket/API: "true" | "false" from Yes/No UI. */
+function unlistedPayloadValue(
+  raw: string | undefined
+): boolean | undefined {
+  if (raw === undefined || raw === "") return undefined;
+  if (raw === "true" || raw === "Yes") return true;
+  if (raw === "false" || raw === "No") return false;
+  return undefined;
+}
+
 /** Plain row for CSV export (no React nodes); matches table column keys. */
 function toEvsExportRow(
   row: Record<string, unknown>,
@@ -95,6 +128,7 @@ function toEvsExportRow(
     device_name: String(
       (row.device_name as string) ?? (row.DeviceName as string) ?? ""
     ),
+    Unlisted: formatUnlistedDisplay(row),
   };
   if (includeCompleted) {
     const completedRaw = row.Completed;
@@ -165,6 +199,7 @@ function ReportsDataTable() {
       const data = reportList?.data.map((item: any) =>
         addOrgDisplayFields({
           ...item,
+          Unlisted: formatUnlistedDisplay(item),
           ClockedIN: item.ClockedIN
             ? dayjs(item.ClockedIN).format("hh:mm a")
             : null,
@@ -238,16 +273,21 @@ function ReportsDataTable() {
       if (p.DeviceName) {
         payload.DeviceName = p.DeviceName;
       }
-      if (p.division) {
-        payload.division = p.division;
+      const org = orgFromSearch(p);
+      if (org.Division) {
+        payload.Division = org.Division;
       }
-      if (p.department) {
-        payload.department = p.department;
+      if (org.Department) {
+        payload.Department = org.Department;
       }
-      if (p.section) {
-        payload.section = p.section;
+      if (org.Section) {
+        payload.Section = org.Section;
       }
-      // Date range params (current tab)
+      const unlisted = unlistedPayloadValue(p.Unlisted);
+      if (unlisted !== undefined) {
+        payload.Unlisted = unlisted;
+      }
+      // Date+time range params (current tab), ISO-like strings
       if (p.from_evs_reports_date || p.to_evs_reports_date) {
         payload.from_evs_reports_date = p.from_evs_reports_date;
         payload.to_evs_reports_date = p.to_evs_reports_date;
@@ -288,6 +328,7 @@ function ReportsDataTable() {
     { key: "Division", label: "Division" },
     { key: "Department", label: "Department" },
     { key: "Section", label: "Section" },
+    { key: "Unlisted", label: "Unlisted" },
     { key: "Type", label: "Type" },
     { key: "Status", label: "Status" },
     { key: "Remarks", label: "Remarks" },
@@ -337,19 +378,28 @@ function ReportsDataTable() {
 
   const filters = [
     {
-      key: "division",
+      key: "Division",
       label: "Division",
       options: divisionList ?? [],
     },
     {
-      key: "department",
+      key: "Department",
       label: "Department",
       options: departmentList ?? [],
     },
     {
-      key: "section",
+      key: "Section",
       label: "Section",
       options: sectionList ?? [],
+    },
+    {
+      key: "Unlisted",
+      label: "Unlisted",
+      options: [
+        { label: "Yes", value: "Yes" },
+        { label: "No", value: "No" },
+      ],
+      singleSelect: true,
     },
     {
       key: "Type",
@@ -383,8 +433,8 @@ function ReportsDataTable() {
       ? [
           {
             key: "evs_reports_date",
-            label: "Date",
-            isDateRangePicker: true,
+            label: "Date & time range",
+            isDateTimeRangePicker: true,
           },
         ]
       : []),
@@ -425,16 +475,21 @@ function ReportsDataTable() {
     if (searchParams.DeviceName) {
       payload.DeviceName = searchParams.DeviceName;
     }
-    if (searchParams.division) {
-      payload.division = searchParams.division;
+    const orgExp = orgFromSearch(searchParams);
+    if (orgExp.Division) {
+      payload.Division = orgExp.Division;
     }
-    if (searchParams.department) {
-      payload.department = searchParams.department;
+    if (orgExp.Department) {
+      payload.Department = orgExp.Department;
     }
-    if (searchParams.section) {
-      payload.section = searchParams.section;
+    if (orgExp.Section) {
+      payload.Section = orgExp.Section;
     }
-    // Date range params (current tab)
+    const unlistedExp = unlistedPayloadValue(searchParams.Unlisted);
+    if (unlistedExp !== undefined) {
+      payload.Unlisted = unlistedExp;
+    }
+    // Date+time range params (current tab)
     if (
       searchParams.from_evs_reports_date ||
       searchParams.to_evs_reports_date
@@ -563,6 +618,7 @@ function ReportsDataTable() {
           columns={columns}
           data={(socketRows || []).map((item: any) => ({
             ...addOrgDisplayFields(item),
+            Unlisted: formatUnlistedDisplay(item),
             EvacuationTime: item.EvacuationTime
               ? dayjs(item.EvacuationTime).format("MMM D, YYYY hh:mm a")
               : null,

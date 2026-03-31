@@ -4,6 +4,8 @@
 
 **Related code:** `src/hooks/query/useGetDepartmentList.ts`, `useGetDivisionList.ts`, `useGetSectionList.ts`, `src/routes/_authenticated/evacuation-monitoring/reports.tsx`
 
+**Note:** Org filter **keys** sent in socket/REST payloads are now **`Division`**, **`Department`**, **`Section`** (PascalCase). The client may still read legacy lowercase from old URLs. Full contract (Unlisted, date-time range, readiness): [`evs-reports-unlisted-datetime-sync-spec.md`](./evs-reports-unlisted-datetime-sync-spec.md).
+
 ---
 
 ## At a glance
@@ -11,7 +13,7 @@
 | Topic | Owner | Notes |
 |--------|--------|--------|
 | Dropdown options (3 lists) | **Backend** | Three GET endpoints return rows the UI can turn into labels (see below). |
-| Filter parameter names | **Contract** | Always **lowercase:** `division`, `department`, `section`. Values should match the strings from the list endpoints. |
+| Filter parameter names | **Contract** | **`Division`**, **`Department`**, **`Section`** (PascalCase). Values should match the strings from the list endpoints. Legacy lowercase may still appear in old bookmarks. |
 | Current tab (live data) | **Backend** | Socket events `evs_reports` and `evs_all` must read those keys when the user sets filters. |
 | Completed tab + export | **Backend** | REST `GET /api/evs/reports` and `GET /api/evs/reports/export` must accept the same query parameters. |
 
@@ -66,17 +68,17 @@ The app picks the path prefix from the build: EVS uses `evs`, non-EVS uses `empl
 
 ### Filtering (reports must honor these)
 
-When the user picks org filters, the client sends three **lowercase** keys:
+When the user picks org filters, the client sends three **PascalCase** keys (legacy lowercase still read from old URLs):
 
 | Key | Role | Example value |
 |-----|------|----------------|
-| `division` | Division filter | Same text as `Name` from `getDivisionList` |
-| `department` | Department filter | Same text as department list `Name` (EVS) |
-| `section` | Section filter | Same text as `Name` from `getSectionList` |
+| `Division` | Division filter | Same text as `Name` from `getDivisionList` |
+| `Department` | Department filter | Same text as department list `Name` (EVS) |
+| `Section` | Section filter | Same text as `Name` from `getSectionList` |
 
 **Backend checklist**
 
-- [ ] Support **`division`**, **`department`**, and **`section`** on:
+- [ ] Support **`Division`**, **`Department`**, and **`Section`** (and optionally legacy `division`, `department`, `section`) on:
   - Socket payloads for **`evs_reports`** and **`evs_all`** (export-all).
   - **`GET /api/evs/reports?…`**
   - **`GET /api/evs/reports/export?…`** (export reuses the same search/query params, including these three).
@@ -91,7 +93,7 @@ When the user picks org filters, the client sends three **lowercase** keys:
 
 ### 1) Router / URL search
 
-Active filters appear in the URL search object together with fields such as `Type`, `Status`, `DeviceName`, `page`, `limit`, `search`, `EvacuationStatus`, and date fields. Org filters use the keys **`division`**, **`department`**, **`section`**.
+Active filters appear in the URL search object together with fields such as `Type`, `Status`, `DeviceName`, `page`, `limit`, `search`, `EvacuationStatus`, and date fields. Org filters use the keys **`Division`**, **`Department`**, **`Section`** (or legacy lowercase).
 
 ---
 
@@ -102,7 +104,7 @@ The client always sends something like: `EvacuationStatus`, `page`, `limit`, `se
 It adds optional keys only when the user set them, including:
 
 - `Type`, `Status`, `DeviceName`
-- **`division`**, **`department`**, **`section`**
+- **`Division`**, **`Department`**, **`Section`**
 - `from_evs_reports_date`, `to_evs_reports_date`
 
 **Example**
@@ -113,9 +115,9 @@ It adds optional keys only when the user set them, including:
   "page": 1,
   "limit": 10,
   "search": "",
-  "division": "CMD",
-  "department": "GAD",
-  "section": "GAS"
+  "Division": "CMD",
+  "Department": "GAD",
+  "Section": "GAS"
 }
 ```
 
@@ -130,14 +132,14 @@ Export-all does not send `page` / `limit`. It sends `search`, org filters, Type/
 ```json
 {
   "search": "",
-  "division": "CMD",
-  "department": "GAD",
-  "section": "GAS",
+  "Division": "CMD",
+  "Department": "GAD",
+  "Section": "GAS",
   "Type": "Employee",
   "Status": "Safe",
   "DeviceName": "",
-  "from_evs_reports_date": "2026-03-01",
-  "to_evs_reports_date": "2026-03-31"
+  "from_evs_reports_date": "2026-03-01T00:00:00",
+  "to_evs_reports_date": "2026-03-31T23:59:59"
 }
 ```
 
@@ -146,7 +148,7 @@ Export-all does not send `page` / `limit`. It sends `search`, org filters, Type/
 ### 4) Completed tab — REST list
 
 - **Request:** `GET /api/evs/reports?<querystring>`
-- The query string includes every non-empty search field from the UI, including **`division`**, **`department`**, **`section`**.
+- The query string includes every non-empty search field from the UI, including **`Division`**, **`Department`**, **`Section`**.
 
 ---
 
