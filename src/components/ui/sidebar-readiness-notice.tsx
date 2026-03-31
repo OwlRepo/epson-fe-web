@@ -13,15 +13,15 @@ interface SidebarReadinessNoticeProps {
   onCloseNotice: () => void;
 }
 
+/** Short title (one line on narrow sidebars); detail goes in `description`. */
 const getStatusConfig = (
   status: SyncReadinessStatus,
-  hasReceivedStatus: boolean
+  hasReceivedStatus: boolean,
 ) => {
   if (!hasReceivedStatus || status === "unknown") {
     return {
-      label: "Waiting for sync status",
-      description:
-        "Waiting for server confirmation before evacuation can be completed.",
+      title: "Awaiting status",
+      description: "Waiting for server confirmation.",
       icon: Clock3,
       className: "border-slate-300 bg-slate-50 text-slate-700",
     };
@@ -29,18 +29,16 @@ const getStatusConfig = (
 
   if (status === "pending") {
     return {
-      label: "Sync in progress",
-      description:
-        "Some records are still being sent to EVS. Evacuation Complete is disabled.",
+      title: "Sync in progress",
+      description: "Records still syncing. Complete stays off.",
       icon: AlertTriangle,
       className: "border-amber-300 bg-amber-50 text-amber-800",
     };
   }
 
   return {
-    label: "Ready for evacuation complete",
-    description:
-      "All records are synced. You can now proceed with Evacuation Complete.",
+    title: "Ready",
+    description: "All synced — you can use Evacuation Complete.",
     icon: CheckCircle2,
     className: "border-green-300 bg-green-50 text-green-800",
   };
@@ -63,10 +61,10 @@ export function SidebarReadinessNotice({
         <div
           className={cn(
             "h-10 rounded-md border flex items-center justify-center",
-            config.className
+            config.className,
           )}
-          aria-label={config.label}
-          title={config.label}
+          aria-label={`${config.title}. ${config.description}`}
+          title={`${config.title}: ${config.description}`}
         >
           <Icon className="h-5 w-5" />
         </div>
@@ -82,11 +80,18 @@ export function SidebarReadinessNotice({
         aria-live="polite"
       >
         <div className="flex items-start gap-2">
-          <Icon className="h-5 w-5 mt-0.5 shrink-0" />
-          <div className="min-w-0">
-            <p className="text-sm font-semibold leading-5">{config.label}</p>
+          <Icon className="h-5 w-5 mt-0.5 shrink-0" aria-hidden />
+          <div className="min-w-0 flex-1 space-y-0.5">
+            <p className="text-sm font-semibold leading-tight tracking-tight">
+              {config.title}
+            </p>
+            <p className="text-[11px] leading-snug opacity-90 [overflow-wrap:anywhere]">
+              {config.description}
+            </p>
             {status === "pending" && typeof pendingCount === "number" ? (
-              <p className="text-xs mt-1">Pending records: {pendingCount}</p>
+              <p className="text-[11px] pt-0.5 font-medium">
+                Pending: {pendingCount}
+              </p>
             ) : null}
           </div>
         </div>
@@ -98,10 +103,14 @@ export function SidebarReadinessNotice({
           role="alert"
         >
           <div className="flex items-start justify-between gap-2">
-            <p className="text-sm leading-5 pr-1">
-              EVS confirms no data is pending. You may now tap Evacuation
-              Complete.
-            </p>
+            <div className="min-w-0 pr-1 space-y-0.5">
+              <p className="text-sm font-semibold leading-tight">
+                No data pending
+              </p>
+              <p className="text-[11px] leading-snug opacity-90 [overflow-wrap:anywhere]">
+                You may tap Evacuation Complete below.
+              </p>
+            </div>
             <Button
               type="button"
               variant="ghost"

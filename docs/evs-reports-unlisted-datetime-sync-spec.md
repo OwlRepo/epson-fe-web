@@ -16,7 +16,9 @@
 | **Unlisted** | Accept optional **`Unlisted`** as boolean (`true` / `false`) on the same channels. |
 | **Date range** | Accept **`from_evs_reports_date`** and **`to_evs_reports_date`** as strings in **`YYYY-MM-DDTHH:mm:ss`** form (OpenAPI `date-time` style). |
 
-Same filter set for: **`evs_reports`** (paginated list), **`evs_all`** (export all, no `page`/`limit`), **`GET /api/evs/reports`**, **`GET /api/evs/reports/export`**.
+Same filter set for: **`evs_reports`** (paginated list, **Current** tab), **`evs_all`** (export all, **Current** tab), **`GET /api/evs/reports`**, **`GET /api/evs/reports/export`** (both tabs — **Completed** uses REST only).
+
+**Date & time range UI:** The app shows the same **Date & time range** control on **Current** and **Completed**. URL keys are always **`from_evs_reports_date`** / **`to_evs_reports_date`**. On **Completed**, other filters (for example **`completeEvacuationDate`**) are separate; do not conflate them with the ISO range unless your product rules say otherwise.
 
 ### Why
 
@@ -25,6 +27,8 @@ One naming scheme avoids “filter works on Current tab but not on Completed” 
 ### How the frontend uses it
 
 - Puts these keys in the **URL** (bookmarkable) and forwards them unchanged to **socket** or **REST**.
+- **Current** tab: same URL params go to **`evs_reports`** / **`evs_all`** (socket).
+- **Completed** tab: same URL params go to **`GET /api/evs/reports`** and **`GET /api/evs/reports/export`** (REST); the date-time range is available there too, not only on Current.
 - **Unlisted** drives a dropdown and a **Yes/No** column; export-all repeats the same params the table uses.
 - If a key is missing or ignored server-side, the user sees wrong counts or empty exports — so parity matters.
 

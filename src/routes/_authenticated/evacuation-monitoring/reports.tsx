@@ -20,7 +20,6 @@ import { useGetTypeList } from "@/hooks/query/useGetTypeList";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import reportExportAll from "@/utils/reportExportAll";
-import { useGetCompletedList } from "@/hooks/query/useGetCompletedList";
 import { useGetDepartmentList } from "@/hooks/query/useGetDepartmentList";
 import { useGetDeviceList } from "@/hooks/query/useGetDeviceList";
 import { useGetDivisionList } from "@/hooks/query/useGetDivisionList";
@@ -228,7 +227,6 @@ function ReportsDataTable() {
   }, [reportList]);
 
   const { data: typeList } = useGetTypeList();
-  const { data: completedList } = useGetCompletedList();
   const { data: deviceList } = useGetDeviceList();
   const { data: divisionList } = useGetDivisionList();
   const { data: departmentList } = useGetDepartmentList();
@@ -422,10 +420,16 @@ function ReportsDataTable() {
 
     ...(search.EvacuationStatus === "completed"
       ? [
+          // Disabled for now — use "Date & time range" only.
+          // {
+          //   key: "completeEvacuationDate",
+          //   label: "Completed Date",
+          //   options: completedList ?? [],
+          // },
           {
-            key: "completeEvacuationDate",
-            label: "Completed Date",
-            options: completedList ?? [],
+            key: "evs_reports_date",
+            label: "Date & time range",
+            isDateTimeRangePicker: true,
           },
         ]
       : []),
@@ -489,7 +493,7 @@ function ReportsDataTable() {
     if (unlistedExp !== undefined) {
       payload.Unlisted = unlistedExp;
     }
-    // Date+time range params (current tab)
+    // Date+time range (Current + Completed tabs; URL keys are shared)
     if (
       searchParams.from_evs_reports_date ||
       searchParams.to_evs_reports_date
