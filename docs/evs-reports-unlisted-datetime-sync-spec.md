@@ -1,133 +1,114 @@
-# EVS Reports: Unlisted, Date/Time Range, Org Keys & Sync Readiness
+# EVS reports & sync readiness — backend / socket contract
 
-**Purpose:** Single contract for frontend and backend/socket teams for EVS reports filters, exports, and evacuation-complete gating. Supersedes org-key naming in [`evs-reports-org-filters-spec.md`](./evs-reports-org-filters-spec.md) for **filter parameter names** (now PascalCase); dropdown/list behavior still follows that org doc.
+**Audience:** Backend and socket developers. **Goal:** Know exactly what to implement and why, and how the React app will use it so nothing breaks after deploy.
 
-**Related code**
-
-| Area | Path |
-|------|------|
-| Reports UI + filters | `src/routes/_authenticated/evacuation-monitoring/reports.tsx` |
-| Table filters | `src/components/ui/dynamic-table.tsx` |
-| Readiness + EVS mode | `src/hooks/useEvsMode.ts` |
-| Sidebar + completion | `src/components/ui/sidebar.tsx`, `src/components/layouts/EvacuationMonitoringLayout.tsx` |
-| REST export helper | `src/utils/reportExportAll.ts` |
+**Frontend references:** `reports.tsx`, `useEvsMode.ts`, `sidebar.tsx`, `EvacuationMonitoringLayout.tsx`, `reportExportAll.ts`.
 
 ---
 
-## Why this contract is needed
+## 1. Reports filters & exports (REST + `evs_reports` / `evs_all`)
 
-1. **Stable keys** — Without agreed names for query params, socket payloads, and export URLs, the UI and server drift (filters silently ignored, wrong exports, broken bookmarks).
-2. **Safety-critical gating** — `Evacuation Complete` must only run when the server confirms there is **no pending sync**; ambiguous semantics cause incorrect completions or blocked UX.
-3. **Rollout** — The client may still send or read legacy keys during migration; the server should accept both for a defined period.
+### What you implement
 
----
+| Item | Your job |
+|------|------------|
+| **Org keys** | Accept **`Division`**, **`Department`**, **`Section`** (PascalCase) on list, export, and socket payloads. Optionally still accept legacy `division` / `department` / `section` during migration. |
+| **Unlisted** | Accept optional **`Unlisted`** as boolean (`true` / `false`) on the same channels. |
+| **Date range** | Accept **`from_evs_reports_date`** and **`to_evs_reports_date`** as strings in **`YYYY-MM-DDTHH:mm:ss`** form (OpenAPI `date-time` style). |
 
-## How the frontend uses this contract
+Same filter set for: **`evs_reports`** (paginated list), **`evs_all`** (export all, no `page`/`limit`), **`GET /api/evs/reports`**, **`GET /api/evs/reports/export`**.
 
-| Backend signal | Frontend behavior |
-|----------------|-------------------|
-| Org filters **`Division`**, **`Department`**, **`Section`** (PascalCase) | Sent on socket `evs_reports` / `evs_all` and REST list/export for completed tab. Legacy `division` / `department` / `section` in URL are still read when hydrating. |
-| **`Unlisted`** filter (`true`/`false`) | Optional filter on list + export; table column shows Yes/No/—. |
-| **`from_evs_reports_date`**, **`to_evs_reports_date`** as ISO-like date-time strings | Date+time range filter; combined as `YYYY-MM-DDTHH:mm:ss` (no timezone suffix in examples). |
-| Readiness room + event (see below) | Drives sidebar status indicator, persistent “ready” notice, and enables/disables **Evacuation Complete**. |
+### Why
 
-**Readiness → UI mapping**
+One naming scheme avoids “filter works on Current tab but not on Completed” or “export ignores Unlisted.” Date-time strings must match so time ranges are not truncated to midnight-only behavior by accident.
 
-| `has_pending_data` (or equivalent) | Derived status | Evacuation Complete button | Persistent notice |
-|-------------------------------------|----------------|----------------------------|-------------------|
-| `true` | `pending` | Disabled | Hidden |
-| `false` | `ready` | Enabled | Shown until user dismisses or completes evacuation |
-| Missing / invalid (before first payload) | `unknown` | Disabled | Hidden |
+### How the frontend uses it
+
+- Puts these keys in the **URL** (bookmarkable) and forwards them unchanged to **socket** or **REST**.
+- **Unlisted** drives a dropdown and a **Yes/No** column; export-all repeats the same params the table uses.
+- If a key is missing or ignored server-side, the user sees wrong counts or empty exports — so parity matters.
 
 ---
 
-## At a glance
+## 2. Report row: “Unlisted”
 
-| Topic | Owner | Notes |
-|--------|--------|--------|
-| Org filter keys | **Contract** | **`Division`**, **`Department`**, **`Section`** (PascalCase). Legacy lowercase accepted for reads. |
-| Unlisted | **Contract** | Boolean `Unlisted` on socket payloads; query string for REST. |
-| Date/time range | **Contract** | `from_evs_reports_date`, `to_evs_reports_date` as `date-time` strings. |
-| Readiness | **Backend** | Room `evs_readiness`, event `evs_readiness_status` (defaults). |
-| CSV (browser) | **Frontend only** | Page/selected export includes columns the table shows; no extra backend contract. |
+### What you implement
 
----
+Each row may include **`unlisted`** or **`Unlisted`** (boolean or clear string). Meaning: this person is listed vs unlisted for the report.
 
-## Socket: reports list and export (`evs_reports`, `evs_all`)
+### Why
 
-### Payload keys (current tab)
+Product needs the column and CSV to match filters and exports.
 
-| Key | Type | Why needed | Frontend usage |
-|-----|------|------------|----------------|
-| `EvacuationStatus` | string | Tab | Always `"current"` for live tab. |
-| `page`, `limit` | number | Pagination | Table pagination. |
-| `search` | string | Search | Search box. |
-| `Type`, `Status`, `DeviceName` | string | Filters | Optional when set. |
-| `Division`, `Department`, `Section` | string | Org filters | Optional; values match list `Name`. |
-| `Unlisted` | boolean | Filter | Optional; `true`/`false`. |
-| `from_evs_reports_date`, `to_evs_reports_date` | string | Date+time range | Optional; ISO-like local format. |
+### How the frontend uses it
 
-**`evs_all`** — Same filter keys as above (no `page`/`limit`); used for Export All download URL.
-
-### Backward compatibility
-
-- Server **may** still accept lowercase `division`, `department`, `section` for a transition period; the client **prefers** PascalCase when sending.
+- Table: shows **Yes** / **No** / **—** if absent.
+- Browser CSV (page/selected): same column.
+- No extra API beyond the field on the row object.
 
 ---
 
-## REST: completed list and export
+## 3. Evacuation sync readiness (blocks “Evacuation Complete”)
 
-- **List:** `GET /api/evs/reports?<querystring>` — non-empty search fields from the UI, including `Division`, `Department`, `Section`, `Unlisted`, `from_evs_reports_date`, `to_evs_reports_date`, etc.
-- **Export:** `GET /api/evs/reports/export?module=evs&token=…&<same params>` — same query shape as list.
+This is separate from report tables. It answers: **“Is anything still queued from controllers before we allow evacuation complete?”**
+
+### What you implement
+
+**Recommended room name: `evs_readiness`**
+
+| Choice | Rationale |
+|--------|-----------|
+| **`evs_readiness`** | Short, matches other EVS rooms (`evs_reports`, `evs_mode`), and reads clearly as “readiness for EVS actions.” Use this unless you already have a conflicting room name in production. |
+
+**Flow**
+
+1. Client connects to the same socket server as today, then emits **`join`** with payload **`"evs_readiness"`** (same pattern as other EVS rooms).
+2. Server puts the socket in that room and **pushes updates** on one event name.
+
+**Recommended event name: `evs_readiness_status`**
+
+Keeps one event for all readiness payloads; avoids overloading `evs_mode` (which is on/off only).
+
+**Payload — minimum viable**
+
+| Field | Type | Required |
+|-------|------|----------|
+| `has_pending_data` | `boolean` | **Yes** |
+
+**Payload — recommended for UX**
+
+| Field | Type | Notes |
+|-------|------|--------|
+| `pending_count` | `number` | How many items still not synced; frontend shows “Pending records: N” in the sidebar. |
+| `status_message` | `string` | Optional; reserved for clearer copy later. |
+| `updated_at` | `string` (ISO) | Optional. |
+
+Optional **camelCase** mirrors (`hasPendingData`, `pendingCount`, …) are accepted by the client parser.
+
+### Why
+
+Without a single boolean (or equivalent), the UI cannot safely enable **Evacuation Complete**. Guessing from other events risks completing evacuation while data is still in flight.
+
+### How the frontend uses it
+
+| `has_pending_data` | UI |
+|--------------------|-----|
+| `true` | Sidebar: **“Sync in progress”**; **Evacuation Complete** stays **disabled**; optional `pending_count` shown. |
+| `false` | **“Ready for evacuation complete”**; button **enabled**; a **persistent green notice** appears until the user closes it or confirms evacuation. |
+| Not received yet / bad payload | **“Waiting for sync status”**; button **disabled** (safe default). |
+
+Reconnects may repeat the same payload — that is OK; the UI only reacts to meaningful state changes for the notice.
 
 ---
 
-## Report rows: `unlisted`
+## Quick checklist (backend / socket)
 
-| Field | Type | Why needed | Frontend usage |
-|-------|------|------------|----------------|
-| `unlisted` or `Unlisted` | boolean (or string) | Row identity | Column “Unlisted” → Yes/No/—. |
-
----
-
-## Socket: evacuation sync readiness
-
-**Why:** Controllers may still be sending data; the UI must not allow **Evacuation Complete** until the server confirms sync is complete.
-
-### Defaults (frontend)
-
-| Item | Value |
-|------|--------|
-| Room | Client emits `join` with room name **`evs_readiness`** |
-| Event | Server pushes **`evs_readiness_status`** |
-
-### Payload (recommended shape)
-
-| Field | Type | Required | Why needed | Frontend usage |
-|-------|------|----------|------------|----------------|
-| `has_pending_data` | boolean | **Yes** | Single source of truth for pending work | `pending` vs `ready` |
-| `pending_count` | number | Recommended | UX for older users | Shown in sidebar when pending |
-| `status_message` | string | Optional | Human-readable detail | Future copy / debugging |
-| `updated_at` | string (ISO) | Optional | Audit | Future display |
-
-**CamelCase aliases** (optional; frontend parser accepts): `hasPendingData`, `pendingCount`, `statusMessage`, `updatedAt`.
-
-**Idempotency:** Emitting the same payload multiple times (e.g. reconnect) should not break the UI; the client deduplicates by status transitions for the persistent notice.
+- [ ] **`Division` / `Department` / `Section`** + **`Unlisted`** + **date-time range** params on reports list + export + `evs_reports` + `evs_all`.
+- [ ] Report rows expose **`unlisted`** / **`Unlisted`** where applicable.
+- [ ] Room **`evs_readiness`**, event **`evs_readiness_status`**, payload includes **`has_pending_data`** (and ideally **`pending_count`**).
 
 ---
 
-## Migration checklist
+## CSV note
 
-- [ ] REST + socket accept **`Division`**, **`Department`**, **`Section`**.
-- [ ] REST + socket accept **`Unlisted`** and **`from_evs_reports_date` / `to_evs_reports_date`** as date-time.
-- [ ] Readiness room `evs_readiness` + event `evs_readiness_status` implemented.
-- [ ] Report rows include `unlisted` / `Unlisted` where applicable.
-- [ ] (Optional) Legacy lowercase org keys still accepted server-side until removed.
-
----
-
-## CSV exports (client-generated)
-
-**Export Page** / **Export Selected** build CSV in the browser from visible rows; **Unlisted** includes `Unlisted` column when present.
-
-**Export All** uses server/socket as above.
+**Export page / selected** is generated in the browser from visible rows — no separate backend contract. **Export all** uses your list/export contract above.
