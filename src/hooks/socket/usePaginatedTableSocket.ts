@@ -84,7 +84,19 @@ export function usePaginatedTableSocket<T extends Record<string, any>>({
           if (pendingParamsRef.current && socketApiRef.current) {
             setTimeout(() => {
               if (socketApiRef.current && pendingParamsRef.current) {
-                const pendingParams = JSON.parse(pendingParamsRef.current);
+                let pendingParams: Record<string, unknown>;
+                try {
+                  pendingParams = JSON.parse(
+                    pendingParamsRef.current
+                  ) as Record<string, unknown>;
+                } catch (e) {
+                  console.error(
+                    "[usePaginatedTableSocket] Invalid pending params JSON",
+                    e
+                  );
+                  pendingParamsRef.current = null;
+                  return;
+                }
                 console.log(
                   "📤 [usePaginatedTableSocket] Emitting pending params after connection:",
                   pendingParams

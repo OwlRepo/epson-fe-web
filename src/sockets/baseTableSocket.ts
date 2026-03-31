@@ -20,6 +20,14 @@ export interface CreateTableSocketOptions {
   emitEvent?: string; // default: "filters"
 }
 
+function safeCall(label: string, fn: () => void) {
+  try {
+    fn();
+  } catch (e) {
+    console.error(`[TableSocket] ${label} handler error`, e);
+  }
+}
+
 export function createTableSocket({
   room,
   handlers,
@@ -48,15 +56,19 @@ export function createTableSocket({
 
   socket.on("connect", () => {
     console.log("🟢 [TableSocket] Connected:", socket.id);
-    handlers?.onConnect?.(socket);
+    safeCall("onConnect", () => handlers?.onConnect?.(socket));
     console.log(`🚪 [TableSocket] Joining room: "${room}"`);
-    socket.emit("join", room);
+    try {
+      socket.emit("join", room);
+    } catch (e) {
+      console.error(`[TableSocket] join emit failed for room "${room}"`, e);
+    }
     console.log(`✅ [TableSocket] Joined room: "${room}"`);
   });
 
   socket.on("disconnect", () => {
     console.log("🔌 Socket disconnected from server");
-    handlers?.onDisconnect?.();
+    safeCall("onDisconnect", () => handlers?.onDisconnect?.());
   });
 
   socket.on("connect_error", (err) => {
@@ -65,7 +77,11 @@ export function createTableSocket({
         ? err
         : new Error((err as any)?.message || String(err));
     console.error("🔴 [TableSocket] Connection error:", error.message);
-    handlers?.onConnectError?.(error);
+    safeCall("onConnectError", () => handlers?.onConnectError?.(error));
+  });
+
+  socket.on("error", (err) => {
+    console.warn("[TableSocket] Socket error event:", err);
   });
 
   socket.on("preload", (payload) => {
@@ -74,26 +90,26 @@ export function createTableSocket({
       length: Array.isArray(payload) ? (payload as any[]).length : undefined,
       payload: payload,
     });
-    handlers?.onPreload?.(payload);
+    safeCall("onPreload", () => handlers?.onPreload?.(payload));
   });
   socket.on("data", (payload) => {
     console.log("🔄 [TableSocket] Data update received:", {
       isArray: Array.isArray(payload),
       length: Array.isArray(payload) ? (payload as any[]).length : undefined,
     });
-    handlers?.onData?.(payload);
+    safeCall("onData", () => handlers?.onData?.(payload));
   });
   socket.on("remove_data", (payload) => {
     console.log("🗑️ [TableSocket] Remove data received:", payload);
-    handlers?.onRemoveData?.(payload);
+    safeCall("onRemoveData", () => handlers?.onRemoveData?.(payload));
   });
   socket.on("count", (payload) => {
     console.log("📊 [TableSocket] Count received:", payload);
-    handlers?.onCount?.(payload);
+    safeCall("onCount", () => handlers?.onCount?.(payload));
   });
   socket.on("asof", (payload) => {
     // console.log("⏱️ [TableSocket] Asof received:", payload);
-    handlers?.onAsof?.(payload);
+    safeCall("onAsof", () => handlers?.onAsof?.(payload));
   });
 
   function emitFilters(
@@ -102,7 +118,15 @@ export function createTableSocket({
   ) {
     const event = overrideEvent || emitEvent;
     console.log("🚀 [TableSocket] Emitting filters:", { event, params });
-    socket.emit(event, params);
+    try {
+      if (!socket.connected) {
+        console.warn("[TableSocket] Skipping emit — socket not connected");
+        return;
+      }
+      socket.emit(event, params);
+    } catch (e) {
+      console.error("[TableSocket] emitFilters failed", e);
+    }
   }
 
   function changeRoom(newRoom: string) {
@@ -117,6 +141,7 @@ export function createTableSocket({
     socket.off("connect");
     socket.off("disconnect");
     socket.off("connect_error");
+    socket.off("error");
     socket.off("preload");
     socket.off("data");
     socket.off("remove_data");

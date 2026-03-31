@@ -53,6 +53,18 @@ let evsModeListeners: Set<(data: unknown) => void> = new Set();
 let readinessListeners: Set<(data: unknown) => void> = new Set();
 
 function parseReadinessPayload(data: unknown): EvsReadinessState {
+  try {
+    return parseReadinessPayloadInner(data);
+  } catch (e) {
+    console.error("[useEvsMode] parseReadinessPayload failed", e);
+    return {
+      ...DEFAULT_READINESS,
+      statusMessage: "Invalid sync status",
+    };
+  }
+}
+
+function parseReadinessPayloadInner(data: unknown): EvsReadinessState {
   if (data == null || typeof data !== "object") {
     return {
       ...DEFAULT_READINESS,
@@ -110,13 +122,34 @@ function parseReadinessPayload(data: unknown): EvsReadinessState {
   };
 }
 
+function notifyEvsModeListeners(modeData: unknown) {
+  evsModeListeners.forEach((listener) => {
+    try {
+      listener(modeData);
+    } catch (e) {
+      console.error("[useEvsMode] evs_mode listener error", e);
+    }
+  });
+}
+
+function notifyReadinessListeners(payload: unknown) {
+  readinessListeners.forEach((fn) => {
+    try {
+      fn(payload);
+    } catch (e) {
+      console.error("[useEvsMode] readiness listener error", e);
+    }
+  });
+}
+
 /**
  * Get or create the singleton socket instance for evs_mode and readiness.
+ * Returns null if the client cannot create a socket (graceful degradation while backend is unavailable).
  */
 const getEvsModeSocketInstance = (
   readinessRoom = "evs_readiness",
   readinessEventName = "evs_readiness_status"
-): Socket => {
+): Socket | null => {
   if (evsModeSocketInstance?.connected) {
     return evsModeSocketInstance;
   }
@@ -132,30 +165,55 @@ const getEvsModeSocketInstance = (
     "🚀 [useEvsMode] Creating singleton socket connection for evs_mode + readiness..."
   );
 
-  const socketInstance = io(SOCKET_URL, {
-    extraHeaders: {
-      "ngrok-skip-browser-warning": "true",
-    },
-    transports: ["websocket"],
-    reconnection: true,
-    reconnectionAttempts: 5,
-    reconnectionDelay: 1000,
-    timeout: 10000,
-  });
+  let socketInstance: Socket;
+  try {
+    socketInstance = io(SOCKET_URL, {
+      extraHeaders: {
+        "ngrok-skip-browser-warning": "true",
+      },
+      transports: ["websocket"],
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+      timeout: 10000,
+    });
+  } catch (e) {
+    console.error("[useEvsMode] Failed to create socket (backend may be unavailable)", e);
+    return null;
+  }
 
   socketInstance.on("evs_mode", (modeData) => {
     console.log("📥 [useEvsMode] Received evs_mode data:", modeData);
-    evsModeListeners.forEach((listener) => listener(modeData));
+    notifyEvsModeListeners(modeData);
   });
 
   socketInstance.on(readinessEventName, (payload) => {
     console.log("📥 [useEvsMode] Received readiness data:", payload);
-    readinessListeners.forEach((fn) => fn(payload));
+    notifyReadinessListeners(payload);
   });
 
   socketInstance.on("connect", () => {
-    console.log("🚪 [useEvsMode] Joining readiness room:", readinessRoom);
-    socketInstance.emit("join", readinessRoom);
+    try {
+      console.log("🚪 [useEvsMode] Joining readiness room:", readinessRoom);
+      socketInstance.emit("join", readinessRoom);
+    } catch (e) {
+      console.error("[useEvsMode] join emit failed", e);
+    }
+  });
+
+  socketInstance.on("connect_error", (err) => {
+    console.warn(
+      "[useEvsMode] Socket connect_error (readiness room may not exist yet):",
+      err instanceof Error ? err.message : err
+    );
+  });
+
+  socketInstance.on("disconnect", (reason) => {
+    console.log("[useEvsMode] Socket disconnected:", reason);
+  });
+
+  socketInstance.on("error", (err) => {
+    console.warn("[useEvsMode] Socket error:", err);
   });
 
   evsModeSocketInstance = socketInstance;
@@ -194,35 +252,44 @@ export const useEvsMode = (
       readinessRoom,
       readinessEvent
     );
+    if (!socketInstance) {
+      console.warn(
+        "[useEvsMode] EVS mode socket unavailable; toggle may not sync until connection works."
+      );
+    }
 
     const handleEvsModeData = (modeData: unknown) => {
-      let modeValue: string | null = null;
-      if (typeof modeData === "string") {
-        modeValue = modeData;
-      } else if (modeData && typeof modeData === "object") {
-        const md = modeData as Record<string, unknown>;
-        if ("mode" in md && typeof md.mode === "string") {
-          modeValue = md.mode;
-        } else if ("evs_mode" in md && typeof md.evs_mode === "string") {
-          modeValue = md.evs_mode;
-        } else {
-          const values = Object.values(md);
-          modeValue = values.find((v) => v === "on" || v === "off") as
-            | string
-            | null;
+      try {
+        let modeValue: string | null = null;
+        if (typeof modeData === "string") {
+          modeValue = modeData;
+        } else if (modeData && typeof modeData === "object") {
+          const md = modeData as Record<string, unknown>;
+          if ("mode" in md && typeof md.mode === "string") {
+            modeValue = md.mode;
+          } else if ("evs_mode" in md && typeof md.evs_mode === "string") {
+            modeValue = md.evs_mode;
+          } else {
+            const values = Object.values(md);
+            modeValue = values.find((v) => v === "on" || v === "off") as
+              | string
+              | null;
+          }
         }
-      }
 
-      const isOn = modeValue === "on";
-      console.log("✅ [useEvsMode] Parsed mode value:", modeValue);
+        const isOn = modeValue === "on";
+        console.log("✅ [useEvsMode] Parsed mode value:", modeValue);
 
-      setEvsMode(isOn);
-      setHasReceivedData(true);
+        setEvsMode(isOn);
+        setHasReceivedData(true);
 
-      if (isOn) {
-        setIsSwitchDisabled(true);
-      } else {
-        setIsSwitchDisabled(false);
+        if (isOn) {
+          setIsSwitchDisabled(true);
+        } else {
+          setIsSwitchDisabled(false);
+        }
+      } catch (e) {
+        console.error("[useEvsMode] handleEvsModeData error", e);
       }
     };
 
@@ -240,9 +307,13 @@ export const useEvsMode = (
     getEvsModeSocketInstance(readinessRoom, readinessEvent);
 
     const handleReadiness = (data: unknown) => {
-      const next = parseReadinessPayload(data);
-      setReadiness(next);
-      setHasReceivedReadiness(true);
+      try {
+        const next = parseReadinessPayload(data);
+        setReadiness(next);
+        setHasReceivedReadiness(true);
+      } catch (e) {
+        console.error("[useEvsMode] handleReadiness error", e);
+      }
     };
 
     readinessListeners.add(handleReadiness);

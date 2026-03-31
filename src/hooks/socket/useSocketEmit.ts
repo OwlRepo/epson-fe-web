@@ -118,8 +118,12 @@ export const useSocketEmit = () => {
 
       console.log("🚀 [useSocketEmit] Emitting to event:", event);
       console.log("📦 [useSocketEmit] Payload:", payload);
-      socketInstance.emit(event, payload);
-      console.log("✨ [useSocketEmit] Emission sent successfully");
+      try {
+        socketInstance.emit(event, payload);
+        console.log("✨ [useSocketEmit] Emission sent successfully");
+      } catch (e) {
+        console.error("[useSocketEmit] emit failed", e);
+      }
     },
     [socket]
   );
@@ -184,7 +188,11 @@ export const useSocketEmit = () => {
                 "📥 [useSocketEmit] Acknowledgement received:",
                 response
               );
-              callback(response);
+              try {
+                callback(response);
+              } catch (e) {
+                console.error("[useSocketEmit] Ack callback error", e);
+              }
             }
           );
         };
@@ -206,7 +214,11 @@ export const useSocketEmit = () => {
           message?: string;
         }) => {
           console.log("📥 [useSocketEmit] Acknowledgement received:", response);
-          callback(response);
+          try {
+            callback(response);
+          } catch (e) {
+            console.error("[useSocketEmit] Ack callback error", e);
+          }
         }
       );
     },

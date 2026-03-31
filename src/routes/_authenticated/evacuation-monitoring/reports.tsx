@@ -658,14 +658,21 @@ function ReportsDataTable() {
                     search as Record<string, string | undefined>
                   );
                   emitWithAck("evs_all", payload, (response) => {
-                    if (response.ok && response.url) {
-                      const baseUrl = getApiSocketBaseUrl();
-                      const downloadUrl = `${baseUrl}${response.url}`;
-                      window.open(downloadUrl, "_blank");
-                    } else {
+                    try {
+                      if (response.ok && response.url) {
+                        const baseUrl = getApiSocketBaseUrl();
+                        const downloadUrl = `${baseUrl}${response.url}`;
+                        window.open(downloadUrl, "_blank");
+                      } else {
+                        console.error(
+                          "Export failed:",
+                          response.error || "Unknown error"
+                        );
+                      }
+                    } catch (e) {
                       console.error(
-                        "Export failed:",
-                        response.error || "Unknown error"
+                        "[reports] Export All handler error (socket may be unavailable)",
+                        e
                       );
                     }
                   });
