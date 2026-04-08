@@ -17,7 +17,7 @@ declare global {
 import Spinner from "./spinner";
 import { toast } from "sonner";
 import useToastStyleTheme from "@/hooks/useToastStyleTheme";
-import { readRFIDData } from "@/utils/rfidReaderCommand";
+import { readRFIDData, stopRFID } from "@/utils/rfidReaderCommand";
 import {
   getEMLength,
   getIsSerialConnection,
@@ -35,6 +35,7 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "./breadcrumb";
+import { set } from "date-fns";
 
 //device filters
 // const filters = [
@@ -70,7 +71,6 @@ export default function EmpInfoDialog({
   const [deviceUHFValue, setDeviceUHFValue] = useState("");
   const [deviceMIFAREValue, setDeviceMIFAREValue] = useState("");
   const [deviceEMValue, setDeviceEMValue] = useState("");
-  const [isUHFLinking, setIsUHFLinking] = useState(false);
   const [isLinking, setIsLinking] = useState<CardType>(null);
   const [isUnlinking, setIsUnlinking] = useState(false);
   const { port, setPort } = usePortStore((store) => store);
@@ -108,6 +108,7 @@ export default function EmpInfoDialog({
     try {
       console.log("card is linking");
       setIsLinking("UHF");
+
       const data = await readRFIDData(newPort);
 
       if (UHFLength === data?.epc?.length) {
@@ -278,6 +279,12 @@ export default function EmpInfoDialog({
     };
   }, [isOpen, isLinking, UHFLength, EMLength, MIFARELength, employee]);
 
+  useEffect(() => {
+    return () => {
+      stopRFID();
+    };
+  }, [employee]);
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] p-8 bg-white rounded-lg shadow-xl">
@@ -332,11 +339,14 @@ export default function EmpInfoDialog({
                   <LinkCardInput
                     label="UHF Card"
                     value={employee.UHF || deviceUHFValue}
-                    isLinking={isUHFLinking}
+                    isLinking={isLinking === "UHF"}
                     isDeviceConnected={!!port}
                     onLinkCard={handleLinkCard}
                     onUnlinkCard={() => handleUnlinkCard("UHF")}
-                    onStopReading={() => setIsUHFLinking(false)}
+                    onStopReading={() => {
+                      stopRFID();
+                      setIsLinking(null);
+                    }}
                   />
                 )}
                 {!isSerialConnection && (

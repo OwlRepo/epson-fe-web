@@ -200,15 +200,15 @@ export const readEPC = async (port: any) => {
 //     }
 //   }
 // };
-
+let currentInterval: any;
 export const readRFIDData = async (port: any) => {
   try {
     return await new Promise<{ epc: string } | null>((resolve) => {
-      const intervalId = setInterval(async () => {
+      currentInterval = setInterval(async () => {
         const epc = await readEPC(port);
 
         if (epc) {
-          clearInterval(intervalId);
+          clearInterval(currentInterval);
           //   await new Promise((res) => setTimeout(res, 100)); // delay for 100ms
           //   const data = (await getUFHData(port, epc)) ?? "";
           resolve({ epc });
@@ -219,4 +219,9 @@ export const readRFIDData = async (port: any) => {
     console.error("Error reading RFID data:", error);
     return null;
   }
+};
+
+// 👇 kill from anywhere
+export const stopRFID = () => {
+  clearInterval(currentInterval);
 };

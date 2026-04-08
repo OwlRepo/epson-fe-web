@@ -105,7 +105,8 @@ export const LinkCardInput = forwardRef(
               onClick={onLinkCard}
               className=" text-white px-4 py-2 rounded text-sm font-semibold self-end w-32"
             >
-              Link a Card
+              Link a Card{" "}
+              {isLinking && <Spinner type={"button"} size={15} color="white" />}
             </Button>
           )}
           {isLinking && (
@@ -116,7 +117,12 @@ export const LinkCardInput = forwardRef(
                 onClick={onStopReading}
                 className=" text-white px-4 py-2 rounded text-sm font-semibold self-end w-32"
               >
-                <Spinner type={'button'} size={15} color="white"  containerClassName="w-auto" />
+                <Spinner
+                  type={"button"}
+                  size={15}
+                  color="white"
+                  containerClassName="w-auto"
+                />
                 Stop
               </Button>
             </>

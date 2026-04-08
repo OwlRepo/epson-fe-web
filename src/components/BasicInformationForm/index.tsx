@@ -16,7 +16,7 @@ import CapturePhoto from "./CapturePhoto";
 import usePortStore from "@/store/usePortStore";
 import { toast } from "sonner";
 import useToastStyleTheme from "@/hooks/useToastStyleTheme";
-import { readRFIDData } from "@/utils/rfidReaderCommand";
+import { readRFIDData, stopRFID } from "@/utils/rfidReaderCommand";
 import { getUHFLength } from "@/utils/env";
 import { addDays } from "date-fns";
 import { useGetHostPerson } from "@/hooks/query/useGeHostPersonList";
@@ -144,7 +144,7 @@ const handlePhoneKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
 
 const handlePhonePaste = (
   e: React.ClipboardEvent<HTMLInputElement>,
-  field: { onChange: (value: string) => void },
+  field: { onChange: (value: string) => void }
 ) => {
   e.preventDefault();
   const pastedText = e.clipboardData.getData("text");
@@ -164,7 +164,7 @@ const BasicInfromationForm = forwardRef(
       isReadOnly = false,
       isPending = false,
     }: BasicInformationFormProps,
-    ref,
+    ref
   ) => {
     const form = useForm<VisitorData>();
     const {
@@ -185,8 +185,6 @@ const BasicInfromationForm = forwardRef(
     const [openExtendDialog, setOpenExtendDialog] = useState(false);
 
     const { data } = useGetGuestTypeList();
-
-    console.log("basoc", isPending);
 
     const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -224,7 +222,7 @@ const BasicInfromationForm = forwardRef(
             },
             ...initialData,
           },
-          {},
+          {}
         );
       },
     }));
@@ -332,6 +330,12 @@ const BasicInfromationForm = forwardRef(
       handleSubmit((data) => onSubmitData?.({ ...data, type: "check-out" }))();
       setOpenConfirmationDialog(false);
     };
+
+    useEffect(() => {
+      return () => {
+        stopRFID();
+      };
+    }, []);
 
     return (
       <>
@@ -463,10 +467,10 @@ const BasicInfromationForm = forwardRef(
                             className="w-full h-[44px] border-red-600"
                             // readOnly={isDialog}
                             isError={fieldState.error?.message?.includes(
-                              "expired",
+                              "expired"
                             )}
                             isWarning={fieldState.error?.message?.includes(
-                              "soon",
+                              "soon"
                             )}
                           />
                           {fieldState.error &&
@@ -564,7 +568,10 @@ const BasicInfromationForm = forwardRef(
                       });
                       onUnlinkSubmit?.();
                     }}
-                    onStopReading={() => setIsLinking(false)}
+                    onStopReading={() => {
+                      stopRFID();
+                      setIsLinking(false);
+                    }}
                     value={watch("UHF") || ""}
                     errors={formState.errors}
                     {...register("UHF", {
@@ -596,7 +603,7 @@ const BasicInfromationForm = forwardRef(
                   disabled={!formState.isDirty}
                   className="disabled:bg-slate-400"
                   onClick={handleSubmit((data) =>
-                    onSubmitData?.({ ...data, type: "update-data" }),
+                    onSubmitData?.({ ...data, type: "update-data" })
                   )}
                 >
                   Save Changes
@@ -641,13 +648,13 @@ const BasicInfromationForm = forwardRef(
 
                   // Convert to UTC without timezone shift
                   const utcDate = new Date(
-                    Date.UTC(val.getFullYear(), val.getMonth(), val.getDate()),
+                    Date.UTC(val.getFullYear(), val.getMonth(), val.getDate())
                   );
 
                   setValue(
                     "Date",
                     { ...dateRange, to: utcDate.toISOString() },
-                    { shouldValidate: true, shouldDirty: true },
+                    { shouldValidate: true, shouldDirty: true }
                   );
                 }}
               />
@@ -666,7 +673,7 @@ const BasicInfromationForm = forwardRef(
         />
       </>
     );
-  },
+  }
 );
 
 export default BasicInfromationForm;
