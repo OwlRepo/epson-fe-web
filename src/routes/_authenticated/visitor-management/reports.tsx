@@ -86,6 +86,7 @@ function ReportsDataTable() {
   // Define columns
   const columns = [
     { key: "VisitorID", label: "ID" },
+    { key: "CardNo", label: "Card No." },
     { key: "Name", label: "Name" },
     { key: "CheckedIn", label: "Checked In" },
     { key: "CheckedOut", label: "Checked Out" },
