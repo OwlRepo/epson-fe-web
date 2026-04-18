@@ -19,8 +19,7 @@ import {
 import { LiveDataTable } from "@/components/ui/live-data-table";
 import Spinner from "@/components/ui/spinner";
 import { Switch } from "@/components/ui/switch";
-import { useSocket, useSocketEmit } from "@/hooks";
-import { useCheckoutVisitor } from "@/hooks/mutation/useCheckoutVisitor";
+import { useSocketEmit } from "@/hooks";
 import { useGetVisitorById } from "@/hooks/query/useGetVisitorById";
 import { useOverviewCountData } from "@/hooks/useOverviewCountData";
 import useToastStyleTheme from "@/hooks/useToastStyleTheme";
@@ -33,7 +32,14 @@ import {
   useNavigate,
   useSearch,
 } from "@tanstack/react-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import {
+  applyVmsLiveTableFilters,
+  getVmsCompany,
+  getVmsHostPerson,
+  getVmsVisitorType,
+} from "@/utils/vmsLiveRow";
+import type { LiveData } from "@/hooks/useSocket";
 import { toast } from "sonner";
 import useLiveDataTableStore from "@/store/vms/overview/useLiveDataTableStore";
 
@@ -106,6 +112,56 @@ function RouteComponent() {
     dataType: "live",
     statusFilter: flaggedRecords,
   });
+
+  const filteredLiveData = useMemo(
+    () =>
+      applyVmsLiveTableFilters(
+        liveData as unknown as Record<string, unknown>[],
+        search as Record<string, string | undefined>,
+      ) as unknown as LiveData[],
+    [liveData, search],
+  );
+
+  const liveTableFilters = useMemo(() => {
+    const rows = liveData as unknown as Record<string, unknown>[];
+    const uniqStrings = (getVal: (r: Record<string, unknown>) => string) => {
+      const s = new Set<string>();
+      rows.forEach((r) => {
+        const v = getVal(r)?.trim();
+        if (v) s.add(v);
+      });
+      return Array.from(s)
+        .sort()
+        .map((v) => ({ label: v, value: v }));
+    };
+    return [
+      {
+        key: "Name",
+        label: "Name",
+        options: uniqStrings((r) => String(r.Name ?? "")),
+      },
+      {
+        key: "Company",
+        label: "Company",
+        options: uniqStrings((r) => getVmsCompany(r)),
+      },
+      {
+        key: "HostPerson",
+        label: "Host Person",
+        options: uniqStrings((r) => getVmsHostPerson(r)),
+      },
+      {
+        key: "VisitorType",
+        label: "Visitor Type",
+        options: uniqStrings((r) => getVmsVisitorType(r)),
+      },
+      {
+        key: "vms_live_date_time",
+        label: "Date and time range",
+        isDateTimeRangePicker: true,
+      },
+    ];
+  }, [liveData]);
 
   return (
     <>
@@ -206,6 +262,18 @@ function RouteComponent() {
                     label: "NAME",
                   },
                   {
+                    key: "Company",
+                    label: "COMPANY",
+                  },
+                  {
+                    key: "HostPerson",
+                    label: "HOST PERSON",
+                  },
+                  {
+                    key: "VisitorType",
+                    label: "VISITOR TYPE",
+                  },
+                  {
                     key: "Purpose",
                     label: "PURPOSE",
                   },
@@ -218,49 +286,9 @@ function RouteComponent() {
                     label: "CHECKED OUT",
                   },
                 ]}
-                // filters={[
-                //   // {
-                //   //   key: "employee_id",
-                //   //   label: "ID",
-                //   //   options: Array.from(
-                //   //     new Set(liveData.map((item) => item.ID))
-                //   //   ).map((item) => ({
-                //   //     label: item,
-                //   //     value: item,
-                //   //   })),
-                //   // },
-                //   // {
-                //   //   key: "Name",
-                //   //   label: "Name",
-                //   //   options: Array.from(
-                //   //     new Set(liveData.map((item) => item.Name))
-                //   //   ).map((item) => ({
-                //   //     label: item,
-                //   //     value: item,
-                //   //   })),
-                //   // },
-                //   {
-                //     key: "clocked_in",
-                //     label: "Checked In",
-                //     options: Array.from(
-                //       new Set(liveData.map((item) => item.clocked_in ?? "-"))
-                //     ).map((item) => ({
-                //       label: item,
-                //       value: item,
-                //     })),
-                //   },
-                //   {
-                //     key: "clocked_out",
-                //     label: "Checked Out",
-                //     options: Array.from(
-                //       new Set(liveData.map((item) => item.clocked_out ?? "-"))
-                //     ).map((item) => ({
-                //       label: item,
-                //       value: item,
-                //     })),
-                //   },
-                // ]}
-                data={liveData.map((visitorData) => {
+                filters={liveTableFilters}
+                data={filteredLiveData.map((visitorData) => {
+                  const row = visitorData as unknown as Record<string, unknown>;
                   const {
                     ID,
                     Name,
@@ -273,6 +301,9 @@ function RouteComponent() {
                   return {
                     ID: ID,
                     Name: Name,
+                    Company: getVmsCompany(row) || "--",
+                    HostPerson: getVmsHostPerson(row) || "--",
+                    VisitorType: getVmsVisitorType(row) || "--",
                     Purpose: Purpose,
                     clocked_in: clocked_in,
                     clocked_out: clocked_out,
@@ -324,7 +355,6 @@ export const VisitorInformationDialog = ({
 
   const [isLoadingCheckout, setIsLoadingCheckout] = useState(false);
 
-  // const { mutate: checkoutVisitor, isSuccess } = useCheckoutVisitor();
   const { infoStyle, errorStyle, successStyle } = useToastStyleTheme();
   const [isLinking, setIsLinking] = useState(false);
   // const [socketData, setSocketData] = useState({});

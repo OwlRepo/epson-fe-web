@@ -4,7 +4,6 @@ import {
   useNavigate,
   useSearch,
 } from "@tanstack/react-router";
-// Import necessary components and hooks
 import { useEffect, useMemo, useState } from "react";
 import { DynamicTable } from "@/components/ui/dynamic-table";
 import useTableSelectionStore from "@/store/tableSelectionStore";
@@ -12,23 +11,33 @@ import useTableSelectionStore from "@/store/tableSelectionStore";
 import { objToParams } from "@/utils/objToParams";
 import { unparse } from "papaparse";
 import { useGetVisitorReports } from "@/hooks/query/useGetVisitorReports";
+import { useGetGuestTypeList } from "@/hooks/query/useGetGuestTypeList";
 import reportExportAll from "@/utils/reportExportAll";
+import { isAxiosError } from "axios";
+import {
+  getVmsCompany,
+  getVmsHostPerson,
+  getVmsVisitorType,
+} from "@/utils/vmsLiveRow";
 
 export interface VisitorReport {
   VisitorID: string;
+  CardNo?: string;
   Name: string;
-  Purpose: string;
+  Company?: string;
+  HostPerson?: string;
+  VisitorType?: string;
+  Purpose?: string;
   CheckedIn: string | null;
   CheckedOut: string | null;
 }
 
 export const Route = createFileRoute(
-  "/_authenticated/visitor-management/reports"
+  "/_authenticated/visitor-management/reports",
 )({
   component: RouteComponent,
 });
 
-// Component setup
 function ReportsDataTable() {
   const navigate = useNavigate({
     from: "/visitor-management/reports",
@@ -42,90 +51,129 @@ function ReportsDataTable() {
   const [totalPages, setTotalPages] = useState(10);
   const [totalItems, setTotalItems] = useState(10);
 
+  const queryString = useMemo(() => objToParams(search), [search]);
+
   const {
     data: reportList,
     isLoading,
-    refetch,
-  } = useGetVisitorReports(objToParams(search) as any);
+    isError,
+    error,
+  } = useGetVisitorReports(queryString);
+
+  const { data: guestTypeList } = useGetGuestTypeList();
 
   useEffect(() => {
-    if (Array.isArray(reportList?.data)) {
-      const data = reportList?.data.map((item: VisitorReport) => ({
-        ...item,
-        CheckedIn: item.CheckedIn,
-        CheckedOut: item.CheckedOut,
-      }));
-      setData(data);
-      setTotalPages(reportList?.pagination?.totalPages ?? 10);
-      setTotalItems(reportList?.pagination?.totalItems ?? 10);
+    if (isError) {
+      setData([]);
+      setTotalPages(1);
+      setTotalItems(0);
+      return;
     }
-  }, [reportList]);
+    if (Array.isArray(reportList?.data)) {
+      const mapped = reportList.data.map((item: Record<string, unknown>) => ({
+        ...item,
+        VisitorID: String(item.VisitorID ?? ""),
+        CardNo: item.CardNo != null ? String(item.CardNo) : undefined,
+        Name: String(item.Name ?? ""),
+        Company: getVmsCompany(item) || "--",
+        HostPerson: getVmsHostPerson(item) || "--",
+        VisitorType: getVmsVisitorType(item) || "--",
+        CheckedIn: (item.CheckedIn as string | null) ?? null,
+        CheckedOut: (item.CheckedOut as string | null) ?? null,
+      })) as VisitorReport[];
+      setData(mapped);
+      setTotalPages(reportList?.pagination?.totalPages ?? 1);
+      setTotalItems(reportList?.pagination?.totalItems ?? 0);
+    }
+  }, [reportList, isError]);
 
-  useEffect(() => {
-    refetch();
-  }, [search]);
+  const currentPage = parseInt(search.page || "1", 10);
+  const pageSize = parseInt(search.limit || "10", 10);
 
-  const currentPage = parseInt(search.page || "1");
-  const pageSize = parseInt(search.limit || "10");
-
-  // Fix selection hooks - use useMemo to prevent re-renders
   const tableId = "visitor-report-table";
 
   const selectedRows = useMemo(
     () => useTableSelectionStore.getState().getSelectedRows(tableId),
-    [useTableSelectionStore((state) => state.selectedRows[tableId])]
+    [useTableSelectionStore((state) => state.selectedRows[tableId])],
   );
 
-  // Add a subscriber to force re-renders when selection changes
   useEffect(() => {
     return useTableSelectionStore.subscribe(
-      (state) => state.selectedRows[tableId]
+      (state) => state.selectedRows[tableId],
     );
   }, [tableId]);
 
-  // Define columns
   const columns = [
     { key: "VisitorID", label: "ID" },
     { key: "CardNo", label: "Card No." },
     { key: "Name", label: "Name" },
+    { key: "Company", label: "Company" },
+    { key: "HostPerson", label: "Host Person" },
+    { key: "VisitorType", label: "Visitor Type" },
     { key: "CheckedIn", label: "Checked In" },
     { key: "CheckedOut", label: "Checked Out" },
   ];
 
-  const filters = [
-    // {
-    //   key: "VisitorID",
-    //   label: "ID",
-    //   options: Array.from(
-    //     new Set(reportList?.data.map((item: VisitorReport) => item.VisitorID))
-    //   ).map((item) => ({
-    //     label: item,
-    //     value: item,
-    //   })),
-    // },
-    // {
-    //   key: "Name",
-    //   label: "Name",
-    //   options: Array.from(
-    //     new Set(reportList?.data.map((item: VisitorReport) => item.Name))
-    //   ).map((item) => ({
-    //     label: item,
-    //     value: item,
-    //   })),
-    // },
-    {
-      key: "vms_reports_date",
-      label: "Date",
-      isDateRangePicker: true,
-    },
-  ];
+  const filters = useMemo(() => {
+    const rows = data as unknown as Record<string, unknown>[];
+    const uniqStrings = (getVal: (r: Record<string, unknown>) => string) => {
+      const s = new Set<string>();
+      rows.forEach((r) => {
+        const v = getVal(r)?.trim();
+        if (v) s.add(v);
+      });
+      return Array.from(s)
+        .sort()
+        .map((v) => ({ label: v, value: v }));
+    };
 
-  const handleExport = (exportData: any) => {
+    let visitorTypeOptions = uniqStrings((r) => getVmsVisitorType(r));
+    if (Array.isArray(guestTypeList) && guestTypeList.length > 0) {
+      visitorTypeOptions = guestTypeList.map(
+        (o: { label: string; value: string }) => ({
+          label: o.label,
+          value: o.label,
+        }),
+      );
+    }
+
+    return [
+      {
+        key: "Name",
+        label: "Name",
+        options: uniqStrings((r) => String(r.Name ?? "")),
+      },
+      {
+        key: "Company",
+        label: "Company",
+        options: uniqStrings((r) =>
+          getVmsCompany(r).trim() ? getVmsCompany(r) : "",
+        ),
+      },
+      {
+        key: "HostPerson",
+        label: "Host Person",
+        options: uniqStrings((r) =>
+          getVmsHostPerson(r).trim() ? getVmsHostPerson(r) : "",
+        ),
+      },
+      {
+        key: "VisitorType",
+        label: "Visitor Type",
+        options: visitorTypeOptions,
+      },
+      {
+        key: "vms_reports_date_time",
+        label: "Date and time range",
+        isDateTimeRangePicker: true,
+      },
+    ];
+  }, [data, guestTypeList]);
+
+  const handleExport = (exportData: unknown[]) => {
     const csv = unparse(exportData);
-
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
-
     const link = document.createElement("a");
     link.setAttribute("href", url);
     link.setAttribute("download", "report.csv");
@@ -134,20 +182,12 @@ function ReportsDataTable() {
     document.body.removeChild(link);
   };
 
-  // Handle selection changes
-  const handleRowSelectionChange = (selected: any) => {
-    // Perform actions with selected rows
-  };
+  const handleRowSelectionChange = (_selected: unknown) => {};
 
-  // Handle row click if needed
-  const handleRowClick = (row: any) => {
-    console.log("Clicked row:", row);
-  };
+  const handleRowClick = (_row: unknown) => {};
 
-  // Handlers for table interactions
   const handlePageChange = (page: number) => {
-    console.log("handlePageChange", page);
-    const parsedPage = parseInt(String(page));
+    const parsedPage = parseInt(String(page), 10);
     if (!isNaN(parsedPage) && parsedPage > 0) {
       navigate({
         search: (prev) => ({
@@ -160,8 +200,7 @@ function ReportsDataTable() {
   };
 
   const handlePageSizeChange = (size: number) => {
-    console.log("handlePageSizeChange", size);
-    const parsedSize = parseInt(String(size));
+    const parsedSize = parseInt(String(size), 10);
     if (!isNaN(parsedSize) && parsedSize > 0) {
       navigate({
         search: (prev) => ({
@@ -186,7 +225,6 @@ function ReportsDataTable() {
   };
 
   const handleSearch = (searchTerm: string) => {
-    console.log("handleSearch", searchTerm);
     navigate({
       search: (prev) => ({
         ...prev,
@@ -197,12 +235,31 @@ function ReportsDataTable() {
     });
   };
 
+  const errMessage = (() => {
+    if (!isError || !error) return null;
+    if (isAxiosError(error)) {
+      const msg =
+        (error.response?.data as { message?: string } | undefined)?.message ??
+        error.message;
+      return msg || "Unable to load reports.";
+    }
+    if (error instanceof Error) return error.message;
+    return "Unable to load reports.";
+  })();
+
   return (
-    <div>
-      {/* Render the table with multi-select enabled */}
+    <div className="space-y-2">
+      {errMessage && (
+        <p
+          className="text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-md px-3 py-2"
+          role="alert"
+        >
+          {errMessage} Showing an empty table until the API is available.
+        </p>
+      )}
       <DynamicTable
         columns={columns}
-        data={data ? data : []}
+        data={data ?? []}
         isLoading={isLoading}
         onRowClick={handleRowClick}
         onSearch={handleSearch}
@@ -233,13 +290,11 @@ function ReportsDataTable() {
             },
           ],
         }}
-        // Multi-select configuration
         enableRowSelection={true}
         tableId={tableId}
         rowIdField="VisitorID"
         onRowSelectionChange={handleRowSelectionChange}
         filters={filters}
-        // Other optional props
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
         onFilter={handleFilter}

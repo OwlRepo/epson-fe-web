@@ -73,6 +73,11 @@ export interface LiveData extends DeviceData, VisitorData {
   ERT: string;
   device_id: string;
   name: string;
+  /** VMS: company / host / visitor type (optional; socket may omit until backend deploys) */
+  Company?: string;
+  HostPerson?: string;
+  VisitorType?: string;
+  GuestType?: { id?: string; name?: string } | string;
   employee_id: string;
   employee_no: string;
   full_name: string;

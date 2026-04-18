@@ -18,6 +18,8 @@ const COMMON_INDEXES = [
   "name",
   "full_name",
   "Name",
+  "Company",
+  "HostPerson",
   "section",
   "department",
   "division",

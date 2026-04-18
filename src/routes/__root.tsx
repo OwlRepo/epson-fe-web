@@ -27,6 +27,20 @@ export const Route = createRootRoute({
         validated[key] = value as string;
       });
 
+    // Date / datetime range pickers (DynamicTable: from_<key> / to_<key>)
+    Object.entries(search)
+      .filter(
+        ([key]) => key.startsWith("from_") || key.startsWith("to_"),
+      )
+      .forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== "") {
+          validated[key] = String(value);
+        }
+      });
+
+    if (search.search) validated.search = search.search as string;
+    if (search.limit) validated.limit = search.limit as string;
+
     return validated;
   },
   component: () => (
