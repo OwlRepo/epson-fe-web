@@ -6,6 +6,8 @@
 
 **Note:** Org filter **keys** sent in socket/REST payloads are now **`Division`**, **`Department`**, **`Section`** (PascalCase). The client may still read legacy lowercase from old URLs. Full contract (Unlisted, date-time range, readiness): [`evs-reports-unlisted-datetime-sync-spec.md`](./evs-reports-unlisted-datetime-sync-spec.md).
 
+**Related (VMS):** Visitor Management uses the same “list endpoint + `useGet*List` hook” pattern for filter dropdowns (Name, Company, Host Person, Visitor Type) — see [`vms-filter-options-api-spec.md`](./vms-filter-options-api-spec.md).
+
 ---
 
 ## At a glance

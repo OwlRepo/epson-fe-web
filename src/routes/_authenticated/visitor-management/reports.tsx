@@ -12,8 +12,17 @@ import { objToParams } from "@/utils/objToParams";
 import { unparse } from "papaparse";
 import { useGetVisitorReports } from "@/hooks/query/useGetVisitorReports";
 import { useGetGuestTypeList } from "@/hooks/query/useGetGuestTypeList";
+import { useGetVmsCompanyList } from "@/hooks/query/useGetVmsCompanyList";
+import { useGetVmsHostPersonList } from "@/hooks/query/useGetVmsHostPersonList";
+import { useGetVmsVisitorNameList } from "@/hooks/query/useGetVmsVisitorNameList";
+import { useGetVmsVisitorTypeList } from "@/hooks/query/useGetVmsVisitorTypeList";
 import reportExportAll from "@/utils/reportExportAll";
 import { isAxiosError } from "axios";
+import {
+  preferApiOptions,
+  preferVisitorTypeReportOptions,
+  type VmsFilterOptionQueryInput,
+} from "@/utils/vmsFilterOptions";
 import {
   getVmsCompany,
   getVmsHostPerson,
@@ -61,6 +70,26 @@ function ReportsDataTable() {
   } = useGetVisitorReports(queryString);
 
   const { data: guestTypeList } = useGetGuestTypeList();
+
+  const filterOptionQuery = useMemo((): VmsFilterOptionQueryInput => {
+    return {
+      scope: "reports",
+      search: search.search,
+      fromVmsReportsDateTime: search.from_vms_reports_date_time,
+      toVmsReportsDateTime: search.to_vms_reports_date_time,
+    };
+  }, [
+    search.search,
+    search.from_vms_reports_date_time,
+    search.to_vms_reports_date_time,
+  ]);
+
+  const { data: apiNameOptions } = useGetVmsVisitorNameList(filterOptionQuery);
+  const { data: apiCompanyOptions } = useGetVmsCompanyList(filterOptionQuery);
+  const { data: apiHostPersonOptions } =
+    useGetVmsHostPersonList(filterOptionQuery);
+  const { data: apiVisitorTypeOptions } =
+    useGetVmsVisitorTypeList(filterOptionQuery);
 
   useEffect(() => {
     if (isError) {
@@ -127,34 +156,44 @@ function ReportsDataTable() {
         .map((v) => ({ label: v, value: v }));
     };
 
-    let visitorTypeOptions = uniqStrings((r) => getVmsVisitorType(r));
-    if (Array.isArray(guestTypeList) && guestTypeList.length > 0) {
-      visitorTypeOptions = guestTypeList.map(
-        (o: { label: string; value: string }) => ({
-          label: o.label,
-          value: o.label,
-        }),
-      );
-    }
+    const guestTypeAsOptions =
+      Array.isArray(guestTypeList) && guestTypeList.length > 0
+        ? guestTypeList.map((o: { label: string; value: string }) => ({
+            label: o.label,
+            value: o.label,
+          }))
+        : undefined;
+
+    const visitorTypeOptions = preferVisitorTypeReportOptions(
+      apiVisitorTypeOptions,
+      guestTypeAsOptions,
+      () => uniqStrings((r) => getVmsVisitorType(r)),
+    );
 
     return [
       {
         key: "Name",
         label: "Name",
-        options: uniqStrings((r) => String(r.Name ?? "")),
+        options: preferApiOptions(apiNameOptions, () =>
+          uniqStrings((r) => String(r.Name ?? "")),
+        ),
       },
       {
         key: "Company",
         label: "Company",
-        options: uniqStrings((r) =>
-          getVmsCompany(r).trim() ? getVmsCompany(r) : "",
+        options: preferApiOptions(apiCompanyOptions, () =>
+          uniqStrings((r) =>
+            getVmsCompany(r).trim() ? getVmsCompany(r) : "",
+          ),
         ),
       },
       {
         key: "HostPerson",
         label: "Host Person",
-        options: uniqStrings((r) =>
-          getVmsHostPerson(r).trim() ? getVmsHostPerson(r) : "",
+        options: preferApiOptions(apiHostPersonOptions, () =>
+          uniqStrings((r) =>
+            getVmsHostPerson(r).trim() ? getVmsHostPerson(r) : "",
+          ),
         ),
       },
       {
@@ -168,7 +207,14 @@ function ReportsDataTable() {
         isDateTimeRangePicker: true,
       },
     ];
-  }, [data, guestTypeList]);
+  }, [
+    data,
+    guestTypeList,
+    apiNameOptions,
+    apiCompanyOptions,
+    apiHostPersonOptions,
+    apiVisitorTypeOptions,
+  ]);
 
   const handleExport = (exportData: unknown[]) => {
     const csv = unparse(exportData);

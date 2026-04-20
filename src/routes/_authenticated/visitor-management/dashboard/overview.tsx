@@ -21,6 +21,10 @@ import Spinner from "@/components/ui/spinner";
 import { Switch } from "@/components/ui/switch";
 import { useSocketEmit } from "@/hooks";
 import { useGetVisitorById } from "@/hooks/query/useGetVisitorById";
+import { useGetVmsCompanyList } from "@/hooks/query/useGetVmsCompanyList";
+import { useGetVmsHostPersonList } from "@/hooks/query/useGetVmsHostPersonList";
+import { useGetVmsVisitorNameList } from "@/hooks/query/useGetVmsVisitorNameList";
+import { useGetVmsVisitorTypeList } from "@/hooks/query/useGetVmsVisitorTypeList";
 import { useOverviewCountData } from "@/hooks/useOverviewCountData";
 import useToastStyleTheme from "@/hooks/useToastStyleTheme";
 import usePortStore from "@/store/usePortStore";
@@ -33,6 +37,7 @@ import {
   useSearch,
 } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import { preferApiOptions, type VmsFilterOptionQueryInput } from "@/utils/vmsFilterOptions";
 import {
   applyVmsLiveTableFilters,
   getVmsCompany,
@@ -122,6 +127,26 @@ function RouteComponent() {
     [liveData, search],
   );
 
+  const filterOptionQuery = useMemo((): VmsFilterOptionQueryInput => {
+    return {
+      scope: "live",
+      search: search.search,
+      fromVmsLiveDateTime: search.from_vms_live_date_time,
+      toVmsLiveDateTime: search.to_vms_live_date_time,
+    };
+  }, [
+    search.search,
+    search.from_vms_live_date_time,
+    search.to_vms_live_date_time,
+  ]);
+
+  const { data: apiNameOptions } = useGetVmsVisitorNameList(filterOptionQuery);
+  const { data: apiCompanyOptions } = useGetVmsCompanyList(filterOptionQuery);
+  const { data: apiHostPersonOptions } =
+    useGetVmsHostPersonList(filterOptionQuery);
+  const { data: apiVisitorTypeOptions } =
+    useGetVmsVisitorTypeList(filterOptionQuery);
+
   const liveTableFilters = useMemo(() => {
     const rows = liveData as unknown as Record<string, unknown>[];
     const uniqStrings = (getVal: (r: Record<string, unknown>) => string) => {
@@ -138,22 +163,30 @@ function RouteComponent() {
       {
         key: "Name",
         label: "Name",
-        options: uniqStrings((r) => String(r.Name ?? "")),
+        options: preferApiOptions(apiNameOptions, () =>
+          uniqStrings((r) => String(r.Name ?? "")),
+        ),
       },
       {
         key: "Company",
         label: "Company",
-        options: uniqStrings((r) => getVmsCompany(r)),
+        options: preferApiOptions(apiCompanyOptions, () =>
+          uniqStrings((r) => getVmsCompany(r)),
+        ),
       },
       {
         key: "HostPerson",
         label: "Host Person",
-        options: uniqStrings((r) => getVmsHostPerson(r)),
+        options: preferApiOptions(apiHostPersonOptions, () =>
+          uniqStrings((r) => getVmsHostPerson(r)),
+        ),
       },
       {
         key: "VisitorType",
         label: "Visitor Type",
-        options: uniqStrings((r) => getVmsVisitorType(r)),
+        options: preferApiOptions(apiVisitorTypeOptions, () =>
+          uniqStrings((r) => getVmsVisitorType(r)),
+        ),
       },
       {
         key: "vms_live_date_time",
@@ -161,7 +194,13 @@ function RouteComponent() {
         isDateTimeRangePicker: true,
       },
     ];
-  }, [liveData]);
+  }, [
+    liveData,
+    apiNameOptions,
+    apiCompanyOptions,
+    apiHostPersonOptions,
+    apiVisitorTypeOptions,
+  ]);
 
   return (
     <>
