@@ -155,6 +155,8 @@ interface DynamicTableProps {
   totalCount?: number;
   // Custom header actions to render next to search bar
   headerActions?: React.ReactNode;
+  isInteractionLocked?: boolean;
+  interactionLockMessage?: string;
 }
 
 export function DynamicTable({
@@ -189,6 +191,8 @@ export function DynamicTable({
   totalCount,
   // Custom header actions
   headerActions,
+  isInteractionLocked = false,
+  interactionLockMessage = "Sync in progress. Controls are temporarily disabled while loading new dataset.",
 }: DynamicTableProps) {
   const navigate = useNavigate();
   const [filterSearches, setFilterSearches] = React.useState<
@@ -729,6 +733,16 @@ export function DynamicTable({
     data.length > 0 &&
     data.every((row) => isSelected(tableId, String(row[rowIdField])));
 
+  const activeFilterCount = React.useMemo(
+    () =>
+      filters.reduce(
+        (count, filter) =>
+          count + (getActiveFilters(filter.key).length > 0 ? 1 : 0),
+        0
+      ),
+    [filters, routeSearch, searchKey]
+  );
+
   return (
     <div className={cn("w-full relative")}>
       <div
@@ -751,6 +765,7 @@ export function DynamicTable({
                 placeholder="Search..."
                 value={searchTerm}
                 onChange={handleSearchInput}
+                disabled={isInteractionLocked}
                 className="w--full pl-9 ml-1 mt-1 bg-background shadow-[0_0_0_1px_rgba(0,0,0,0.08)] hover:shadow-[0_0_0_1px_rgba(0,0,0,0.12)] focus-visible:shadow-[0_0_0_1px_rgba(0,0,0,0.12)] border-0 rounded-md"
               />
               {onClearSearch && searchTerm && (
@@ -773,20 +788,12 @@ export function DynamicTable({
                 <Button
                   variant="default"
                   className="flex items-center shadow-none bg-[#F4F4F4] hover:bg-gray-300 text-black"
-                  disabled={isLoading}
+                  disabled={isLoading || isInteractionLocked}
                 >
                   Filters
-                  {Object.keys(filters).reduce(
-                    (count, key) =>
-                      count + (getActiveFilters(key).length > 0 ? 1 : 0),
-                    0
-                  ) > 0 && (
+                  {activeFilterCount > 0 && (
                     <span className="ml-1 rounded-full bg-primary text-primary-foreground px-1.5 text-xs">
-                      {Object.keys(filters).reduce(
-                        (count, key) =>
-                          count + (getActiveFilters(key).length > 0 ? 1 : 0),
-                        0
-                      )}
+                      {activeFilterCount}
                     </span>
                   )}
                   <ChevronDown />
@@ -1229,6 +1236,11 @@ export function DynamicTable({
                 </div>
               </SheetContent>
             </Sheet>
+          )}
+          {isInteractionLocked && (
+            <div className="text-xs text-muted-foreground bg-muted px-3 py-2 rounded-md">
+              {interactionLockMessage}
+            </div>
           )}
           {onClearTable && (
             <Button

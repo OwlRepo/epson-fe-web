@@ -11,7 +11,7 @@ import {
   useNavigate,
   useSearch,
 } from "@tanstack/react-router";
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 
 import EVSCounts from "@/components/ui/evs-counts";
 import { Switch } from "@/components/ui/switch";
@@ -80,8 +80,6 @@ function RouteComponent() {
   const { emit } = useSocketEmit();
   const [visitorResponse, setVisitorResponse] = useState<any>(null);
   const dialogSocketRef = useRef<Socket | null>(null);
-  // Refresh key to force table re-render when data updates
-  const [tableRefreshKey, setTableRefreshKey] = useState(0);
 
   // Create emitData function for VisitorEvacueeInfoDialog
   const emitData = (event: string, data: any) => {
@@ -262,8 +260,6 @@ function RouteComponent() {
         previousSocketRowsRef.current = socketRows.map((item: any) => ({
           ...item,
         }));
-        // Increment refresh key to force table component re-render
-        setTableRefreshKey((prev) => prev + 1);
       } else {
         // For pages > 1, merge updates into accumulated data
         // This handles live updates to records that are already in accumulated data
@@ -346,6 +342,11 @@ function RouteComponent() {
     }
   }, [socketRows, search.page, routeSearchWithFilter]);
 
+  const hasAccumulatedData = accumulatedData.length > 0;
+  const showInitialLoader =
+    !hasAccumulatedData && (!isSocketConnected || isSocketLoading);
+  const isSyncLocked = hasAccumulatedData && isSocketLoading;
+
   // Map counts from response format to EVSCounts format
   const countData = useMemo(() => {
     if (!socketCounts) return null;
@@ -359,7 +360,7 @@ function RouteComponent() {
   }, [socketCounts]);
 
   // Handle filter changes
-  const handleFilter = (key: string, value: string) => {
+  const handleFilter = useCallback((key: string, value: string) => {
     navigate({
       search: (prev) => ({
         ...prev,
@@ -368,10 +369,10 @@ function RouteComponent() {
       }),
       replace: true,
     });
-  };
+  }, [navigate]);
 
   // Handle search
-  const handleSearch = (searchTerm: string) => {
+  const handleSearch = useCallback((searchTerm: string) => {
     navigate({
       search: (prev) => ({
         ...prev,
@@ -380,10 +381,10 @@ function RouteComponent() {
       }),
       replace: true,
     });
-  };
+  }, [navigate]);
 
   // Handle Load More
-  const handleLoadMore = async () => {
+  const handleLoadMore = useCallback(async () => {
     const currentPage = parseInt(search.page || "1");
     const nextPage = currentPage + 1;
     navigate({
@@ -393,10 +394,10 @@ function RouteComponent() {
       }),
       replace: true,
     });
-  };
+  }, [navigate, search.page]);
 
   // Handle Missing People toggle
-  const handleMissingToggle = (checked: boolean) => {
+  const handleMissingToggle = useCallback((checked: boolean) => {
     setFlaggedRecords(checked);
     navigate({
       search: (prev) => ({
@@ -406,7 +407,128 @@ function RouteComponent() {
       }),
       replace: true,
     });
-  };
+  }, [navigate]);
+
+  const tableColumns = useMemo(
+    () => [
+      { key: "ID", label: "ID" },
+      { key: "Name", label: "Name" },
+      { key: "Type", label: "Type" },
+      { key: "Status", label: "Status" },
+      { key: "EvacuationTime", label: "Evacuation Date and Time" },
+      { key: "device_name", label: "Device Name" },
+    ],
+    []
+  );
+
+  const tableData = useMemo(
+    () =>
+      accumulatedData
+        .map((item: any) => {
+          const rawStatus = item.eva_status || item.Status || "Unknown";
+          const status = rawStatus;
+          const dateTimeValue = item.date_time || item.EvacuationTime || null;
+          return {
+            ...item,
+            ID: item.ID || item.employee_id || item.EmployeeNo,
+            Name: item.Name || item.full_name,
+            Type: item.Type || item.user_type,
+            employee_id: item.employee_id || item.ID || item.EmployeeNo,
+            full_name: item.full_name || item.Name,
+            user_type: item.user_type || item.Type,
+            eva_status: item.eva_status || item.Status,
+            raw_status: status,
+            epc: item.epc,
+            remarks: item.remarks || item.Remarks || "",
+            date_time: dateTimeValue,
+            log_time: item.log_time,
+            Status: (
+              <Badge
+                key={`${item.epc || item.employee_id || item.ID}-${status}-${dateTimeValue}`}
+                className={cn(
+                  `rounded-full border`,
+                  status === "Missing" &&
+                    "border-red-200 border bg-red-50 text-red-500 hover:text-white hover:bg-red-500/80",
+                  status === "Safe" &&
+                    "border-green-200 border bg-green-50 text-green-500 hover:text-white hover:bg-green-500/80",
+                  status === "Injured" &&
+                    "border-yellow-200 border bg-yellow-50 text-yellow-500 hover:text-white hover:bg-yellow-500/80",
+                  status === "Home" &&
+                    "border-blue-200 border bg-blue-50 text-blue-500 hover:text-white hover:bg-blue-500/80"
+                )}
+                variant="default"
+              >
+                {status}
+              </Badge>
+            ),
+            EvacuationTime: dateTimeValue
+              ? dayjs(dateTimeValue).format("MMM D, YYYY hh:mm a")
+              : null,
+            device_name: item.device_name || item.DeviceName || "",
+          };
+        })
+        .sort((a, b) => {
+          const dateA = new Date(a.date_time || 0).getTime();
+          const dateB = new Date(b.date_time || 0).getTime();
+          return dateB - dateA;
+        }),
+    [accumulatedData]
+  );
+
+  const tableFilters = useMemo(
+    () => [
+      {
+        key: "Type",
+        label: "Type",
+        options: Array.from(
+          new Set(accumulatedData.map((item: any) => item.Type || item.user_type))
+        )
+          .filter(Boolean)
+          .map((item) => ({ label: item, value: item })),
+      },
+      {
+        key: "Status",
+        label: "Status",
+        options: [
+          { label: "Total Evacuees", value: "Safe" },
+          ...["Injured", "Home", "Missing"].map((item) => ({
+            label: item,
+            value: item,
+          })),
+        ],
+      },
+      {
+        key: "DeviceName",
+        label: "Device Name",
+        options: Array.from(
+          new Set(
+            accumulatedData.map((item: any) => item.device_name || item.DeviceName)
+          )
+        )
+          .filter(Boolean)
+          .map((item) => ({ label: item, value: item })),
+      },
+    ],
+    [accumulatedData]
+  );
+
+  const handleRowClick = useCallback((row: any) => {
+    const evacueeData = {
+      ...row,
+      employee_id: row.employee_id || row.ID || row.EmployeeNo,
+      raw_status: row.raw_status || row.Status || row.eva_status,
+      epc: row.epc,
+      remarks: row.remarks || row.Remarks || "",
+      type: row.Type || row.user_type || row.type,
+    };
+    setEvacuee(evacueeData);
+    const type = evacueeData.type;
+    if (type === "Employee") {
+      setOpenEvacueeDialog(true);
+    } else {
+      setOpenVisitorDialog(true);
+    }
+  }, []);
 
   return (
     <div className="space-y-8">
@@ -453,159 +575,19 @@ function RouteComponent() {
           />
         }
       >
-        {isSocketConnected && !isSocketLoading ? (
-          <div className="flex" key={tableRefreshKey}>
+        {showInitialLoader ? (
+          <div className="flex flex-col items-center justify-center space-y-2 w-full col-span-4 p-10">
+            <Spinner />
+            <p>Loading...</p>
+          </div>
+        ) : (
+          <div className="flex">
             <SocketDynamicTable
-              columns={[
-                {
-                  key: "ID",
-                  label: "ID",
-                },
-                {
-                  key: "Name",
-                  label: "Name",
-                },
-                {
-                  key: "Type",
-                  label: "Type",
-                },
-                {
-                  key: "Status",
-                  label: "Status",
-                },
-                {
-                  key: "EvacuationTime",
-                  label: "Evacuation Date and Time",
-                },
-                {
-                  key: "device_name",
-                  label: "Device Name",
-                },
-              ]}
-              data={accumulatedData
-                .map((item: any) => {
-                  // Get the raw status value (prioritize updated fields)
-                  // Check both Status and eva_status to handle updates
-                  const rawStatus = item.eva_status || item.Status || "Unknown";
-                  // Ensure we use the most recent status value
-                  const status = rawStatus;
-
-                  // Get the most recent date_time value
-                  const dateTimeValue =
-                    item.date_time || item.EvacuationTime || null;
-
-                  return {
-                    ...item,
-                    ID: item.ID || item.employee_id || item.EmployeeNo,
-                    Name: item.Name || item.full_name,
-                    Type: item.Type || item.user_type,
-                    // Preserve original fields needed by dialogs
-                    employee_id: item.employee_id || item.ID || item.EmployeeNo,
-                    full_name: item.full_name || item.Name,
-                    user_type: item.user_type || item.Type,
-                    eva_status: item.eva_status || item.Status,
-                    raw_status: status, // Needed by dialogs - use the actual status value
-                    epc: item.epc, // Needed for epc_eva_updates
-                    remarks: item.remarks || item.Remarks || "",
-                    date_time: dateTimeValue, // Preserve the most recent date_time
-                    log_time: item.log_time,
-                    Status: (
-                      <Badge
-                        key={`${item.epc || item.employee_id || item.ID}-${status}-${dateTimeValue}`}
-                        className={cn(
-                          `rounded-full border`,
-                          status === "Missing" &&
-                            "border-red-200 border bg-red-50 text-red-500 hover:text-white hover:bg-red-500/80",
-                          status === "Safe" &&
-                            "border-green-200 border bg-green-50 text-green-500 hover:text-white hover:bg-green-500/80",
-                          status === "Injured" &&
-                            "border-yellow-200 border bg-yellow-50 text-yellow-500 hover:text-white hover:bg-yellow-500/80",
-                          status === "Home" &&
-                            "border-blue-200 border bg-blue-50 text-blue-500 hover:text-white hover:bg-blue-500/80"
-                        )}
-                        variant="default"
-                      >
-                        {status}
-                      </Badge>
-                    ),
-                    EvacuationTime: dateTimeValue
-                      ? dayjs(dateTimeValue).format("MMM D, YYYY hh:mm a")
-                      : null,
-                    device_name: item.device_name || item.DeviceName || "",
-                  };
-                })
-                .sort((a, b) => {
-                  const dateA = new Date(a.date_time || 0).getTime();
-                  const dateB = new Date(b.date_time || 0).getTime();
-                  return dateB - dateA; // Descending order (newest first)
-                })}
-              filters={[
-                {
-                  key: "Type",
-                  label: "Type",
-                  options: Array.from(
-                    new Set(
-                      accumulatedData.map(
-                        (item: any) => item.Type || item.user_type
-                      )
-                    )
-                  )
-                    .filter(Boolean)
-                    .map((item) => ({
-                      label: item,
-                      value: item,
-                    })),
-                },
-                {
-                  key: "Status",
-                  label: "Status",
-                  options: [
-                    {
-                      label: "Total Evacuees",
-                      value: "Safe",
-                    },
-                    ...["Injured", "Home", "Missing"].map((item) => ({
-                      label: item,
-                      value: item,
-                    })),
-                  ],
-                },
-                {
-                  key: "DeviceName",
-                  label: "Device Name",
-                  options: Array.from(
-                    new Set(
-                      accumulatedData.map(
-                        (item: any) => item.device_name || item.DeviceName
-                      )
-                    )
-                  )
-                    .filter(Boolean)
-                    .map((item) => ({
-                      label: item,
-                      value: item,
-                    })),
-                },
-              ]}
+              columns={tableColumns}
+              data={tableData}
+              filters={tableFilters}
               isLoading={isSocketLoading}
-              onRowClick={(row) => {
-                // Ensure all required fields are present for dialogs
-                const evacueeData = {
-                  ...row,
-                  employee_id: row.employee_id || row.ID || row.EmployeeNo,
-                  raw_status: row.raw_status || row.Status || row.eva_status,
-                  epc: row.epc,
-                  remarks: row.remarks || row.Remarks || "",
-                  type: row.Type || row.user_type || row.type,
-                };
-                setEvacuee(evacueeData);
-                const type = evacueeData.type;
-                if (type === "Employee") {
-                  setOpenEvacueeDialog(true);
-                } else {
-                  setOpenVisitorDialog(true);
-                }
-              }}
+              onRowClick={handleRowClick}
               onSearch={handleSearch}
               routeSearch={routeSearchWithFilter}
               onFilter={handleFilter}
@@ -613,12 +595,9 @@ function RouteComponent() {
               isLoadingMore={false}
               totalCount={socketMeta?.totalItems}
               tableId="evs-table"
+              isInteractionLocked={isSyncLocked}
+              interactionLockMessage="Sync in progress. Controls are temporarily disabled while loading new dataset."
             />
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center space-y-2 w-full col-span-4 p-10">
-            <Spinner />
-            <p>Loading...</p>
           </div>
         )}
       </CardSection>

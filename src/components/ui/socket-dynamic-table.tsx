@@ -5,6 +5,7 @@ import type {
   PaginationConfig,
   ExportTableData,
 } from "@/components/ui/dynamic-table";
+import React from "react";
 
 interface SocketDynamicTableProps {
   columns: Column[];
@@ -31,9 +32,11 @@ interface SocketDynamicTableProps {
   onLoadMore?: () => Promise<void>;
   isLoadingMore?: boolean;
   totalCount?: number;
+  isInteractionLocked?: boolean;
+  interactionLockMessage?: string;
 }
 
-export function SocketDynamicTable(props: SocketDynamicTableProps) {
+function SocketDynamicTableComponent(props: SocketDynamicTableProps) {
   return (
     <DynamicTable
       {...props}
@@ -43,5 +46,7 @@ export function SocketDynamicTable(props: SocketDynamicTableProps) {
     />
   );
 }
+
+export const SocketDynamicTable = React.memo(SocketDynamicTableComponent);
 
 export default SocketDynamicTable;
