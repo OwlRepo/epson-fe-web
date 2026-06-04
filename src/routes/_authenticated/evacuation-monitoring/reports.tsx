@@ -21,7 +21,7 @@ import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import reportExportAll from "@/utils/reportExportAll";
 import { useGetDepartmentList } from "@/hooks/query/useGetDepartmentList";
-import { useGetDeviceList } from "@/hooks/query/useGetDeviceList";
+import { useGetEVSSocketDeviceList } from "@/hooks/query/useGetEVSSocketDeviceList";
 import { useGetDivisionList } from "@/hooks/query/useGetDivisionList";
 import { useGetSectionList } from "@/hooks/query/useGetSectionList";
 import { usePaginatedTableSocket } from "@/hooks/socket/usePaginatedTableSocket";
@@ -227,7 +227,7 @@ function ReportsDataTable() {
   }, [reportList]);
 
   const { data: typeList } = useGetTypeList();
-  const { data: deviceList } = useGetDeviceList();
+  const { data: deviceList } = useGetEVSSocketDeviceList();
   const { data: divisionList } = useGetDivisionList();
   const { data: departmentList } = useGetDepartmentList();
   const { data: sectionList } = useGetSectionList();
