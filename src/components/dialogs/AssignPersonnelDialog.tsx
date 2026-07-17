@@ -16,7 +16,7 @@ import { Input } from "../ui/input";
 import { toast } from "sonner";
 import { readRFIDData } from "@/utils/rfidReaderCommand";
 import { cn } from "@/lib/utils";
-import { useGetDepartmentList } from "@/hooks/query/useGetDepartmentList";
+import { useGetCdeproDepartmentList } from "@/hooks/query/useGetCdeproDepartmentList";
 import { useGetEmployeeByNo } from "@/hooks/query/useGetEmployeeById";
 import { ConfirmationDialog } from "./ConfirmationDialog";
 import { AutoSuggest } from "../inputs/AutoSuggest";
@@ -55,7 +55,7 @@ const AssignPersonnelDialog = ({
     null
   );
 
-  const { data: departmentList } = useGetDepartmentList();
+  const { data: departmentList } = useGetCdeproDepartmentList();
   const { data: ERTList } = useGetERTList();
 
   const { data: employee } = useGetEmployeeByNo(watch("EmployeeNo") ?? "");
